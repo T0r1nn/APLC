@@ -17,48 +17,56 @@ using GameNetcodeStuff;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
-using UnityEngine.Analytics;
 using UnityEngine.UIElements.Collections;
 using Object = System.Object;
 using Random = System.Random;
 
 namespace APLC
 {
-    class Conifg
-    {
-        public string url { get; set; }
-        public int port { get; set; }
-        public string slot { get; set; }
-    }
-    
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     [BepInProcess("Lethal Company.exe")]
     public class Plugin : BaseUnityPlugin
     {
+        //Death link service for when death link is enabled
         private DeathLinkService dlService;
         
+        //Harmony for patching
         private readonly Harmony _harmony = new(PluginInfo.PLUGIN_GUID);
 
+        //Instance of the plugin for other classes to access
         public static Plugin _instance;
 
+        //Maps the item names to a array of three integers
+        //  0: The index in the array the item is(for example, 0 for walkie-talkie)
+        //  1: The initial price of the item(since we overwrite it we want to store it somewhere so we can replace the insanely high price with this when the item is unlocked
+        //  2: The type of item it is. 0 for shop items, 1 for ship upgrades, 2 for moons
         private Dictionary<String, int[]> itemMap = new Dictionary<string, int[]>();
 
+        //Maps the name of the moon to its number because the terminal nodes that refer to moons are named based off of number and not their actual name 
         private Dictionary<String, String> moonNameMap = new Dictionary<String, String>();
 
+        //Some code should only run once, like defining the itemMap, this makes that happen.
         private bool firstTimeSetup = true;
 
+        //You only want to use things if they exist, this makes sure every object we need exists before messing with them
         private bool gameStarted = false;
 
+        //Checks if an item has already been received, if it hasn't we set its index to true and do whatever is required to receive it
         private bool[] received = new bool[100];
+        //Checks if a bestiary entry has already been checked so we don't spam the server with useless info.
         private bool[] checkedMonsters = new bool[17];
+        //Same as above but for logs
         private bool[] checkedLogs = new bool[7];
 
+        //The archipelago sesion
         private ArchipelagoSession session;
         
+        //Sometimes we aren't ready to receive certain items, so we mark them as received and que them by incrementing these variables
         private int moneyItemsWaiting = 0;
         private int hauntItemsWaiting = 0;
         private int brackenItemsWaiting = 0;
 
+        //Useful 
         private int totalMoneyItems = 0;
 
         private bool successfullyConnected = false;

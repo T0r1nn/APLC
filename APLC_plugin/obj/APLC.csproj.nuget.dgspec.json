@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tyler\\RiderProjects\\AP_LC\\APLC\\APLC.csproj": {}
+    "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tyler\\RiderProjects\\AP_LC\\APLC\\APLC.csproj": {
+    "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj": {
       "version": "0.0.1",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tyler\\RiderProjects\\AP_LC\\APLC\\APLC.csproj",
+        "projectUniqueName": "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
         "projectName": "APLC",
-        "projectPath": "C:\\Users\\tyler\\RiderProjects\\AP_LC\\APLC\\APLC.csproj",
+        "projectPath": "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
         "packagesPath": "C:\\Users\\tyler\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tyler\\RiderProjects\\AP_LC\\APLC\\obj\\",
+        "outputPath": "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\tyler\\RiderProjects\\AP_LC\\APLC\\NuGet.Config",
+          "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\NuGet.Config",
           "C:\\Users\\tyler\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
