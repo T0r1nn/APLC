@@ -437,7 +437,7 @@ namespace APLC
                 {
                     checkNum++;
                     _instance.moonChecks[i]++;
-                    _instance.session.DataStorage["moonChecks"] = new JObject(_instance.moonChecks);
+                    _instance.session.DataStorage["moonChecks"] = new JArray(_instance.moonChecks);
                     _instance.CompleteLocation($"{moon} check {checkNum}");
                 }
             }
