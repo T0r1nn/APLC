@@ -330,7 +330,7 @@ namespace APLC
 
                 LoginResult result =
                     session.TryConnectAndLogin("Lethal Company", slotName, ItemsHandlingFlags.AllItems,
-                        new Version(0, 4, 3), new[] { "Death Link" }, password: password);
+                        new Version(0, 4, 4), new[] { "Death Link" }, password: password);
 
                 if (!result.Successful)
                 {
