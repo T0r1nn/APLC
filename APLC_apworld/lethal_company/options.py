@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from Options import Toggle, DeathLink, Range, Choice, per_game_common_options
+from Options import Toggle, DeathLink, Range, Choice, PerGameCommonOptions
 
 
 class Goal(Choice):
@@ -82,15 +82,14 @@ class MoneyWeight(Range):
     default = 80
 
 
-per_game_common_options = {
-    **per_game_common_options,
-    "goal": Goal,
-    "checks_per_moon": ChecksPerMoon,
-    "money_per_quota_check": MoneyPerQuotaCheck,
-    "num_quotas": NumQuotas,
-    "enable_inventory_unlock": EnableInventoryUnlock,
-    "bracken_trap": BrackenTrapWeight,
-    "haunt_trap": HauntTrapWeight,
-    "money": MoneyWeight,
-    "death_link": DeathLink
-}
+@dataclass
+class LCOptions(PerGameCommonOptions):
+    game_mode: Goal
+    checks_per_moon: ChecksPerMoon
+    money_per_quota_check: MoneyPerQuotaCheck
+    num_quotas: NumQuotas
+    enable_inventory_unlock: EnableInventoryUnlock
+    bracken_trap: BrackenTrapWeight
+    haunt_trap: HauntTrapWeight
+    money: MoneyWeight
+    death_link: DeathLink

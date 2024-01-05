@@ -5,7 +5,7 @@ from .locations import LethalCompanyLocation, generate_locations, max_locations
 from .rules import set_rules
 from .lcenvironments import moons, shift_by_offset
 from BaseClasses import Item, ItemClassification, Tutorial, MultiWorld, Region
-from .options import per_game_common_options
+from .options import LCOptions
 from worlds.AutoWorld import World, WebWorld
 from typing import List, Dict, Any
 from .regions import create_regions
@@ -28,7 +28,8 @@ class LethalCompanyWorld(World):
     We thank you for your efforts. There is nothing to worry about, absolutely zero danger to your health.
     """
     game = "Lethal Company"
-    option_definitions = per_game_common_options
+    options_dataclass = LCOptions
+    options: LCOptions
     topology_present = False
 
     item_name_to_id = item_table
@@ -107,7 +108,7 @@ class LethalCompanyWorld(World):
 
     def fill_slot_data(self):
         return {
-            "goal": self.multiworld.goal[self.player].value,
+            "goal": self.multiworld.game_mode[self.player].value,
             "moneyPerQuotaCheck": self.multiworld.money_per_quota_check[self.player].value,
             "numQuota": self.multiworld.num_quotas[self.player].value,
             "checksPerMoon": self.multiworld.checks_per_moon[self.player].value,

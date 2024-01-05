@@ -5,9 +5,8 @@
 Before you continue, you need the following files:
  - lethal_company.yaml
  - lethal_comapny.apworld
- - config.json
 
-You also need to install Archipelago Multiworld Randomizer version 0.4.3, and you must install APLC from thunderstore
+You also need to install Archipelago Multiworld Randomizer version 0.4.4, and you must install APLC from thunderstore
 
 Then, follow the below steps to setup the randomizer:
 

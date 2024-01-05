@@ -66,7 +66,7 @@ namespace APLC
         private int hauntItemsWaiting = 0;
         private int brackenItemsWaiting = 0;
 
-        //Useful 
+        //Useful for when a client disconnects, then rejoins the APworld. We don't want them to receive all of the money items again because that would essentially lead to an infinite money glitch. 
         private int totalMoneyItems = 0;
 
         private bool successfullyConnected = false;

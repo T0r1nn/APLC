@@ -9,7 +9,7 @@ class LethalCompanyItem(Item):
     game: str = "Lethal Company"
 
 
-offset = 11000
+offset = 1966720
 shop_items = {
     "Walkie-talkie": 1,
     "Flashlight": 2,

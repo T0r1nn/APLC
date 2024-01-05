@@ -8,7 +8,7 @@ class LethalCompanyLocation(Location):
     game: str = "Lethal Company"
 
 
-lc_locations_start_id = 100000
+lc_locations_start_id = 1966720
 
 log_offset = 6
 bestiary_offset = 17
