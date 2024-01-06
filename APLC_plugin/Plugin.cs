@@ -69,29 +69,43 @@ namespace APLC
         //Useful for when a client disconnects, then rejoins the APworld. We don't want them to receive all of the money items again because that would essentially lead to an infinite money glitch. 
         private int totalMoneyItems = 0;
 
-        private bool successfullyConnected = false;
+        //Bool that checks if the player has successfully connected to the server
+        private bool successfullyConnected = true;
 
+        //Checks how many money items were received, if this ever gets higher than totalMoneyItems than 
         private int receivedMoneyItems = 0;
 
+        //The amount of unlocked inventory slots
         private int invSlots = 1;
 
+        //The total received quota so far
         private int totalQuota = 0;
 
+        //The number of quota checks that have been met
         private int quotaChecksMet = 0;
 
+        //These store settings from the yaml file that are stored in the slot.
         private bool inventoryLock = false;
         private bool deathLink = false;
         private int moneyPerQuotaCheck = 1000;
         private int numQuota = 20;
         private int checksPerMoon = 3;
 
+        //The slot name as set from the .cfg
         private string slotName = "";
 
+        //Stores all received items
         private Collection<string> newItems = new Collection<string>();
 
+        //Stores how many times each moon has been completed on a B or higher
         private int[] moonChecks = new[] { 0, 0, 0, 0, 0, 0, 0, 0 };
         
-        string AddSpacesToSentence(string text, bool preserveAcronyms=false)
+        /// <summary>
+        /// Adds spaces before captial letters in a string
+        /// </summary>
+        /// <param name="text">The string to add spaces to</param>
+        /// <returns>The modified string</returns>
+        string AddSpacesToSentence(string text)
         {
             if (string.IsNullOrWhiteSpace(text))
                 return string.Empty;
@@ -100,15 +114,17 @@ namespace APLC
             for (int i = 1; i < text.Length; i++)
             {
                 if (char.IsUpper(text[i]))
-                    if ((text[i - 1] != ' ' && !char.IsUpper(text[i - 1])) ||
-                        (preserveAcronyms && char.IsUpper(text[i - 1]) && 
-                         i < text.Length - 1 && !char.IsUpper(text[i + 1])))
+                    if ((text[i - 1] != ' ' && !char.IsUpper(text[i - 1])))
                         newText.Append(' ');
                 newText.Append(text[i]);
             }
             return newText.ToString();
         }
 
+        /// <summary>
+        /// Completes an archipelago location
+        /// </summary>
+        /// <param name="lName">The name of the location to complete</param>
         private void CompleteLocation(string lName)
         {
             long id = _instance.session.Locations.GetLocationIdFromName("Lethal Company", lName);
@@ -116,6 +132,10 @@ namespace APLC
             _instance.session.Locations.CompleteLocationChecks(id);
         }
 
+        /// <summary>
+        /// Handles the reception of items from AP
+        /// </summary>
+        /// <param name="helper">The helped</param>
         private void ReceivedItem(ReceivedItemsHelper helper)
         {
             newItems.Add(helper.PeekItemName());
@@ -123,6 +143,9 @@ namespace APLC
             helper.DequeueItem();
         }
         
+        /// <summary>
+        /// Probably should split this into two functions, as of right now what it does is it checks if certain locations have been completed and if certain checks have been received, then processes them.
+        /// </summary>
         private void CheckItems()
         {
             if (!gameStarted || !successfullyConnected)
@@ -288,6 +311,9 @@ namespace APLC
             }
         }
 
+        /// <summary>
+        /// Runs when the game first boots up, connects to AP and sets up all the variables that need setup
+        /// </summary>
         private void Awake()
         {
             if (_instance == null)
@@ -485,7 +511,7 @@ namespace APLC
             for(int i = 0; i < items.Length; i++)
             {
                 Item item = items[i];
-                if (firstTimeSetup)
+                if (firstTimeSetup && !itemMap.ContainsKey(item.itemName))
                 {
                     itemMap.Add(item.itemName, new[] { i, item.creditsWorth, 0 });
                 }
@@ -511,7 +537,7 @@ namespace APLC
                 {
                     continue;
                 }
-                if (firstTimeSetup)
+                if (firstTimeSetup && !itemMap.ContainsKey(noun.result.name.Substring(0, noun.result.name.Length - 5)))
                 {
                     itemMap.Add(noun.result.name.Substring(0, noun.result.name.Length - 5),
                         new[] { i, noun.result.itemCost, 2 });
@@ -531,8 +557,11 @@ namespace APLC
                 {
                     if (firstTimeSetup)
                     {
-                        itemMap.Add(noun.result.name.Substring(0, noun.result.name.Length - 3),
-                            new[] { i, noun.result.itemCost, 1 });
+                        if (!itemMap.ContainsKey(noun.result.name.Substring(0, noun.result.name.Length - 3)))
+                        {
+                            itemMap.Add(noun.result.name.Substring(0, noun.result.name.Length - 3),
+                                new[] { i, noun.result.itemCost, 1 });
+                        }
                     }
                     noun.result.itemCost = 10000000;
                 }
@@ -540,7 +569,7 @@ namespace APLC
                     noun.result.name);
                 if(ind != -1)
                 {
-                    if (firstTimeSetup)
+                    if (firstTimeSetup && !itemMap.ContainsKey(noun.result.name.Substring(0, noun.result.name.Length - 4)))
                     {
                         itemMap.Add(noun.result.name.Substring(0, noun.result.name.Length - 4),
                             new[] { i, noun.result.itemCost, 1 });
