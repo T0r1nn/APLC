@@ -172,6 +172,7 @@ namespace APLC
             }
             catch (Exception err)
             {
+                Logger.LogError(err.Message);
                 Logger.LogError(err.StackTrace);
                 return;
             }
@@ -250,6 +251,8 @@ namespace APLC
                             case 6:
                                 logName = "Nonsense";
                                 break;
+                            default:
+                                break;
                         }
 
                         Logger.LogWarning($"Log name: {logName}");
@@ -304,30 +307,6 @@ namespace APLC
                         if (itemName == "BrackenTrap")
                         {
                             brackenItemsWaiting++;
-                        }
-                        if (moonNameMap.ContainsKey(itemName))
-                        {
-                            itemName = moonNameMap.Get(itemName);
-                        }
-                        if (itemMap.ContainsKey(itemName))
-                        {
-                            int[] data = itemMap.Get(itemName);
-                            if (data[2] == 0)
-                            {
-                                items[data[0]].creditsWorth = data[1];
-                            }
-
-                            if (data[2] == 1)
-                            {
-                                t.terminalNodes.allKeywords[0].compatibleNouns[data[0]].result.itemCost = data[1];
-                            }
-
-                            if (data[2] == 2)
-                            {
-                                t.terminalNodes.allKeywords[26].compatibleNouns[data[0]].result.itemCost = 0;
-                                t.terminalNodes.allKeywords[26].compatibleNouns[data[0]].result.terminalOptions[1].result
-                                    .itemCost = 0;
-                            }
                         }
                     }
                 }
@@ -447,7 +426,7 @@ namespace APLC
             totalMoneyItems = session.DataStorage["moneyChecksReceived"];
 
             session.Items.ItemReceived += ReceivedItem;
-
+            
             _harmony.PatchAll(typeof(Plugin));
             
             // Plugin startup logic
@@ -472,7 +451,7 @@ namespace APLC
             string grade = HUDManager.Instance.statsUIElements.gradeLetter.text;
             bool dead = StartOfRound.Instance.allPlayersDead;
             _instance.Logger.LogWarning(dead);
-            if (dead)
+            if (dead && _instance.deathLink)
             {
                 _instance.dlService.SendDeathLink(new DeathLink(_instance.slotName, "failed the company."));
             }
@@ -545,16 +524,6 @@ namespace APLC
                 item.creditsWorth = 10000000;
             }
 
-            if (firstTimeSetup)
-            {
-                ReadOnlyCollection<NetworkItem> apItems = session.Items.AllItemsReceived;
-                foreach(NetworkItem item in apItems)
-                {
-                    newItems.Add(session.Items.GetItemName(item.Item));
-                }
-                CheckItems();
-            }
-
             CompatibleNoun[] nouns = t.terminalNodes.allKeywords[26].compatibleNouns;
             
             for(int i = 0; i < nouns.Length; i++)
@@ -602,6 +571,57 @@ namespace APLC
                             new[] { i, noun.result.itemCost, 1 });
                     }
                     noun.result.itemCost = 10000000;
+                }
+            }
+            
+            if (firstTimeSetup)
+            {
+                ReadOnlyCollection<NetworkItem> apItems = session.Items.AllItemsReceived;
+                foreach(NetworkItem item in apItems)
+                {
+                    newItems.Add(session.Items.GetItemName(item.Item));
+                }
+                CheckItems();
+            }
+
+            //Runs through each item received
+            foreach (NetworkItem item in session.Items.AllItemsReceived)
+            {
+                Logger.LogWarning("Unlocking moons and items");
+                //Gets the name
+                string itemName = session.Items.GetItemName(item.Item);
+                //If the item name is a moon, it needs to become the moon's number to apply it to the game 
+                if (moonNameMap.ContainsKey(itemName))
+                {
+                    itemName = moonNameMap.Get(itemName);
+                }
+                //If it is in the item map, move to the next step
+                if (itemMap.ContainsKey(itemName))
+                {
+                    //Get the data from the item map
+                    int[] data = itemMap.Get(itemName);
+                    //If the type is item
+                    if (data[2] == 0)
+                    {
+                        //Unlock it
+                        items[data[0]].creditsWorth = data[1];
+                    }
+
+                    //If the type is ship upgrade
+                    if (data[2] == 1)
+                    {
+                        //Unlock it
+                        t.terminalNodes.allKeywords[0].compatibleNouns[data[0]].result.itemCost = data[1];
+                    }
+
+                    //If the type is moon
+                    if (data[2] == 2)
+                    {
+                        //Unlock it
+                        t.terminalNodes.allKeywords[26].compatibleNouns[data[0]].result.itemCost = 0;
+                        t.terminalNodes.allKeywords[26].compatibleNouns[data[0]].result.terminalOptions[1].result
+                            .itemCost = 0;
+                    }
                 }
             }
 

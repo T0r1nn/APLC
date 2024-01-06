@@ -36,3 +36,4 @@ The items are the things you unlock by going to locations. The items are the sto
 
 ## Credits
 Thanks to my friends Kimmersive and PersonMan for helping me test this and fix a few annoying crashes.
+Thanks to everyone in the Lethal Company thread in the Archipelago discord server. They helped me find and fix a ton of bugs, without which this archipelago mod probably wouldn't be possible. Thanks a ton.
