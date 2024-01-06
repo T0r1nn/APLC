@@ -158,6 +158,7 @@ namespace APLC
                 {
                     if (newItems[i] == "Inventory Slot" && !received[i])
                     {
+                        Logger.LogWarning($"Received item - {newItems[i]}");
                         received[i] = true;
                         invSlots++;
                         GameNetworkManager.Instance.localPlayerController.ItemSlots = new GrabbableObject[invSlots];
@@ -178,6 +179,8 @@ namespace APLC
             try
             {
                 Terminal t = FindObjectOfType<Terminal>();
+                Item[] items = t.buyableItemsList;
+
 
                 Logger.LogWarning("Checking items");
 
@@ -301,6 +304,30 @@ namespace APLC
                         if (itemName == "BrackenTrap")
                         {
                             brackenItemsWaiting++;
+                        }
+                        if (moonNameMap.ContainsKey(itemName))
+                        {
+                            itemName = moonNameMap.Get(itemName);
+                        }
+                        if (itemMap.ContainsKey(itemName))
+                        {
+                            int[] data = itemMap.Get(itemName);
+                            if (data[2] == 0)
+                            {
+                                items[data[0]].creditsWorth = data[1];
+                            }
+
+                            if (data[2] == 1)
+                            {
+                                t.terminalNodes.allKeywords[0].compatibleNouns[data[0]].result.itemCost = data[1];
+                            }
+
+                            if (data[2] == 2)
+                            {
+                                t.terminalNodes.allKeywords[26].compatibleNouns[data[0]].result.itemCost = 0;
+                                t.terminalNodes.allKeywords[26].compatibleNouns[data[0]].result.terminalOptions[1].result
+                                    .itemCost = 0;
+                            }
                         }
                     }
                 }
@@ -492,7 +519,7 @@ namespace APLC
                 {
                     _instance.totalQuota += TimeOfDay.Instance.profitQuota;
                     _instance.session.DataStorage["totalQuota"] = _instance.totalQuota;
-                    while ((_instance.quotaChecksMet+1) * _instance.moneyPerQuotaCheck < _instance.totalQuota)
+                    while ((_instance.quotaChecksMet+1) * _instance.moneyPerQuotaCheck <= _instance.totalQuota)
                     {
                         _instance.quotaChecksMet++;
                         _instance.session.DataStorage["quoatChecksMet"] = _instance.quotaChecksMet;
@@ -579,36 +606,6 @@ namespace APLC
             }
 
             firstTimeSetup = false;
-
-            foreach (NetworkItem item in session.Items.AllItemsReceived)
-            {
-                long itemId = item.Item;
-                string itemName = session.Items.GetItemName(itemId);
-                if (moonNameMap.ContainsKey(itemName))
-                {
-                    itemName = moonNameMap.Get(itemName);
-                }
-                if (itemMap.ContainsKey(itemName))
-                {
-                    int[] data = itemMap.Get(itemName);
-                    if (data[2] == 0)
-                    {
-                        items[data[0]].creditsWorth = data[1];
-                    }
-
-                    if (data[2] == 1)
-                    {
-                        t.terminalNodes.allKeywords[0].compatibleNouns[data[0]].result.itemCost = data[1];
-                    }
-
-                    if (data[2] == 2)
-                    {
-                        t.terminalNodes.allKeywords[26].compatibleNouns[data[0]].result.itemCost = 0;
-                        t.terminalNodes.allKeywords[26].compatibleNouns[data[0]].result.terminalOptions[1].result
-                            .itemCost = 0;
-                    }
-                }
-            }
         }
         public void BindConfig<T>(ref ConfigEntry<T> config, string section, string key, T defaultValue, string description = "")
         {
