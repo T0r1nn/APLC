@@ -31,14 +31,25 @@ def set_rules(lc_world) -> None:
     ))
     for moon in moons:
         for i in range(multiworld.checks_per_moon[player].value):
-            has_location_access_rule(multiworld, moon, player, i+1)
+            has_location_access_rule(multiworld, moon, player, i + 1)
+
     multiworld.get_location("Log - Smells Here!", player).access_rule = lambda state: state.has("Assurance", player)
     multiworld.get_location("Log - Swing of Things", player).access_rule = \
         lambda state: state.has("Experimentation", player)
     multiworld.get_location("Log - Shady", player).access_rule = lambda state: state.has("Experimentation", player)
+    multiworld.get_location("Log - Golden Planet", player).access_rule = lambda state: state.has("Rend", player)
+    multiworld.get_location("Log - Goodbye", player).access_rule = lambda state: state.has("March", player)
     multiworld.get_location("Log - Screams", player).access_rule = \
         lambda state: state.has("Vow", player) or state.has("March", player)
+    multiworld.get_location("Log - Idea", player).access_rule = lambda state: state.has("Rend", player)
     multiworld.get_location("Log - Nonsense", player).access_rule = lambda state: state.has("Rend", player)
+    multiworld.get_location("Log - Hiding", player).access_rule = lambda state: state.has("Dine", player)
+    multiworld.get_location("Log - Real Job", player).access_rule = \
+        lambda state: ((state.has("Extension ladder", player)
+                        or state.has("Jetpack", player))
+                       and state.has("Titan", player))
+    multiworld.get_location("Log - Desmond", player).access_rule = \
+        lambda state: state.has("Jetpack", player) and state.has("Titan", player)
     for entry in bestiary_moons:
         cant_spawn = bestiary_moons[entry]
         can_spawn = [moon for moon in moons]

@@ -10,7 +10,7 @@ class LethalCompanyLocation(Location):
 
 lc_locations_start_id = 1966720
 
-log_offset = 6
+log_offset = 12
 bestiary_offset = 17
 
 moon_names = [
@@ -21,9 +21,15 @@ log_names = [
     "Smells Here!",
     "Swing of Things",
     "Shady",
+    "Golden Planet",
     "Sound Behind the Wall",
+    "Goodbye",
     "Screams",
-    "Nonsense"
+    "Idea",
+    "Nonsense",
+    "Hiding",
+    "Real Job",
+    "Desmond"
 ]
 
 bestiary_names = [

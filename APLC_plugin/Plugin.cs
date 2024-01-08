@@ -59,7 +59,7 @@ namespace APLC
         //Checks if a bestiary entry has already been checked so we don't spam the server with useless info.
         private bool[] checkedMonsters = new bool[17];
         //Same as above but for logs
-        private bool[] checkedLogs = new bool[12];
+        private bool[] checkedLogs = new bool[13];
 
         //The archipelago sesion
         private ArchipelagoSession session;
@@ -275,6 +275,9 @@ namespace APLC
                                 logName = "Hiding";
                                 break;
                             case 11:
+                                logName = "Real Job";
+                                break;
+                            case 12:
                                 logName = "Desmond";
                                 break;
                             default:
