@@ -1,7 +1,7 @@
 import string
 
 from .items import LethalCompanyItem, item_table, shop_items
-from .locations import LethalCompanyLocation, generate_locations, max_locations
+from .locations import LethalCompanyLocation, generate_locations, max_locations, moon_names
 from .rules import set_rules
 from .lcenvironments import moons, shift_by_offset
 from BaseClasses import Item, ItemClassification, Tutorial, MultiWorld, Region
@@ -51,7 +51,12 @@ class LethalCompanyWorld(World):
         environments_pool = shift_by_offset(moons, 11100)
 
         # percollect environments for each stage (or just stage 1)
-        unlock = self.multiworld.random.choices(list(environments_pool.keys()), k=1)
+        unlock = None
+        starting_moon = self.multiworld.starting_moon[self.player].value
+        if starting_moon < 8:
+            unlock = [moon_names[starting_moon]]
+        else:
+            unlock = self.multiworld.random.choices(list(environments_pool.keys()), k=1)
         self.multiworld.push_precollected(self.create_item(unlock[0]))
         environments_pool.pop(unlock[0])
 
@@ -113,7 +118,11 @@ class LethalCompanyWorld(World):
             "numQuota": self.multiworld.num_quotas[self.player].value,
             "checksPerMoon": self.multiworld.checks_per_moon[self.player].value,
             "deathLink": self.multiworld.death_link[self.player].value,
-            "inventorySlot": self.multiworld.enable_inventory_unlock[self.player].value
+            "inventorySlot": self.multiworld.enable_inventory_unlock[self.player].value,
+            "minMoney": self.multiworld.min_money[self.player].value,
+            "maxMoney": self.multiworld.max_money[self.player].value,
+            "moonRank": self.multiworld.moon_grade[self.player].value,
+            "collectathonGoal": self.multiworld.collectathon_scrap_goal[self.player].value
         }
 
     def create_item(self, name: str) -> Item:

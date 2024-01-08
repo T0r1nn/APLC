@@ -9,14 +9,17 @@ using BepInEx;
 using HarmonyLib;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Linq;
 using System.Timers;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Helpers;
+using Archipelago.MultiClient.Net.Packets;
 using BepInEx.Configuration;
 using GameNetcodeStuff;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.UIElements.Collections;
 using Object = System.Object;
 using Random = System.Random;
@@ -56,7 +59,7 @@ namespace APLC
         //Checks if a bestiary entry has already been checked so we don't spam the server with useless info.
         private bool[] checkedMonsters = new bool[17];
         //Same as above but for logs
-        private bool[] checkedLogs = new bool[7];
+        private bool[] checkedLogs = new bool[12];
 
         //The archipelago sesion
         private ArchipelagoSession session;
@@ -90,6 +93,14 @@ namespace APLC
         private int moneyPerQuotaCheck = 1000;
         private int numQuota = 20;
         private int checksPerMoon = 3;
+        private int goal = 0;
+        private int minMoney = 100;
+        private int maxMoney = 1000;
+        private int moonRank = 0;
+        private int collectathonGoal = 20;
+        
+        //Tracks progress towards the collectathon goal
+        private int scrapCollected = 0;
 
         //The slot name as set from the .cfg
         private string slotName = "";
@@ -246,10 +257,25 @@ namespace APLC
                                 logName = "Sound Behind the Wall";
                                 break;
                             case 5:
-                                logName = "Screams";
+                                logName = "Goodbye";
                                 break;
                             case 6:
+                                logName = "Screams";
+                                break;
+                            case 7:
+                                logName = "Golden Planet";
+                                break;
+                            case 8:
+                                logName = "Idea";
+                                break;
+                            case 9:
                                 logName = "Nonsense";
+                                break;
+                            case 10:
+                                logName = "Hiding";
+                                break;
+                            case 11:
+                                logName = "Desmond";
                                 break;
                             default:
                                 break;
@@ -280,7 +306,7 @@ namespace APLC
                         {
                             if (t != null && totalMoneyItems <= receivedMoneyItems)
                             {
-                                t.groupCredits += new Random().Next(100, 1000);
+                                t.groupCredits += new Random().Next(minMoney, maxMoney);
                             }
                             else
                             {
@@ -388,6 +414,11 @@ namespace APLC
                 moneyPerQuotaCheck = Int32.Parse(successful.SlotData["moneyPerQuotaCheck"].ToString());
                 numQuota = Int32.Parse(successful.SlotData["numQuota"].ToString());
                 checksPerMoon = Int32.Parse(successful.SlotData["checksPerMoon"].ToString());
+                goal = Int32.Parse(successful.SlotData["goal"].ToString());
+                minMoney = Int32.Parse(successful.SlotData["minMoney"].ToString());
+                maxMoney = Int32.Parse(successful.SlotData["maxMoney"].ToString());
+                moonRank = Int32.Parse(successful.SlotData["moonRank"].ToString());
+                collectathonGoal = Int32.Parse(successful.SlotData["collectathonGoal"].ToString());
                 deathLink = Int32.Parse(successful.SlotData["deathLink"].ToString()) == 1;
                 Logger.LogWarning("Successfully collected settings");
             }
@@ -449,6 +480,7 @@ namespace APLC
         static void GradingPostfix()
         {
             string grade = HUDManager.Instance.statsUIElements.gradeLetter.text;
+            int gradeInt = Array.IndexOf(new string[] { "S", "A", "B", "C", "D", "F" }, grade);
             bool dead = StartOfRound.Instance.allPlayersDead;
             _instance.Logger.LogWarning(dead);
             if (dead && _instance.deathLink)
@@ -456,7 +488,7 @@ namespace APLC
                 _instance.dlService.SendDeathLink(new DeathLink(_instance.slotName, "failed the company."));
             }
             _instance.Logger.LogWarning($"Completed planet {StartOfRound.Instance.currentLevel.PlanetName} with grade {grade}");
-            if (grade == "S" || grade == "A" || grade == "B")
+            if (gradeInt <= _instance.moonRank)
             {
                 string moon = StartOfRound.Instance.currentLevel.PlanetName.Split(" ")[1];
                 _instance.Logger.LogWarning(moon);
@@ -472,6 +504,25 @@ namespace APLC
                     _instance.session.DataStorage["moonChecks"] = new JArray(_instance.moonChecks);
                     _instance.CompleteLocation($"{moon} check {checkNum}");
                 }
+            }
+
+            List<GrabbableObject> list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()
+                where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
+                select obj).ToList<GrabbableObject>();
+            _instance.scrapCollected = 0;
+            foreach (GrabbableObject scrap in list)
+            {
+                if (scrap.name == "ap_chest(Clone)")
+                {
+                    _instance.scrapCollected++;
+                }
+            }
+
+            if (_instance.scrapCollected >= _instance.collectathonGoal && _instance.goal == 1)
+            {
+                StatusUpdatePacket victory = new StatusUpdatePacket();
+                victory.Status = ArchipelagoClientState.ClientGoal;
+                _instance.session.Socket.SendPacket(victory);
             }
         }
 

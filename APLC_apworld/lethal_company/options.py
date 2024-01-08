@@ -82,6 +82,72 @@ class MoneyWeight(Range):
     default = 80
 
 
+# Yaml options to add:
+#   Variable scrap number for collectathon
+#   Range that money checks give
+#   Choice of a starting moon or random
+#   Required rank to complete moon checks
+class CollectathonScrapGoal(Range):
+    """
+    The number of collectathon scrap you need to complete the collectathon goal
+    """
+    display_name = "Collectathon Scrap Goal"
+    range_start = 5
+    range_end = 30
+    default = 20
+
+
+class MinMoneyCheck(Range):
+    """
+    The minimum amount of money that a money check can give you
+    """
+    display_name = "Min Money Check Amount"
+    range_start = 0
+    range_end = 5000
+    default = 100
+
+
+class MaxMoneyCheck(Range):
+    """
+    The maximum amount of money that a money check can give you
+    """
+    display_name = "Max Money Check Amount"
+    range_start = 0
+    range_end = 10000
+    default = 1000
+
+
+class StartingMoon(Choice):
+    """
+    The moon you start on
+    """
+    display_name = "Starting Moon"
+    option_experimentation = 0
+    option_assurance = 1
+    option_vow = 2
+    option_offense = 3
+    option_march = 4
+    option_rend = 5
+    option_dine = 6
+    option_titan = 7
+    option_randomize = 8
+    default = 8
+
+
+class MoonCheckGrade(Choice):
+    """
+    The grade you need to get to get a check on a moon
+    """
+    display_name = "Moon Check Grade"
+    option_S = 0
+    option_A = 1
+    option_B = 2
+    option_C = 3
+    option_D = 4
+    option_F = 5
+    default = 2
+
+
 @dataclass
 class LCOptions(PerGameCommonOptions):
     game_mode: Goal
@@ -89,6 +155,11 @@ class LCOptions(PerGameCommonOptions):
     money_per_quota_check: MoneyPerQuotaCheck
     num_quotas: NumQuotas
     enable_inventory_unlock: EnableInventoryUnlock
+    collectathon_scrap_goal: CollectathonScrapGoal
+    min_money: MinMoneyCheck
+    max_money: MaxMoneyCheck
+    starting_moon: StartingMoon
+    moon_grade: MoonCheckGrade
     bracken_trap: BrackenTrapWeight
     haunt_trap: HauntTrapWeight
     money: MoneyWeight
