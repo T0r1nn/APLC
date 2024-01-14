@@ -21,6 +21,7 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Analytics;
 using UnityEngine.UIElements.Collections;
+using Color = UnityEngine.Color;
 using Object = System.Object;
 using Random = System.Random;
 
@@ -57,7 +58,7 @@ namespace APLC
         //Checks if an item has already been received, if it hasn't we set its index to true and do whatever is required to receive it
         private bool[] received = new bool[100];
         //Checks if a bestiary entry has already been checked so we don't spam the server with useless info.
-        private bool[] checkedMonsters = new bool[17];
+        private bool[] checkedMonsters = new bool[18];
         //Same as above but for logs
         private bool[] checkedLogs = new bool[13];
 
@@ -98,6 +99,7 @@ namespace APLC
         private int maxMoney = 1000;
         private int moonRank = 0;
         private int collectathonGoal = 20;
+        //private double apparatusChance = 0.1;
         
         //Tracks progress towards the collectathon goal
         private int scrapCollected = 0;
@@ -172,6 +174,7 @@ namespace APLC
                         Logger.LogWarning($"Received item - {newItems[i]}");
                         received[i] = true;
                         invSlots++;
+                        
                         GameNetworkManager.Instance.localPlayerController.ItemSlots = new GrabbableObject[invSlots];
                     }
                 }
@@ -467,6 +470,45 @@ namespace APLC
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }
 
+        // static void OnLand()
+        // {
+        //     GameObject apparatus;
+        //     GameObject[] objects = FindObjectsByType<GameObject>(FindObjectsSortMode.InstanceID);
+        //     foreach(GameObject gameObj in objects)
+        //     {
+        //         if (gameObj.name == "LungApparatus(Clone)")
+        //         {
+        //             apparatus = gameObj;
+        //         }
+        //     }
+        //
+        //     if (_instance.apparatusChance >= UnityEngine.Random.value)
+        //     {
+        //         int part = UnityEngine.Random.Range(0, 6);
+        //         switch (part)
+        //         {
+        //             case 0:
+        //                 apparatus.GetComponent<MeshRenderer>().material.SetColor(new Color(1, 0, 0));
+        //                 break;
+        //             case 1:
+        //                 apparatus.GetComponent<MeshRenderer>().material.SetColor(new Color(0, 1, 0));
+        //                 break;
+        //             case 2:
+        //                 apparatus.GetComponent<MeshRenderer>().material.SetColor(new Color(1, 0.55, 0.55));
+        //                 break;
+        //             case 3:
+        //                 apparatus.GetComponent<MeshRenderer>().material.SetColor(new Color(1, 0.5, 0));
+        //                 break;
+        //             case 4:
+        //                 apparatus.GetComponent<MeshRenderer>().material.SetColor(new Color(0, 0, 1));
+        //                 break;
+        //             case 5:
+        //                 apparatus.GetComponent<MeshRenderer>().material.SetColor(new Color(1, 1, 0));
+        //                 break;
+        //         }
+        //     }
+        // }
+        
         [HarmonyPostfix]
         [HarmonyPatch(typeof(Terminal), "BeginUsingTerminal")]
         static void TerminalStartPrefix(Terminal __instance)
@@ -533,13 +575,7 @@ namespace APLC
         [HarmonyPatch(typeof(PlayerControllerB), "Awake")]
         static void LockInventorySlotsExcept1(PlayerControllerB __instance)
         {
-            if (_instance.inventoryLock)
-            {
-                __instance.ItemSlots = new GrabbableObject[1];
-            }
-
-            _instance.gameStarted = true;
-            _instance.CheckItems();
+            //_instance.CheckItems();
         }
 
         [HarmonyPrefix]
@@ -564,8 +600,13 @@ namespace APLC
         
         private void Setup(Terminal t)
         {
-            CheckItems();
             Logger.LogWarning("Setup ran!");
+            if (_instance.inventoryLock)
+            {
+                GameNetworkManager.Instance.localPlayerController.ItemSlots = new GrabbableObject[1];
+            }
+
+            _instance.gameStarted = true;
             Item[] items = t.buyableItemsList;
             
             for(int i = 0; i < items.Length; i++)
@@ -680,6 +721,7 @@ namespace APLC
             }
 
             firstTimeSetup = false;
+            CheckItems();
         }
         public void BindConfig<T>(ref ConfigEntry<T> config, string section, string key, T defaultValue, string description = "")
         {

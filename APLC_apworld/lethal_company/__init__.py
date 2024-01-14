@@ -69,7 +69,8 @@ class LethalCompanyWorld(World):
         for buyable, _ in shop_items.items():
             itempool += [buyable]
 
-        itempool += ["Inventory Slot", "Inventory Slot", "Inventory Slot"]
+        if self.multiworld.enable_inventory_unlock[self.player].value == 1:
+            itempool += ["Inventory Slot", "Inventory Slot", "Inventory Slot"]
 
         total_locations = len(
             generate_locations(
