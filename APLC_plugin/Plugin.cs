@@ -13,8 +13,9 @@ using System.Linq;
 using System.Timers;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Helpers;
+using Archipelago.MultiClient.Net.MessageLog.Messages;
+using Archipelago.MultiClient.Net.MessageLog.Parts;
 using Archipelago.MultiClient.Net.Packets;
-using BepInEx.Configuration;
 using GameNetcodeStuff;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -74,7 +75,7 @@ namespace APLC
         private int totalMoneyItems = 0;
 
         //Bool that checks if the player has successfully connected to the server
-        private bool successfullyConnected = true;
+        private bool successfullyConnected = false;
 
         //Checks how many money items were received, if this ever gets higher than totalMoneyItems than 
         private int receivedMoneyItems = 0;
@@ -89,7 +90,6 @@ namespace APLC
         private int quotaChecksMet = 0;
 
         //These store settings from the yaml file that are stored in the slot.
-        private bool inventoryLock = false;
         private bool deathLink = false;
         private int moneyPerQuotaCheck = 1000;
         private int numQuota = 20;
@@ -99,6 +99,7 @@ namespace APLC
         private int maxMoney = 1000;
         private int moonRank = 0;
         private int collectathonGoal = 20;
+        private int staminaChecks = 4;
         //private double apparatusChance = 0.1;
         
         //Tracks progress towards the collectathon goal
@@ -141,7 +142,6 @@ namespace APLC
         private void CompleteLocation(string lName)
         {
             long id = _instance.session.Locations.GetLocationIdFromName("Lethal Company", lName);
-            Logger.LogWarning($"Location {lName} complete, id is {id}");
             _instance.session.Locations.CompleteLocationChecks(id);
         }
 
@@ -171,11 +171,8 @@ namespace APLC
                 {
                     if (newItems[i] == "Inventory Slot" && !received[i])
                     {
-                        Logger.LogWarning($"Received item - {newItems[i]}");
                         received[i] = true;
                         invSlots++;
-                        
-                        GameNetworkManager.Instance.localPlayerController.ItemSlots = new GrabbableObject[invSlots];
                     }
                 }
 
@@ -195,18 +192,13 @@ namespace APLC
             {
                 Terminal t = FindObjectOfType<Terminal>();
                 Item[] items = t.buyableItemsList;
-
-
-                Logger.LogWarning("Checking items");
-
+                
                 foreach (int mID in t.scannedEnemyIDs)
                 {
                     if (!checkedMonsters[mID])
                     {
                         string eName = t.enemyFiles[mID].name;
-                        Logger.LogWarning(eName);
                         eName = eName.Substring(0, eName.Length - 4);
-                        Logger.LogWarning(eName);
                         string formatted;
                         if (eName == "CoilHead")
                         {
@@ -229,8 +221,6 @@ namespace APLC
                             formatted = AddSpacesToSentence(eName);
                         }
 
-                        Logger.LogWarning($"Formatted name: {formatted}");
-                        Logger.LogWarning($"Actual name: {eName}");
                         CompleteLocation($"Bestiary Entry - {formatted}");
                         checkedMonsters[mID] = true;
                     }
@@ -287,7 +277,6 @@ namespace APLC
                                 break;
                         }
 
-                        Logger.LogWarning($"Log name: {logName}");
 
                         if (logName == "")
                         {
@@ -307,7 +296,6 @@ namespace APLC
                     {
                         received[i] = true;
                         string itemName = newItems[i];
-                        Logger.LogWarning($"Received item {itemName}");
                         if (itemName == "Money")
                         {
                             if (t != null && totalMoneyItems <= receivedMoneyItems)
@@ -381,12 +369,136 @@ namespace APLC
             moonNameMap.Add("Dine","7");
             moonNameMap.Add("Titan","8");
             
-            APLCConfig.InitConfig();
+            
+            _harmony.PatchAll(typeof(Plugin));
+            
+            // Plugin startup logic
+            Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+        }
+
+        private void MessageReceived(LogMessage message)
+        {
+            string chat = "AP: ";
+            foreach (MessagePart part in message.Parts)
+            {
+                string hexCode = BitConverter.ToString(new[] { part.Color.R, part.Color.G, part.Color.B }).Replace("-", "");
+                chat += $"<color=#{hexCode}>{part.Text}</color>";
+            }
+
+            switch (message)
+            {
+                case ChatLogMessage chatLogMessage:
+                    if (chatLogMessage.Player.Name == session.Players.GetPlayerAlias(session.ConnectionInfo.Slot))
+                    {
+                        return;
+                    }
+
+                    break;
+            }
+            HUDManager.Instance.AddTextToChatOnServer(chat);
+        }
+
+        private int port = 0;
+        private string url = "";
+        private string password = "";
+        private bool waitingForSlot = false;
+        private string lastChatMessagePre = "";
+        private string lastChatMessagePost = "";
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(HUDManager), "AddChatMessage")]
+        private static bool CheckConnections(ref string chatMessage)
+        {
+            if (_instance.lastChatMessagePre == chatMessage)
+            {
+                return true;
+            }
+
+            _instance.lastChatMessagePre = chatMessage;
+            string[] tokens = chatMessage.Split(" ");
+            if (tokens[0] == "APConnection:" && !GameNetworkManager.Instance.isHostingGame && !_instance.successfullyConnected)
+            {
+                _instance.url = tokens[1];
+                _instance.port = Int32.Parse(tokens[2]);
+                _instance.slotName = tokens[3];
+                _instance.password = tokens[4];
+                _instance.ConnectToAP();
+            }
+            if (tokens[0] == "RequestAPConnection:" && GameNetworkManager.Instance.isHostingGame && _instance.successfullyConnected)
+            {
+                HUDManager.Instance.AddTextToChatOnServer($"APConnection: {_instance.url} {_instance.port} {_instance.slotName} {_instance.password}");
+            }
+            return tokens[0] != "APConnection:" && tokens[0] != "RequestAPConnection:";
+        }
+        
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(HUDManager),"AddChatMessage")]
+        private static void OnMessageSent(ref string chatMessage)
+        {
+            string[] tokens = chatMessage.Split(" ");
+            if (tokens[0] == "AP:" || tokens[0] == "APConnection:" || tokens[0] == "RequestAPConnection:")
+            {
+                return;
+            }
+            
+            if (_instance.lastChatMessagePost == chatMessage)
+            {
+                return;
+            }
+            _instance.Logger.LogWarning(chatMessage);
+
+            _instance.lastChatMessagePost = chatMessage;
+            
+            if (tokens[0][0] == '/')
+            {
+                if (tokens[0] == "/connect")
+                {
+                    string[] parts = tokens[1].Split(":");
+                    _instance.Logger.LogWarning(chatMessage);
+                    _instance.Logger.LogWarning(GameNetworkManager.Instance.isHostingGame);
+                    _instance.Logger.LogWarning(_instance.successfullyConnected);
+                    if (GameNetworkManager.Instance.isHostingGame && !_instance.successfullyConnected && !_instance.waitingForSlot)
+                    {
+                        _instance.url = parts[0];
+                        _instance.port = Int32.Parse(parts[1]);
+                        _instance.waitingForSlot = true;
+                        HUDManager.Instance.AddTextToChatOnServer("AP: Please enter your slot name:");
+                    }
+                    else if(!GameNetworkManager.Instance.isHostingGame && !_instance.successfullyConnected)
+                    {
+                        HUDManager.Instance.AddTextToChatOnServer("RequestAPConnection:");
+                    }
+                }
+                else if(_instance.successfullyConnected)
+                {
+                    SayPacket msg = new SayPacket(){Text = chatMessage};
+                    _instance.session.Socket.SendPacket(msg);
+                }
+            }
+            else
+            {
+                if (_instance.waitingForSlot)
+                {
+                    _instance.slotName = chatMessage;
+                    _instance.waitingForSlot = false;
+                    _instance.ConnectToAP();
+                }
+                else if (_instance != null)
+                {
+                    if (_instance.successfullyConnected)
+                    {
+                        SayPacket msg = new SayPacket() { Text = chatMessage };
+                        _instance.session.Socket.SendPacket(msg);
+                    }
+                }
+            }
+        }
+
+        public void ConnectToAP()
+        {
             try
             {
-                session = ArchipelagoSessionFactory.CreateSession(APLCConfig.AP_URL.Value, APLCConfig.AP_PORT.Value);
-                slotName = APLCConfig.AP_SLOT.Value;
-                string password = APLCConfig.AP_PASSWORD.Value;
+                session = ArchipelagoSessionFactory.CreateSession(url, port);
                 if (password == "")
                 {
                     password = null;
@@ -400,7 +512,7 @@ namespace APLC
                 {
                     LoginFailure failure = (LoginFailure)result;
                     string errorMessage =
-                        $"Failed to Connect to {APLCConfig.AP_URL.Value + ":" + APLCConfig.AP_PORT.Value} as {slotName}:";
+                        $"Failed to Connect to {url + ":" + port} as {slotName}:";
                     foreach (string error in failure.Errors)
                     {
                         errorMessage += $"\n    {error}";
@@ -411,12 +523,13 @@ namespace APLC
                         errorMessage += $"\n    {error}";
                     }
 
-                    Logger.LogWarning(errorMessage);
+                    HUDManager.Instance.AddTextToChatOnServer($"AP: <color=red>{errorMessage}</color>");
                 }
 
                 LoginSuccessful successful = (LoginSuccessful)result;
 
-                inventoryLock = Int32.Parse(successful.SlotData["inventorySlot"].ToString()) == 1;
+                invSlots = Int32.Parse(successful.SlotData["inventorySlots"].ToString());
+                staminaChecks = Int32.Parse(successful.SlotData["staminaChecks"].ToString());
                 moneyPerQuotaCheck = Int32.Parse(successful.SlotData["moneyPerQuotaCheck"].ToString());
                 numQuota = Int32.Parse(successful.SlotData["numQuota"].ToString());
                 checksPerMoon = Int32.Parse(successful.SlotData["checksPerMoon"].ToString());
@@ -426,13 +539,15 @@ namespace APLC
                 moonRank = Int32.Parse(successful.SlotData["moonRank"].ToString());
                 collectathonGoal = Int32.Parse(successful.SlotData["collectathonGoal"].ToString());
                 deathLink = Int32.Parse(successful.SlotData["deathLink"].ToString()) == 1;
-                Logger.LogWarning("Successfully collected settings");
+                HUDManager.Instance.AddTextToChatOnServer("AP: <color=green>Successfully connected to archipelago</color>");
+                session.MessageLog.OnMessageReceived += MessageReceived;
             }
+            
             catch (Exception err)
             {
                 successfullyConnected = false;
-                Logger.LogError("Couldn't connect to Archipelago. Are you sure your config is correct?");
-                Logger.LogError(err.StackTrace);
+                HUDManager.Instance.AddTextToChatOnServer("AP: <color=red>Couldn't connect to Archipelago. Are you sure your info is correct?</color>");
+                HUDManager.Instance.AddTextToChatOnServer($"AP: <color=red>{err.Message}\n{err.StackTrace}</color>");
                 return;
             }
 
@@ -456,20 +571,30 @@ namespace APLC
             session.DataStorage["totalQuota"].Initialize(totalQuota);
             session.DataStorage["quotaChecksMet"].Initialize(quotaChecksMet);
             session.DataStorage["moneyChecksReceived"].Initialize(totalMoneyItems);
+            session.DataStorage["scrapCollected"].Initialize(scrapCollected);
 
             moonChecks = session.DataStorage["moonChecks"];
             totalQuota = session.DataStorage["totalQuota"];
             quotaChecksMet = session.DataStorage["quotaChecksMet"];
             totalMoneyItems = session.DataStorage["moneyChecksReceived"];
+            scrapCollected = session.DataStorage["scrapCollected"];
 
             session.Items.ItemReceived += ReceivedItem;
-            
-            _harmony.PatchAll(typeof(Plugin));
-            
-            // Plugin startup logic
-            Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
-        }
 
+            gameStarted = true;
+
+            if (GameNetworkManager.Instance.isHostingGame)
+            {
+                if (password == null)
+                {
+                    password = "";
+                }
+                HUDManager.Instance.AddTextToChatOnServer($"APConnection: {url} {port} {slotName} {password}");
+            }
+
+            successfullyConnected = true;
+        }
+        
         // static void OnLand()
         // {
         //     GameObject apparatus;
@@ -536,7 +661,6 @@ namespace APLC
             if (gradeInt <= _instance.moonRank)
             {
                 string moon = StartOfRound.Instance.currentLevel.PlanetName.Split(" ")[1];
-                _instance.Logger.LogWarning(moon);
                 int checkNum = 0;
                 string[] moonNames = new[]
                     { "Experimentation", "Assurance", "Vow", "Offense", "March", "Rend", "Dine", "Titan" };
@@ -554,12 +678,13 @@ namespace APLC
             List<GrabbableObject> list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()
                 where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
                 select obj).ToList<GrabbableObject>();
-            _instance.scrapCollected = 0;
             foreach (GrabbableObject scrap in list)
             {
                 if (scrap.name == "ap_chest(Clone)")
                 {
+                    GameObject.Destroy(scrap.gameObject);
                     _instance.scrapCollected++;
+                    _instance.session.DataStorage["scrapCollected"] = _instance.scrapCollected;
                 }
             }
 
@@ -569,13 +694,6 @@ namespace APLC
                 victory.Status = ArchipelagoClientState.ClientGoal;
                 _instance.session.Socket.SendPacket(victory);
             }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(PlayerControllerB), "Awake")]
-        static void LockInventorySlotsExcept1(PlayerControllerB __instance)
-        {
-            //_instance.CheckItems();
         }
 
         [HarmonyPrefix]
@@ -597,16 +715,26 @@ namespace APLC
                 }
             }
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerControllerB), "NextItemSlot")]
+        private static void LimitInventory(PlayerControllerB __instance, ref int __result, ref bool forward)
+        {
+            if (__result >= _instance.invSlots)
+            {
+                if (forward)
+                {
+                    __result = 0;
+                }
+                else
+                {
+                    __result = _instance.invSlots - 1;
+                }
+            }
+        }
         
         private void Setup(Terminal t)
         {
-            Logger.LogWarning("Setup ran!");
-            if (_instance.inventoryLock)
-            {
-                GameNetworkManager.Instance.localPlayerController.ItemSlots = new GrabbableObject[1];
-            }
-
-            _instance.gameStarted = true;
             Item[] items = t.buyableItemsList;
             
             for(int i = 0; i < items.Length; i++)
@@ -681,8 +809,7 @@ namespace APLC
 
             //Runs through each item received
             foreach (NetworkItem item in session.Items.AllItemsReceived)
-            {
-                Logger.LogWarning("Unlocking moons and items");
+            { 
                 //Gets the name
                 string itemName = session.Items.GetItemName(item.Item);
                 //If the item name is a moon, it needs to become the moon's number to apply it to the game 
@@ -723,29 +850,5 @@ namespace APLC
             firstTimeSetup = false;
             CheckItems();
         }
-        public void BindConfig<T>(ref ConfigEntry<T> config, string section, string key, T defaultValue, string description = "")
-        {
-            config = base.Config.Bind<T>(section, key, defaultValue, description);
-        }
     }
-    
-    internal class APLCConfig
-	{
-		// Token: 0x0600000C RID: 12 RVA: 0x00002408 File Offset: 0x00000608
-		public static void InitConfig()
-		{
-			Plugin._instance.BindConfig<string>(ref APLCConfig.AP_URL, "AP Config", "AP URL", "archipelago.gg", "");
-            Plugin._instance.BindConfig<int>(ref APLCConfig.AP_PORT, "AP Config", "AP Port", 31415, "");
-            Plugin._instance.BindConfig<string>(ref APLCConfig.AP_SLOT, "AP Config", "AP Slot", "Player1", "");
-            Plugin._instance.BindConfig<string>(ref APLCConfig.AP_PASSWORD, "AP Config", "AP Password", "", "");
-        }
-
-		public static ConfigEntry<string> AP_URL;
-
-		public static ConfigEntry<int> AP_PORT;
-
-		public static ConfigEntry<string> AP_SLOT;
-
-		public static ConfigEntry<string> AP_PASSWORD;
-	}
 }
