@@ -28,7 +28,7 @@ The first thing you need to do is configure lethal_company.yaml. Edit whatever s
 Once your YAML is configured, navigate to your Archipelago folder. In worlds, paste lethal_company.apworld, and in Players, paste your YAML file as well as the YAMLs of any other players participating in the multiworld. Then, open the archipelago launcher and click generate. Once the generation finishes, navigate to [the archipelago](https://archipelago.gg) website. Once you're in, click get started, then click Host Game. Then click "Upload File" and select the zip folder in the Output subfolder of your Archipelago folder. The game will generate, then you need to click Create New Room. The Archipelago server is now running!
 
 ### Setting up the mod
-Run the game through thunderstore, and boot up a save. Once you are ready, you can type /connect archipelago.gg:[portNumber], then follow the instructions as they appear. Open the terminal for the setup to begin, then you are ready!
+Run the game through thunderstore, and boot up a save. Once you are ready, you can type /connect archipelago.gg:port in the chat, then follow the instructions as they appear. Open the terminal for the setup to begin, then you are ready!
 
 ## Locations and items
 In multiworlds, locations are the places you need to go to unlock new things. The locations in Lethal Company are as follows: Log Entries(Excluding first log), Bestiary Entries, Completing moons on a B or higher grade, and completing enough quotas.
