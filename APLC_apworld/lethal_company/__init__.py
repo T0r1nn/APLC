@@ -1,13 +1,12 @@
 import string
 
-from .items import LethalCompanyItem, item_table, shop_items
+from .items import LethalCompanyItem, item_table, items, filler_items, environment_pool, classification_table
 from .locations import LethalCompanyLocation, generate_locations, max_locations, moon_names
 from .rules import set_rules
-from .lcenvironments import moons, shift_by_offset
 from BaseClasses import Item, ItemClassification, Tutorial, MultiWorld, Region
 from .options import LCOptions
 from worlds.AutoWorld import World, WebWorld
-from typing import List, Dict, Any
+from typing import List
 from .regions import create_regions
 
 
@@ -42,45 +41,35 @@ class LethalCompanyWorld(World):
 
     def __init__(self, multiworld, player: int):
         super().__init__(multiworld, player)
-        self.junk_pool: Dict[str, int] = {}
 
     def create_items(self) -> None:
         # shortcut for starting_inventory... The start_with_revive option lets you start with a Dio's Best Friend
 
-        # only mess with the environments if they are set as items
-        environments_pool = shift_by_offset(moons, 11100)
-
         # percollect environments for each stage (or just stage 1)
         unlock = None
-        starting_moon = self.multiworld.starting_moon[self.player].value
+        starting_moon = self.options.starting_moon.value
         if starting_moon < 8:
             unlock = [moon_names[starting_moon]]
         else:
-            unlock = self.multiworld.random.choices(list(environments_pool.keys()), k=1)
+            unlock = self.multiworld.random.choices(list(environment_pool.keys()), k=1)
         self.multiworld.push_precollected(self.create_item(unlock[0]))
-        environments_pool.pop(unlock[0])
+        environment_pool.pop(unlock[0])
 
         # Generate item pool
         itempool: List = []
 
-        for env_name, _ in environments_pool.items():
-            itempool += [env_name]
-
-        for buyable, _ in shop_items.items():
-            itempool += [buyable]
-
-        if self.multiworld.enable_inventory_unlock[self.player].value == 1:
-            itempool += ["Inventory Slot", "Inventory Slot", "Inventory Slot"]
+        for item in items:
+            names = item.create_item(self)
+            for name in names:
+                itempool.append(name)
 
         total_locations = len(
             generate_locations(
-                checks_per_moon=self.multiworld.checks_per_moon[self.player].value,
-                num_quota=self.multiworld.num_quotas[self.player].value
+                checks_per_moon=self.options.checks_per_moon.value,
+                num_quota=self.options.num_quotas.value
             )
         )
 
-        # Create junk items
-        self.junk_pool = self.create_junk_pool()
         # Fill remaining items with randomly generated junk
         while len(itempool) < total_locations:
             itempool.append(self.get_filler_item_name())
@@ -93,49 +82,30 @@ class LethalCompanyWorld(World):
         set_rules(self)
 
     def get_filler_item_name(self) -> str:
-        if not self.junk_pool:
-            self.junk_pool = self.create_junk_pool()
-        weights = [data for data in self.junk_pool.values()]
-        filler = self.multiworld.random.choices([filler for filler in self.junk_pool.keys()], weights,
+        weights = [data for data in filler_items.values()]
+        filler = self.multiworld.random.choices([filler for filler in filler_items.keys()], weights,
                                                 k=1)[0]
         return filler
 
-    def create_junk_pool(self) -> Dict:
-        junk_pool = {
-            "Money": self.multiworld.money[self.player].value,
-            "Haunt Trap!": self.multiworld.haunt_trap[self.player].value,
-            "Bracken Trap!": self.multiworld.bracken_trap[self.player].value
-        }
-        return junk_pool
-
     def create_regions(self) -> None:
-        create_regions(self.multiworld, self.player)
+        create_regions(self.options, self.multiworld, self.player)
         create_events(self.multiworld, self.player)
 
     def fill_slot_data(self):
-        return {
-            "goal": self.multiworld.game_mode[self.player].value,
-            "moneyPerQuotaCheck": self.multiworld.money_per_quota_check[self.player].value,
-            "numQuota": self.multiworld.num_quotas[self.player].value,
-            "checksPerMoon": self.multiworld.checks_per_moon[self.player].value,
-            "deathLink": self.multiworld.death_link[self.player].value,
-            "inventorySlot": self.multiworld.enable_inventory_unlock[self.player].value,
-            "minMoney": self.multiworld.min_money[self.player].value,
-            "maxMoney": self.multiworld.max_money[self.player].value,
-            "moonRank": self.multiworld.moon_grade[self.player].value,
-            "collectathonGoal": self.multiworld.collectathon_scrap_goal[self.player].value
+        slot_data = {
+            "deathLink": self.options.death_link.value
         }
+
+        for option in self.options.as_dict().keys():
+            if hasattr(getattr(self.options, option), "slot"):
+                if getattr(self.options, option).slot:
+                    slot_data[getattr(self.options, option).slot_name] = getattr(self.options, option).value
+
+        return slot_data
 
     def create_item(self, name: str) -> Item:
         item_id = item_table[name]
-        classification = ItemClassification.filler
-        if name in moons.keys() or name == "Inventory Slot":
-            classification = ItemClassification.progression
-        elif name in shop_items:
-            classification = ItemClassification.useful
-        elif name in {"Bracken Trap", "Haunt Trap"}:
-            classification = ItemClassification.trap
-
+        classification = classification_table.get(name)
         item = LethalCompanyItem(name, classification, item_id, self.player)
         return item
 

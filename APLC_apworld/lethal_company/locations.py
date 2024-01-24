@@ -1,7 +1,6 @@
 from typing import Dict
 from BaseClasses import Location
-from .options import ChecksPerMoon, NumQuotas, EnableInventoryUnlock
-from .lcenvironments import moons, shift_by_offset
+from .options import ChecksPerMoon, NumQuotas
 
 
 class LethalCompanyLocation(Location):

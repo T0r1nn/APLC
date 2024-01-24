@@ -81,7 +81,7 @@ namespace APLC
         private int receivedMoneyItems = 0;
 
         //The amount of unlocked inventory slots
-        private int invSlots = 1;
+        private int invSlots = 4;
 
         //The total received quota so far
         private int totalQuota = 0;
@@ -100,6 +100,7 @@ namespace APLC
         private int moonRank = 0;
         private int collectathonGoal = 20;
         private int staminaChecks = 4;
+        private bool randomizeScanner = false;
         //private double apparatusChance = 0.1;
         
         //Tracks progress towards the collectathon goal
@@ -173,6 +174,16 @@ namespace APLC
                     {
                         received[i] = true;
                         invSlots++;
+                    }
+                    else if (newItems[i] == "Stamina Bar" && !received[i])
+                    {
+                        received[i] = true;
+                        staminaChecks++;
+                    }
+                    else if (newItems[i] == "Scanner" && !received[i])
+                    {
+                        received[i] = true;
+                        randomizeScanner = false;
                     }
                 }
 
@@ -402,8 +413,24 @@ namespace APLC
         private string url = "";
         private string password = "";
         private bool waitingForSlot = false;
+        private bool waitingForPassword = false;
         private string lastChatMessagePre = "";
         private string lastChatMessagePost = "";
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(HUDManager), "UpdateScanNodes")]
+        private static bool CancelScan()
+        {
+            return !_instance.randomizeScanner;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerControllerB), "Update")]
+        private static bool Sprint(PlayerControllerB __instance)
+        {
+            __instance.sprintMeter = Mathf.Min(__instance.sprintMeter, _instance.staminaChecks * 0.25f);
+            return true;
+        }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(HUDManager), "AddChatMessage")]
@@ -411,9 +438,13 @@ namespace APLC
         {
             if (_instance.lastChatMessagePre == chatMessage)
             {
-                return true;
+                return false;
             }
-
+            if (_instance.lastChatMessagePost == chatMessage)
+            {
+                return false;
+            }
+            
             _instance.lastChatMessagePre = chatMessage;
             string[] tokens = chatMessage.Split(" ");
             if (tokens[0] == "APConnection:" && !GameNetworkManager.Instance.isHostingGame && !_instance.successfullyConnected)
@@ -428,6 +459,12 @@ namespace APLC
             {
                 HUDManager.Instance.AddTextToChatOnServer($"APConnection: {_instance.url} {_instance.port} {_instance.slotName} {_instance.password}");
             }
+
+            if (tokens[0] != "APConnection:" && tokens[0] != "RequestAPConnection:")
+            {
+                _instance.Logger.LogWarning("Passed Through Pre: " + chatMessage);
+            }
+
             return tokens[0] != "APConnection:" && tokens[0] != "RequestAPConnection:";
         }
         
@@ -436,16 +473,20 @@ namespace APLC
         private static void OnMessageSent(ref string chatMessage)
         {
             string[] tokens = chatMessage.Split(" ");
-            if (tokens[0] == "AP:" || tokens[0] == "APConnection:" || tokens[0] == "RequestAPConnection:")
+            if (_instance.lastChatMessagePre == chatMessage)
             {
                 return;
             }
-            
             if (_instance.lastChatMessagePost == chatMessage)
             {
                 return;
             }
-            _instance.Logger.LogWarning(chatMessage);
+            if (tokens[0] == "AP:" || tokens[0] == "APConnection:" || tokens[0] == "RequestAPConnection:")
+            {
+                return;
+            }
+
+            _instance.Logger.LogWarning("Passed Through Post: "+chatMessage);
 
             _instance.lastChatMessagePost = chatMessage;
             
@@ -454,9 +495,6 @@ namespace APLC
                 if (tokens[0] == "/connect")
                 {
                     string[] parts = tokens[1].Split(":");
-                    _instance.Logger.LogWarning(chatMessage);
-                    _instance.Logger.LogWarning(GameNetworkManager.Instance.isHostingGame);
-                    _instance.Logger.LogWarning(_instance.successfullyConnected);
                     if (GameNetworkManager.Instance.isHostingGame && !_instance.successfullyConnected && !_instance.waitingForSlot)
                     {
                         _instance.url = parts[0];
@@ -481,6 +519,17 @@ namespace APLC
                 {
                     _instance.slotName = chatMessage;
                     _instance.waitingForSlot = false;
+                    _instance.waitingForPassword = true;
+                    HUDManager.Instance.AddTextToChatOnServer("AP: Please enter your password(Enter the letter n if there isnt a password):");
+                }
+                else if (_instance.waitingForPassword)
+                {
+                    _instance.waitingForPassword = false;
+                    _instance.password = chatMessage;
+                    if (chatMessage == "n")
+                    {
+                        _instance.password = "";
+                    }
                     _instance.ConnectToAP();
                 }
                 else if (_instance != null)
@@ -530,6 +579,7 @@ namespace APLC
 
                 invSlots = Int32.Parse(successful.SlotData["inventorySlots"].ToString());
                 staminaChecks = Int32.Parse(successful.SlotData["staminaChecks"].ToString());
+                randomizeScanner = Int32.Parse(successful.SlotData["scanner"].ToString()) == 1;
                 moneyPerQuotaCheck = Int32.Parse(successful.SlotData["moneyPerQuotaCheck"].ToString());
                 numQuota = Int32.Parse(successful.SlotData["numQuota"].ToString());
                 checksPerMoon = Int32.Parse(successful.SlotData["checksPerMoon"].ToString());

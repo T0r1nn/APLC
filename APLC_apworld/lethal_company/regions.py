@@ -2,7 +2,7 @@ from typing import Dict, List, NamedTuple, Optional
 
 from BaseClasses import MultiWorld, Region, Entrance
 from .locations import LethalCompanyLocation, bestiary_moons, max_locations, bestiary_names
-from .items import shop_items
+from .options import LCOptions
 
 
 class LCRegionData(NamedTuple):
@@ -10,7 +10,7 @@ class LCRegionData(NamedTuple):
     region_exits: Optional[List[str]]
 
 
-def create_regions(multiworld: MultiWorld, player: int):
+def create_regions(options: LCOptions, multiworld: MultiWorld, player: int):
     # Default Locations
     regions: Dict[str, LCRegionData] = {
         "Menu": LCRegionData(None, ["Ship"]),
@@ -46,8 +46,8 @@ def create_regions(multiworld: MultiWorld, player: int):
         "Screams": LCRegionData(["Log - Screams"], [])
     }
     # Totals of each item
-    per_moon = int(multiworld.checks_per_moon[player].value)
-    num_quota = int(multiworld.num_quotas[player].value)
+    per_moon = int(options.checks_per_moon.value)
+    num_quota = int(options.num_quotas.value)
 
     # Locations
     for key in regions:

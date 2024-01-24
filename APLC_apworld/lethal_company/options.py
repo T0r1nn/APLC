@@ -12,6 +12,8 @@ class Goal(Choice):
     option_trophy = 0
     option_collectathon = 1
     default = 1
+    slot = True
+    slot_name = "goal"
 
 
 class ChecksPerMoon(Range):
@@ -22,6 +24,8 @@ class ChecksPerMoon(Range):
     range_start = 1
     range_end = 10
     default = 3
+    slot = True
+    slot_name = "checksPerMoon"
 
 
 class MoneyPerQuotaCheck(Range):
@@ -32,7 +36,9 @@ class MoneyPerQuotaCheck(Range):
     display_name = "Money Per Quota Check"
     range_start = 100
     range_end = 10000
-    default = 1000
+    default = 500
+    slot = True
+    slot_name = "moneyPerQuotaCheck"
 
 
 class NumQuotas(Range):
@@ -43,13 +49,8 @@ class NumQuotas(Range):
     range_start = 10
     range_end = 50
     default = 20
-
-
-class EnableInventoryUnlock(Toggle):
-    """
-    When on, you only start with one open inventory slot and are required to unlock the other three throughout the multiworld
-    """
-    display_name = "Enable Inventory Unlock"
+    slot = True
+    slot_name = "numQuota"
 
 
 class BrackenTrapWeight(Range):
@@ -60,6 +61,7 @@ class BrackenTrapWeight(Range):
     range_start = 0
     range_end = 100
     default = 8
+    slot = False
 
 
 class HauntTrapWeight(Range):
@@ -70,6 +72,7 @@ class HauntTrapWeight(Range):
     range_start = 0
     range_end = 100
     default = 4
+    slot = False
 
 
 class MoneyWeight(Range):
@@ -80,6 +83,7 @@ class MoneyWeight(Range):
     range_start = 0
     range_end = 100
     default = 80
+    slot = False
 
 
 # Yaml options to add:
@@ -92,9 +96,11 @@ class CollectathonScrapGoal(Range):
     The number of collectathon scrap you need to complete the collectathon goal
     """
     display_name = "Collectathon Scrap Goal"
-    range_start = 5
+    range_start = 3
     range_end = 30
-    default = 20
+    default = 10
+    slot = True
+    slot_name = "collectathonGoal"
 
 
 class MinMoneyCheck(Range):
@@ -105,6 +111,8 @@ class MinMoneyCheck(Range):
     range_start = 0
     range_end = 5000
     default = 100
+    slot = True
+    slot_name = "minMoney"
 
 
 class MaxMoneyCheck(Range):
@@ -115,6 +123,8 @@ class MaxMoneyCheck(Range):
     range_start = 0
     range_end = 10000
     default = 1000
+    slot = True
+    slot_name = "maxMoney"
 
 
 class StartingMoon(Choice):
@@ -132,6 +142,7 @@ class StartingMoon(Choice):
     option_titan = 7
     option_randomize = 8
     default = 8
+    slot = False
 
 
 class MoonCheckGrade(Choice):
@@ -146,6 +157,58 @@ class MoonCheckGrade(Choice):
     option_D = 4
     option_F = 5
     default = 2
+    slot = True
+    slot_name = "moonRank"
+
+
+"""
+Stuff to add:
+Starting inventory spots replaces enable_inventory_unlock - done
+Starting stamina bars - done
+Scanner
+Jumping
+Movement keys
+Holding your breath
+Sprinting
+Random items spawning in the ship
+Items added to dropship
+Extra quota days
+Speed increase
+"""
+
+
+class StartingInventorySlots(Range):
+    """
+    The number of inventory slots you start the game with
+    """
+    display_name = "Starting Inventory Slots"
+    range_start = 1
+    range_end = 4
+    default = 4
+    slot = True
+    slot_name = "inventorySlots"
+
+
+class StartingStaminaBars(Range):
+    """
+    The number of stamina bars you start the game with
+    """
+    display_name = "Starting Stamina Bars"
+    range_start = 0
+    range_end = 4
+    default = 4
+    slot = True
+    slot_name = "staminaBars"
+
+
+class RandomizeScanner(Toggle):
+    """
+    Allows you to randomize your scanner, rendering you unable to scan until you receive the check
+    """
+    display_name = "Randomize Scanner"
+    default = 0
+    slot = True
+    slot_name = "scanner"
 
 
 @dataclass
@@ -154,7 +217,8 @@ class LCOptions(PerGameCommonOptions):
     checks_per_moon: ChecksPerMoon
     money_per_quota_check: MoneyPerQuotaCheck
     num_quotas: NumQuotas
-    enable_inventory_unlock: EnableInventoryUnlock
+    starting_inventory_slots: StartingInventorySlots
+    starting_stamina_bars: StartingStaminaBars
     collectathon_scrap_goal: CollectathonScrapGoal
     min_money: MinMoneyCheck
     max_money: MaxMoneyCheck
@@ -164,3 +228,4 @@ class LCOptions(PerGameCommonOptions):
     haunt_trap: HauntTrapWeight
     money: MoneyWeight
     death_link: DeathLink
+    randomize_scanner: RandomizeScanner
