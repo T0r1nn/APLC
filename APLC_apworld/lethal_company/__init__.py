@@ -96,9 +96,10 @@ class LethalCompanyWorld(World):
             "deathLink": self.options.death_link.value
         }
 
-        for option in self.options.as_dict().keys():
+        for option in dir(self.options):
             if hasattr(getattr(self.options, option), "slot"):
                 if getattr(self.options, option).slot:
+                    print(option, getattr(self.options, option).slot_name, getattr(self.options, option).value)
                     slot_data[getattr(self.options, option).slot_name] = getattr(self.options, option).value
 
         return slot_data

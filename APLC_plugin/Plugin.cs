@@ -473,10 +473,6 @@ namespace APLC
         private static void OnMessageSent(ref string chatMessage)
         {
             string[] tokens = chatMessage.Split(" ");
-            if (_instance.lastChatMessagePre == chatMessage)
-            {
-                return;
-            }
             if (_instance.lastChatMessagePost == chatMessage)
             {
                 return;
@@ -515,30 +511,36 @@ namespace APLC
             }
             else
             {
-                if (_instance.waitingForSlot)
+                try
                 {
-                    _instance.slotName = chatMessage;
-                    _instance.waitingForSlot = false;
-                    _instance.waitingForPassword = true;
-                    HUDManager.Instance.AddTextToChatOnServer("AP: Please enter your password(Enter the letter n if there isnt a password):");
-                }
-                else if (_instance.waitingForPassword)
-                {
-                    _instance.waitingForPassword = false;
-                    _instance.password = chatMessage;
-                    if (chatMessage == "n")
+                    if (_instance.waitingForSlot)
                     {
-                        _instance.password = "";
+                        _instance.slotName = chatMessage;
+                        _instance.waitingForSlot = false;
+                        _instance.waitingForPassword = true;
+                        HUDManager.Instance.AddTextToChatOnServer(
+                            "AP: Please enter your password(Enter the letter n if there isnt a password):");
                     }
-                    _instance.ConnectToAP();
-                }
-                else if (_instance != null)
-                {
-                    if (_instance.successfullyConnected)
+                    else if (_instance.waitingForPassword)
+                    {
+                        _instance.waitingForPassword = false;
+                        _instance.password = chatMessage;
+                        if (chatMessage == "n")
+                        {
+                            _instance.password = "";
+                        }
+
+                        _instance.ConnectToAP();
+                    }
+                    else if (_instance.successfullyConnected)
                     {
                         SayPacket msg = new SayPacket() { Text = chatMessage };
                         _instance.session.Socket.SendPacket(msg);
                     }
+                }
+                catch (Exception e)
+                {
+                    
                 }
             }
         }
@@ -578,7 +580,7 @@ namespace APLC
                 LoginSuccessful successful = (LoginSuccessful)result;
 
                 invSlots = Int32.Parse(successful.SlotData["inventorySlots"].ToString());
-                staminaChecks = Int32.Parse(successful.SlotData["staminaChecks"].ToString());
+                staminaChecks = Int32.Parse(successful.SlotData["staminaBars"].ToString());
                 randomizeScanner = Int32.Parse(successful.SlotData["scanner"].ToString()) == 1;
                 moneyPerQuotaCheck = Int32.Parse(successful.SlotData["moneyPerQuotaCheck"].ToString());
                 numQuota = Int32.Parse(successful.SlotData["numQuota"].ToString());
