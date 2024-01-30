@@ -10,6 +10,7 @@ using HarmonyLib;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Linq;
+using System.Reflection;
 using System.Timers;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Helpers;
@@ -19,8 +20,10 @@ using Archipelago.MultiClient.Net.Packets;
 using GameNetcodeStuff;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Analytics;
+using UnityEngine.UIElements;
 using UnityEngine.UIElements.Collections;
 using Color = UnityEngine.Color;
 using Object = System.Object;
@@ -73,12 +76,16 @@ namespace APLC
 
         //Useful for when a client disconnects, then rejoins the APworld. We don't want them to receive all of the money items again because that would essentially lead to an infinite money glitch. 
         private int totalMoneyItems = 0;
+        private int totalHauntItems = 0;
+        private int totalBrackenItems = 0;
 
         //Bool that checks if the player has successfully connected to the server
         private bool successfullyConnected = false;
 
         //Checks how many money items were received, if this ever gets higher than totalMoneyItems than 
         private int receivedMoneyItems = 0;
+        private int receivedHauntItems = 0;
+        private int receivedBrackenItems = 0;
 
         //The amount of unlocked inventory slots
         private int invSlots = 4;
@@ -155,6 +162,30 @@ namespace APLC
             newItems.Add(helper.PeekItemName());
             CheckItems();
             helper.DequeueItem();
+        }
+
+        private void CheckTraps()
+        {
+            Logger.LogInfo("Checking Traps");
+            if (brackenItemsWaiting > 0)
+            {
+                if (SpawnEnemyByName("flower"))
+                {
+                    brackenItemsWaiting--;
+                    totalBrackenItems++;
+                    session.DataStorage["brackenTrapsReceived"] = totalBrackenItems;
+                }
+            }
+
+            if (hauntItemsWaiting > 0)
+            {
+                if (SpawnEnemyByName("dress"))
+                {
+                    hauntItemsWaiting--;
+                    totalHauntItems++;
+                    session.DataStorage["hauntTrapsReceived"] = totalHauntItems;
+                }
+            }
         }
         
         /// <summary>
@@ -332,12 +363,34 @@ namespace APLC
 
                         if (itemName == "HauntTrap")
                         {
-                            hauntItemsWaiting++;
+                            receivedHauntItems++;
+                            if(receivedHauntItems > totalHauntItems){
+                                if (!SpawnEnemyByName("dress"))
+                                {
+                                    hauntItemsWaiting++;
+                                }
+                                else
+                                {
+                                    totalHauntItems++;
+                                }
+                                session.DataStorage["hauntTrapsReceived"] = totalHauntItems;
+                            }
                         }
 
                         if (itemName == "BrackenTrap")
                         {
-                            brackenItemsWaiting++;
+                            receivedBrackenItems++;
+                            if(receivedBrackenItems > totalBrackenItems){
+                                if (!SpawnEnemyByName("flower"))
+                                {
+                                    brackenItemsWaiting++;
+                                }
+                                else
+                                {
+                                    totalBrackenItems++;   
+                                }
+                                session.DataStorage["brackenTrapsReceived"] = totalBrackenItems;
+                            }
                         }
                     }
                 }
@@ -387,6 +440,19 @@ namespace APLC
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }
 
+        private float time = 0f;
+        [HarmonyPatch(typeof(StartOfRound), "Update")]
+        [HarmonyPrefix]
+        private static void TrapUpdate()
+        {
+            _instance.time += Time.deltaTime;
+            while (_instance.time > 5f)
+            {
+                _instance.time -= 5f;
+                _instance.CheckTraps();
+            }
+        }
+
         private void MessageReceived(LogMessage message)
         {
             string chat = "AP: ";
@@ -416,10 +482,93 @@ namespace APLC
         private bool waitingForPassword = false;
         private string lastChatMessagePre = "";
         private string lastChatMessagePost = "";
+        
+        public static bool SpawnEnemy(SpawnableEnemyWithRarity enemy, int amount, bool inside, PlayerControllerB player)
+        {
+            try
+            {
+                if (inside ^ player.isInsideFactory)
+                {
+                    return false;
+                }
+                
+                GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(enemy.enemyType.enemyPrefab,
+                    player.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
+                gameObject.GetComponentInChildren<NetworkObject>().Spawn(true);
+                //gameObject.gameObject.GetComponentInChildren<EnemyAI>().stunNormalizedTimer = 1f;
+                return true;
+            }
+            catch (Exception e)
+            {
+                _instance.Logger.LogError(e.Message+"\n"+e.StackTrace);
+                return false;
+            }
+        }
+
+        public static bool SpawnEnemyByName(string name)
+        {
+            _instance.Logger.LogInfo($"Attempting to spawn creature {name}");
+            if (!StartOfRound.Instance.shipHasLanded)
+            {
+                _instance.Logger.LogInfo("Failed spawn");
+                return false;
+            }
+
+            PlayerControllerB[] allPlayers = StartOfRound.Instance.allPlayerScripts;
+            int i = UnityEngine.Random.RandomRangeInt(0, allPlayers.Length);
+            int startI = i;
+
+            PlayerControllerB spawnPlayer = allPlayers[i];
+            while (spawnPlayer.isPlayerDead || !spawnPlayer.isPlayerControlled || spawnPlayer.playerUsername == "Player #0" || spawnPlayer.playerUsername == "Player #1" || spawnPlayer.playerUsername == "Player #2" || spawnPlayer.playerUsername == "Player #3" || spawnPlayer.playerUsername == "Player #4" || spawnPlayer.playerUsername == "Player #5" || spawnPlayer.playerUsername == "Player #6" || spawnPlayer.playerUsername == "Player #7")
+            {
+                i++;
+                i %= allPlayers.Length;
+                spawnPlayer = allPlayers[i];
+                if (i == startI)
+                {
+                    _instance.Logger.LogInfo("Failed spawn");
+                    return false;
+                }
+            }
+            
+            foreach (SpawnableEnemyWithRarity enemy in StartOfRound.Instance.currentLevel.Enemies)
+            {
+                if (enemy.enemyType.enemyName.ToLower().Contains(name))
+                {
+                    _instance.Logger.LogInfo("Attempting spawn");
+                    return SpawnEnemy(enemy, 1, true, spawnPlayer);
+                }
+            }
+            foreach (SpawnableEnemyWithRarity enemy in StartOfRound.Instance.currentLevel.OutsideEnemies)
+            {
+                if (enemy.enemyType.enemyName.ToLower().Contains(name))
+                {
+                    _instance.Logger.LogInfo("Attempting spawn");
+                    return SpawnEnemy(enemy, 1, false, spawnPlayer);
+                }
+            }
+            foreach (SpawnableEnemyWithRarity enemy in StartOfRound.Instance.currentLevel.DaytimeEnemies)
+            {
+                if (enemy.enemyType.enemyName.ToLower().Contains(name))
+                {
+                    _instance.Logger.LogInfo("Attempting spawn");
+                    return SpawnEnemy(enemy, 1, false, spawnPlayer);
+                }
+            }
+            _instance.Logger.LogInfo("Failed spawn");
+            return false;
+        }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(HUDManager), "UpdateScanNodes")]
         private static bool CancelScan()
+        {
+            return !_instance.randomizeScanner;
+        }
+        
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(HUDManager), "PingScan_performed")]
+        private static bool CancelScanAnimation()
         {
             return !_instance.randomizeScanner;
         }
@@ -451,8 +600,16 @@ namespace APLC
             {
                 _instance.url = tokens[1];
                 _instance.port = Int32.Parse(tokens[2]);
-                _instance.slotName = tokens[3];
-                _instance.password = tokens[4];
+                _instance.slotName = "";
+                for (int i = 3; i < tokens.Length - 1; i++)
+                {
+                    _instance.slotName += tokens[i];
+                    if (i < tokens.Length - 2)
+                    {
+                        _instance.slotName += " ";
+                    }
+                }
+                _instance.password = tokens[tokens.Length-1];
                 _instance.ConnectToAP();
             }
             if (tokens[0] == "RequestAPConnection:" && GameNetworkManager.Instance.isHostingGame && _instance.successfullyConnected)
@@ -481,9 +638,7 @@ namespace APLC
             {
                 return;
             }
-
-            _instance.Logger.LogWarning("Passed Through Post: "+chatMessage);
-
+            
             _instance.lastChatMessagePost = chatMessage;
             
             if (tokens[0][0] == '/')
@@ -540,7 +695,7 @@ namespace APLC
                 }
                 catch (Exception e)
                 {
-                    
+                    _instance.Logger.LogWarning(e.Message+"\n"+e.StackTrace);
                 }
             }
         }
@@ -575,6 +730,7 @@ namespace APLC
                     }
 
                     HUDManager.Instance.AddTextToChatOnServer($"AP: <color=red>{errorMessage}</color>");
+                    return;
                 }
 
                 LoginSuccessful successful = (LoginSuccessful)result;
@@ -624,12 +780,18 @@ namespace APLC
             session.DataStorage["quotaChecksMet"].Initialize(quotaChecksMet);
             session.DataStorage["moneyChecksReceived"].Initialize(totalMoneyItems);
             session.DataStorage["scrapCollected"].Initialize(scrapCollected);
+            session.DataStorage["hauntTrapsReceived"].Initialize(totalHauntItems);
+            session.DataStorage["brackenTrapsReceived"].Initialize(totalBrackenItems);
+            session.DataStorage["trophyScrap"].Initialize(new JObject(trophyModeComplete));
 
             moonChecks = session.DataStorage["moonChecks"];
             totalQuota = session.DataStorage["totalQuota"];
             quotaChecksMet = session.DataStorage["quotaChecksMet"];
             totalMoneyItems = session.DataStorage["moneyChecksReceived"];
             scrapCollected = session.DataStorage["scrapCollected"];
+            totalHauntItems = session.DataStorage["hauntTrapsReceived"];
+            totalBrackenItems = session.DataStorage["brackenTrapsReceived"];
+            trophyModeComplete = session.DataStorage["trophyScrap"].To<Dictionary<string, bool>>();
 
             session.Items.ItemReceived += ReceivedItem;
 
@@ -645,6 +807,18 @@ namespace APLC
             }
 
             successfullyConnected = true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(HUDManager), "DisplayGlobalNotification")]
+        public static bool CheckIfLogOrBestiary(string displayText)
+        {
+            if (displayText == "New creature data sent to terminal!" || displayText.Substring(0,19) == "Found journal entry")
+            {
+                _instance.CheckItems();
+            }
+
+            return true;
         }
         
         // static void OnLand()
@@ -732,11 +906,67 @@ namespace APLC
                 select obj).ToList<GrabbableObject>();
             foreach (GrabbableObject scrap in list)
             {
-                if (scrap.name == "ap_chest(Clone)")
+                if (scrap.name == "ap_chest(Clone)" && _instance.goal == 1)
                 {
                     GameObject.Destroy(scrap.gameObject);
                     _instance.scrapCollected++;
                     _instance.session.DataStorage["scrapCollected"] = _instance.scrapCollected;
+                }
+                else if (_instance.goal == 0)
+                {
+                    switch (scrap.name)
+                    {
+                        case "ap_apparatus_experimentation(Clone)":
+                            if (!_instance.trophyModeComplete.ContainsKey("Experimentation"))
+                            {
+                                _instance.trophyModeComplete.Add("Experimentation", true);
+                            }
+                            break;
+                        case "ap_apparatus_assurance(Clone)":
+                            if (!_instance.trophyModeComplete.ContainsKey("Assurance"))
+                            {
+                                _instance.trophyModeComplete.Add("Assurance", true);
+                            }
+                            break;
+                        case "ap_apparatus_vow(Clone)":
+                            if (!_instance.trophyModeComplete.ContainsKey("Vow"))
+                            {
+                                _instance.trophyModeComplete.Add("Vow", true);
+                            }
+                            break;
+                        case "ap_apparatus_offense(Clone)":
+                            if (!_instance.trophyModeComplete.ContainsKey("Offense"))
+                            {
+                                _instance.trophyModeComplete.Add("Offense", true);
+                            }
+                            break;
+                        case "ap_apparatus_march(Clone)":
+                            if (!_instance.trophyModeComplete.ContainsKey("March"))
+                            {
+                                _instance.trophyModeComplete.Add("March", true);
+                            }
+                            break;
+                        case "ap_apparatus_rend(Clone)":
+                            if (!_instance.trophyModeComplete.ContainsKey("Rend"))
+                            {
+                                _instance.trophyModeComplete.Add("Rend", true);
+                            }
+                            break;
+                        case "ap_apparatus_dine(Clone)":
+                            if (!_instance.trophyModeComplete.ContainsKey("Dine"))
+                            {
+                                _instance.trophyModeComplete.Add("Dine", true);
+                            }
+                            break;
+                        case "ap_apparatus_titan(Clone)":
+                            if (!_instance.trophyModeComplete.ContainsKey("Titan"))
+                            {
+                                _instance.trophyModeComplete.Add("Titan", true);
+                            }
+                            break;
+                    }
+
+                    _instance.session.DataStorage["trophyScrap"] = new JObject(_instance.trophyModeComplete);
                 }
             }
 
@@ -745,6 +975,26 @@ namespace APLC
                 StatusUpdatePacket victory = new StatusUpdatePacket();
                 victory.Status = ArchipelagoClientState.ClientGoal;
                 _instance.session.Socket.SendPacket(victory);
+            }
+            else if (_instance.goal == 0)
+            {
+                string[] moons = new[] { "Experimentation", "Assurance", "Vow", "Offense", "March", "Rend", "Dine", "Titan"};
+                bool win = true;
+                foreach (string moon in moons)
+                {
+                    if (!_instance.trophyModeComplete.ContainsKey(moon))
+                    {
+                        win = false;
+                        break;
+                    }
+                }
+
+                if (win)
+                {
+                    StatusUpdatePacket victory = new StatusUpdatePacket();
+                    victory.Status = ArchipelagoClientState.ClientGoal;
+                    _instance.session.Socket.SendPacket(victory);
+                }
             }
         }
 
@@ -761,7 +1011,7 @@ namespace APLC
                     while ((_instance.quotaChecksMet+1) * _instance.moneyPerQuotaCheck <= _instance.totalQuota)
                     {
                         _instance.quotaChecksMet++;
-                        _instance.session.DataStorage["quoatChecksMet"] = _instance.quotaChecksMet;
+                        _instance.session.DataStorage["quotaChecksMet"] = _instance.quotaChecksMet;
                         _instance.CompleteLocation($"Quota check {_instance.quotaChecksMet}");
                     }
                 }
@@ -784,35 +1034,38 @@ namespace APLC
                 }
             }
         }
-        
+
         private void Setup(Terminal t)
         {
             Item[] items = t.buyableItemsList;
-            
-            for(int i = 0; i < items.Length; i++)
+
+            for (int i = 0; i < items.Length; i++)
             {
                 Item item = items[i];
                 if (firstTimeSetup && !itemMap.ContainsKey(item.itemName))
                 {
                     itemMap.Add(item.itemName, new[] { i, item.creditsWorth, 0 });
                 }
+
                 item.creditsWorth = 10000000;
             }
 
             CompatibleNoun[] nouns = t.terminalNodes.allKeywords[26].compatibleNouns;
-            
-            for(int i = 0; i < nouns.Length; i++)
+
+            for (int i = 0; i < nouns.Length; i++)
             {
                 CompatibleNoun noun = nouns[i];
                 if (noun.result.name == "CompanyMoonroute")
                 {
                     continue;
                 }
+
                 if (firstTimeSetup && !itemMap.ContainsKey(noun.result.name.Substring(0, noun.result.name.Length - 5)))
                 {
                     itemMap.Add(noun.result.name.Substring(0, noun.result.name.Length - 5),
                         new[] { i, noun.result.itemCost, 2 });
                 }
+
                 noun.result.itemCost = 10000000;
                 noun.result.terminalOptions[1].result.itemCost = 10000000;
             }
@@ -824,7 +1077,7 @@ namespace APLC
                 CompatibleNoun noun = nouns[i];
                 int ind = Array.IndexOf(new[] { "SignalTranslatorBuy", "InverseTeleporterBuy" },
                     noun.result.name);
-                if(ind != -1)
+                if (ind != -1)
                 {
                     if (firstTimeSetup)
                     {
@@ -834,41 +1087,51 @@ namespace APLC
                                 new[] { i, noun.result.itemCost, 1 });
                         }
                     }
+
                     noun.result.itemCost = 10000000;
                 }
+
                 ind = Array.IndexOf(new[] { "TeleporterBuy1", "LoudHornBuy1" },
                     noun.result.name);
-                if(ind != -1)
+                if (ind != -1)
                 {
-                    if (firstTimeSetup && !itemMap.ContainsKey(noun.result.name.Substring(0, noun.result.name.Length - 4)))
+                    if (firstTimeSetup &&
+                        !itemMap.ContainsKey(noun.result.name.Substring(0, noun.result.name.Length - 4)))
                     {
                         itemMap.Add(noun.result.name.Substring(0, noun.result.name.Length - 4),
                             new[] { i, noun.result.itemCost, 1 });
                     }
+
                     noun.result.itemCost = 10000000;
                 }
             }
-            
+
             if (firstTimeSetup)
             {
                 ReadOnlyCollection<NetworkItem> apItems = session.Items.AllItemsReceived;
-                foreach(NetworkItem item in apItems)
+                foreach (NetworkItem item in apItems)
                 {
                     newItems.Add(session.Items.GetItemName(item.Item));
                 }
+
                 CheckItems();
             }
 
             //Runs through each item received
             foreach (NetworkItem item in session.Items.AllItemsReceived)
-            { 
+            {
                 //Gets the name
                 string itemName = session.Items.GetItemName(item.Item);
                 //If the item name is a moon, it needs to become the moon's number to apply it to the game 
                 if (moonNameMap.ContainsKey(itemName))
                 {
                     itemName = moonNameMap.Get(itemName);
+                    if (!collectedMoonMap.ContainsKey(session.Items.GetItemName(item.Item)))
+                    {
+                        collectedMoonMap.Add(session.Items.GetItemName(item.Item), true);
+                    }
                 }
+
                 //If it is in the item map, move to the next step
                 if (itemMap.ContainsKey(itemName))
                 {
@@ -901,6 +1164,63 @@ namespace APLC
 
             firstTimeSetup = false;
             CheckItems();
+
+            TerminalNode moons = t.terminalNodes.allKeywords[21].specialKeywordResult;
+            moons.displayText = $@"Welcome to the exomoons catalogue.
+To route the autopilot to a moon, use the word ROUTE.
+To learn about any moon, use the word INFO.{(goal == 1 ? $"\nCollectathon progress: {scrapCollected}/{collectathonGoal}" : "")}
+____________________________
+
+* The Company building   //   Buying at [companyBuyingPercent].
+
+* Experimentation [planetTime] ({moonChecks[0]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Experimentation") ? (trophyModeComplete.ContainsKey("Experimentation") ? "Trophy Found!" : "") : "Locked!")}
+* Assurance [planetTime] ({moonChecks[1]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Assurance") ? (trophyModeComplete.ContainsKey("Assurance") ? "Trophy Found!" : "") : "Locked!")}
+* Vow [planetTime] ({moonChecks[2]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Vow") ? (trophyModeComplete.ContainsKey("Vow") ? "Trophy Found!" : "") : "Locked!")}
+
+* Offense [planetTime] ({moonChecks[3]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Offense") ? (trophyModeComplete.ContainsKey("Offense") ? "Trophy Found!" : "") : "Locked!")}
+* March [planetTime] ({moonChecks[4]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("March") ? (trophyModeComplete.ContainsKey("March") ? "Trophy Found!" : "") : "Locked!")}
+
+* Rend [planetTime] ({moonChecks[5]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Rend") ? (trophyModeComplete.ContainsKey("Rend") ? "Trophy Found!" : "") : "Locked!")}
+* Dine [planetTime] ({moonChecks[6]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Dine") ? (trophyModeComplete.ContainsKey("Dine") ? "Trophy Found!" : "") : "Locked!")}
+* Titan [planetTime] ({moonChecks[7]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Titan") ? (trophyModeComplete.ContainsKey("Titan") ? "Trophy Found!" : "") : "Locked!")}
+
+";
+            TerminalNode bestiary = t.terminalNodes.allKeywords[16].specialKeywordResult;
+            bestiary.displayText = $@"BESTIARY  ({t.scannedEnemyIDs.Count}/{t.enemyFiles.Count-1})
+
+To access a creature file, type ""INFO"" after its name.
+---------------------------------
+
+[currentScannedEnemiesList]
+
+
+";
+
+            TerminalNode logs = t.terminalNodes.allKeywords[61].specialKeywordResult;
+            logs.displayText = $@"SIGURD'S LOG ENTRIES  ({t.unlockedStoryLogs.Count - 1}/{t.logEntryFiles.Count - 1})
+
+To read a log, use keyword ""VIEW"" before its name.
+---------------------------------
+
+[currentUnlockedLogsList]
+
+
+";
         }
+
+        [HarmonyPatch(typeof(Terminal), "Update")]
+        [HarmonyPostfix]
+        public static void SetCreditCheckUI(Terminal __instance)
+        {
+            if (!_instance.successfullyConnected)
+            {
+                return;
+            }
+            __instance.topRightText.text =
+                $"${__instance.groupCredits}  ({_instance.quotaChecksMet}/{_instance.numQuota})";
+        }
+
+        private Dictionary<string, bool> collectedMoonMap = new Dictionary<string, bool>();
+        private Dictionary<string, bool> trophyModeComplete = new Dictionary<string, bool>();
     }
 }
