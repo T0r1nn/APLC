@@ -16,6 +16,7 @@
           "UnityEngine.Modules": "2022.3.9",
           "Assembly-CSharp": "0.0.0.0",
           "Facepunch.Steamworks.Win64": "1.0.0.0",
+          "LethalLib": "0.0.0.0",
           "Unity.Netcode.Runtime": "0.0.0.0",
           "Unity.TextMeshPro": "0.0.0.0",
           "UnityEngine.UI": "1.0.0.0"
@@ -383,6 +384,14 @@
           "Facepunch.Steamworks.Win64.dll": {
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "LethalLib/0.0.0.0": {
+        "runtime": {
+          "LethalLib.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.14.2.0"
           }
         }
       },
@@ -937,6 +946,11 @@
       "sha512": ""
     },
     "Facepunch.Steamworks.Win64/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "LethalLib/0.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
