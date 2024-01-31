@@ -59,6 +59,7 @@ public class Plugin : BaseUnityPlugin
 
     //The amount of unlocked inventory slots
     private int invSlots = 4;
+    private int startingInvSlots = 4;
 
     //Maps the item names to a array of three integers
     //  0: The index in the array the item is(for example, 0 for walkie-talkie)
@@ -82,7 +83,7 @@ public class Plugin : BaseUnityPlugin
     private int moonRank;
 
     //Stores all received items
-    private readonly Collection<string> newItems = new();
+    private Collection<string> newItems = new();
     private int numQuota = 20;
     private string password = "";
 
@@ -91,9 +92,9 @@ public class Plugin : BaseUnityPlugin
     //The number of quota checks that have been met
     private int quotaChecksMet;
     private bool randomizeScanner;
+    private bool scannerUnlocked;
 
     //Checks if an item has already been received, if it hasn't we set its index to true and do whatever is required to receive it
-    private readonly bool[] received = new bool[100];
     private int receivedBrackenItems;
     private int receivedHauntItems;
 
@@ -110,11 +111,13 @@ public class Plugin : BaseUnityPlugin
     //The slot name as set from the .cfg
     private string slotName = "";
     private int staminaChecks = 4;
+    private int startingStaminaChecks = 4;
 
     //Bool that checks if the player has successfully connected to the server
     private bool successfullyConnected;
 
-    private float time;
+    private float time = 0;
+    private float time2 = 0;
     private int totalBrackenItems;
     private int totalHauntItems;
 
@@ -123,7 +126,7 @@ public class Plugin : BaseUnityPlugin
 
     //The total received quota so far
     private int totalQuota;
-    private Dictionary<string, bool> trophyModeComplete = new();
+    private string[] trophyModeComplete = new string[8];
     private string url = "";
     private bool waitingForPassword;
     private bool waitingForSlot;
@@ -134,7 +137,6 @@ public class Plugin : BaseUnityPlugin
     private void Awake()
     {
         if (_instance == null) _instance = this;
-        for (var i = 0; i < received.Length; i++) received[i] = false;
 
         for (var i = 0; i < checkedMonsters.Length; i++) checkedMonsters[i] = false;
 
@@ -193,6 +195,7 @@ public class Plugin : BaseUnityPlugin
     /// <param name="helper">The helped</param>
     private void ReceivedItem(ReceivedItemsHelper helper)
     {
+        Logger.LogWarning($"Received Item {helper.PeekItemName()}");
         newItems.Add(helper.PeekItemName());
         CheckItems();
         helper.DequeueItem();
@@ -227,24 +230,27 @@ public class Plugin : BaseUnityPlugin
         if (!gameStarted || !successfullyConnected) return;
         try
         {
+            invSlots = startingInvSlots;
+            staminaChecks = startingStaminaChecks;
+            scannerUnlocked = !randomizeScanner;
             for (var i = 0; i < newItems.Count; i++)
-                if (newItems[i] == "Inventory Slot" && !received[i])
+            {
+                if (newItems[i] == "Inventory Slot")
                 {
-                    received[i] = true;
                     invSlots++;
+                    Logger.LogWarning("Received Inventory Slot");
                 }
-                else if (newItems[i] == "Stamina Bar" && !received[i])
+                else if (newItems[i] == "Stamina Bar")
                 {
-                    received[i] = true;
                     staminaChecks++;
+                    Logger.LogWarning("Received Stamina Bar");
                 }
-                else if (newItems[i] == "Scanner" && !received[i])
+                else if (newItems[i] == "Scanner")
                 {
-                    received[i] = true;
-                    randomizeScanner = false;
+                    scannerUnlocked = true;
+                    Logger.LogWarning("Received Scanner");
                 }
-
-            if (!GameNetworkManager.Instance.isHostingGame) return;
+            }
         }
         catch (Exception err)
         {
@@ -252,6 +258,8 @@ public class Plugin : BaseUnityPlugin
             Logger.LogError(err.StackTrace);
             return;
         }
+        
+        if (!GameNetworkManager.Instance.isHostingGame) return;
 
         try
         {
@@ -338,54 +346,55 @@ public class Plugin : BaseUnityPlugin
                     checkedLogs[mID] = true;
                 }
 
+            receivedMoneyItems = 0;
+            receivedHauntItems = 0;
+            receivedBrackenItems = 0;
             for (var i = 0; i < newItems.Count; i++)
-                if (!received[i])
+            {
+                var itemName = newItems[i];
+                if (itemName == "Money")
                 {
-                    received[i] = true;
-                    var itemName = newItems[i];
-                    if (itemName == "Money")
+                    if (t != null && totalMoneyItems <= receivedMoneyItems)
                     {
-                        if (t != null && totalMoneyItems <= receivedMoneyItems)
-                        {
-                            t.groupCredits += new Random().Next(minMoney, maxMoney);
-                        }
+                        t.groupCredits += new Random().Next(minMoney, maxMoney);
+                    }
+                    else
+                    {
+                        if (totalMoneyItems <= receivedMoneyItems) moneyItemsWaiting++;
+                    }
+
+                    if (totalMoneyItems >= receivedMoneyItems) totalMoneyItems++;
+
+                    receivedMoneyItems++;
+                    session.DataStorage["moneyChecksReceived"] = totalMoneyItems;
+                }
+
+                if (itemName == "HauntTrap")
+                {
+                    receivedHauntItems++;
+                    if (receivedHauntItems > totalHauntItems)
+                    {
+                        if (!SpawnEnemyByName("dress"))
+                            hauntItemsWaiting++;
                         else
-                        {
-                            if (totalMoneyItems <= receivedMoneyItems) moneyItemsWaiting++;
-                        }
-
-                        if (totalMoneyItems >= receivedMoneyItems) totalMoneyItems++;
-
-                        receivedMoneyItems++;
-                        session.DataStorage["moneyChecksReceived"] = totalMoneyItems;
-                    }
-
-                    if (itemName == "HauntTrap")
-                    {
-                        receivedHauntItems++;
-                        if (receivedHauntItems > totalHauntItems)
-                        {
-                            if (!SpawnEnemyByName("dress"))
-                                hauntItemsWaiting++;
-                            else
-                                totalHauntItems++;
-                            session.DataStorage["hauntTrapsReceived"] = totalHauntItems;
-                        }
-                    }
-
-                    if (itemName == "BrackenTrap")
-                    {
-                        receivedBrackenItems++;
-                        if (receivedBrackenItems > totalBrackenItems)
-                        {
-                            if (!SpawnEnemyByName("flower"))
-                                brackenItemsWaiting++;
-                            else
-                                totalBrackenItems++;
-                            session.DataStorage["brackenTrapsReceived"] = totalBrackenItems;
-                        }
+                            totalHauntItems++;
+                        session.DataStorage["hauntTrapsReceived"] = totalHauntItems;
                     }
                 }
+
+                if (itemName == "BrackenTrap")
+                {
+                    receivedBrackenItems++;
+                    if (receivedBrackenItems > totalBrackenItems)
+                    {
+                        if (!SpawnEnemyByName("flower"))
+                            brackenItemsWaiting++;
+                        else
+                            totalBrackenItems++;
+                        session.DataStorage["brackenTrapsReceived"] = totalBrackenItems;
+                    }
+                }
+            }
         }
         catch (Exception err)
         {
@@ -402,6 +411,12 @@ public class Plugin : BaseUnityPlugin
         {
             _instance.time -= 5f;
             _instance.CheckTraps();
+        }
+        _instance.time2 += Time.deltaTime;
+        while (_instance.time2 > 15f)
+        {
+            _instance.time2 -= 15f;
+            _instance.fixStuff();
         }
     }
 
@@ -503,20 +518,25 @@ public class Plugin : BaseUnityPlugin
     [HarmonyPatch(typeof(HUDManager), "UpdateScanNodes")]
     private static bool CancelScan()
     {
-        return !_instance.randomizeScanner;
+        return !_instance.randomizeScanner || _instance.scannerUnlocked;
     }
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(HUDManager), "PingScan_performed")]
     private static bool CancelScanAnimation()
     {
-        return !_instance.randomizeScanner;
+        return !_instance.randomizeScanner || _instance.scannerUnlocked;
     }
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(PlayerControllerB), "Update")]
     private static bool Sprint(PlayerControllerB __instance)
     {
+        if (_instance.staminaChecks == 1)
+        {
+            __instance.sprintMeter = Mathf.Min(__instance.sprintMeter, 0.4f);
+            return true;
+        }
         __instance.sprintMeter = Mathf.Min(__instance.sprintMeter, _instance.staminaChecks * 0.25f);
         return true;
     }
@@ -536,7 +556,7 @@ public class Plugin : BaseUnityPlugin
             _instance.url = tokens[1];
             _instance.port = int.Parse(tokens[2]);
             _instance.slotName = "";
-            for (var i = 3; i < tokens.Length; i++)
+            for (var i = 3; i < tokens.Length-1; i++)
             {
                 _instance.slotName += tokens[i];
                 if (i < tokens.Length - 2) _instance.slotName += " ";
@@ -651,35 +671,15 @@ public class Plugin : BaseUnityPlugin
             var successful = (LoginSuccessful)result;
 
             invSlots = int.Parse(successful.SlotData["inventorySlots"].ToString());
+            startingInvSlots = invSlots;
             staminaChecks = int.Parse(successful.SlotData["staminaBars"].ToString());
+            startingStaminaChecks = staminaChecks;
             randomizeScanner = int.Parse(successful.SlotData["scanner"].ToString()) == 1;
+            scannerUnlocked = !randomizeScanner;
             moneyPerQuotaCheck = int.Parse(successful.SlotData["moneyPerQuotaCheck"].ToString());
             numQuota = int.Parse(successful.SlotData["numQuota"].ToString());
             checksPerMoon = int.Parse(successful.SlotData["checksPerMoon"].ToString());
             goal = int.Parse(successful.SlotData["goal"].ToString());
-            if (goal == 0)
-            {
-                //Trophy mode
-                var scrapItems = Items.scrapItems;
-                foreach (var scrapItem in scrapItems)
-                    if (scrapItem.item.itemName.Contains("ap_chest"))
-                    {
-                        Logger.LogWarning("Found AP Chest Item");
-                        foreach (var key in scrapItem.levelRarities.Keys) scrapItem.levelRarities[key] = 0;
-                    }
-            }
-            else
-            {
-                //Collectathon mode
-                var scrapItems = Items.scrapItems;
-                foreach (var scrapItem in scrapItems)
-                    if (scrapItem.item.itemName.Contains("ap_apparatus"))
-                    {
-                        Logger.LogWarning("Found AP Apparatus Item");
-                        foreach (var key in scrapItem.levelRarities.Keys) scrapItem.levelRarities[key] = 0;
-                    }
-            }
-
             minMoney = int.Parse(successful.SlotData["minMoney"].ToString());
             maxMoney = int.Parse(successful.SlotData["maxMoney"].ToString());
             moonRank = int.Parse(successful.SlotData["moonRank"].ToString());
@@ -719,7 +719,7 @@ public class Plugin : BaseUnityPlugin
         session.DataStorage["scrapCollected"].Initialize(scrapCollected);
         session.DataStorage["hauntTrapsReceived"].Initialize(totalHauntItems);
         session.DataStorage["brackenTrapsReceived"].Initialize(totalBrackenItems);
-        session.DataStorage["trophyScrap"].Initialize(new JObject(trophyModeComplete));
+        session.DataStorage["trophyScrap"].Initialize(new JArray(trophyModeComplete));
 
         moonChecks = session.DataStorage["moonChecks"];
         totalQuota = session.DataStorage["totalQuota"];
@@ -728,7 +728,7 @@ public class Plugin : BaseUnityPlugin
         scrapCollected = session.DataStorage["scrapCollected"];
         totalHauntItems = session.DataStorage["hauntTrapsReceived"];
         totalBrackenItems = session.DataStorage["brackenTrapsReceived"];
-        trophyModeComplete = session.DataStorage["trophyScrap"].To<Dictionary<string, bool>>();
+        trophyModeComplete = session.DataStorage["trophyScrap"];
 
         session.Items.ItemReceived += ReceivedItem;
 
@@ -801,43 +801,48 @@ public class Plugin : BaseUnityPlugin
             }
             else if (_instance.goal == 0)
             {
+                int trophyModeIndex = 0;
+                while (_instance.trophyModeComplete[trophyModeIndex] != null)
+                {
+                    trophyModeIndex++;
+                }
                 switch (scrap.name)
                 {
                     case "ap_apparatus_experimentation(Clone)":
-                        if (!_instance.trophyModeComplete.ContainsKey("Experimentation"))
-                            _instance.trophyModeComplete.Add("Experimentation", true);
+                        if (Array.IndexOf(_instance.trophyModeComplete,"Experimentation") == -1)
+                            _instance.trophyModeComplete[trophyModeIndex] = "Experimentation";
                         break;
                     case "ap_apparatus_assurance(Clone)":
-                        if (!_instance.trophyModeComplete.ContainsKey("Assurance"))
-                            _instance.trophyModeComplete.Add("Assurance", true);
+                        if (Array.IndexOf(_instance.trophyModeComplete,"Assurance") == -1)
+                            _instance.trophyModeComplete[trophyModeIndex] = "Assurance";
                         break;
                     case "ap_apparatus_vow(Clone)":
-                        if (!_instance.trophyModeComplete.ContainsKey("Vow"))
-                            _instance.trophyModeComplete.Add("Vow", true);
+                        if (Array.IndexOf(_instance.trophyModeComplete,"Vow") == -1)
+                            _instance.trophyModeComplete[trophyModeIndex] = "Vow";
                         break;
                     case "ap_apparatus_offense(Clone)":
-                        if (!_instance.trophyModeComplete.ContainsKey("Offense"))
-                            _instance.trophyModeComplete.Add("Offense", true);
+                        if (Array.IndexOf(_instance.trophyModeComplete,"Offense") == -1)
+                            _instance.trophyModeComplete[trophyModeIndex] = "Offense";
                         break;
                     case "ap_apparatus_march(Clone)":
-                        if (!_instance.trophyModeComplete.ContainsKey("March"))
-                            _instance.trophyModeComplete.Add("March", true);
+                        if (Array.IndexOf(_instance.trophyModeComplete,"March") == -1)
+                            _instance.trophyModeComplete[trophyModeIndex] = "March";
                         break;
                     case "ap_apparatus_rend(Clone)":
-                        if (!_instance.trophyModeComplete.ContainsKey("Rend"))
-                            _instance.trophyModeComplete.Add("Rend", true);
+                        if (Array.IndexOf(_instance.trophyModeComplete,"Rend") == -1)
+                            _instance.trophyModeComplete[trophyModeIndex] = "Rend";
                         break;
                     case "ap_apparatus_dine(Clone)":
-                        if (!_instance.trophyModeComplete.ContainsKey("Dine"))
-                            _instance.trophyModeComplete.Add("Dine", true);
+                        if (Array.IndexOf(_instance.trophyModeComplete,"Dine") == -1)
+                            _instance.trophyModeComplete[trophyModeIndex] = "Dine";
                         break;
                     case "ap_apparatus_titan(Clone)":
-                        if (!_instance.trophyModeComplete.ContainsKey("Titan"))
-                            _instance.trophyModeComplete.Add("Titan", true);
+                        if (Array.IndexOf(_instance.trophyModeComplete,"Titan") == -1)
+                            _instance.trophyModeComplete[trophyModeIndex] = "Titan";
                         break;
                 }
 
-                _instance.session.DataStorage["trophyScrap"] = new JObject(_instance.trophyModeComplete);
+                _instance.session.DataStorage["trophyScrap"] = new JArray(_instance.trophyModeComplete);
             }
 
         if (_instance.scrapCollected >= _instance.collectathonGoal && _instance.goal == 1)
@@ -851,7 +856,7 @@ public class Plugin : BaseUnityPlugin
             string[] moons = { "Experimentation", "Assurance", "Vow", "Offense", "March", "Rend", "Dine", "Titan" };
             var win = true;
             foreach (var moon in moons)
-                if (!_instance.trophyModeComplete.ContainsKey(moon))
+                if (Array.IndexOf(_instance.trophyModeComplete, moon) == -1)
                 {
                     win = false;
                     break;
@@ -884,6 +889,16 @@ public class Plugin : BaseUnityPlugin
             }
     }
 
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(PlayerControllerB), "FirstEmptyItemSlot")]
+    private static void LimitGrabbing(PlayerControllerB __instance, ref int __result)
+    {
+        if (__result >= _instance.invSlots)
+        {
+            __result = -1;
+        }
+    }
+    
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PlayerControllerB), "NextItemSlot")]
     private static void LimitInventory(PlayerControllerB __instance, ref int __result, ref bool forward)
@@ -955,19 +970,12 @@ public class Plugin : BaseUnityPlugin
             }
         }
 
-        if (firstTimeSetup)
-        {
-            var apItems = session.Items.AllItemsReceived;
-            foreach (var item in apItems) newItems.Add(session.Items.GetItemName(item.Item));
-
-            CheckItems();
-        }
-
         //Runs through each item received
         foreach (var item in session.Items.AllItemsReceived)
         {
             //Gets the name
             var itemName = session.Items.GetItemName(item.Item);
+            
             //If the item name is a moon, it needs to become the moon's number to apply it to the game 
             if (moonNameMap.ContainsKey(itemName))
             {
@@ -1013,16 +1021,16 @@ ____________________________
 
 * The Company building   //   Buying at [companyBuyingPercent].
 
-* Experimentation [planetTime] ({moonChecks[0]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Experimentation") ? trophyModeComplete.ContainsKey("Experimentation") ? "Trophy Found!" : "" : "Locked!")}
-* Assurance [planetTime] ({moonChecks[1]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Assurance") ? trophyModeComplete.ContainsKey("Assurance") ? "Trophy Found!" : "" : "Locked!")}
-* Vow [planetTime] ({moonChecks[2]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Vow") ? trophyModeComplete.ContainsKey("Vow") ? "Trophy Found!" : "" : "Locked!")}
+* Experimentation [planetTime] ({moonChecks[0]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Experimentation") ? Array.IndexOf(trophyModeComplete,"Experimentation")!=-1 ? "Trophy Found!" : "" : "Locked!")}
+* Assurance [planetTime] ({moonChecks[1]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Assurance") ? Array.IndexOf(trophyModeComplete,"Assurance")!=-1 ? "Trophy Found!" : "" : "Locked!")}
+* Vow [planetTime] ({moonChecks[2]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Vow") ? Array.IndexOf(trophyModeComplete,"Vow")!=-1 ? "Trophy Found!" : "" : "Locked!")}
 
-* Offense [planetTime] ({moonChecks[3]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Offense") ? trophyModeComplete.ContainsKey("Offense") ? "Trophy Found!" : "" : "Locked!")}
-* March [planetTime] ({moonChecks[4]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("March") ? trophyModeComplete.ContainsKey("March") ? "Trophy Found!" : "" : "Locked!")}
+* Offense [planetTime] ({moonChecks[3]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Offense") ? Array.IndexOf(trophyModeComplete,"Offense")!=-1 ? "Trophy Found!" : "" : "Locked!")}
+* March [planetTime] ({moonChecks[4]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("March") ? Array.IndexOf(trophyModeComplete,"March")!=-1 ? "Trophy Found!" : "" : "Locked!")}
 
-* Rend [planetTime] ({moonChecks[5]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Rend") ? trophyModeComplete.ContainsKey("Rend") ? "Trophy Found!" : "" : "Locked!")}
-* Dine [planetTime] ({moonChecks[6]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Dine") ? trophyModeComplete.ContainsKey("Dine") ? "Trophy Found!" : "" : "Locked!")}
-* Titan [planetTime] ({moonChecks[7]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Titan") ? trophyModeComplete.ContainsKey("Titan") ? "Trophy Found!" : "" : "Locked!")}
+* Rend [planetTime] ({moonChecks[5]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Rend") ? Array.IndexOf(trophyModeComplete,"Rend")!=-1 ? "Trophy Found!" : "" : "Locked!")}
+* Dine [planetTime] ({moonChecks[6]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Dine") ? Array.IndexOf(trophyModeComplete,"Dine")!=-1 ? "Trophy Found!" : "" : "Locked!")}
+* Titan [planetTime] ({moonChecks[7]}/{checksPerMoon}) {(collectedMoonMap.ContainsKey("Titan") ? Array.IndexOf(trophyModeComplete,"Titan")!=-1 ? "Trophy Found!" : "" : "Locked!")}
 
 ";
         var bestiary = t.terminalNodes.allKeywords[16].specialKeywordResult;
@@ -1046,6 +1054,17 @@ To read a log, use keyword ""VIEW"" before its name.
 
 
 ";
+    }
+
+    private void fixStuff()
+    {
+        newItems = new Collection<string>();
+        foreach(var item in session.Items.AllItemsReceived)
+        {
+            string itemName = session.Items.GetItemName(item.Item);
+            newItems.Add(itemName);
+        }
+        CheckItems();
     }
 
     [HarmonyPatch(typeof(Terminal), "Update")]
