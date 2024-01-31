@@ -14,7 +14,7 @@ def has_location_access_rule(multiworld: MultiWorld, moon: str, player: int, ite
     if item_number == 1:
         multiworld.get_location(f"{moon} check {item_number}", player).access_rule = \
             lambda state: (state.has(moon, player) and
-                           ((state.has("Inventory Slot", player) or options.starting_inventory_slots.value >= 2) or
+                           ((state.has("Inventory Slot", player) or options.starting_inventory_slots.value >= 2) and
                             (state.has("Stamina Bar", player) or options.starting_stamina_bars.value >= 1)))
     else:
         multiworld.get_location(f"{moon} check {item_number}", player).access_rule = \

@@ -8,6 +8,7 @@ using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
+using Archipelago.MultiClient.Net.Models;
 using Archipelago.MultiClient.Net.Packets;
 using BepInEx;
 using GameNetcodeStuff;
@@ -1058,8 +1059,12 @@ To read a log, use keyword ""VIEW"" before its name.
 
     private void fixStuff()
     {
+        if (!successfullyConnected)
+        {
+            return;
+        }
         newItems = new Collection<string>();
-        foreach(var item in session.Items.AllItemsReceived)
+        foreach(NetworkItem item in session.Items.AllItemsReceived)
         {
             string itemName = session.Items.GetItemName(item.Item);
             newItems.Add(itemName);
