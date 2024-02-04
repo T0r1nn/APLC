@@ -1,4 +1,4 @@
-# Risk of Rain 2
+# Lethal Company
 
 ## Where is the settings page?
 

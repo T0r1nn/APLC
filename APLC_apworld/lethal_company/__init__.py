@@ -43,9 +43,7 @@ class LethalCompanyWorld(World):
         super().__init__(multiworld, player)
 
     def create_items(self) -> None:
-        # shortcut for starting_inventory... The start_with_revive option lets you start with a Dio's Best Friend
-
-        # percollect environments for each stage (or just stage 1)
+        # precollect one moon
         unlock = None
         starting_moon = self.options.starting_moon.value
         if starting_moon < 8:
@@ -61,7 +59,8 @@ class LethalCompanyWorld(World):
         for item in items:
             names = item.create_item(self)
             for name in names:
-                itempool.append(name)
+                if not name == unlock:
+                    itempool.append(name)
 
         total_locations = len(
             generate_locations(

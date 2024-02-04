@@ -25,7 +25,7 @@ def has_quota_access_rule(multiworld: MultiWorld, player: int, item_number: int,
         -> None:
     if item_number == 1:
         multiworld.get_location(f"Quota check {item_number}", player).access_rule = \
-            lambda state: ((state.has("Inventory Slot", player) or options.starting_inventory_slots.value >= 2) or
+            lambda state: ((state.has("Inventory Slot", player) or options.starting_inventory_slots.value >= 2) and
                            (state.has("Stamina Bar", player) or options.starting_stamina_bars.value >= 1))
     else:
         multiworld.get_location(f"Quota check {item_number}", player).access_rule = \
