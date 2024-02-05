@@ -75,6 +75,7 @@ public class ChatHandler
             case "/disconnect":
                 _multiworldHandler.Disconnect();
                 _multiworldHandler = null;
+                SendMessage("AP: Disconnect successful, please join a new save if you are doing a different Multiworld");
                 return true;
             default:
             {
@@ -92,6 +93,8 @@ public class ChatHandler
 
                     _waitingForPassword = false;
                     _multiworldHandler = new MultiworldHandler(_url, _port, _slot, _password);
+                    HUDManager.Instance.AddTextToChatOnServer(
+                        $"__APConnection: {_url} {_port} {_slot} {_password}");
                     return true;
                 }
 

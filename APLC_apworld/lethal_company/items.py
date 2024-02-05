@@ -85,8 +85,14 @@ items = [
            classification=ItemClassification.progression),
     LCItem("Stamina Bar", 2, lambda w: 4 - w.options.starting_stamina_bars.value,
            classification=ItemClassification.progression),
+    LCItem("Strength Training", 3, "weight_reducers",
+           classification=ItemClassification.filler),
     LCItem("Scanner", 1, "randomize_scanner", classification=ItemClassification.progression),
     LCItem("Money", 3, "money", classification=ItemClassification.filler),
+    LCItem("More Time", 3, "time_add", classification=ItemClassification.filler),
+    LCItem("Clone Scrap", 3, "scrap_clone", classification=ItemClassification.filler),
+    LCItem("Birthday Gift", 3, "birthday", classification=ItemClassification.filler),
     LCItem("HauntTrap", 3, "haunt_trap", classification=ItemClassification.trap),
-    LCItem("BrackenTrap", 3, "bracken_trap", classification=ItemClassification.trap)
+    LCItem("BrackenTrap", 3, "bracken_trap", classification=ItemClassification.trap),
+    LCItem("Less Time", 3, "time_trap", classification=ItemClassification.trap)
 ]

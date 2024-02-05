@@ -59,7 +59,7 @@ class LethalCompanyWorld(World):
         for item in items:
             names = item.create_item(self)
             for name in names:
-                if not name == unlock:
+                if not name == unlock[0]:
                     itempool.append(name)
 
         total_locations = len(

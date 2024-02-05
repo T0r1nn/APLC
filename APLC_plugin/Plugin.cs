@@ -1,4 +1,5 @@
-﻿using BepInEx;
+﻿using System;
+using BepInEx;
 
 namespace APLC;
 
@@ -8,6 +9,7 @@ public class Plugin : BaseUnityPlugin
 {
     //Instance of the plugin for other classes to access
     public static Plugin _instance;
+    public static float carryWeight;
     
     /**
      * Patches the game on startup, injecting the code into the game.

@@ -86,11 +86,50 @@ class MoneyWeight(Range):
     slot = False
 
 
-# Yaml options to add:
-#   Variable scrap number for collectathon
-#   Range that money checks give
-#   Choice of a starting moon or random
-#   Required rank to complete moon checks
+class DayIncreaseWeight(Range):
+    """
+    The weight of extra day items in the pool
+    """
+    display_name = "Extra Day Weight"
+    range_start = 0
+    range_end = 100
+    default = 20
+    slot = False
+
+
+class DayDecreaseWeight(Range):
+    """
+    The weight of day decrease traps in the pool.
+    """
+    display_name = "Lose a Day Weight"
+    range_start = 0
+    range_end = 100
+    default = 30
+    slot = False
+
+
+class ScrapDupeWeight(Range):
+    """
+    The weight of scrap duplication items in the pool
+    """
+    display_name = "Scrap Cloning Weight"
+    range_start = 0
+    range_end = 100
+    default = 20
+    slot = False
+
+
+class BirthdayGiftWeight(Range):
+    """
+    The weight of birthday gifts in the pool(random item sent in a dropship)
+    """
+    display_name = "Birthday Gift Weight"
+    range_start = 0
+    range_end = 100
+    default = 20
+    slot = False
+
+
 class CollectathonScrapGoal(Range):
     """
     The number of collectathon scrap you need to complete the collectathon goal
@@ -165,14 +204,14 @@ class MoonCheckGrade(Choice):
 Stuff to add:
 Starting inventory spots replaces enable_inventory_unlock - done
 Starting stamina bars - done
-Scanner
+Scanner - done
 Jumping
 Movement keys
 Holding your breath
 Sprinting
-Random items spawning in the ship
-Items added to dropship
-Extra quota days
+Random items spawning in the ship - done
+Items added to dropship - done
+Extra quota days - done
 Speed increase
 """
 
@@ -211,6 +250,16 @@ class RandomizeScanner(Toggle):
     slot_name = "scanner"
 
 
+class WeightReducers(Range):
+    """
+    The total weight of strength training items. Every item received makes you 2% stronger.
+    """
+    display_name = "Strength Training Weight"
+    default = 5
+    range_start = 0
+    range_end = 100
+
+
 @dataclass
 class LCOptions(PerGameCommonOptions):
     game_mode: Goal
@@ -220,12 +269,17 @@ class LCOptions(PerGameCommonOptions):
     starting_inventory_slots: StartingInventorySlots
     starting_stamina_bars: StartingStaminaBars
     collectathon_scrap_goal: CollectathonScrapGoal
+    randomize_scanner: RandomizeScanner
     min_money: MinMoneyCheck
     max_money: MaxMoneyCheck
     starting_moon: StartingMoon
     moon_grade: MoonCheckGrade
+    time_add: DayIncreaseWeight
+    scrap_clone: ScrapDupeWeight
+    birthday: BirthdayGiftWeight
+    weight_reducers: WeightReducers
     bracken_trap: BrackenTrapWeight
     haunt_trap: HauntTrapWeight
+    time_trap: DayDecreaseWeight
     money: MoneyWeight
     death_link: DeathLink
-    randomize_scanner: RandomizeScanner

@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Archipelago.MultiClient.Net.Packets;
 using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.Events;
 using Object = UnityEngine.Object;
 
 namespace APLC;
@@ -93,6 +95,23 @@ public class Patches
                 __result = invSlots - 1;
         }
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(PlayerControllerB), "Update")]
+    private static void SetCarryWeight(PlayerControllerB __instance)
+    {
+        if (MultiworldHandler.Instance == null) return;
+        Plugin.carryWeight = __instance.carryWeight;
+        __instance.carryWeight *= Mathf.Pow(0.98f, MultiworldHandler.Instance.GetItemMap("Strength Training").GetTotal());
+    }
+    
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(PlayerControllerB), "Update")]
+    private static void FixCarryWeight(PlayerControllerB __instance)
+    {
+        if (MultiworldHandler.Instance == null) return;
+        __instance.carryWeight = Plugin.carryWeight;
+    }
     
     //Archipelago connection
     /**
@@ -156,6 +175,7 @@ public class Patches
     [HarmonyPatch(typeof(StartOfRound), "EndOfGame")]
     private static void RoundEndPrefix(StartOfRound __instance)
     {
+        if (MultiworldHandler.Instance == null) return;
         MultiworldHandler.Instance.GetLocationMap("Quota").CheckComplete();
     }
     
@@ -166,6 +186,7 @@ public class Patches
     [HarmonyPatch(typeof(HUDManager), "FillEndGameStats")]
     private static void GradingPostfix()
     {
+        if (MultiworldHandler.Instance == null) return;
         var grade = HUDManager.Instance.statsUIElements.gradeLetter.text;
         var dead = StartOfRound.Instance.allPlayersDead;
         if (dead) MultiworldHandler.Instance.HandleDeathLink();
@@ -245,4 +266,17 @@ public class Patches
         };
         MultiworldHandler.Instance.GetSession().Socket.SendPacket(packet);
     }
+
+    // //Trophy case stuff
+    // [HarmonyPostfix]
+    // [HarmonyPatch(typeof(StartOfRound), "OnShipLandedMiscEvents")]
+    // private static void SpawnTrophyCase()
+    // {
+    //     //if (MultiworldHandler.Instance == null || MultiworldHandler.Instance.GetGoal() == 1/* || StartOfRound.Instance.currentLevel.PlanetName != "Company"*/) return;
+    //     var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+    //     go.transform.localScale = new Vector3(0.7f,7,10);
+    //     go.transform.position = new Vector3(-28.25f, 0.8f, 0);
+    //     go.AddComponent<TrophyCase>();
+    //     Object.Instantiate(go, new Vector3(-28.25f, 0.8f, 0), Quaternion.identity);
+    // }
 }

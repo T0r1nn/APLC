@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using UnityEngine;
 
 namespace APLC;
 
@@ -125,6 +127,38 @@ public class BestiaryLocations : Locations
         if (Plugin._instance.getTerminal().scannedEnemyIDs.IndexOf(_bestiaryID) != -1)
         {
             MultiworldHandler.Instance.CompleteLocation($"Bestiary Entry - {_bestiaryName}");
+        }
+    }
+
+    public override string GetTrackerText()
+    {
+        return null;
+    }
+}
+
+public class ScrapLocations : Locations
+{
+    private readonly string _scrapName;
+    private readonly string _checkName;
+
+    public ScrapLocations(string scrapName, string checkName)
+    {
+        Type = "scrap";
+        _scrapName = scrapName;
+        _checkName = checkName;
+    }
+
+    public override void CheckComplete()
+    {
+        var list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()
+            where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
+            select obj).ToList();
+        foreach (var scrap in list)
+        {
+            if (scrap.name == $"{_scrapName}(Clone)")
+            {
+                MultiworldHandler.Instance.CompleteLocation($"Scrap {_checkName}");
+            }
         }
     }
 

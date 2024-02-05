@@ -9,6 +9,8 @@ using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Packets;
 using Newtonsoft.Json.Linq;
+using Unity.Netcode;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace APLC;
@@ -105,6 +107,7 @@ public class MultiworldHandler
         _receivedItemNames.Clear();
         _session = null;
         _slotInfo = null;
+        Instance = null;
     }
 
     private void CreateItems()
@@ -146,6 +149,7 @@ public class MultiworldHandler
             _itemMap.Add("Inventory Slot", new PlayerUpgrades("Inventory Slot", GetSlotSetting("inventorySlots", 4)));
             _itemMap.Add("Stamina Bar", new PlayerUpgrades("Stamina Bar", GetSlotSetting("staminaBars", 4)));
             _itemMap.Add("Scanner", new PlayerUpgrades("Scanner", 1 - GetSlotSetting("scanner")));
+            _itemMap.Add("Strength Training", new PlayerUpgrades("Strength Training", 0));
 
             //Filler
             _itemMap.Add("Money", new FillerItems("Money", () =>
@@ -156,6 +160,55 @@ public class MultiworldHandler
             _itemMap.Add("HauntTrap", new FillerItems("HauntTrap", () => EnemyTrapHandler.SpawnEnemyByName("dress")));
             _itemMap.Add("BrackenTrap",
                 new FillerItems("BrackenTrap", () => EnemyTrapHandler.SpawnEnemyByName("flower")));
+            _itemMap.Add("More Time", new FillerItems("More Time", () =>
+            {
+                TimeOfDay.Instance.timeUntilDeadline+=TimeOfDay.Instance.totalTime;
+                TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
+                return true;
+            }));
+            _itemMap.Add("Less Time", new FillerItems("Less Time", () =>
+            {
+                TimeOfDay.Instance.timeUntilDeadline-=TimeOfDay.Instance.totalTime;
+                if (TimeOfDay.Instance.timeUntilDeadline < TimeOfDay.Instance.totalTime)
+                {
+                    TimeOfDay.Instance.timeUntilDeadline = TimeOfDay.Instance.totalTime;
+                }
+                TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
+                return true;
+            }));
+            _itemMap.Add("Clone Scrap", new FillerItems("Clone Scrap", () =>
+            {
+                var list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()
+                    where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
+                    select obj).ToList();
+                Collection<GrabbableObject> objects = new();
+                foreach (var scrap in list)
+                {
+                    if (scrap.scrapValue > 0 && scrap.itemProperties.isScrap)
+                    {
+                        objects.Add(scrap);
+                    }
+                }
+
+                if (objects.Count == 0)
+                {
+                    return false;
+                }
+
+                int i = Random.RandomRangeInt(0, objects.Count);
+
+                var gameObject = UnityEngine.Object.Instantiate(objects[i].itemProperties.spawnPrefab,
+                    objects[i].transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
+                gameObject.GetComponentInChildren<NetworkObject>().Spawn();
+                return true;
+            }));
+            _itemMap.Add("Birthday Gift", new FillerItems("Birthday Gift", () =>
+            {
+                Item[] items = Plugin._instance.getTerminal().buyableItemsList;
+                int i = Random.RandomRangeInt(0, items.Length);
+                Plugin._instance.getTerminal().orderedItemsFromTerminal.Add(i);
+                return true;
+            }));
         }
         catch (Exception e)
         {
