@@ -138,14 +138,12 @@ public class BestiaryLocations : Locations
 
 public class ScrapLocations : Locations
 {
-    private readonly string _scrapName;
-    private readonly string _checkName;
+    private readonly string[] _scrapNames;
 
-    public ScrapLocations(string scrapName, string checkName)
+    public ScrapLocations(string[] scrapNames)
     {
         Type = "scrap";
-        _scrapName = scrapName;
-        _checkName = checkName;
+        _scrapNames = scrapNames;
     }
 
     public override void CheckComplete()
@@ -155,9 +153,12 @@ public class ScrapLocations : Locations
             select obj).ToList();
         foreach (var scrap in list)
         {
-            if (scrap.name == $"{_scrapName}(Clone)")
+            foreach (var scrapName in _scrapNames)
             {
-                MultiworldHandler.Instance.CompleteLocation($"Scrap {_checkName}");
+                if (scrap.itemProperties.itemName == scrapName)
+                {
+                    MultiworldHandler.Instance.CompleteLocation($"Scrap - {scrapName}");
+                }
             }
         }
     }

@@ -1,39 +1,92 @@
-# APLC
-
 ## Setup
+Download the following two files from the [Releases page in Github](https://github.com/Awesomeness278/APLC/releases/latest):
+- lethal_company.yaml
+- lethal_company.apworld
 
-Before you continue, you need the following files:
- - lethal_company.yaml
- - lethal_comapny.apworld
+You also need to install the [Archipelago Multiworld Randomizer version 0.4.4](https://github.com/ArchipelagoMW/Archipelago/releases/latest) client.
 
-You also need to install Archipelago Multiworld Randomizer version 0.4.4, and you must install APLC from thunderstore
+Install the APLC mod from the Thunderstore (you may also install the mod via the
+Thunderstore Mod Manager or R2ModManager).
 
 Then, follow the below steps to setup the randomizer:
 
 ### YAML configuration
-The first thing you need to do is configure lethal_company.yaml. Edit whatever settings you feel you need to.
-
- - name: Enter your slot name here, make sure it is different from all other multiworld players.
- - goal: Either trophy mode or collectathon. If it is trophy mode, one special scrap will spawn at each moon, the goal is to collect all eight. If it is collectathon mode, you just need to collect 20 of a rare scrap.
- - checks_per_moon: The total number of checks you can get at each moon by finishing it with a B or higher grade
- - money_per_quota_check: The amount of total quota you need to complete to get a quota check. Every quota you meet adds the quota to this value, NOT the contributed money towards the quota. If you contribute 1000 towards a 130 quota, you still only get 130
- - num_quotas: The amount of quota checks that can be completed before running out
- - enable_inventory_unlock: Enables adding inventory slots to the randomized pool. You start with one, the other three can be unlocked throughout the game.
- - bracken_trap: The weight of bracken traps in the pool. Bracken traps spawn a bracken behind a random player.
- - haunt_trap: The weight of haunt traps in the pool. Haunt traps spawn a ghost girl and have her haunt a random player.
- - money: The weight of money items in the pool. Money items give between 100-1000 money, which doesn't count towards quota
- - death_link: If a party wipe happens, send a death link. If a death link is received, a random player will die.
+The first thing you need to do is configure the lethal_company.yaml file. For that, open and
+edit the YAML to fit whatever settings you want to play with:
+- game_mode: Can be collectathon or trophy, in trophy mode you need to collect one trophy apparatus from each moon, while in collectathon mode you need to collect a certain amount of AP chest scraps
+- checks_per_moon: Can be any number between 1 and 10, default is 3. This is the amount of checks per moon that can be gotten from completing that moon
+- money_per_quota_check: Can be any number between 100 and 10000, default is 500. This is the amount of total quota you must complete to get the check. Be aware that each quota only contributes the required scrap towards this goal, not the sold scrap. If you sell 500 scrap but the quota is only 130, you will only contribute 130 towards the check.
+- num_quotas: Can be any number from 10 to 50, default is 20. This is the number of quota checks you can get.
+- starting_inventory_slots: Can be any number from 1 to 4, default is 4. This is the number of inventory slots you start the game with, the rest have to be unlocked.
+- starting_stamina_bars: Can be any number from 0 to 4, default is 4. This is the number of stamina bars you start with. The rest have to be unlocked.
+- collectathon_scrap_goal: Can be any number from 3 to 30, default is 10. This is the number of AP chests you have to collect to beat collectathon mode. This does nothing in trophy mode.
+- randomize_scanner: Can be 'true' or 'false', when true you start without the ability to scan and must unlock it.
+- scrapsanity: Can be 'true' or 'false', when true 50 new checks are added to the game for collecting at least one of each type of scrap.
+- min_money: Can be any number between 0 and 5000, default is 100. This is the minimum amount of money that the money checks will reward you with.
+- max_money: Can be any number between 0 and 5000, default is 1000. This is the maximum amount of money that the money checks will reward you with. This can't be less than min_money
+- starting_moon: Can be any of the following: experimentation, assurance, vow, offense, march, rend, dine, titan, or randomize. This sets the moon you start the run on.
+- moon_grade: Can be any of the following: s, a, b, c, d, or f. Any moons completed on this grade or above will complete a moon check.
+- The following are filler items, and they fill the empty spots in the item pool according to their weight values, where higher weighted items will appear more than lower weighted items. All have a minimum of 0 and a maximum of 100
+  - time_add: Default is 20, adds one day to quota
+  - scrap_clone: Default is 20, clones one scrap on the ship
+  - birthday: Default is 20, sends one item from the dropship
+  - weight_reducers: Default is 5, reduces stamina use and increases speed
+  - bracken_trap: Default is 8, spawns a bracken in the next facility that can spawn a bracken
+  - haunt_trap: Default is 4, spawns a ghost girl in the next facility that can spawn a ghost girl
+  - time_trap: Default is 30, removes one day from quota. If quota is already at one day left, it'll wait until the next quota to remove a day
+  - money: Default is 80, adds a random amount of money to your total 
+- death_link: Can be 'true' or 'false', when true turns on death link. When a party wipe occurs, a death link is sent, and when a death link is received, a random player dies.
 
 ### Multiworld generation
-Once your YAML is configured, navigate to your Archipelago folder. In worlds, paste lethal_company.apworld, and in Players, paste your YAML file as well as the YAMLs of any other players participating in the multiworld. Then, open the archipelago launcher and click generate. Once the generation finishes, navigate to [the archipelago](https://archipelago.gg) website. Once you're in, click get started, then click Host Game. Then click "Upload File" and select the zip folder in the Output subfolder of your Archipelago folder. The game will generate, then you need to click Create New Room. The Archipelago server is now running!
+Once your YAML is configured, navigate to your Archipelago installation folder (will vary
+depending on where you installed Archipielago, but an example path would be
+C:\ProgramData\Archipelago). In the Players folder paste your YAML file as well as the
+YAMLs of any other players participating in the multiworld (Note: Only one YAML per lobby
+of Lethal Company. An example of such would be 2 players playing in the same LC lobby
+while another player plays a different Archipelago game (or LC lobby)). You would need only
+1 YAML for Lethal Company and 1 YAML for the other game/s.).In the lib/worlds folder, paste
+lethal_company.apworld. Then, open the archipelago launcher and click Generate which will
+generate a .zip in the Output folder found in your archipelago installation, in the same path
+where the players folder is. Once the generation finishes, navigate to [the archipelago](https://archipelago.gg)
+website, click on get started, then click Host Game, then "Upload File" and select the zip
+folder in the Output subfolder of your Archipelago folder. The game will generate along with
+the Spoiler log. Click on Create New Room and that’s done! The Archipelago server is now
+running!
 
 ### Setting up the mod
-Run the game through thunderstore, and boot up a save. Once you are ready, you can type /connect archipelago.gg:port in the chat, then follow the instructions as they appear. Open the terminal for the setup to begin, then you are ready!
+Run the game through Thunderstore (or as you would usually start your modded LC game),
+and boot up a save. Once you are ready, you can type /connect archipelago.gg:port in the
+chat, then follow the instructions as they appear. Everyone in the lobby should connect when the host performs a /connect, but if anyone joins late, they can type /connect with no arguments in the chat to connect themselves to the multiworld.
 
 ## Locations and items
-In multiworlds, locations are the places you need to go to unlock new things. The locations in Lethal Company are as follows: Log Entries(Excluding first log), Bestiary Entries, Completing moons on a B or higher grade, and completing enough quotas.
-The items are the things you unlock by going to locations. The items are the store items, the moons, the ship upgrades, inventory slots, money, and some traps.
+In multiworld games setups, locations are the places you need to go to unlock new things.
+The locations in Lethal Company are as follows:
+- Log Entries(Excluding first log).
+- Bestiary Entries.
+- Completing moons on a B or higher grade.
+- Completing a set amount of quota.
+- Gathering each type of scrap for the first time
+
+The items are:
+- Moons
+- Shop items
+- Ship upgrades
+- Inventory slots
+- Scanner
+- Stamina bars
+- Strength training(stamina decreases slower and you move faster)
+- Filler
+  - Scrap cloning
+  - Money
+  - Quota time increases
+  - Random items in a dropship
+- Traps
+  - Bracken spawns
+  - Ghost girl spawns
+  - Quota time decreases
 
 ## Credits
-Thanks to my friends Kimmersive and PersonMan for helping me test this and fix a few annoying crashes.
-Thanks to everyone in the Lethal Company thread in the Archipelago discord server. They helped me find and fix a ton of bugs, without which this archipelago mod probably wouldn't be possible. Thanks a ton.
+Thanks to my friends for helping me test this and fix a few
+annoying crashes. Thanks to everyone in the Lethal Company thread in the Archipelago
+discord server, who helped me fix a ton of bugs and get a bunch of ideas, without which this archipelago
+mod probably wouldn't be possible. Thanks to Faxium for rewriting the setup portion of this guide, making it easier to understand.

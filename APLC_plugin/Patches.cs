@@ -193,6 +193,11 @@ public class Patches
         
         ((MoonLocations)MultiworldHandler.Instance.GetLocationMap(StartOfRound.Instance.currentLevel.PlanetName.Split(" ")[1])).OnFinishMoon(StartOfRound.Instance.currentLevel.PlanetName, grade);
 
+        if (MultiworldHandler.Instance.GetSlotSetting("scrapsanity") == 1)
+        {
+            MultiworldHandler.Instance.GetLocationMap("Scrap").CheckComplete();
+        }
+
         var list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()
             where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
             select obj).ToList();

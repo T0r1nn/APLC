@@ -8,6 +8,7 @@ using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Packets;
+using GameNetcodeStuff;
 using Newtonsoft.Json.Linq;
 using Unity.Netcode;
 using UnityEngine;
@@ -27,26 +28,27 @@ public class MultiworldHandler
     //A map to turn item and location names into the correct handlers
     private readonly Dictionary<string, Items> _itemMap = new();
     private readonly Dictionary<string, Locations> _locationMap = new();
-    
+
     //The instance of the APworld handler
     public static MultiworldHandler Instance;
-    
+
     //The minimum and maximum money that a money check can give
     private readonly int _minMoney;
     private readonly int _maxMoney;
-    
+
     //Shows which trophies are collected
     private readonly object[] _trophyModeComplete = new object[8];
-    
+
     //Shows how much scrap is collected, and the scrap goal
     private int _scrapCollected;
     private readonly int _scrapGoal;
 
     //0 - trophy mode, 1 - collectathon
     private readonly int _goal;
-    
+
     //true if death link is enabled
     private readonly bool _deathLink;
+
     //Handles the deathlink
     private readonly DeathLinkService _dlService;
 
@@ -54,7 +56,7 @@ public class MultiworldHandler
     {
         _session = ArchipelagoSessionFactory.CreateSession(url, port);
         if (password == "") password = null;
-        
+
         _session.Items.ItemReceived += OnItemReceived;
         _session.MessageLog.OnMessageReceived += OnMessageReceived;
 
@@ -78,17 +80,17 @@ public class MultiworldHandler
         }
 
         _slotInfo = (LoginSuccessful)result;
-        
+
         Instance = this;
 
         CreateItems();
         CreateLocations();
-        
+
         foreach (var item in _session.Items.AllItemsReceived)
         {
             _receivedItemNames.Add(_session.Items.GetItemName(item.Item));
         }
-        
+
         _minMoney = GetSlotSetting("minMoney", 100);
         _maxMoney = GetSlotSetting("maxMoney", 100);
         _scrapGoal = GetSlotSetting("collectathonGoal", 5);
@@ -99,7 +101,30 @@ public class MultiworldHandler
         _goal = GetSlotSetting("goal");
         _deathLink = GetSlotSetting("deathLink") == 1;
         _dlService = _session.CreateDeathLinkService();
+        if (_deathLink)
+        {
+            _dlService.OnDeathLinkReceived += KillRandom;
+        }
         ProcessItems(_receivedItemNames);
+    }
+
+    private static void KillRandom(DeathLink link)
+    {
+        ChatHandler.SendMessage($"AP: {link.Cause}");
+        Random.InitState(link.Timestamp.Millisecond);
+        int selected = Random.Range(0, GameNetworkManager.Instance.connectedPlayers);
+        PlayerControllerB[] players = StartOfRound.Instance.allPlayerScripts;
+        ulong[] steamIds = new ulong[players.Length];
+        for (int i = 0; i < players.Length; i++)
+        {
+            steamIds[i] = players[i].playerSteamId;
+        }
+        Array.Sort(steamIds);
+        Array.Reverse(steamIds);
+        if (StartOfRound.Instance.localPlayerController.playerSteamId == steamIds[selected])
+        {
+            StartOfRound.Instance.localPlayerController.KillPlayer(Vector3.zero, causeOfDeath: CauseOfDeath.Blast);
+        }
     }
 
     public void Disconnect()
@@ -162,23 +187,25 @@ public class MultiworldHandler
                 new FillerItems("BrackenTrap", () => EnemyTrapHandler.SpawnEnemyByName("flower")));
             _itemMap.Add("More Time", new FillerItems("More Time", () =>
             {
-                TimeOfDay.Instance.timeUntilDeadline+=TimeOfDay.Instance.totalTime;
+                TimeOfDay.Instance.timeUntilDeadline += TimeOfDay.Instance.totalTime;
                 TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
                 return true;
             }));
             _itemMap.Add("Less Time", new FillerItems("Less Time", () =>
             {
-                TimeOfDay.Instance.timeUntilDeadline-=TimeOfDay.Instance.totalTime;
+                TimeOfDay.Instance.timeUntilDeadline -= TimeOfDay.Instance.totalTime;
                 if (TimeOfDay.Instance.timeUntilDeadline < TimeOfDay.Instance.totalTime)
                 {
                     TimeOfDay.Instance.timeUntilDeadline = TimeOfDay.Instance.totalTime;
                 }
+
                 TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
                 return true;
             }));
             _itemMap.Add("Clone Scrap", new FillerItems("Clone Scrap", () =>
             {
-                var list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()
+                var list = (from obj in GameObject.Find("/Environment/HangarShip")
+                        .GetComponentsInChildren<GrabbableObject>()
                     where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
                     select obj).ToList();
                 Collection<GrabbableObject> objects = new();
@@ -199,6 +226,7 @@ public class MultiworldHandler
 
                 var gameObject = UnityEngine.Object.Instantiate(objects[i].itemProperties.spawnPrefab,
                     objects[i].transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
+                gameObject.GetComponent<GrabbableObject>().SetScrapValue(objects[i].scrapValue);
                 gameObject.GetComponentInChildren<NetworkObject>().Spawn();
                 return true;
             }));
@@ -219,18 +247,26 @@ public class MultiworldHandler
     private void CreateLocations()
     {
         //Moons
-        _locationMap.Add("Experimentation",new MoonLocations("Experimentation", GetSlotSetting("moonRank",2), GetSlotSetting("checksPerMoon",3)));
-        _locationMap.Add("Assurance",new MoonLocations("Assurance", GetSlotSetting("moonRank",2), GetSlotSetting("checksPerMoon",3)));
-        _locationMap.Add("Vow",new MoonLocations("Vow", GetSlotSetting("moonRank",2), GetSlotSetting("checksPerMoon",3)));
-        _locationMap.Add("Offense",new MoonLocations("Offense", GetSlotSetting("moonRank",2), GetSlotSetting("checksPerMoon",3)));
-        _locationMap.Add("March",new MoonLocations("March", GetSlotSetting("moonRank",2), GetSlotSetting("checksPerMoon",3)));
-        _locationMap.Add("Rend",new MoonLocations("Rend", GetSlotSetting("moonRank",2), GetSlotSetting("checksPerMoon",3)));
-        _locationMap.Add("Dine",new MoonLocations("Dine", GetSlotSetting("moonRank",2), GetSlotSetting("checksPerMoon",3)));
-        _locationMap.Add("Titan",new MoonLocations("Titan", GetSlotSetting("moonRank",2), GetSlotSetting("checksPerMoon",3)));
-        
+        _locationMap.Add("Experimentation",
+            new MoonLocations("Experimentation", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+        _locationMap.Add("Assurance",
+            new MoonLocations("Assurance", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+        _locationMap.Add("Vow",
+            new MoonLocations("Vow", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+        _locationMap.Add("Offense",
+            new MoonLocations("Offense", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+        _locationMap.Add("March",
+            new MoonLocations("March", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+        _locationMap.Add("Rend",
+            new MoonLocations("Rend", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+        _locationMap.Add("Dine",
+            new MoonLocations("Dine", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+        _locationMap.Add("Titan",
+            new MoonLocations("Titan", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+
         //Quota
-        _locationMap.Add("Quota",new Quota(GetSlotSetting("moneyPerQuotaCheck", 500), GetSlotSetting("numQuota", 20)));
-        
+        _locationMap.Add("Quota", new Quota(GetSlotSetting("moneyPerQuotaCheck", 500), GetSlotSetting("numQuota", 20)));
+
         //Bestiary
         _locationMap.Add("Roaming Locust", new BestiaryLocations(15, "Roaming Locust"));
         _locationMap.Add("Manticoil", new BestiaryLocations(13, "Manticoil"));
@@ -249,20 +285,33 @@ public class MultiworldHandler
         _locationMap.Add("Earth Leviathan", new BestiaryLocations(9, "Earth Leviathan"));
         _locationMap.Add("Baboon Hawk", new BestiaryLocations(16, "Baboon Hawk"));
         _locationMap.Add("Nutcracker", new BestiaryLocations(17, "Nutcracker"));
-        
+
         //Logs
-        _locationMap.Add("Smells Here!", new LogLocations(1,"Smells Here!"));
-        _locationMap.Add("Swing of Things", new LogLocations(2,"Swing of Things"));
-        _locationMap.Add("Shady", new LogLocations(3,"Shady"));
-        _locationMap.Add("Sound Behind the Wall", new LogLocations(4,"Sound Behind the Wall"));
-        _locationMap.Add("Goodbye", new LogLocations(5,"Goodbye"));
-        _locationMap.Add("Screams", new LogLocations(6,"Screams"));
-        _locationMap.Add("Golden Planet", new LogLocations(7,"Golden Planet"));
-        _locationMap.Add("Idea", new LogLocations(8,"Idea"));
-        _locationMap.Add("Nonsense", new LogLocations(9,"Nonsense"));
-        _locationMap.Add("Hiding", new LogLocations(10,"Hiding"));
-        _locationMap.Add("Real Job", new LogLocations(11,"Real Job"));
-        _locationMap.Add("Desmond", new LogLocations(12,"Desmond"));
+        _locationMap.Add("Smells Here!", new LogLocations(1, "Smells Here!"));
+        _locationMap.Add("Swing of Things", new LogLocations(2, "Swing of Things"));
+        _locationMap.Add("Shady", new LogLocations(3, "Shady"));
+        _locationMap.Add("Sound Behind the Wall", new LogLocations(4, "Sound Behind the Wall"));
+        _locationMap.Add("Goodbye", new LogLocations(5, "Goodbye"));
+        _locationMap.Add("Screams", new LogLocations(6, "Screams"));
+        _locationMap.Add("Golden Planet", new LogLocations(7, "Golden Planet"));
+        _locationMap.Add("Idea", new LogLocations(8, "Idea"));
+        _locationMap.Add("Nonsense", new LogLocations(9, "Nonsense"));
+        _locationMap.Add("Hiding", new LogLocations(10, "Hiding"));
+        _locationMap.Add("Real Job", new LogLocations(11, "Real Job"));
+        _locationMap.Add("Desmond", new LogLocations(12, "Desmond"));
+
+        //Scrap
+        string[] scrapNames =
+        {
+            "Airhorn", "Apparatice", "Bee Hive", "Big bolt", "Bottles", "Brass bell", "Candy", "Cash register",
+            "Chemical jug", "Clown horn", "Coffee mug", "Comedy", "Cookie mold pan", "DIY-Flashbang", "Double-barrel", "Dust pan",
+            "Egg beater", "Fancy lamp", "Flask", "Gift box", "Gold bar", "Golden cup", "Hair brush", "Hairdryer",
+            "Jar of pickles", "Large axle", "Laser pointer", "Magic 7 ball", "Magnifying glass", "Old phone",
+            "Painting", "Perfume bottle", "Pill bottle", "Plastic fish", "Red soda", "Remote", "Ring", "Robot toy",
+            "Rubber ducky", "Steering wheel", "Stop sign", "Tattered metal sheet", "Tea kettle", "Teeth", "Toothpaste",
+            "Toy cube", "Tragedy", "V-type engine", "Whoopie-Cushion", "Yield sign"
+        };
+        _locationMap.Add("Scrap", new ScrapLocations(scrapNames));
     }
 
     public bool IsConnected()
@@ -275,10 +324,10 @@ public class MultiworldHandler
         return _session;
     }
 
-    private int GetSlotSetting(string settingName, int def=0)
+    public int GetSlotSetting(string settingName, int def = 0)
     {
         if (_slotInfo == null) return def;
-        
+
         try
         {
             return int.Parse(_slotInfo.SlotData[settingName].ToString());
@@ -320,10 +369,10 @@ public class MultiworldHandler
     public void CompleteLocation(string name)
     {
         var id = _session.Locations.GetLocationIdFromName("Lethal Company", name);
-        if(_session.Locations.AllLocationsChecked.IndexOf(id) == -1)
+        if (_session.Locations.AllLocationsChecked.IndexOf(id) == -1)
             _session.Locations.CompleteLocationChecks(id);
     }
-    
+
     public void CheckLogs()
     {
         foreach (var location in _locationMap.Values)
@@ -344,7 +393,7 @@ public class MultiworldHandler
     {
         return _itemMap[key];
     }
-    
+
     public Locations GetLocationMap(string key)
     {
         return _locationMap[key];
@@ -365,6 +414,7 @@ public class MultiworldHandler
             _session.DataStorage["trophies"] = new JArray(_trophyModeComplete);
             break;
         }
+
         string[] moons = { "Experimentation", "Assurance", "Vow", "Offense", "March", "Rend", "Dine", "Titan" };
         if (moons.Any(m => Array.IndexOf(_trophyModeComplete, m) == -1)) return;
         Victory();
@@ -402,9 +452,10 @@ public class MultiworldHandler
     public void HandleDeathLink()
     {
         if (_deathLink)
-            _dlService.SendDeathLink(new DeathLink(_session.Players.GetPlayerName(_slotInfo.Slot), "failed the company."));
+            _dlService.SendDeathLink(new DeathLink(_session.Players.GetPlayerName(_slotInfo.Slot),
+                "failed the company."));
     }
-    
+
     private void ResetItems()
     {
         foreach (var item in _itemMap.Values)
@@ -412,14 +463,14 @@ public class MultiworldHandler
             item.Reset();
         }
     }
-    
+
     public void TickItems()
     {
         foreach (var item in _itemMap.Values)
         {
             item.Tick();
         }
-        
+
         RefreshItems();
     }
 
@@ -431,7 +482,7 @@ public class MultiworldHandler
         {
             _receivedItemNames.Add(_session.Items.GetItemName(item.Item));
         }
-        
+
         ProcessItems(_receivedItemNames);
     }
 

@@ -87,7 +87,7 @@ public class ChatHandler
                     SendMessage("AP: Please enter your password(Enter the letter n if there isn't a password):");
                     return true;
                 }
-                else if (_waitingForPassword)
+                if (_waitingForPassword)
                 {
                     _password = message == "n" ? null : message;
 
