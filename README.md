@@ -13,6 +13,7 @@ Then, follow the below steps to setup the randomizer:
 ### YAML configuration
 The first thing you need to do is configure the lethal_company.yaml file. For that, open and
 edit the YAML to fit whatever settings you want to play with:
+- name: Enter your desired slot name here, could be almost anything. {player} or {PLAYER} are replaced with the slot number, while {number} or {NUMBER} will increment once for each duplicate YAML name
 - game_mode: Can be collectathon or trophy, in trophy mode you need to collect one trophy apparatus from each moon, while in collectathon mode you need to collect a certain amount of AP chest scraps
 - checks_per_moon: Can be any number between 1 and 10, default is 3. This is the amount of checks per moon that can be gotten from completing that moon
 - money_per_quota_check: Can be any number between 100 and 10000, default is 500. This is the amount of total quota you must complete to get the check. Be aware that each quota only contributes the required scrap towards this goal, not the sold scrap. If you sell 500 scrap but the quota is only 130, you will only contribute 130 towards the check.
