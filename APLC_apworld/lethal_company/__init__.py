@@ -65,7 +65,8 @@ class LethalCompanyWorld(World):
         total_locations = len(
             generate_locations(
                 checks_per_moon=self.options.checks_per_moon.value,
-                num_quota=self.options.num_quotas.value
+                num_quota=self.options.num_quotas.value,
+                scrapsanity=self.options.scrapsanity.value
             )
         )
 

@@ -167,8 +167,8 @@ public class MultiworldHandler
             _itemMap.Add("Offense", new MoonItems("Offense", 7));
             _itemMap.Add("March", new MoonItems("March", 4));
             _itemMap.Add("Rend", new MoonItems("Rend", 5));
-            _itemMap.Add("Dine", new MoonItems("Dine", 6));
-            _itemMap.Add("Titan", new MoonItems("Titan", 8));
+            _itemMap.Add("Dine", new MoonItems("Dine", 8));
+            _itemMap.Add("Titan", new MoonItems("Titan", 9));
 
             //Player Upgrades
             _itemMap.Add("Inventory Slot", new PlayerUpgrades("Inventory Slot", GetSlotSetting("inventorySlots", 4)));
@@ -246,23 +246,36 @@ public class MultiworldHandler
 
     private void CreateLocations()
     {
+        int lowGrade;
+        int medGrade;
+        int highGrade;
+        if (GetSlotSetting("splitgrades") == 1)
+        {
+            lowGrade = GetSlotSetting("lowGrade", 2);
+            medGrade = GetSlotSetting("medGrade", 2);
+            highGrade = GetSlotSetting("highGrade", 2);
+        }
+        else
+        {
+            lowGrade = medGrade = highGrade = GetSlotSetting("moonRank", 2);
+        }
         //Moons
         _locationMap.Add("Experimentation",
-            new MoonLocations("Experimentation", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+            new MoonLocations("Experimentation", lowGrade, GetSlotSetting("checksPerMoon", 3)));
         _locationMap.Add("Assurance",
-            new MoonLocations("Assurance", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+            new MoonLocations("Assurance", lowGrade, GetSlotSetting("checksPerMoon", 3)));
         _locationMap.Add("Vow",
-            new MoonLocations("Vow", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+            new MoonLocations("Vow", lowGrade, GetSlotSetting("checksPerMoon", 3)));
         _locationMap.Add("Offense",
-            new MoonLocations("Offense", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+            new MoonLocations("Offense", medGrade, GetSlotSetting("checksPerMoon", 3)));
         _locationMap.Add("March",
-            new MoonLocations("March", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+            new MoonLocations("March", medGrade, GetSlotSetting("checksPerMoon", 3)));
         _locationMap.Add("Rend",
-            new MoonLocations("Rend", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+            new MoonLocations("Rend", highGrade, GetSlotSetting("checksPerMoon", 3)));
         _locationMap.Add("Dine",
-            new MoonLocations("Dine", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+            new MoonLocations("Dine", highGrade, GetSlotSetting("checksPerMoon", 3)));
         _locationMap.Add("Titan",
-            new MoonLocations("Titan", GetSlotSetting("moonRank", 2), GetSlotSetting("checksPerMoon", 3)));
+            new MoonLocations("Titan", highGrade, GetSlotSetting("checksPerMoon", 3)));
 
         //Quota
         _locationMap.Add("Quota", new Quota(GetSlotSetting("moneyPerQuotaCheck", 500), GetSlotSetting("numQuota", 20)));
@@ -305,10 +318,10 @@ public class MultiworldHandler
         {
             "Airhorn", "Apparatice", "Bee Hive", "Big bolt", "Bottles", "Brass bell", "Candy", "Cash register",
             "Chemical jug", "Clown horn", "Coffee mug", "Comedy", "Cookie mold pan", "DIY-Flashbang", "Double-barrel", "Dust pan",
-            "Egg beater", "Fancy lamp", "Flask", "Gift box", "Gold bar", "Golden cup", "Hair brush", "Hairdryer",
+            "Egg beater", "Fancy lamp", "Flask", "Gift Box", "Gold bar", "Golden cup", "Hair brush", "Hairdryer",
             "Jar of pickles", "Large axle", "Laser pointer", "Magic 7 ball", "Magnifying glass", "Old phone",
             "Painting", "Perfume bottle", "Pill bottle", "Plastic fish", "Red soda", "Remote", "Ring", "Robot toy",
-            "Rubber ducky", "Steering wheel", "Stop sign", "Tattered metal sheet", "Tea kettle", "Teeth", "Toothpaste",
+            "Rubber Ducky", "Steering wheel", "Stop sign", "Tattered metal sheet", "Tea kettle", "Teeth", "Toothpaste",
             "Toy cube", "Tragedy", "V-type engine", "Whoopie-Cushion", "Yield sign"
         };
         _locationMap.Add("Scrap", new ScrapLocations(scrapNames));
@@ -393,6 +406,11 @@ public class MultiworldHandler
     {
         return _itemMap[key];
     }
+    
+    public T GetItemMap<T>(string key) where T : Items
+    {
+        return (T)_itemMap[key];
+    }
 
     public Locations GetLocationMap(string key)
     {
@@ -424,7 +442,7 @@ public class MultiworldHandler
     {
         _scrapCollected += amount;
         _session.DataStorage["scrapCollected"] = _scrapCollected;
-        if (_scrapCollected > _scrapGoal)
+        if (_scrapCollected >= _scrapGoal)
         {
             Victory();
         }

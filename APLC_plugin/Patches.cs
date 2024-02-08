@@ -3,6 +3,7 @@ using System.Linq;
 using Archipelago.MultiClient.Net.Packets;
 using GameNetcodeStuff;
 using HarmonyLib;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
 using Object = UnityEngine.Object;
@@ -95,22 +96,23 @@ public class Patches
                 __result = invSlots - 1;
         }
     }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(PlayerControllerB), "Update")]
-    private static void SetCarryWeight(PlayerControllerB __instance)
-    {
-        if (MultiworldHandler.Instance == null) return;
-        Plugin.carryWeight = __instance.carryWeight;
-        __instance.carryWeight *= Mathf.Pow(0.98f, MultiworldHandler.Instance.GetItemMap("Strength Training").GetTotal());
-    }
     
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PlayerControllerB), "Update")]
     private static void FixCarryWeight(PlayerControllerB __instance)
     {
         if (MultiworldHandler.Instance == null) return;
-        __instance.carryWeight = Plugin.carryWeight;
+        var newWeight = 1f + __instance.ItemSlots.Where(item => item != null).Sum(
+            item => Mathf.Clamp(
+                (item.itemProperties.weight - 1f) * Mathf.Pow(
+                    0.90f, MultiworldHandler.Instance.GetItemMap<PlayerUpgrades>("Strength Training").GetNum()
+                ),
+                0f,
+                10f
+            )
+        );
+
+        __instance.carryWeight = Mathf.Max(1f, newWeight);
     }
     
     //Archipelago connection

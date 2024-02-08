@@ -1,5 +1,5 @@
-from BaseClasses import MultiWorld, CollectionState
-from .locations import generate_locations, bestiary_moons
+from BaseClasses import MultiWorld, CollectionState, Region
+from .locations import bestiary_moons, scrap_moons, scrap_names
 from typing import Set, TYPE_CHECKING
 from worlds.AutoWorld import World
 from .options import LCOptions
@@ -44,10 +44,6 @@ def set_rules(lc_world) -> None:
     player = lc_world.player
     multiworld = lc_world.multiworld
     options: LCOptions = lc_world.options
-    total_locations = len(generate_locations(
-        checks_per_moon=options.checks_per_moon.value,
-        num_quota=options.num_quotas.value
-    ))
     for moon in moons:
         for i in range(options.checks_per_moon.value):
             has_location_access_rule(multiworld, moon, player, i + 1, options)
@@ -85,6 +81,19 @@ def set_rules(lc_world) -> None:
         multiworld.get_location(f"Bestiary Entry - {entry}", player).access_rule = \
             lambda state: has_multi(state, can_spawn, player) and (state.has("Scanner", player)
                                                                    or options.randomize_scanner.value == 0)
+
+    if options.scrapsanity.value == 1:
+        for scrap_index in range(len(scrap_names)):
+            possible_moons = []
+            for moon in moons:
+                if scrap_index in scrap_moons[moon]:
+                    possible_moons.append(moon)
+            multiworld.get_location(f"Scrap - {scrap_names[scrap_index]}", player).access_rule = \
+                lambda state, _possible_moons=possible_moons, _scrap_name=scrap_names[scrap_index]: state.has_any(_possible_moons, player) and \
+                                                              (state.has("Stamina Bar", player) or
+                                                               options.starting_stamina_bars.value > 0) and \
+                                                              (state.has("Shovel", player) or
+                                                               _scrap_name != "Double-barrel")
 
     multiworld.completion_condition[player] = lambda state: state.has("Victory", player)
 

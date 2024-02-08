@@ -1,7 +1,7 @@
 from typing import Dict, List, NamedTuple, Optional
 
 from BaseClasses import MultiWorld, Region, Entrance
-from .locations import LethalCompanyLocation, bestiary_moons, max_locations, bestiary_names
+from .locations import LethalCompanyLocation, bestiary_moons, max_locations, bestiary_names, scrap_names
 from .options import LCOptions
 
 
@@ -63,6 +63,10 @@ def create_regions(options: LCOptions, multiworld: MultiWorld, player: int):
             invalid_moons = bestiary_moons[beast]
             if key not in invalid_moons:
                 regions[key].region_exits.append(f"{beast}")
+
+    if options.scrapsanity.value == 1:
+        for scrap_name in scrap_names:
+            regions["Ship"].locations.append(f"Scrap - {scrap_name}")
 
     regions_pool: Dict = regions
 

@@ -5,11 +5,14 @@ namespace APLC;
 
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 [BepInProcess("Lethal Company.exe")]
+[BepInIncompatibility("LethalExpansion")]
+[BepInIncompatibility("com.github.lethalmods.lethalexpansioncore")]
 public class Plugin : BaseUnityPlugin
 {
     //Instance of the plugin for other classes to access
     public static Plugin _instance;
     public static float carryWeight;
+    public static float initialWeight;
     
     /**
      * Patches the game on startup, injecting the code into the game.

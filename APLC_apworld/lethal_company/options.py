@@ -260,6 +260,73 @@ class WeightReducers(Range):
     range_end = 100
 
 
+class Scrapsanity(Toggle):
+    """
+    Enables scrapsanity, where the first time each item is recovered from a moon is a check,
+    adds 50 checks to the randomizer
+    """
+    display_name = "Scrapsanity"
+    slot = True
+    slot_name = "scrapsanity"
+
+
+class SplitMoonGrades(Toggle):
+    """
+    Enables customizing the required grade for easy, medium, and hard moons separately.
+    """
+    display_name = "Split Moon Grades"
+    slot = True
+    slot_name = "splitgrades"
+
+
+class EasyMoonCheckGrade(Choice):
+    """
+    The grade you need to get to get a check on an easy moon
+    """
+    display_name = "Easy Moon Check Grade"
+    option_S = 0
+    option_A = 1
+    option_B = 2
+    option_C = 3
+    option_D = 4
+    option_F = 5
+    default = 2
+    slot = True
+    slot_name = "lowMoon"
+
+
+class MedMoonCheckGrade(Choice):
+    """
+    The grade you need to get to get a check on a medium difficulty moon
+    """
+    display_name = "Medium Moon Check Grade"
+    option_S = 0
+    option_A = 1
+    option_B = 2
+    option_C = 3
+    option_D = 4
+    option_F = 5
+    default = 2
+    slot = True
+    slot_name = "medMoon"
+
+
+class HighMoonCheckGrade(Choice):
+    """
+    The grade you need to get to get a check on a hard moon
+    """
+    display_name = "Hard Moon Check Grade"
+    option_S = 0
+    option_A = 1
+    option_B = 2
+    option_C = 3
+    option_D = 4
+    option_F = 5
+    default = 2
+    slot = True
+    slot_name = "highMoon"
+
+
 @dataclass
 class LCOptions(PerGameCommonOptions):
     game_mode: Goal
@@ -270,10 +337,15 @@ class LCOptions(PerGameCommonOptions):
     starting_stamina_bars: StartingStaminaBars
     collectathon_scrap_goal: CollectathonScrapGoal
     randomize_scanner: RandomizeScanner
+    scrapsanity: Scrapsanity
     min_money: MinMoneyCheck
     max_money: MaxMoneyCheck
     starting_moon: StartingMoon
+    split_moon_grades: SplitMoonGrades
     moon_grade: MoonCheckGrade
+    low_moon_grade: EasyMoonCheckGrade
+    medium_moon_grade: MedMoonCheckGrade
+    high_moon_grade: HighMoonCheckGrade
     time_add: DayIncreaseWeight
     scrap_clone: ScrapDupeWeight
     birthday: BirthdayGiftWeight
