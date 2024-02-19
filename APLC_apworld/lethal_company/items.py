@@ -23,7 +23,7 @@ class LCItem:
             moons.append(self.name)
         if shop_item:
             shop_items.append(self.name)
-        classification_table.update({self.name: classification})
+        classification_table[self.name] = classification
 
     def create_item(self, lcworld: World):
         names = []
@@ -57,10 +57,9 @@ shop_items = []
 
 items = [
     LCItem("Walkie-talkie", shop_item=True),
-    LCItem("Flashlight", shop_item=True),
     LCItem("Shovel", shop_item=True),
     LCItem("Lockpicker", shop_item=True),
-    LCItem("Pro-flashlight", shop_item=True),
+    LCItem("Progressive Flashlight", 0, 2, shop_item=True),
     LCItem("Stun grenade", shop_item=True),
     LCItem("Boombox", shop_item=True),
     LCItem("TZP-Inhalant", shop_item=True),

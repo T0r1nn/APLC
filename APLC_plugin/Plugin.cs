@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Linq;
+using Archipelago.MultiClient.Net;
+using Archipelago.MultiClient.Net.Helpers;
 using BepInEx;
+using System.Collections.ObjectModel;
+using UnityEngine.UIElements.Collections;
 
 namespace APLC;
 
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 [BepInProcess("Lethal Company.exe")]
-[BepInIncompatibility("LethalExpansion")]
-[BepInIncompatibility("com.github.lethalmods.lethalexpansioncore")]
 public class Plugin : BaseUnityPlugin
 {
     //Instance of the plugin for other classes to access

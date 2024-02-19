@@ -8,8 +8,8 @@ namespace APLC;
 public abstract class Items
 {
     private int _received;
-    private int _total;
-    private int _waiting;
+    private int _total;         
+    private int _waiting; 
     private bool _resetAll;
     private string _name;
     protected void Setup(string name, bool resetAll=false)
@@ -20,9 +20,10 @@ public abstract class Items
             MultiworldHandler.Instance.GetSession().DataStorage[name].Initialize(0);
             _total = MultiworldHandler.Instance.GetSession().DataStorage[name];
         }
-        catch (Exception)
+        catch (Exception e)
         {
             _total = 0;
+            Plugin._instance.LogError(e.Message+"\n"+e.StackTrace);
         }
 
         _resetAll = resetAll;
@@ -32,7 +33,6 @@ public abstract class Items
     {
         _received++;
         if (_received <= _total) return;
-        MultiworldHandler.Instance.GetSession().DataStorage[_name] = _total;
         if (!HandleReceived())
         {
             _waiting++;
@@ -41,6 +41,7 @@ public abstract class Items
         {
             _total++;
         }
+        MultiworldHandler.Instance.GetSession().DataStorage[_name] = _total;
     }
 
     protected abstract bool HandleReceived(bool isTick=false);
@@ -65,12 +66,10 @@ public abstract class Items
     {
         if (!GameNetworkManager.Instance.localPlayerController.IsHost) return;
         if (_waiting <= 0) return;
-        if (HandleReceived(true))
-        {
-            _waiting--;
-            _total++;
-            MultiworldHandler.Instance.GetSession().DataStorage[_name] = _total;
-        }
+        if (!HandleReceived(true)) return;
+        _waiting--;
+        _total++;
+        MultiworldHandler.Instance.GetSession().DataStorage[_name] = _total;
     }
 
     public int GetTotal()
@@ -97,10 +96,17 @@ public class FillerItems : Items
 public class MoonItems : Items
 {
     private readonly int _terminalIndex;
-    public MoonItems(string name, int terminalIndex)
+    public MoonItems(string name)
     {
         Setup(name, resetAll:true);
-        _terminalIndex = terminalIndex;
+        for (var i = 0; i < Plugin._instance.getTerminal().terminalNodes.allKeywords[26].compatibleNouns.Length; i++)
+        {
+            if (Plugin._instance.getTerminal().terminalNodes.allKeywords[26].compatibleNouns[i].noun.word
+                .Contains(name.ToLower()))
+            {
+                _terminalIndex = i;
+            }
+        }
         Plugin._instance.getTerminal().terminalNodes.allKeywords[26].compatibleNouns[_terminalIndex].result.itemCost = 10000000;
         Plugin._instance.getTerminal().terminalNodes.allKeywords[26].compatibleNouns[_terminalIndex].result.terminalOptions[1].result
             .itemCost = 10000000;

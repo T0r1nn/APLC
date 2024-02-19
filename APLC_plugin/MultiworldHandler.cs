@@ -9,6 +9,7 @@ using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Packets;
 using GameNetcodeStuff;
+using HarmonyLib;
 using Newtonsoft.Json.Linq;
 using Unity.Netcode;
 using UnityEngine;
@@ -48,6 +49,8 @@ public class MultiworldHandler
 
     //true if death link is enabled
     private readonly bool _deathLink;
+
+    private readonly Collection<string> _hints = new();
 
     //Handles the deathlink
     private readonly DeathLinkService _dlService;
@@ -161,14 +164,14 @@ public class MultiworldHandler
             _itemMap.Add("InverseTeleporter", new ShipUpgrades("InverseTeleporter", 28));
 
             //Moons
-            _itemMap.Add("Experimentation", new MoonItems("Experimentation", 0));
-            _itemMap.Add("Assurance", new MoonItems("Assurance", 1));
-            _itemMap.Add("Vow", new MoonItems("Vow", 2));
-            _itemMap.Add("Offense", new MoonItems("Offense", 7));
-            _itemMap.Add("March", new MoonItems("March", 4));
-            _itemMap.Add("Rend", new MoonItems("Rend", 5));
-            _itemMap.Add("Dine", new MoonItems("Dine", 8));
-            _itemMap.Add("Titan", new MoonItems("Titan", 9));
+            _itemMap.Add("Experimentation", new MoonItems("Experimentation"));
+            _itemMap.Add("Assurance", new MoonItems("Assurance"));
+            _itemMap.Add("Vow", new MoonItems("Vow"));
+            _itemMap.Add("Offense", new MoonItems("Offense"));
+            _itemMap.Add("March", new MoonItems("March"));
+            _itemMap.Add("Rend", new MoonItems("Rend"));
+            _itemMap.Add("Dine", new MoonItems("Dine"));
+            _itemMap.Add("Titan", new MoonItems("Titan"));
 
             //Player Upgrades
             _itemMap.Add("Inventory Slot", new PlayerUpgrades("Inventory Slot", GetSlotSetting("inventorySlots", 4)));
@@ -251,9 +254,9 @@ public class MultiworldHandler
         int highGrade;
         if (GetSlotSetting("splitgrades") == 1)
         {
-            lowGrade = GetSlotSetting("lowGrade", 2);
-            medGrade = GetSlotSetting("medGrade", 2);
-            highGrade = GetSlotSetting("highGrade", 2);
+            lowGrade = GetSlotSetting("lowMoon", 2);
+            medGrade = GetSlotSetting("medMoon", 2);
+            highGrade = GetSlotSetting("highMoon", 2);
         }
         else
         {
@@ -314,7 +317,7 @@ public class MultiworldHandler
         _locationMap.Add("Desmond", new LogLocations(12, "Desmond"));
 
         //Scrap
-        string[] scrapNames =
+        string[] checkNames =
         {
             "Airhorn", "Apparatice", "Bee Hive", "Big bolt", "Bottles", "Brass bell", "Candy", "Cash register",
             "Chemical jug", "Clown horn", "Coffee mug", "Comedy", "Cookie mold pan", "DIY-Flashbang", "Double-barrel", "Dust pan",
@@ -324,7 +327,34 @@ public class MultiworldHandler
             "Rubber Ducky", "Steering wheel", "Stop sign", "Tattered metal sheet", "Tea kettle", "Teeth", "Toothpaste",
             "Toy cube", "Tragedy", "V-type engine", "Whoopie-Cushion", "Yield sign"
         };
-        _locationMap.Add("Scrap", new ScrapLocations(scrapNames));
+
+        string[] scrapNames =
+        {
+            "Airhorn", "Apparatus", "Hive", "Big bolt", "Bottles", "Bell", "Candy", "Cash register",
+            "Chemical jug", "Clown horn", "Mug", "Comedy", "Cookie mold pan", "Homemade flashbang", "Shotgun", "Dust pan",
+            "Egg beater", "Fancy lamp", "Flask", "Gift", "Gold bar", "Golden cup", "Brush", "Hairdryer",
+            "Jar of pickles", "Large axle", "Laser pointer", "Magic 7 ball", "Magnifying glass", "Old phone",
+            "Painting", "Perfume bottle", "Pill bottle", "Plastic fish", "Red soda", "Remote", "Ring", "Toy robot",
+            "Rubber Ducky", "Steering wheel", "Stop sign", "Metal sheet", "Tea kettle", "Teeth", "Toothpaste",
+            "Toy cube", "Tragedy", "V-type engine", "Whoopie cushion", "Yield sign"
+        };
+        _locationMap.Add("Scrap", new ScrapLocations(scrapNames, checkNames));
+
+        // Terminal t = Plugin._instance.getTerminal();
+        // TerminalKeyword ap = ScriptableObject.CreateInstance<TerminalKeyword>();
+        // ap.word = "ap";
+        // CompatibleNoun hints = new CompatibleNoun
+        // {
+        //     noun = ScriptableObject.CreateInstance<TerminalKeyword>()
+        // };
+        // hints.noun.word = "hints";
+        // hints.result = ScriptableObject.CreateInstance<TerminalNode>();
+        // hints.result.displayText = "This is a test";
+        // ap.compatibleNouns = new[]
+        // {
+        //     hints
+        // };
+        // t.terminalNodes.allKeywords.AddItem(ap);
     }
 
     public bool IsConnected()
@@ -365,6 +395,13 @@ public class MultiworldHandler
             case ChatLogMessage chatLogMessage:
                 if (chatLogMessage.Player.Slot == _session.ConnectionInfo.Slot) return;
                 break;
+            // case HintItemSendLogMessage chatLogMessage:
+            //     string hint = chatLogMessage.Parts.Aggregate("", (current, part) => current + part.Text);
+            //     if (!_hints.Contains(hint))
+            //     {
+            //         _hints.Add(hint);
+            //     }
+            //     break;
         }
 
         ChatHandler.SendMessage(chat);
@@ -377,6 +414,11 @@ public class MultiworldHandler
         helper.DequeueItem();
 
         ProcessItems(_receivedItemNames);
+    }
+
+    public Collection<string> GetHints()
+    {
+        return _hints;
     }
 
     public void CompleteLocation(string name)
@@ -507,15 +549,32 @@ public class MultiworldHandler
     private void ProcessItems(Collection<string> names)
     {
         ResetItems();
+        int flashlights = 0;
+        string[] flashlightNames = { "Flashlight", "Pro-flashlight" };
         foreach (var name in names)
         {
-            try
+            if (name == "Progressive Flashlight")
             {
-                _itemMap[name].OnReceived();
+                try
+                {
+                    _itemMap[flashlightNames[flashlights]].OnReceived();
+                    flashlights++;
+                }
+                catch (Exception e)
+                {
+                    Plugin._instance.LogWarning($"{e.Message}\n{e.StackTrace}");
+                }
             }
-            catch (Exception e)
+            else
             {
-                Plugin._instance.LogWarning($"{e.Message}\n{e.StackTrace}");
+                try
+                {
+                    _itemMap[name].OnReceived();
+                }
+                catch (Exception e)
+                {
+                    Plugin._instance.LogWarning($"{e.Message}\n{e.StackTrace}");
+                }
             }
         }
     }

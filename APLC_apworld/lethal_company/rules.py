@@ -72,7 +72,7 @@ def set_rules(lc_world) -> None:
     multiworld.get_location("Log - Desmond", player).access_rule = \
         lambda state: state.has("Jetpack", player) and state.has("Titan", player)
     multiworld.get_location("Victory", player).access_rule = \
-        lambda state: state.has_all(shop_items, player) and state.has_all(moons, player)
+        lambda state: state.has_all(shop_items, player) and state.has_all(moons, player) and state.has("Progressive Flashlight", player, count=2)
     for entry in bestiary_moons:
         cant_spawn = bestiary_moons[entry]
         can_spawn = [moon for moon in moons]

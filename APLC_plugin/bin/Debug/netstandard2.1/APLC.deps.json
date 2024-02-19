@@ -7,7 +7,7 @@
   "targets": {
     ".NETStandard,Version=v2.1": {},
     ".NETStandard,Version=v2.1/": {
-      "APLC/0.5.4": {
+      "APLC/0.5.7": {
         "dependencies": {
           "Archipelago.MultiClient.Net": "5.0.6",
           "BepInEx.Analyzers": "1.0.8",
@@ -16,7 +16,6 @@
           "UnityEngine.Modules": "2022.3.9",
           "Assembly-CSharp": "0.0.0.0",
           "Facepunch.Steamworks.Win64": "1.0.0.0",
-          "LethalLib": "0.0.0.0",
           "Unity.Netcode.Runtime": "0.0.0.0",
           "Unity.TextMeshPro": "0.0.0.0",
           "UnityEngine.UI": "1.0.0.0"
@@ -387,14 +386,6 @@
           }
         }
       },
-      "LethalLib/0.0.0.0": {
-        "runtime": {
-          "LethalLib.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.14.2.0"
-          }
-        }
-      },
       "Unity.Netcode.Runtime/0.0.0.0": {
         "runtime": {
           "Unity.Netcode.Runtime.dll": {
@@ -662,7 +653,7 @@
     }
   },
   "libraries": {
-    "APLC/0.5.4": {
+    "APLC/0.5.7": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -946,11 +937,6 @@
       "sha512": ""
     },
     "Facepunch.Steamworks.Win64/1.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "LethalLib/0.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

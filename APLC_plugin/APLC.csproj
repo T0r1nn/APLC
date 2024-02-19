@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>APLC</AssemblyName>
         <Description>Archipelago integration for Lethal Company</Description>
-        <Version>0.5.4</Version>
+        <Version>0.5.7</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
@@ -42,9 +42,6 @@
         </Reference>
         <Reference Include="Facepunch.Steamworks.Win64">
             <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Facepunch.Steamworks.Win64.dll</HintPath> <!-- Edit this to the actual location -->
-        </Reference>
-        <Reference Include="LethalLib">
-            <HintPath>C:\Users\tyler\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\AP\BepInEx\plugins\Evaisa-LethalLib\LethalLib\LethalLib.dll</HintPath>
         </Reference>
     </ItemGroup>
 </Project>
