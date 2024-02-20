@@ -26,7 +26,11 @@ edit the YAML to fit whatever settings you want to play with:
 - min_money: Can be any number between 0 and 5000, default is 100. This is the minimum amount of money that the money checks will reward you with.
 - max_money: Can be any number between 0 and 5000, default is 1000. This is the maximum amount of money that the money checks will reward you with. This can't be less than min_money
 - starting_moon: Can be any of the following: experimentation, assurance, vow, offense, march, rend, dine, titan, or randomize. This sets the moon you start the run on.
+- split_moon_grades: Can be 'true' or 'false', when 'true' the moon_grade option is ignored and the low, medium, and high_moon_grade options are used instead. When 'false', the inverse happens.
 - moon_grade: Can be any of the following: s, a, b, c, d, or f. Any moons completed on this grade or above will complete a moon check.
+- low_moon_grade: Same options as moon_grade, only affects Experimentation, Assurance, and Vow.
+- medium_moon_grade: Same options as moon_grade, only affects Offense and March.
+- high_moon_grade: Same options as moon_grade, only affects Rend, Dine, and Titan.
 - The following are filler items, and they fill the empty spots in the item pool according to their weight values, where higher weighted items will appear more than lower weighted items. All have a minimum of 0 and a maximum of 100
   - time_add: Default is 20, adds one day to quota
   - scrap_clone: Default is 20, clones one scrap on the ship

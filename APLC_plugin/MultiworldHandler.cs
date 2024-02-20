@@ -37,6 +37,9 @@ public class MultiworldHandler
     private readonly int _minMoney;
     private readonly int _maxMoney;
 
+    //Whether the player has been sent to their starting moon this save.
+    private bool _sentToMoon = true;
+
     //Shows which trophies are collected
     private readonly object[] _trophyModeComplete = new object[8];
 
@@ -89,10 +92,10 @@ public class MultiworldHandler
         CreateItems();
         CreateLocations();
 
-        foreach (var item in _session.Items.AllItemsReceived)
-        {
-            _receivedItemNames.Add(_session.Items.GetItemName(item.Item));
-        }
+        // foreach (var item in _session.Items.AllItemsReceived)
+        // {
+        //     _receivedItemNames.Add(_session.Items.GetItemName(item.Item));
+        // }
 
         _minMoney = GetSlotSetting("minMoney", 100);
         _maxMoney = GetSlotSetting("maxMoney", 100);
@@ -109,6 +112,39 @@ public class MultiworldHandler
             _dlService.OnDeathLinkReceived += KillRandom;
         }
         ProcessItems(_receivedItemNames);
+    }
+
+    public string GetStartingMoon()
+    {
+        foreach (var itemName in _receivedItemNames)
+        {
+            Items item = GetItemMap(itemName);
+            if (item.GetType() == typeof(MoonItems))
+            {
+                return itemName;
+            }
+        }
+
+        return null;
+    }
+    
+    private static bool GoToMoon()
+    {
+        var moonInd = 0;
+        var moonName = Instance.GetStartingMoon();
+        if (moonName == null) return false;
+
+        for ( var i = 0; i < StartOfRound.Instance.levels.Length; i++)
+        {
+            var level = StartOfRound.Instance.levels[i];
+            if (level.PlanetName.ToLower().Contains(moonName.ToLower()))
+            {
+                moonInd = i;
+            }
+        }
+
+        StartOfRound.Instance.ChangeLevelServerRpc(moonInd, Plugin._instance.getTerminal().groupCredits);
+        return true;
     }
 
     private static void KillRandom(DeathLink link)
@@ -526,6 +562,19 @@ public class MultiworldHandler
 
     public void TickItems()
     {
+        string planetName = StartOfRound.Instance.currentLevel.PlanetName.Split(" ")[1];
+        if (GetItemMap<MoonItems>(planetName).GetTotal() < 1)
+        {
+            _sentToMoon = false;
+        }
+        if (!_sentToMoon)
+        {
+            if (GoToMoon())
+            {
+                _sentToMoon = true;
+            }
+        }
+        
         foreach (var item in _itemMap.Values)
         {
             item.Tick();
@@ -560,9 +609,9 @@ public class MultiworldHandler
                     _itemMap[flashlightNames[flashlights]].OnReceived();
                     flashlights++;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Plugin._instance.LogWarning($"{e.Message}\n{e.StackTrace}");
+                    //Ignore exception
                 }
             }
             else
@@ -571,9 +620,9 @@ public class MultiworldHandler
                 {
                     _itemMap[name].OnReceived();
                 }
-                catch (Exception e)
-                {
-                    Plugin._instance.LogWarning($"{e.Message}\n{e.StackTrace}");
+                catch (Exception)
+                { 
+                    //Ignore exception
                 }
             }
         }

@@ -129,7 +129,7 @@ public class StoreItems : Items
 
     public StoreItems(string name, int itemsIndex)
     {
-        Setup(name);
+        Setup(name, resetAll:true);
         _itemsIndex = itemsIndex;
         _normalCost = Plugin._instance.getTerminal().buyableItemsList[_itemsIndex].creditsWorth;
         Plugin._instance.getTerminal().buyableItemsList[_itemsIndex].creditsWorth = 10000000;
@@ -150,7 +150,7 @@ public class ShipUpgrades : Items
 
     public ShipUpgrades(string name, int upgradeIndex)
     {
-        Setup(name);
+        Setup(name, resetAll:true);
         _upgradeIndex = upgradeIndex;
         _normalCost = Plugin._instance.getTerminal().terminalNodes.allKeywords[0].compatibleNouns[upgradeIndex].result
             .itemCost;
