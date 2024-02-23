@@ -24,8 +24,9 @@ def create_regions(options: LCOptions, multiworld: MultiWorld, player: int):
         "Dine": LCRegionData(["Log - Hiding"], []),
         "Rend": LCRegionData(["Log - Nonsense", "Log - Golden Planet", "Log - Idea"], []),
         "Titan": LCRegionData(["Log - Real Job", "Log - Desmond"], []),
-        "The Company": LCRegionData(["Log - Sound Behind the Wall"], ["Victory"]),
+        "The Company": LCRegionData(["Log - Sound Behind the Wall"], ["Victory", "Quota"]),
         "Victory": LCRegionData(None, None),
+        "Quota": LCRegionData(None, None),
         "Snare Flea": LCRegionData(["Bestiary Entry - Snare Flea"], []),
         "Bunker Spider": LCRegionData(["Bestiary Entry - Bunker Spider"], []),
         "Hoarding Bug": LCRegionData(["Bestiary Entry - Hoarding Bug"], []),
@@ -51,7 +52,8 @@ def create_regions(options: LCOptions, multiworld: MultiWorld, player: int):
 
     # Locations
     for key in regions:
-        if key == "Menu" or key == "Victory" or key == "Ship" or key in bestiary_names or key == "Screams":
+        if (key == "Menu" or key == "Victory" or key == "Ship" or key in bestiary_names or key == "Screams"
+                or key == "Quota"):
             continue
         if key == "The Company":
             for i in range(num_quota):

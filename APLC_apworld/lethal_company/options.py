@@ -270,6 +270,24 @@ class Scrapsanity(Toggle):
     slot_name = "scrapsanity"
 
 
+class ExcludeShotguns(Toggle):
+    """
+    Makes it so there is guaranteed to be a filler item or trap in the shotgun scrapsanity check
+    """
+    display_name = "Exclude Shotguns"
+    slot = True
+    slot_name = "excludeshotguns"
+
+
+class ExcludeHive(Toggle):
+    """
+    Makes it so there is guaranteed to be a filler item or trap in the hive scrapsanity check
+    """
+    display_name = "Exclude Hive"
+    slot = True
+    slot_name = "excludehive"
+
+
 class SplitMoonGrades(Toggle):
     """
     Enables customizing the required grade for easy, medium, and hard moons separately.
@@ -338,6 +356,8 @@ class LCOptions(PerGameCommonOptions):
     collectathon_scrap_goal: CollectathonScrapGoal
     randomize_scanner: RandomizeScanner
     scrapsanity: Scrapsanity
+    exclude_shotgun: ExcludeShotguns
+    exclude_hive: ExcludeHive
     min_money: MinMoneyCheck
     max_money: MaxMoneyCheck
     starting_moon: StartingMoon

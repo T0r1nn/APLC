@@ -1,6 +1,6 @@
 import string
 
-from .items import LethalCompanyItem, item_table, items, filler_items, environment_pool, classification_table
+from .items import LethalCompanyItem, item_table, items, filler_items, classification_table
 from .locations import LethalCompanyLocation, generate_locations, max_locations, moon_names
 from .rules import set_rules
 from BaseClasses import Item, ItemClassification, Tutorial, MultiWorld, Region
@@ -44,14 +44,16 @@ class LethalCompanyWorld(World):
 
     def create_items(self) -> None:
         # precollect one moon
+        environment_pool = ["Experimentation", "Assurance", "Vow", "Offense", "March", "Rend", "Dine", "Titan"]
+
         unlock = None
         starting_moon = self.options.starting_moon.value
         if starting_moon < 8:
             unlock = [moon_names[starting_moon]]
         else:
-            unlock = self.multiworld.random.choices(list(environment_pool.keys()), k=1)
+            unlock = self.multiworld.random.choices(environment_pool, k=1)
         self.multiworld.push_precollected(self.create_item(unlock[0]))
-        environment_pool.pop(unlock[0])
+        environment_pool.pop(environment_pool.index(unlock[0]))
 
         # Generate item pool
         itempool: List = []
@@ -115,7 +117,20 @@ def create_events(world: MultiWorld, player: int) -> None:
     world_region = world.get_region("The Company", player)
     victory_region = world.get_region("Victory", player)
     victory_event = LethalCompanyLocation(player, "Victory", None, victory_region)
+    quota_region = world.get_region("Quota", player)
+    quota_quarter1_event = LethalCompanyLocation(player, "Quota 25%", None, quota_region)
+    quota_quarter2_event = LethalCompanyLocation(player, "Quota 50%", None, quota_region)
+    quota_quarter3_event = LethalCompanyLocation(player, "Quota 75%", None, quota_region)
     victory_event.place_locked_item(LethalCompanyItem("Victory", ItemClassification.progression, None, player))
+    quota_quarter1_event.place_locked_item(LethalCompanyItem("Completed 25% Quota", ItemClassification.progression,
+                                                             None, player))
+    quota_quarter2_event.place_locked_item(LethalCompanyItem("Completed 50% Quota", ItemClassification.progression,
+                                                             None, player))
+    quota_quarter3_event.place_locked_item(LethalCompanyItem("Completed 75% Quota", ItemClassification.progression,
+                                                             None, player))
+    quota_region.locations.append(quota_quarter1_event)
+    quota_region.locations.append(quota_quarter2_event)
+    quota_region.locations.append(quota_quarter3_event)
     world_region.locations.append(victory_event)
 
 

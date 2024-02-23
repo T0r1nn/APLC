@@ -53,6 +53,7 @@ public class MultiworldHandler
     //true if death link is enabled
     private readonly bool _deathLink;
 
+    //Stores all received hints
     private readonly Collection<string> _hints = new();
 
     //Handles the deathlink
@@ -130,6 +131,7 @@ public class MultiworldHandler
     
     private static bool GoToMoon()
     {
+        if (!StartOfRound.Instance.localPlayerController.IsHost) return true;
         var moonInd = 0;
         var moonName = Instance.GetStartingMoon();
         if (moonName == null) return false;
@@ -162,7 +164,7 @@ public class MultiworldHandler
         Array.Reverse(steamIds);
         if (StartOfRound.Instance.localPlayerController.playerSteamId == steamIds[selected])
         {
-            StartOfRound.Instance.localPlayerController.KillPlayer(Vector3.zero, causeOfDeath: CauseOfDeath.Blast);
+            StartOfRound.Instance.localPlayerController.KillPlayer(Vector3.zero, true, causeOfDeath: CauseOfDeath.Blast, 0);
         }
     }
 

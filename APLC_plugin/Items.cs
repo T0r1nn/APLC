@@ -41,7 +41,11 @@ public abstract class Items
         {
             _total++;
         }
-        MultiworldHandler.Instance.GetSession().DataStorage[_name] = _total;
+
+        if (GameNetworkManager.Instance.localPlayerController.IsHost)
+        {
+            MultiworldHandler.Instance.GetSession().DataStorage[_name] = _total;
+        }
     }
 
     protected abstract bool HandleReceived(bool isTick=false);

@@ -5,8 +5,7 @@ Download the following two files from the [Releases page in Github](https://gith
 
 You also need to install the [Archipelago Multiworld Randomizer version 0.4.4](https://github.com/ArchipelagoMW/Archipelago/releases/latest) client.
 
-Install the APLC mod from the Thunderstore (you may also install the mod via the
-Thunderstore Mod Manager or R2ModManager).
+Install the APLC mod from the Thunderstore (you may also install the mod via the R2ModManager).
 
 Then, follow the below steps to setup the randomizer:
 
@@ -23,6 +22,8 @@ edit the YAML to fit whatever settings you want to play with:
 - collectathon_scrap_goal: Can be any number from 3 to 30, default is 10. This is the number of AP chests you have to collect to beat collectathon mode. This does nothing in trophy mode.
 - randomize_scanner: Can be 'true' or 'false', when true you start without the ability to scan and must unlock it.
 - scrapsanity: Can be 'true' or 'false', when true 50 new checks are added to the game for collecting at least one of each type of scrap.
+- exclude_hive: Can be 'true' or 'false', when true the Bee Hive location is guarenteed to not have a progression or useful item behind it
+- exclude_shotgun: Can be 'true' or 'false', when true the Double-barrel location is guarenteed to not have a progression or useful item behind it
 - min_money: Can be any number between 0 and 5000, default is 100. This is the minimum amount of money that the money checks will reward you with.
 - max_money: Can be any number between 0 and 5000, default is 1000. This is the maximum amount of money that the money checks will reward you with. This can't be less than min_money
 - starting_moon: Can be any of the following: experimentation, assurance, vow, offense, march, rend, dine, titan, or randomize. This sets the moon you start the run on.

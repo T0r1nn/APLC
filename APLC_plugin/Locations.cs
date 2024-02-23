@@ -43,6 +43,18 @@ public class Quota: Locations
         while ((quotaChecksMet + 1) * _moneyPerQuotaCheck <= _totalQuota && quotaChecksMet < _numQuotas)
         {
             quotaChecksMet++;
+            if (quotaChecksMet == (int)Math.Ceiling(_numQuotas / 4.0) - 1)
+            {
+                MultiworldHandler.Instance.CompleteLocation("Quota 25%");
+            }
+            if (quotaChecksMet == (int)Math.Ceiling(_numQuotas / 2.0) - 1)
+            {
+                MultiworldHandler.Instance.CompleteLocation("Quota 50%");
+            }
+            if (quotaChecksMet == (int)Math.Ceiling(3.0 * _numQuotas / 4.0) - 1)
+            {
+                MultiworldHandler.Instance.CompleteLocation("Quota 75%");
+            }
             MultiworldHandler.Instance.CompleteLocation($"Quota check {quotaChecksMet}");
         }
     }
