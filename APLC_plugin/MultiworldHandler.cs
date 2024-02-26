@@ -591,6 +591,10 @@ public class MultiworldHandler
     public void TickItems()
     {
         string planetName = StartOfRound.Instance.currentLevel.PlanetName.Split(" ")[1];
+        if (planetName == "Gordion")
+        {
+            planetName = "Company";
+        }
         if (GetItemMap<MoonItems>(planetName).GetTotal() < 1)
         {
             _sentToMoon = false;

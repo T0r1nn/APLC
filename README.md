@@ -21,6 +21,8 @@ edit the YAML to fit whatever settings you want to play with:
 - starting_stamina_bars: Can be any number from 0 to 4, default is 4. This is the number of stamina bars you start with. The rest have to be unlocked.
 - collectathon_scrap_goal: Can be any number from 3 to 30, default is 10. This is the number of AP chests you have to collect to beat collectathon mode. This does nothing in trophy mode.
 - randomize_scanner: Can be 'true' or 'false', when true you start without the ability to scan and must unlock it.
+- randomize_terminal: Can be 'true' or 'false', when true you start without the ability to open the terminal(which means you cannot route to any moon other than your starting moon)
+- randomize_company_building: Can be 'true' or 'false', when true you start without the ability to go to the company building
 - scrapsanity: Can be 'true' or 'false', when true 50 new checks are added to the game for collecting at least one of each type of scrap.
 - exclude_hive: Can be 'true' or 'false', when true the Bee Hive location is guarenteed to not have a progression or useful item behind it
 - exclude_shotgun: Can be 'true' or 'false', when true the Double-barrel location is guarenteed to not have a progression or useful item behind it
