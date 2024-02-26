@@ -80,6 +80,8 @@ items = [
     LCItem("Rend", environment=True, classification=ItemClassification.progression),
     LCItem("Dine", environment=True, classification=ItemClassification.progression),
     LCItem("Titan", environment=True, classification=ItemClassification.progression),
+    LCItem("Company Building", 1, "randomize_company_building", classification=ItemClassification.progression),
+    LCItem("Terminal", 1, "randomize_terminal", classification=ItemClassification.progression),
     LCItem("Inventory Slot", 2, lambda w: 4 - w.options.starting_inventory_slots.value,
            classification=ItemClassification.progression),
     LCItem("Stamina Bar", 2, lambda w: 4 - w.options.starting_stamina_bars.value,

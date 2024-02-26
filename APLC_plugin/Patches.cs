@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Sockets;
+using System.Reflection;
 using Archipelago.MultiClient.Net.Packets;
 using GameNetcodeStuff;
 using HarmonyLib;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
 namespace APLC;
@@ -15,6 +17,8 @@ public class Patches
 {
     private static readonly Harmony Harmony = new(PluginInfo.PLUGIN_GUID);
     private static float _time;
+    private static float _time1Sec;
+    private static bool _waitingForTerminalQuit;
     
     /**
      * Patches the game with all the patches in this file.
@@ -126,10 +130,23 @@ public class Patches
     {
         if (MultiworldHandler.Instance == null) return;
         _time += Time.deltaTime;
+        _time1Sec += Time.deltaTime;
         while (_time >= 5f)
         {
             _time -= 5f;
             MultiworldHandler.Instance.TickItems();
+        }
+
+        while (_time1Sec >= 1f)
+        {
+            _time1Sec -= 1f;
+            if (_waitingForTerminalQuit && StartOfRound.Instance.localPlayerController.inTerminalMenu)
+            {
+                AccessTools.Method(typeof(Terminal), "QuitTerminal")
+                    .Invoke(Plugin._instance.getTerminal(), new object[] { });
+            }
+
+            _waitingForTerminalQuit = false;
         }
     }
     
@@ -158,6 +175,13 @@ public class Patches
         TerminalHandler.DisplayMoonTracker(__instance);
         TerminalHandler.DisplayLogTracker(__instance);
         TerminalHandler.DisplayBestiaryTracker(__instance);
+        if (MultiworldHandler.Instance.GetSlotSetting("randomizeterminal") == 1)
+        {
+            if (MultiworldHandler.Instance.GetItemMap<PlayerUpgrades>("Terminal").GetNum() == 0)
+            {
+                _waitingForTerminalQuit = true;
+            }
+        }
     }
     
     /**

@@ -228,12 +228,20 @@ public class MultiworldHandler
             _itemMap.Add("Rend", new MoonItems("Rend"));
             _itemMap.Add("Dine", new MoonItems("Dine"));
             _itemMap.Add("Titan", new MoonItems("Titan"));
+            if (GetSlotSetting("randomizecompany") == 1)
+            {
+                _itemMap.Add("Company", new MoonItems("Company"));
+            }
 
             //Player Upgrades
             _itemMap.Add("Inventory Slot", new PlayerUpgrades("Inventory Slot", GetSlotSetting("inventorySlots", 4)));
             _itemMap.Add("Stamina Bar", new PlayerUpgrades("Stamina Bar", GetSlotSetting("staminaBars", 4)));
             _itemMap.Add("Scanner", new PlayerUpgrades("Scanner", 1 - GetSlotSetting("scanner")));
             _itemMap.Add("Strength Training", new PlayerUpgrades("Strength Training", 0));
+            if (GetSlotSetting("randomizeterminal") == 1)
+            {
+                _itemMap.Add("Terminal", new PlayerUpgrades("Terminal", 0));
+            }
 
             //Filler
             _itemMap.Add("Money", new FillerItems("Money", () =>
@@ -636,6 +644,17 @@ public class MultiworldHandler
                 {
                     _itemMap[flashlightNames[flashlights]].OnReceived();
                     flashlights++;
+                }
+                catch (Exception)
+                {
+                    //Ignore exception
+                }
+            }
+            else if (name == "Company Building")
+            {
+                try
+                {
+                    _itemMap["Company"].OnReceived();
                 }
                 catch (Exception)
                 {

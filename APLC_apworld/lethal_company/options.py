@@ -345,6 +345,36 @@ class HighMoonCheckGrade(Choice):
     slot_name = "highMoon"
 
 
+class RandomizeCompanyBuilding(Toggle):
+    """
+    Adds the company building to the item pool
+    """
+    display_name = "Randomize Company Building"
+    slot = True
+    default = 0
+    slot_name = "randomizecompany"
+
+
+class RandomizeTerminal(Toggle):
+    """
+    Adds the terminal to the item pool
+    """
+    display_name = "Randomize Terminal"
+    slot = True
+    default = 0
+    slot_name = "randomizeterminal"
+
+
+# class Deathsanity(Toggle):
+#     """
+#     Enables deathsanity, where the first time each kind of death occurs is a check,
+#     adds 12 checks to the randomizer
+#     """
+#     display_name = "Deathsanity"
+#     slot = True
+#     slot_name = "deathsanity"
+
+
 @dataclass
 class LCOptions(PerGameCommonOptions):
     game_mode: Goal
@@ -355,6 +385,8 @@ class LCOptions(PerGameCommonOptions):
     starting_stamina_bars: StartingStaminaBars
     collectathon_scrap_goal: CollectathonScrapGoal
     randomize_scanner: RandomizeScanner
+    randomize_terminal: RandomizeTerminal
+    randomize_company_building: RandomizeCompanyBuilding
     scrapsanity: Scrapsanity
     exclude_shotgun: ExcludeShotguns
     exclude_hive: ExcludeHive

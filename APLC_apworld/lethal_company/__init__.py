@@ -23,8 +23,7 @@ class LethalCompanyWeb(WebWorld):
 
 class LethalCompanyWorld(World):
     """
-    Welcome, new hire! The company needs you to go to a bunch of perfectly harmless moons to gather scrap.
-    We thank you for your efforts. There is nothing to worry about, absolutely zero danger to your health.
+    Placeholder description
     """
     game = "Lethal Company"
     options_dataclass = LCOptions
@@ -35,9 +34,9 @@ class LethalCompanyWorld(World):
     location_name_to_id = max_locations
 
     data_version = 7
-    required_client_version = (0, 4, 2)
+    required_client_version = (0, 4, 4)
     web = LethalCompanyWeb()
-    total_revivals: int
+    initial_world: string
 
     def __init__(self, multiworld, player: int):
         super().__init__(multiworld, player)
@@ -52,11 +51,22 @@ class LethalCompanyWorld(World):
             unlock = [moon_names[starting_moon]]
         else:
             unlock = self.multiworld.random.choices(environment_pool, k=1)
+
+        if (self.options.starting_stamina_bars.value == 0
+                and (self.options.randomize_terminal.value == 1
+                     or self.options.randomize_company_building.value == 1)
+                and self.options.randomize_scanner.value == 1
+                and self.multiworld.players == 1):
+            while unlock[0] == "Offense" or unlock[0] == "Titan":
+                unlock = self.multiworld.random.choices(environment_pool, k=1)
+
         self.multiworld.push_precollected(self.create_item(unlock[0]))
         environment_pool.pop(environment_pool.index(unlock[0]))
 
         # Generate item pool
         itempool: List = []
+
+        self.initial_world = unlock[0]
 
         for item in items:
             names = item.create_item(self)

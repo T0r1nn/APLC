@@ -1,4 +1,6 @@
-﻿namespace APLC;
+﻿using System;
+
+namespace APLC;
 
 public static class TerminalHandler
 {
@@ -10,7 +12,7 @@ To route the autopilot to a moon, use the word ROUTE.
 To learn about any moon, use the word INFO.{(MultiworldHandler.Instance.GetGoal() == 1 ? $"\nCollectathon progress: {MultiworldHandler.Instance.GetCollectathonTracker()}" : "")}
 ____________________________
 
-* The Company building   //   Buying at [companyBuyingPercent].
+* The Company building   //   {GetCompanyTrackerText()}
 
 * Experimentation [planetTime] {MultiworldHandler.Instance.GetLocationMap("Experimentation").GetTrackerText()}
 * Assurance [planetTime] {MultiworldHandler.Instance.GetLocationMap("Assurance").GetTrackerText()}
@@ -24,6 +26,25 @@ ____________________________
 * Titan [planetTime] {MultiworldHandler.Instance.GetLocationMap("Titan").GetTrackerText()}
 
 ";
+    }
+
+    public static string GetCompanyTrackerText()
+    {
+        try
+        {
+            if (MultiworldHandler.Instance.GetItemMap<MoonItems>("Company").GetTotal() > 0)
+            {
+                return "Buying at [companyBuyingPercent]";
+            }
+            else
+            {
+                return "Locked!";
+            }
+        }
+        catch (Exception)
+        {
+            return "Buying at [companyBuyingPercent]";
+        }
     }
 
     public static void DisplayLogTracker(Terminal t)
