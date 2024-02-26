@@ -39,6 +39,10 @@ public class MultiworldHandler
 
     //Whether the player has been sent to their starting moon this save.
     private bool _sentToMoon = true;
+    
+    //Whether the player has been chosen to be killed by deathlink
+    public static bool _waitingForDeath;
+    public static string _dlMessage;
 
     //Shows which trophies are collected
     private readonly object[] _trophyModeComplete = new object[8];
@@ -69,7 +73,7 @@ public class MultiworldHandler
 
         var result =
             _session.TryConnectAndLogin("Lethal Company", slot, ItemsHandlingFlags.AllItems,
-                new Version(0, 4, 4), new[] { "Death Link" }, password: password);
+                new Version(0, 4, 4), new String[] {}, password: password);
 
         if (!result.Successful)
         {
@@ -111,6 +115,7 @@ public class MultiworldHandler
         if (_deathLink)
         {
             _dlService.OnDeathLinkReceived += KillRandom;
+            _dlService.EnableDeathLink();
         }
         ProcessItems(_receivedItemNames);
     }
@@ -151,20 +156,33 @@ public class MultiworldHandler
 
     private static void KillRandom(DeathLink link)
     {
-        ChatHandler.SendMessage($"AP: {link.Cause}");
-        Random.InitState(link.Timestamp.Millisecond);
-        int selected = Random.Range(0, GameNetworkManager.Instance.connectedPlayers);
-        PlayerControllerB[] players = StartOfRound.Instance.allPlayerScripts;
-        ulong[] steamIds = new ulong[players.Length];
-        for (int i = 0; i < players.Length; i++)
+        Plugin._instance.LogWarning("Received death link");
+        try
         {
-            steamIds[i] = players[i].playerSteamId;
+            //ChatHandler.SendMessage($"AP: {link.Cause}");
+
+            int selected = Random.Range(0, GameNetworkManager.Instance.connectedPlayers);
+            PlayerControllerB[] players = StartOfRound.Instance.allPlayerScripts;
+            ulong[] steamIds = new ulong[players.Length];
+            for (int i = 0; i < players.Length; i++)
+            {
+                steamIds[i] = players[i].playerSteamId;
+            }
+
+            Array.Sort(steamIds);
+            Array.Reverse(steamIds);
+
+            Plugin._instance.LogWarning("Attempting to kill player with steam id " + steamIds[selected]);
+
+            if (StartOfRound.Instance.localPlayerController.playerSteamId == steamIds[selected])
+            {
+                _waitingForDeath = true;
+                _dlMessage = link.Cause;
+            }
         }
-        Array.Sort(steamIds);
-        Array.Reverse(steamIds);
-        if (StartOfRound.Instance.localPlayerController.playerSteamId == steamIds[selected])
+        catch (Exception e)
         {
-            StartOfRound.Instance.localPlayerController.KillPlayer(Vector3.zero, true, causeOfDeath: CauseOfDeath.Blast, 0);
+            Plugin._instance.LogError(e.Message+"\n"+e.StackTrace);
         }
     }
 
@@ -575,6 +593,14 @@ public class MultiworldHandler
             {
                 _sentToMoon = true;
             }
+        }
+
+        if (_waitingForDeath)
+        {
+            GameNetworkManager.Instance.localPlayerController.KillPlayer(Vector3.forward, true, CauseOfDeath.Blast);
+            ChatHandler.SendMessage($"AP: {_dlMessage}");
+            _waitingForDeath = false;
+            _dlMessage = "";
         }
         
         foreach (var item in _itemMap.Values)
