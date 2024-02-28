@@ -1,4 +1,6 @@
-﻿namespace APLC;
+﻿using UnityEngine.UIElements;
+
+namespace APLC;
 
 public class ChatHandler
 {
@@ -135,6 +137,11 @@ public class ChatHandler
             MultiworldHandler.Instance != null)
             HUDManager.Instance.AddTextToChatOnServer(
                 $"__APConnection: {_url} {_port} {_slot} {_password}");
+
+        if (tokens[0] == "__updateTime" && !GameNetworkManager.Instance.isHostingGame)
+        {
+            TimeOfDay.Instance.timeUntilDeadline = float.Parse(tokens[1]);
+        }
 
         return true;
     }

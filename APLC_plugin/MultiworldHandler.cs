@@ -105,10 +105,10 @@ public class MultiworldHandler
         _minMoney = GetSlotSetting("minMoney", 100);
         _maxMoney = GetSlotSetting("maxMoney", 100);
         _scrapGoal = GetSlotSetting("collectathonGoal", 5);
-        _session.DataStorage["scrapCollected"].Initialize(_scrapCollected);
-        _scrapCollected = _session.DataStorage["scrapCollected"];
-        _session.DataStorage["trophies"].Initialize(new JArray(_trophyModeComplete));
-        _trophyModeComplete = _session.DataStorage["trophies"];
+        _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-scrapCollected"].Initialize(_scrapCollected);
+        _scrapCollected = _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-scrapCollected"];
+        _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-trophies"].Initialize(new JArray(_trophyModeComplete));
+        _trophyModeComplete = _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-trophies"];
         _goal = GetSlotSetting("goal");
         _deathLink = GetSlotSetting("deathLink") == 1;
         _dlService = _session.CreateDeathLinkService();
@@ -256,6 +256,7 @@ public class MultiworldHandler
             {
                 TimeOfDay.Instance.timeUntilDeadline += TimeOfDay.Instance.totalTime;
                 TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
+                ChatHandler.SendMessage("__updateTime "+TimeOfDay.Instance.timeUntilDeadline);
                 return true;
             }));
             _itemMap.Add("Less Time", new FillerItems("Less Time", () =>
@@ -267,6 +268,7 @@ public class MultiworldHandler
                 }
 
                 TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
+                ChatHandler.SendMessage("__updateTime "+TimeOfDay.Instance.timeUntilDeadline);
                 return true;
             }));
             _itemMap.Add("Clone Scrap", new FillerItems("Clone Scrap", () =>
@@ -535,7 +537,7 @@ public class MultiworldHandler
         {
             if (_trophyModeComplete[i] is string) continue;
             _trophyModeComplete[i] = moon;
-            _session.DataStorage["trophies"] = new JArray(_trophyModeComplete);
+            _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-trophies"] = new JArray(_trophyModeComplete);
             break;
         }
 
@@ -547,7 +549,7 @@ public class MultiworldHandler
     public void AddCollectathonScrap(int amount)
     {
         _scrapCollected += amount;
-        _session.DataStorage["scrapCollected"] = _scrapCollected;
+        _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-scrapCollected"] = _scrapCollected;
         if (_scrapCollected >= _scrapGoal)
         {
             Victory();
@@ -595,10 +597,15 @@ public class MultiworldHandler
         {
             planetName = "Company";
         }
-        if (GetItemMap<MoonItems>(planetName).GetTotal() < 1)
+
+        if (planetName != "Company" || GetSlotSetting("randomizecompany") == 1)
         {
-            _sentToMoon = false;
+            if (GetItemMap<MoonItems>(planetName).GetTotal() < 1 || (GetStartingMoon() != planetName && GetSlotSetting("randomizeterminal")==1 && GetItemMap<PlayerUpgrades>("Terminal").GetNum() < 1))
+            {
+                _sentToMoon = false;
+            }
         }
+        
         if (!_sentToMoon)
         {
             if (GoToMoon())

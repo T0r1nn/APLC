@@ -1,101 +1,172 @@
-from typing import Dict, List, NamedTuple, Optional
-
-from BaseClasses import MultiWorld, Region, Entrance
-from .locations import LethalCompanyLocation, bestiary_moons, max_locations, bestiary_names, scrap_names
-from .options import LCOptions
-
-
-class LCRegionData(NamedTuple):
-    locations: Optional[List[str]]
-    region_exits: Optional[List[str]]
+from BaseClasses import MultiWorld, Region, Location
+from Utils import visualize_regions
+from .items import moons, shop_items
+from .locations import bestiary_names, scrap_names, bestiary_moons, scrap_moons, max_locations, log_names
+from .rules import check_item_accessible
 
 
-def create_regions(options: LCOptions, multiworld: MultiWorld, player: int):
-    # Default Locations
-    regions: Dict[str, LCRegionData] = {
-        "Menu": LCRegionData(None, ["Ship"]),
-        "Ship": LCRegionData([], ["Experimentation", "Assurance", "Vow", "Offense", "March", "Dine", "Rend", "Titan",
-                                  "The Company"]),
-        "Experimentation": LCRegionData(["Log - Swing of Things", "Log - Shady"], []),
-        "Assurance": LCRegionData(["Log - Smells Here!"], []),
-        "Vow": LCRegionData([], ["Screams"]),
-        "Offense": LCRegionData([], []),
-        "March": LCRegionData(["Log - Goodbye"], ["Screams"]),
-        "Dine": LCRegionData(["Log - Hiding"], []),
-        "Rend": LCRegionData(["Log - Nonsense", "Log - Golden Planet", "Log - Idea"], []),
-        "Titan": LCRegionData(["Log - Real Job", "Log - Desmond"], []),
-        "The Company": LCRegionData(["Log - Sound Behind the Wall"], ["Victory", "Quota"]),
-        "Victory": LCRegionData(None, None),
-        "Quota": LCRegionData(None, None),
-        "Snare Flea": LCRegionData(["Bestiary Entry - Snare Flea"], []),
-        "Bunker Spider": LCRegionData(["Bestiary Entry - Bunker Spider"], []),
-        "Hoarding Bug": LCRegionData(["Bestiary Entry - Hoarding Bug"], []),
-        "Bracken": LCRegionData(["Bestiary Entry - Bracken"], []),
-        "Thumper": LCRegionData(["Bestiary Entry - Thumper"], []),
-        "Hygrodere": LCRegionData(["Bestiary Entry - Hygrodere"], []),
-        "Spore Lizard": LCRegionData(["Bestiary Entry - Spore Lizard"], []),
-        "Nutcracker": LCRegionData(["Bestiary Entry - Nutcracker"], []),
-        "Coil-Head": LCRegionData(["Bestiary Entry - Coil-Head"], []),
-        "Jester": LCRegionData(["Bestiary Entry - Jester"], []),
-        "Eyeless Dog": LCRegionData(["Bestiary Entry - Eyeless Dog"], []),
-        "Forest Keeper": LCRegionData(["Bestiary Entry - Forest Keeper"], []),
-        "Earth Leviathan": LCRegionData(["Bestiary Entry - Earth Leviathan"], []),
-        "Baboon Hawk": LCRegionData(["Bestiary Entry - Baboon Hawk"], []),
-        "Circuit Bee": LCRegionData(["Bestiary Entry - Circuit Bee"], []),
-        "Manticoil": LCRegionData(["Bestiary Entry - Manticoil"], []),
-        "Roaming Locust": LCRegionData(["Bestiary Entry - Roaming Locust"], []),
-        "Screams": LCRegionData(["Log - Screams"], [])
-    }
-    # Totals of each item
-    per_moon = int(options.checks_per_moon.value)
-    num_quota = int(options.num_quotas.value)
+def create_regions(options, world):
+    multiworld: MultiWorld = world.multiworld
+    player: int = world.player
 
-    # Locations
-    for key in regions:
-        if (key == "Menu" or key == "Victory" or key == "Ship" or key in bestiary_names or key == "Screams"
-                or key == "Quota"):
-            continue
-        if key == "The Company":
-            for i in range(num_quota):
-                regions[key].locations.append(f"Quota check {i+1}")
-            continue
-        for i in range(per_moon):
-            regions[key].locations.append(f"{key} check {i+1}")
-        for beast in bestiary_moons:
-            invalid_moons = bestiary_moons[beast]
-            if key not in invalid_moons:
-                regions[key].region_exits.append(f"{beast}")
+    environment_pool = ["Experimentation", "Assurance", "Vow", "Offense", "March", "Rend", "Dine", "Titan"]
+
+    unlock = None
+    starting_moon_ind = options.starting_moon.value
+    if starting_moon_ind < 8:
+        unlock = [moons[starting_moon_ind]]
+    else:
+        unlock = multiworld.random.choices(environment_pool, k=1)
+
+    if (options.starting_stamina_bars.value == 0
+            and (options.randomize_terminal.value == 1
+                 or options.randomize_company_building.value == 1)
+            and options.randomize_scanner.value == 1
+            and multiworld.players == 1):
+        while unlock[0] == "Offense" or unlock[0] == "Titan":
+            unlock = multiworld.random.choices(environment_pool, k=1)
+
+    multiworld.push_precollected(world.create_item(unlock[0]))
+    world.initial_world = unlock[0]
+
+    menu: Region = Region("Menu", player, multiworld)
+    multiworld.regions.append(menu)
+    ship: Region = Region("Ship", player, multiworld)
+    multiworld.regions.append(ship)
+    starting_moon: Region = Region(world.initial_world, player, multiworld)
+    multiworld.regions.append(starting_moon)
+    terminal: Region = Region("Terminal", player, multiworld)
+    multiworld.regions.append(terminal)
+    logs: list[Region] = []
+    bestiary: list[Region] = []
+    scrap: list[Region] = []
+    moon_regions: list[Region] = []
+    company_building: Region = Region("Company Building", player, multiworld)
+    multiworld.regions.append(company_building)
+    quotas: Region = Region("Quotas", player, multiworld)
+    multiworld.regions.append(quotas)
+    victory: Region = Region("Victory", player, multiworld)
+    multiworld.regions.append(victory)
+
+    company_building.connect(victory, rule=lambda state: (state.has_all(shop_items, player)
+                                                          and state.has_all(moons, player)
+                                                          and state.has("Progressive Flashlight", player, count=2)))
+
+    menu.connect(ship, rule=lambda state: True)
+    ship.connect(starting_moon, rule=lambda state: True)
+    ship.connect(terminal, rule=lambda state: state.has("Terminal", player) or options.randomize_terminal.value == 0)
+    for moon in moons:
+        if not moon == world.initial_world:
+            moon_regions.append(Region(moon, player, multiworld))
+            multiworld.regions.append(moon_regions[-1])
+            terminal.connect(moon_regions[-1], rule=lambda state, m=moon: state.has(m, player))
+
+    terminal.connect(company_building, rule=lambda state: (state.has("Company Building", player)
+                                                           or options.randomize_company_building == 0))
+    company_building.connect(quotas, rule=lambda state: ((state.has("Inventory Slot", player)
+                                                          or options.starting_inventory_slots.value >= 2)
+                                                         and (state.has("Stamina Bar", player)
+                                                              or options.starting_stamina_bars.value >= 1)))
+
+    for monster in bestiary_names:
+        bestiary.append(Region(monster, player, multiworld))
+        multiworld.regions.append(bestiary[-1])
+        cant_spawn = bestiary_moons[monster]
+        can_spawn = [moon for moon in moons]
+        for moon in cant_spawn:
+            can_spawn.remove(moon)
+        for moon in can_spawn:
+            multiworld.get_region(moon, player).connect(multiworld.get_region(monster, player),
+                                                        rule=lambda state: (state.has("Scanner", player)
+                                                                            or options.randomize_scanner == 0))
 
     if options.scrapsanity.value == 1:
         for scrap_name in scrap_names:
-            regions["Ship"].locations.append(f"Scrap - {scrap_name}")
+            scrap.append(Region(scrap_name, player, multiworld))
+            multiworld.regions.append(scrap[-1])
 
-    regions_pool: Dict = regions
+        for moon in scrap_moons.keys():
+            for scrap_ind in scrap_moons[moon]:
+                multiworld.get_region(moon, player).connect(scrap[scrap_ind],
+                                                            rule=lambda state, s_name=scrap_names[scrap_ind]:
+                                                            ((state.has("Stamina Bar", player)
+                                                              or options.starting_stamina_bars.value > 0)
+                                                             and (check_item_accessible(state, "Shovel",
+                                                                                        player, options)
+                                                                  or s_name != "Double-barrel")))
 
-    # Create all the regions
-    for name, data in regions_pool.items():
-        multiworld.regions.append(create_region(multiworld, player, name, data))
+    logs.append(Region("Sound Behind the Wall", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    company_building.connect(logs[0])
+    logs.append(Region("Smells Here!", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("Assurance", player).connect(logs[1])
+    logs.append(Region("Swing of Things", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("Experimentation", player).connect(logs[2])
+    logs.append(Region("Shady", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("Experimentation", player).connect(logs[3],
+                                                             rule=lambda state: (state.has("Stamina Bar", player)
+                                                                                 or options.starting_stamina_bars >= 1))
+    logs.append(Region("Golden Planet", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("Rend", player).connect(logs[4])
+    logs.append(Region("Goodbye", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("March", player).connect(logs[5])
+    logs.append(Region("Screams", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("Vow", player).connect(logs[6])
+    logs.append(Region("Idea", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("Rend", player).connect(logs[7])
+    logs.append(Region("Nonsense", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("Rend", player).connect(logs[8])
+    logs.append(Region("Hiding", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("Dine", player).connect(logs[9])
+    logs.append(Region("Real Job", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("Titan", player).connect(logs[10],
+                                                   rule=lambda state:
+                                                   (state.has_any(["Extension Ladder", "Jetpack"], player)
+                                                    and (state.has("Terminal", player)
+                                                         or options.randomize_terminal == 0)
+                                                    and (state.has("Company Building", player)
+                                                         or options.randomize_company_building == 0)))
+    logs.append(Region("Desmond", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("Titan", player).connect(logs[11],
+                                                   rule=lambda state:
+                                                   (state.has_any(["Extension Ladder", "Jetpack"], player)
+                                                    and (state.has("Terminal", player)
+                                                         or options.randomize_terminal == 0)
+                                                    and (state.has("Company Building", player)
+                                                         or options.randomize_company_building == 0)))
 
-    # Connect all the regions to their exits
-    for name, data in regions_pool.items():
-        create_connections_in_regions(multiworld, player, name, data)
+    # Generate locations
+    for i in range(options.checks_per_moon.value):
+        for moon in moons:
+            add_location(player, f"{moon} check {i+1}", multiworld.get_region(moon, player))
+
+    for i in range(options.num_quotas.value):
+        add_location(player, f"Quota check {i+1}", quotas)
+
+    for log in log_names:
+        add_location(player, f"Log - {log}", multiworld.get_region(log, player))
+
+    for monster in bestiary_names:
+        add_location(player, f"Bestiary Entry - {monster}", multiworld.get_region(monster, player))
+
+    if options.scrapsanity.value == 1:
+        for scrap_name in scrap_names:
+            add_location(player, f"Scrap - {scrap_name}", multiworld.get_region(scrap_name, player))
+
+    visualize_regions(menu, "lc_regions")
 
 
-def create_region(multiworld: MultiWorld, player: int, name: str, data: LCRegionData):
-    region = Region(name, player, multiworld)
-    if data.locations:
-        for location_name in data.locations:
-            location_data = max_locations.get(location_name)
-            location = LethalCompanyLocation(player, location_name, location_data, region)
-            region.locations.append(location)
-    return region
-
-
-def create_connections_in_regions(multiworld: MultiWorld, player: int, name: str, data: LCRegionData):
-    region = multiworld.get_region(name, player)
-    if data.region_exits:
-        for region_exit in data.region_exits:
-            r_exit_stage = Entrance(player, region_exit, region)
-            exit_region = multiworld.get_region(region_exit, player)
-            r_exit_stage.connect(exit_region)
-            region.exits.append(r_exit_stage)
+def add_location(player: int, location: str, region: Region):
+    region.locations.append(Location(player, location, max_locations[location]))
+    region.locations[-1].parent_region = region

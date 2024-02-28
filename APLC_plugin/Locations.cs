@@ -24,8 +24,8 @@ public class Quota: Locations
         Type = "Quota";
         _moneyPerQuotaCheck = moneyPerQuotaCheck;
         _numQuotas = numQuotas;
-        MultiworldHandler.Instance.GetSession().DataStorage["totalQuota"].Initialize(0);
-        _totalQuota = MultiworldHandler.Instance.GetSession().DataStorage["totalQuota"];
+        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"].Initialize(0);
+        _totalQuota = MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"];
     }
 
     public override string GetTrackerText()
@@ -39,7 +39,7 @@ public class Quota: Locations
         if (!GameNetworkManager.Instance.localPlayerController.IsHost) return;
         if (!(TimeOfDay.Instance.profitQuota - TimeOfDay.Instance.quotaFulfilled <= 0f)) return;
         _totalQuota += TimeOfDay.Instance.profitQuota;
-        MultiworldHandler.Instance.GetSession().DataStorage["totalQuota"] = _totalQuota;
+        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"] = _totalQuota;
         while ((quotaChecksMet + 1) * _moneyPerQuotaCheck <= _totalQuota && quotaChecksMet < _numQuotas)
         {
             quotaChecksMet++;
@@ -72,8 +72,8 @@ public class MoonLocations : Locations
         _name = name;
         _grade = grade;
         Type = "moon";
-        MultiworldHandler.Instance.GetSession().DataStorage[$"{_name} checks"].Initialize(0);
-        _timesChecked = MultiworldHandler.Instance.GetSession().DataStorage[$"{_name} checks"];
+        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} checks"].Initialize(0);
+        _timesChecked = MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} checks"];
         _maxChecks = maxChecks;
     }
 
@@ -84,7 +84,7 @@ public class MoonLocations : Locations
         if (gradeNum > _grade) return;
         MultiworldHandler.Instance.CompleteLocation($"{_name} check {_timesChecked+1}");
         _timesChecked++;
-        MultiworldHandler.Instance.GetSession().DataStorage[$"{_name} checks"] = _timesChecked;
+        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} checks"] = _timesChecked;
     }
     
     public override void CheckComplete(){}

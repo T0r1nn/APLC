@@ -17,8 +17,8 @@ public abstract class Items
         _name = name;
         try
         {
-            MultiworldHandler.Instance.GetSession().DataStorage[name].Initialize(0);
-            _total = MultiworldHandler.Instance.GetSession().DataStorage[name];
+            MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-"+name].Initialize(0);
+            _total = MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-"+name];
         }
         catch (Exception e)
         {
@@ -44,7 +44,7 @@ public abstract class Items
 
         if (GameNetworkManager.Instance.localPlayerController.IsHost)
         {
-            MultiworldHandler.Instance.GetSession().DataStorage[_name] = _total;
+            MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-"+_name] = _total;
         }
     }
 
@@ -57,7 +57,7 @@ public abstract class Items
             _received = 0;
             _total = 0;
             _waiting = 0;
-            MultiworldHandler.Instance.GetSession().DataStorage[_name] = 0;
+            MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-"+_name] = 0;
         }
         else
         {
@@ -73,7 +73,7 @@ public abstract class Items
         if (!HandleReceived(true)) return;
         _waiting--;
         _total++;
-        MultiworldHandler.Instance.GetSession().DataStorage[_name] = _total;
+        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-"+_name] = _total;
     }
 
     public int GetTotal()

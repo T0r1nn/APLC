@@ -43,35 +43,15 @@ class LethalCompanyWorld(World):
 
     def create_items(self) -> None:
         # precollect one moon
-        environment_pool = ["Experimentation", "Assurance", "Vow", "Offense", "March", "Rend", "Dine", "Titan"]
 
-        unlock = None
-        starting_moon = self.options.starting_moon.value
-        if starting_moon < 8:
-            unlock = [moon_names[starting_moon]]
-        else:
-            unlock = self.multiworld.random.choices(environment_pool, k=1)
-
-        if (self.options.starting_stamina_bars.value == 0
-                and (self.options.randomize_terminal.value == 1
-                     or self.options.randomize_company_building.value == 1)
-                and self.options.randomize_scanner.value == 1
-                and self.multiworld.players == 1):
-            while unlock[0] == "Offense" or unlock[0] == "Titan":
-                unlock = self.multiworld.random.choices(environment_pool, k=1)
-
-        self.multiworld.push_precollected(self.create_item(unlock[0]))
-        environment_pool.pop(environment_pool.index(unlock[0]))
 
         # Generate item pool
         itempool: List = []
 
-        self.initial_world = unlock[0]
-
         for item in items:
             names = item.create_item(self)
             for name in names:
-                if not name == unlock[0]:
+                if not name == self.initial_world:
                     itempool.append(name)
 
         total_locations = len(
@@ -100,7 +80,7 @@ class LethalCompanyWorld(World):
         return filler
 
     def create_regions(self) -> None:
-        create_regions(self.options, self.multiworld, self.player)
+        create_regions(self.options, self)
         create_events(self.multiworld, self.player)
 
     def fill_slot_data(self):
@@ -124,10 +104,10 @@ class LethalCompanyWorld(World):
 
 
 def create_events(world: MultiWorld, player: int) -> None:
-    world_region = world.get_region("The Company", player)
+    world_region = world.get_region("Company Building", player)
     victory_region = world.get_region("Victory", player)
     victory_event = LethalCompanyLocation(player, "Victory", None, victory_region)
-    quota_region = world.get_region("Quota", player)
+    quota_region = world.get_region("Quotas", player)
     quota_quarter1_event = LethalCompanyLocation(player, "Quota 25%", None, quota_region)
     quota_quarter2_event = LethalCompanyLocation(player, "Quota 50%", None, quota_region)
     quota_quarter3_event = LethalCompanyLocation(player, "Quota 75%", None, quota_region)
