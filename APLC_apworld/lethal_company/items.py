@@ -1,6 +1,9 @@
+import math
+
 from BaseClasses import Item, MultiWorld, ItemClassification
 from typing import Dict, Any
 from worlds.AutoWorld import World
+from .locations import generate_locations
 
 
 class LethalCompanyItem(Item):
@@ -48,6 +51,25 @@ class LCItem:
         return names
 
 
+def calculate_credits(world):
+    if not world.options.game_mode == 2:
+        return 0
+
+    location_count = len(generate_locations(world.options.checks_per_moon.value, world.options.num_quotas.value,
+                                            world.options.scrapsanity.value))
+    location_count -= 7
+    location_count -= world.options.randomize_company_building.value
+    location_count -= world.options.randomize_scanner.value
+    location_count -= world.options.randomize_terminal.value
+    location_count -= (4 - world.options.starting_stamina_bars.value)
+    location_count -= (4 - world.options.starting_inventory_slots.value)
+    location_count -= 16
+
+    credit_count = math.ceil(location_count * (world.options.credit_replacement/100.0))
+    world.required_credit_count = round(credit_count * (world.options.required_credits/100.0))
+    return credit_count
+
+
 filler_items: Dict[str, int] = {}
 environment_pool: Dict[str, int] = {}
 classification_table: Dict[str, ItemClassification] = {}
@@ -86,6 +108,7 @@ items = [
            classification=ItemClassification.progression),
     LCItem("Stamina Bar", 2, lambda w: 4 - w.options.starting_stamina_bars.value,
            classification=ItemClassification.progression),
+    LCItem("Company Credit", 2, calculate_credits, classification=ItemClassification.progression),
     LCItem("Strength Training", 3, "weight_reducers",
            classification=ItemClassification.filler),
     LCItem("Scanner", 1, "randomize_scanner", classification=ItemClassification.progression),

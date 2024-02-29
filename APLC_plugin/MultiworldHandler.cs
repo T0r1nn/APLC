@@ -242,6 +242,7 @@ public class MultiworldHandler
             {
                 _itemMap.Add("Terminal", new PlayerUpgrades("Terminal", 0));
             }
+            _itemMap.Add("Company Credit", new PlayerUpgrades("Company Credit", 0));
 
             //Filler
             _itemMap.Add("Money", new FillerItems("Money", () =>
@@ -570,6 +571,11 @@ public class MultiworldHandler
         return $"{_scrapCollected}/{_scrapGoal}";
     }
 
+    public string GetCreditTracker()
+    {
+        return $"{GetItemMap("Company Credit").GetTotal()}/{GetSlotSetting("companycreditsgoal")}";
+    }
+
     public int GetGoal()
     {
         return _goal;
@@ -620,6 +626,14 @@ public class MultiworldHandler
             ChatHandler.SendMessage($"AP: {_dlMessage}");
             _waitingForDeath = false;
             _dlMessage = "";
+        }
+
+        if (GetGoal() == 2)
+        {
+            if(GetItemMap("Company Credit").GetTotal() >= GetSlotSetting("companycreditsgoal"))
+            {
+                Victory();
+            }
         }
         
         foreach (var item in _itemMap.Values)

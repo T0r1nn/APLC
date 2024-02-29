@@ -3,31 +3,12 @@ from Utils import visualize_regions
 from .items import moons, shop_items
 from .locations import bestiary_names, scrap_names, bestiary_moons, scrap_moons, max_locations, log_names
 from .rules import check_item_accessible
+from .options import LCOptions
 
 
-def create_regions(options, world):
+def create_regions(options: LCOptions, world):
     multiworld: MultiWorld = world.multiworld
     player: int = world.player
-
-    environment_pool = ["Experimentation", "Assurance", "Vow", "Offense", "March", "Rend", "Dine", "Titan"]
-
-    unlock = None
-    starting_moon_ind = options.starting_moon.value
-    if starting_moon_ind < 8:
-        unlock = [moons[starting_moon_ind]]
-    else:
-        unlock = multiworld.random.choices(environment_pool, k=1)
-
-    if (options.starting_stamina_bars.value == 0
-            and (options.randomize_terminal.value == 1
-                 or options.randomize_company_building.value == 1)
-            and options.randomize_scanner.value == 1
-            and multiworld.players == 1):
-        while unlock[0] == "Offense" or unlock[0] == "Titan":
-            unlock = multiworld.random.choices(environment_pool, k=1)
-
-    multiworld.push_precollected(world.create_item(unlock[0]))
-    world.initial_world = unlock[0]
 
     menu: Region = Region("Menu", player, multiworld)
     multiworld.regions.append(menu)
@@ -48,9 +29,14 @@ def create_regions(options, world):
     victory: Region = Region("Victory", player, multiworld)
     multiworld.regions.append(victory)
 
-    company_building.connect(victory, rule=lambda state: (state.has_all(shop_items, player)
-                                                          and state.has_all(moons, player)
-                                                          and state.has("Progressive Flashlight", player, count=2)))
+    if options.game_mode.value == 2:
+        company_building.connect(victory,
+                                 rule=lambda state: (state.has("Company Credit", player,
+                                                               count=world.required_credit_count)))
+    else:
+        company_building.connect(victory, rule=lambda state: (state.has_all(shop_items, player)
+                                                              and state.has_all(moons, player)
+                                                              and state.has("Progressive Flashlight", player, count=2)))
 
     menu.connect(ship, rule=lambda state: True)
     ship.connect(starting_moon, rule=lambda state: True)

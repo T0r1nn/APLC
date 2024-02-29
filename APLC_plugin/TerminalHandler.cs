@@ -9,7 +9,7 @@ public static class TerminalHandler
         var moons = t.terminalNodes.allKeywords[21].specialKeywordResult;
         moons.displayText = $@"Welcome to the exomoons catalogue.
 To route the autopilot to a moon, use the word ROUTE.
-To learn about any moon, use the word INFO.{(MultiworldHandler.Instance.GetGoal() == 1 ? $"\nCollectathon progress: {MultiworldHandler.Instance.GetCollectathonTracker()}" : "")}
+To learn about any moon, use the word INFO.{(MultiworldHandler.Instance.GetGoal() == 1 ? $"\nCollectathon progress: {MultiworldHandler.Instance.GetCollectathonTracker()}" : "")}{(MultiworldHandler.Instance.GetGoal() == 2 ? $"\nCredit progress: {MultiworldHandler.Instance.GetCreditTracker()}" : "")}
 ____________________________
 
 * The Company building   //   {GetCompanyTrackerText()}

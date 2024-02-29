@@ -7,11 +7,15 @@ class Goal(Choice):
     Trophy Mode: Each moon has a rare trophy scrap, the goal is to get all eight
 
     Collectathon: A new rare scrap is added, you need to collect at least ten of it to win
+
+    Credit Hunt: You must receive a number of company credit items as specified by the yaml to win. This can lead to
+    very short or very long games depending on your settings
     """
     display_name = "Game Mode"
     option_trophy = 0
     option_collectathon = 1
-    default = 1
+    option_credit_hunt = 2
+    default = 0
     slot = True
     slot_name = "goal"
 
@@ -365,25 +369,40 @@ class RandomizeTerminal(Toggle):
     slot_name = "randomizeterminal"
 
 
-# class Deathsanity(Toggle):
-#     """
-#     Enables deathsanity, where the first time each kind of death occurs is a check,
-#     adds 12 checks to the randomizer
-#     """
-#     display_name = "Deathsanity"
-#     slot = True
-#     slot_name = "deathsanity"
+class CreditReplacement(Range):
+    """
+    Credit Hunt mode:
+    Replaces the specified percent of filler items with company credits
+    """
+    display_name = "Credit Replacement"
+    range_start = 5
+    range_end = 80
+    default = 50
+
+
+class RequiredCredits(Range):
+    """
+    Credit Hunt mode:
+    The percent of company credits in the pool that are required to beat the game. If there are 20 credits in the pool
+    and you set this to 75, then once 75% of the 20 credits, or 15 credits, are collected, you will win
+    """
+    display_name = "Required Credits"
+    range_start = 10
+    range_end = 100
+    default = 75
 
 
 @dataclass
 class LCOptions(PerGameCommonOptions):
     game_mode: Goal
+    collectathon_scrap_goal: CollectathonScrapGoal
+    credit_replacement: CreditReplacement
+    required_credits: RequiredCredits
     checks_per_moon: ChecksPerMoon
     money_per_quota_check: MoneyPerQuotaCheck
     num_quotas: NumQuotas
     starting_inventory_slots: StartingInventorySlots
     starting_stamina_bars: StartingStaminaBars
-    collectathon_scrap_goal: CollectathonScrapGoal
     randomize_scanner: RandomizeScanner
     randomize_terminal: RandomizeTerminal
     randomize_company_building: RandomizeCompanyBuilding

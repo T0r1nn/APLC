@@ -1,6 +1,6 @@
 import string
 
-from .items import LethalCompanyItem, item_table, items, filler_items, classification_table
+from .items import LethalCompanyItem, item_table, items, filler_items, classification_table, moons, calculate_credits
 from .locations import LethalCompanyLocation, generate_locations, max_locations, moon_names
 from .rules import set_rules
 from BaseClasses import Item, ItemClassification, Tutorial, MultiWorld, Region
@@ -37,9 +37,31 @@ class LethalCompanyWorld(World):
     required_client_version = (0, 4, 4)
     web = LethalCompanyWeb()
     initial_world: string
+    required_credit_count: int = 0
 
     def __init__(self, multiworld, player: int):
         super().__init__(multiworld, player)
+
+    def generate_early(self) -> None:
+        environment_pool = ["Experimentation", "Assurance", "Vow", "Offense", "March", "Rend", "Dine", "Titan"]
+
+        unlock = None
+        starting_moon_ind = self.options.starting_moon.value
+        if starting_moon_ind < 8:
+            unlock = [moons[starting_moon_ind]]
+        else:
+            unlock = self.multiworld.random.choices(environment_pool, k=1)
+
+        if (self.options.starting_stamina_bars.value == 0
+                and (self.options.randomize_terminal.value == 1
+                     or self.options.randomize_company_building.value == 1)
+                and self.options.randomize_scanner.value == 1
+                and self.multiworld.players == 1):
+            while unlock[0] == "Offense" or unlock[0] == "Titan":
+                unlock = self.multiworld.random.choices(environment_pool, k=1)
+
+        self.multiworld.push_precollected(self.create_item(unlock[0]))
+        self.initial_world = unlock[0]
 
     def create_items(self) -> None:
         # precollect one moon
@@ -84,6 +106,8 @@ class LethalCompanyWorld(World):
         create_events(self.multiworld, self.player)
 
     def fill_slot_data(self):
+        calculate_credits(self)
+
         slot_data = {
             "deathLink": self.options.death_link.value
         }
@@ -93,6 +117,9 @@ class LethalCompanyWorld(World):
                 if getattr(self.options, option).slot:
                     print(option, getattr(self.options, option).slot_name, getattr(self.options, option).value)
                     slot_data[getattr(self.options, option).slot_name] = getattr(self.options, option).value
+
+        if self.options.game_mode == 2:
+            slot_data["companycreditsgoal"] = self.required_credit_count
 
         return slot_data
 
