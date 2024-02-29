@@ -13,13 +13,15 @@ Then, follow the below steps to setup the randomizer:
 The first thing you need to do is configure the lethal_company.yaml file. For that, open and
 edit the YAML to fit whatever settings you want to play with:
 - name: Enter your desired slot name here, could be almost anything. {player} or {PLAYER} are replaced with the slot number, while {number} or {NUMBER} will increment once for each duplicate YAML name
-- game_mode: Can be collectathon or trophy, in trophy mode you need to collect one trophy apparatus from each moon, while in collectathon mode you need to collect a certain amount of AP chest scraps
+- game_mode: Can be collectathon, trophy, or credit hunt, in trophy mode you need to collect one trophy apparatus from each moon, in collectathon mode you need to collect a certain amount of AP chest scraps, and in credit hunt you need to receive a certain amount of company credit items.
+- collectathon_scrap_goal: Can be any number from 3 to 30, default is 10. This is the number of AP chests you have to collect to beat collectathon mode. This does nothing in other modes.
+- credit_replacement: Can be any number from 5 to 80, represents the percent of filler items that are replaced with company credits for the credit hunt game mode. This does nothing in other modes.
+- required_credits: Can be any number from 10 to 100, represents the percent of company credit items that are required to beat the game. This does nothing in other modes.
 - checks_per_moon: Can be any number between 1 and 10, default is 3. This is the amount of checks per moon that can be gotten from completing that moon
 - money_per_quota_check: Can be any number between 100 and 10000, default is 500. This is the amount of total quota you must complete to get the check. Be aware that each quota only contributes the required scrap towards this goal, not the sold scrap. If you sell 500 scrap but the quota is only 130, you will only contribute 130 towards the check.
 - num_quotas: Can be any number from 10 to 50, default is 20. This is the number of quota checks you can get.
 - starting_inventory_slots: Can be any number from 1 to 4, default is 4. This is the number of inventory slots you start the game with, the rest have to be unlocked.
 - starting_stamina_bars: Can be any number from 0 to 4, default is 4. This is the number of stamina bars you start with. The rest have to be unlocked.
-- collectathon_scrap_goal: Can be any number from 3 to 30, default is 10. This is the number of AP chests you have to collect to beat collectathon mode. This does nothing in trophy mode.
 - randomize_scanner: Can be 'true' or 'false', when true you start without the ability to scan and must unlock it.
 - randomize_terminal: Can be 'true' or 'false', when true you start without the ability to open the terminal(which means you cannot route to any moon other than your starting moon)
 - randomize_company_building: Can be 'true' or 'false', when true you start without the ability to go to the company building
