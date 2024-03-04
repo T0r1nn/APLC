@@ -1,7 +1,7 @@
 import math
 import string
 
-from BaseClasses import MultiWorld, CollectionState, ItemClassification 
+from BaseClasses import MultiWorld, CollectionState, ItemClassification
 from .locations import scrap_names
 from .options import LCOptions
 from .items import moons

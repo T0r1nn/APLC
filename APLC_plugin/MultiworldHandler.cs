@@ -405,6 +405,58 @@ public class MultiworldHandler
             "Rubber Ducky", "Steering wheel", "Stop sign", "Metal sheet", "Tea kettle", "Teeth", "Toothpaste",
             "Toy cube", "Tragedy", "V-type engine", "Whoopie cushion", "Yield sign"
         };
+
+        if (GetSlotSetting("fixscrapsanity") == 1)
+        {
+            Dictionary<string, string[]> moonToScrapMap = new Dictionary<string, string[]>();
+
+            moonToScrapMap.Add("Experimentation",
+                new[] { "V-type engine", "Homemade flashbang", "Dust pan", "Steering wheel", "Yield sign" });
+            moonToScrapMap.Add("Assurance",
+                new[] { "Big bolt", "Bottles", "Cookie mold pan", "Red soda", "Stop sign" });
+            moonToScrapMap.Add("Vow", new[] { "Egg beater", "Chemical jug", "Flask", "Brush", "Rubber Ducky" });
+            moonToScrapMap.Add("Offense", new[] { "Metal sheet", "Gift", "Magnifying glass", "Remote", "Toy robot" });
+            moonToScrapMap.Add("March", new[] { "Whoopie cushion", "Airhorn", "Clown horn", "Gold bar", "Toy cube" });
+            moonToScrapMap.Add("Rend", new[] { "Painting", "Ring", "Fancy lamp", "Candy", "Bell" });
+            moonToScrapMap.Add("Dine", new[] { "Tragedy", "Jar of pickles", "Cash register", "Mug", "Hairdryer" });
+            moonToScrapMap.Add("Titan", new[] { "Comedy", "Golden cup", "Old phone", "Perfume bottle", "Pill bottle" });
+            moonToScrapMap.Add("Common",
+                new[]
+                {
+                    "Large axle", "Laser pointer", "Magic 7 ball", "Plastic fish", "Tea kettle", "Teeth", "Toothpaste"
+                });
+
+            Dictionary<string, SpawnableItemWithRarity> scrapNameToScrapMap = new Dictionary<string, SpawnableItemWithRarity>();
+
+            SelectableLevel[] moons = Plugin._instance.getTerminal().moonsCatalogueList;
+
+            foreach (var moon in moons)
+            {
+                List<SpawnableItemWithRarity> scrap = moon.spawnableScrap;
+                foreach (SpawnableItemWithRarity item in scrap)
+                {
+                    scrapNameToScrapMap.TryAdd(item.spawnableItem.itemName, item);
+                    item.rarity = 1;
+                }
+            }
+            
+            foreach (var moon in moons)
+            {
+                List<SpawnableItemWithRarity> scrap = moon.spawnableScrap;
+                scrap.Clear();
+                foreach (string moonScrapName in moonToScrapMap[moon.PlanetName.Split(' ')[1]])
+                {
+                    SpawnableItemWithRarity item = scrapNameToScrapMap[moonScrapName];
+                    scrap.Add(item);
+                }
+                foreach (string moonScrapName in moonToScrapMap["Common"])
+                {
+                    SpawnableItemWithRarity item = scrapNameToScrapMap[moonScrapName];
+                    scrap.Add(item);
+                }
+            }
+        }
+
         _locationMap.Add("Scrap", new ScrapLocations(scrapNames, checkNames));
 
         // Terminal t = Plugin._instance.getTerminal();

@@ -52,13 +52,13 @@ bestiary_names = [
 ]
 
 scrap_names = [
-    "Airhorn", "Apparatice", "Bee Hive", "Big bolt", "Bottles", "Brass bell", "Candy", "Cash register",
-    "Chemical jug", "Clown horn", "Coffee mug", "Comedy", "Cookie mold pan", "DIY-Flashbang", "Double-barrel", "Dust pan",
-    "Egg beater", "Fancy lamp", "Flask", "Gift Box", "Gold bar", "Golden cup", "Hair brush", "Hairdryer",
-    "Jar of pickles", "Large axle", "Laser pointer", "Magic 7 ball", "Magnifying glass", "Old phone",
-    "Painting", "Perfume bottle", "Pill bottle", "Plastic fish", "Red soda", "Remote", "Ring", "Robot toy",
-    "Rubber Ducky", "Steering wheel", "Stop sign", "Tattered metal sheet", "Tea kettle", "Teeth", "Toothpaste",
-    "Toy cube", "Tragedy", "V-type engine", "Whoopie-Cushion", "Yield sign"
+    "Airhorn", "Apparatice", "Bee Hive", "Big bolt", "Bottles", "Brass bell", "Candy", "Cash register",#7
+    "Chemical jug", "Clown horn", "Coffee mug", "Comedy", "Cookie mold pan", "DIY-Flashbang", "Double-barrel", "Dust pan",#15
+    "Egg beater", "Fancy lamp", "Flask", "Gift Box", "Gold bar", "Golden cup", "Hair brush", "Hairdryer",#23
+    "Jar of pickles", "Large axle", "Laser pointer", "Magic 7 ball", "Magnifying glass", "Old phone",#29
+    "Painting", "Perfume bottle", "Pill bottle", "Plastic fish", "Red soda", "Remote", "Ring", "Robot toy",#37
+    "Rubber Ducky", "Steering wheel", "Stop sign", "Tattered metal sheet", "Tea kettle", "Teeth", "Toothpaste",#44
+    "Toy cube", "Tragedy", "V-type engine", "Whoopie-Cushion", "Yield sign"#49
 ]
 
 scrap_moons = {
@@ -75,6 +75,18 @@ scrap_moons = {
              9, 13, 14],
     "Titan": [3, 46, 11, 47, 34, 25, 5, 44, 37, 30, 4, 22, 23, 42, 17, 21, 36, 48, 28, 38, 0, 29, 10, 43, 45, 19, 33,
               27, 9, 32, 31, 26, 13, 24, 1, 14]
+}
+
+scrap_moons_alt = {
+    "Experimentation": ["V-type engine", "DIY-Flashbang", "Dust pan", "Steering wheel", "Yield sign", "Apparatice", "Bee Hive"],
+    "Assurance": ["Big bolt", "Bottles", "Cookie mold pan", "Red soda", "Stop sign", "Apparatice", "Bee Hive"],
+    "Vow": ["Egg beater", "Chemical jug", "Flask", "Hair brush", "Rubber Ducky", "Apparatice", "Bee Hive"],
+    "Offense": ["Tattered metal sheet", "Gift Box", "Magnifying glass", "Remote", "Robot toy", "Apparatice"],
+    "March":  ["Whoopie-Cushion", "Airhorn", "Clown horn", "Gold bar", "Toy cube", "Apparatice", "Bee Hive"],
+    "Rend": ["Painting", "Ring", "Fancy lamp", "Candy", "Brass bell", "Double-barrel"],
+    "Dine": ["Tragedy", "Jar of pickles", "Cash register", "Coffee mug", "Hairdryer", "Double-barrel"],
+    "Titan": ["Comedy", "Golden cup", "Old phone", "Perfume bottle", "Pill bottle", "Apparatice", "Double-barrel"],
+    "Common": ["Large axle", "Laser pointer", "Magic 7 ball", "Plastic fish", "Tea kettle", "Teeth", "Toothpaste"],
 }
 
 bestiary_moons = {

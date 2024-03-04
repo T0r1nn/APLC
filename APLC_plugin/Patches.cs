@@ -1,14 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Net.Sockets;
-using System.Reflection;
+﻿using System.Linq;
 using Archipelago.MultiClient.Net.Packets;
 using GameNetcodeStuff;
 using HarmonyLib;
-using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
 namespace APLC;

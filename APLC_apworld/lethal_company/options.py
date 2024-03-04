@@ -392,6 +392,17 @@ class RequiredCredits(Range):
     default = 75
 
 
+class ModifyScrapSpawns(Toggle):
+    """
+    Modifies the spawn rates and availability of scrap on every moon to make sure that you are never stuck for a long
+    time trying to find that one specific scrap to unlock your terminal.
+    """
+    display_name = "Modify Scrap Spawns"
+    default = 1
+    slot = True
+    slot_name = "fixscrapsanity"
+
+
 @dataclass
 class LCOptions(PerGameCommonOptions):
     game_mode: Goal
@@ -409,6 +420,7 @@ class LCOptions(PerGameCommonOptions):
     scrapsanity: Scrapsanity
     exclude_shotgun: ExcludeShotguns
     exclude_hive: ExcludeHive
+    modify_scrap_spawns: ModifyScrapSpawns
     min_money: MinMoneyCheck
     max_money: MaxMoneyCheck
     starting_moon: StartingMoon
