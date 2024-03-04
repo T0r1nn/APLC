@@ -28,6 +28,7 @@ edit the YAML to fit whatever settings you want to play with:
 - scrapsanity: Can be 'true' or 'false', when true 50 new checks are added to the game for collecting at least one of each type of scrap.
 - exclude_hive: Can be 'true' or 'false', when true the Bee Hive location is guarenteed to not have a progression or useful item behind it
 - exclude_shotgun: Can be 'true' or 'false', when true the Double-barrel location is guarenteed to not have a progression or useful item behind it
+- modify_scrap_spawns: Can be 'true' or 'false', when true scrap spawn rates are modified in the following ways: all scrap have the same spawn chance, each moon has five scrap that are exclusive to it, and there are 7 scrap that are common between all the moons. This makes it a lot easier to find every in-logic scrap, which removes those times you are going to the same moon again and again, trying to find a rare item which blocks progression. There are also three special scrap(apparatus, hive, and shotgun), which stay in their normal moons.
 - min_money: Can be any number between 0 and 5000, default is 100. This is the minimum amount of money that the money checks will reward you with.
 - max_money: Can be any number between 0 and 5000, default is 1000. This is the maximum amount of money that the money checks will reward you with. This can't be less than min_money
 - starting_moon: Can be any of the following: experimentation, assurance, vow, offense, march, rend, dine, titan, or randomize. This sets the moon you start the run on.
