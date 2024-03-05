@@ -94,6 +94,8 @@ public class MultiworldHandler
 
         Instance = this;
 
+        _goal = GetSlotSetting("goal");
+
         CreateItems();
         CreateLocations();
 
@@ -109,7 +111,6 @@ public class MultiworldHandler
         _scrapCollected = _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-scrapCollected"];
         _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-trophies"].Initialize(new JArray(_trophyModeComplete));
         _trophyModeComplete = _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-trophies"];
-        _goal = GetSlotSetting("goal");
         _deathLink = GetSlotSetting("deathLink") == 1;
         _dlService = _session.CreateDeathLinkService();
         if (_deathLink)
@@ -435,8 +436,12 @@ public class MultiworldHandler
                 List<SpawnableItemWithRarity> scrap = moon.spawnableScrap;
                 foreach (SpawnableItemWithRarity item in scrap)
                 {
-                    scrapNameToScrapMap.TryAdd(item.spawnableItem.itemName, item);
-                    item.rarity = 1;
+                    scrapNameToScrapMap.TryAdd(
+                        item.spawnableItem.name.Contains("ap_apparatus_")
+                            ? item.spawnableItem.name
+                            : item.spawnableItem.itemName, item);
+
+                    item.rarity = item.spawnableItem.itemName == "Archipelago Chest" ? 45 : 30;
                 }
             }
             
@@ -453,6 +458,15 @@ public class MultiworldHandler
                 {
                     SpawnableItemWithRarity item = scrapNameToScrapMap[moonScrapName];
                     scrap.Add(item);
+                }
+                
+                if (GetGoal() == 1)
+                {
+                    scrap.Add(scrapNameToScrapMap["Archipelago Chest"]);
+                }
+                else if (GetGoal() == 0)
+                {
+                    scrap.Add(scrapNameToScrapMap[$"ap_apparatus_{moon.PlanetName.Split(' ')[1].ToLower()}"]);
                 }
             }
         }
