@@ -105,7 +105,7 @@ Custom content doesn't work if multiple people are playing lethal company with d
 
 Eventually, this will be added as a yaml setting so that a few of the main issues are fixed.
 
-Multiworlds might be unbeatable with custom content if the logic string isn't able to correctly read it.
+Multiworlds might be unbeatable with custom content. If this happens, let me know so I can improve the logic string generation method.
 
 Trophy mode is currently unbeatable with custom moons.
 
