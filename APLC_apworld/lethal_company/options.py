@@ -142,7 +142,7 @@ class CollectathonScrapGoal(Range):
     """
     display_name = "Collectathon Scrap Goal"
     range_start = 3
-    range_end = 30
+    range_end = 99
     default = 10
     slot = True
     slot_name = "collectathonGoal"
