@@ -1,7 +1,7 @@
 import string
 
 from .items import LethalCompanyItem, item_table, items, filler_items, classification_table, moons, calculate_credits
-from .locations import LethalCompanyLocation, generate_locations, max_locations, moon_names
+from .locations import LethalCompanyLocation, generate_locations, max_locations
 from .rules import set_rules
 from BaseClasses import Item, ItemClassification, Tutorial, MultiWorld, Region
 from .options import LCOptions
@@ -37,19 +37,21 @@ class LethalCompanyWorld(World):
     required_client_version = (0, 4, 4)
     web = LethalCompanyWeb()
     initial_world: string
+    scrap_map = {}
     required_credit_count: int = 0
 
     def __init__(self, multiworld, player: int):
         super().__init__(multiworld, player)
 
     def generate_early(self) -> None:
-        environment_pool = ["Experimentation", "Assurance", "Vow", "Offense", "March", "Rend", "Dine", "Titan"]
+        environment_pool = moons.copy()
 
         unlock = None
-        starting_moon_ind = self.options.starting_moon.value
-        if starting_moon_ind < 8:
-            unlock = [moons[starting_moon_ind]]
-        else:
+        starting_moon_option = self.options.starting_moon.value
+        for moon in moons:
+            if str(moon).lower().find(starting_moon_option.lower()) >= 0:
+                unlock = moon
+        if unlock is None:
             unlock = self.multiworld.random.choices(environment_pool, k=1)
 
         if (self.options.starting_stamina_bars.value == 0
@@ -57,16 +59,14 @@ class LethalCompanyWorld(World):
                      or self.options.randomize_company_building.value == 1)
                 and self.options.randomize_scanner.value == 1
                 and self.multiworld.players == 1):
-            while unlock[0] == "Offense" or unlock[0] == "Titan":
+            while (unlock[0] == "Offense" or unlock[0] == "Titan" or unlock[0] == "Artifice" or unlock[0] == "Adamance"
+                   or unlock[0] == "Embrion"):
                 unlock = self.multiworld.random.choices(environment_pool, k=1)
 
         self.multiworld.push_precollected(self.create_item(unlock[0]))
         self.initial_world = unlock[0]
 
     def create_items(self) -> None:
-        # precollect one moon
-
-
         # Generate item pool
         itempool: List = []
 
@@ -120,6 +120,9 @@ class LethalCompanyWorld(World):
 
         if self.options.game_mode == 2:
             slot_data["companycreditsgoal"] = self.required_credit_count
+
+        if self.options.modify_scrap_spawns.value == 1:
+            slot_data["moon_to_scrap_map"] = self.scrap_map
 
         return slot_data
 

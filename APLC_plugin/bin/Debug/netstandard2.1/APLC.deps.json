@@ -7,15 +7,17 @@
   "targets": {
     ".NETStandard,Version=v2.1": {},
     ".NETStandard,Version=v2.1/": {
-      "APLC/0.5.16": {
+      "APLC/0.5.21": {
         "dependencies": {
           "Archipelago.MultiClient.Net": "5.0.6",
           "BepInEx.Analyzers": "1.0.8",
           "BepInEx.Core": "5.4.21",
           "BepInEx.PluginInfoProps": "1.1.0",
           "UnityEngine.Modules": "2022.3.9",
+          "Assembly-CSharp-firstpass": "0.0.0.0",
           "Assembly-CSharp": "0.0.0.0",
           "Facepunch.Steamworks.Win64": "1.0.0.0",
+          "LethalAPI.Terminal": "1.0.0.0",
           "Unity.Netcode.Runtime": "0.0.0.0",
           "Unity.TextMeshPro": "0.0.0.0",
           "UnityEngine.UI": "1.0.0.0"
@@ -370,6 +372,14 @@
         }
       },
       "UnityEngine.Modules/2022.3.9": {},
+      "Assembly-CSharp-firstpass/0.0.0.0": {
+        "runtime": {
+          "Assembly-CSharp-firstpass.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
       "Assembly-CSharp/0.0.0.0": {
         "runtime": {
           "Assembly-CSharp.dll": {
@@ -381,6 +391,14 @@
       "Facepunch.Steamworks.Win64/1.0.0.0": {
         "runtime": {
           "Facepunch.Steamworks.Win64.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "LethalAPI.Terminal/1.0.0.0": {
+        "runtime": {
+          "LethalAPI.Terminal.dll": {
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
           }
@@ -445,14 +463,6 @@
       "DissonanceVoip/0.0.0.0": {
         "runtime": {
           "DissonanceVoip.dll": {
-            "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-      "Assembly-CSharp-firstpass/0.0.0.0": {
-        "runtime": {
-          "Assembly-CSharp-firstpass.dll": {
             "assemblyVersion": "0.0.0.0",
             "fileVersion": "0.0.0.0"
           }
@@ -653,7 +663,7 @@
     }
   },
   "libraries": {
-    "APLC/0.5.16": {
+    "APLC/0.5.21": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -931,12 +941,22 @@
       "path": "unityengine.modules/2022.3.9",
       "hashPath": "unityengine.modules.2022.3.9.nupkg.sha512"
     },
+    "Assembly-CSharp-firstpass/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
     "Assembly-CSharp/0.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
     },
     "Facepunch.Steamworks.Win64/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "LethalAPI.Terminal/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
@@ -977,11 +997,6 @@
       "sha512": ""
     },
     "DissonanceVoip/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Assembly-CSharp-firstpass/0.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

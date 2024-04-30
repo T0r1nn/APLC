@@ -62,9 +62,22 @@ public class MultiworldHandler
 
     //Handles the deathlink
     private readonly DeathLinkService _dlService;
+    
+    //Store items to randomize
+    private readonly Item[] store;
+    
+    //Moons to randomize
+    private readonly SelectableLevel[] moons;
+    
+    //Bestiary data
+    private readonly Dictionary<string, Collection<Tuple<string, double>>> bestiaryData;
+    
+    //Scrap data
+    private readonly Dictionary<string, Collection<Tuple<string, double>>> scrapData;
 
     public MultiworldHandler(string url, int port, string slot, string password)
     {
+        Plugin._instance.LogWarning($"URL: {url}, PORT: {port}, SLOT: {slot}, PASSWORD: {password}");
         _session = ArchipelagoSessionFactory.CreateSession(url, port);
         if (password == "") password = null;
 
@@ -96,8 +109,17 @@ public class MultiworldHandler
 
         _goal = GetSlotSetting("goal");
 
-        CreateItems();
+        var logic = Plugin._instance.GetGameLogic();
+
+        store = logic.Item1;
+        moons = logic.Item2;
+        bestiaryData = logic.Item3;
+        scrapData = logic.Item4;
+
+        _trophyModeComplete = new object[moons.Length];
+
         CreateLocations();
+        CreateItems();
 
         // foreach (var item in _session.Items.AllItemsReceived)
         // {
@@ -119,6 +141,12 @@ public class MultiworldHandler
             _dlService.EnableDeathLink();
         }
         ProcessItems(_receivedItemNames);
+        TerminalCommands.SetLogic();
+                    
+        ES3.Save<string>("ArchipelagoURL", url, GameNetworkManager.Instance.currentSaveFileName);
+        ES3.Save<int>("ArchipelagoPort", port, GameNetworkManager.Instance.currentSaveFileName);
+        ES3.Save<string>("ArchipelagoSlot", slot, GameNetworkManager.Instance.currentSaveFileName);
+        ES3.Save<string>("ArchipelagoPassword", password, GameNetworkManager.Instance.currentSaveFileName);
     }
 
     public string GetStartingMoon()
@@ -200,19 +228,10 @@ public class MultiworldHandler
         try
         {
             //Shop items
-            _itemMap.Add("Walkie-talkie", new StoreItems("Walkie-talkie", 0));
-            _itemMap.Add("Flashlight", new StoreItems("Flashlight", 1));
-            _itemMap.Add("Shovel", new StoreItems("Shovel", 2));
-            _itemMap.Add("Lockpicker", new StoreItems("Lockpicker", 3));
-            _itemMap.Add("Pro-flashlight", new StoreItems("Pro-flashlight", 4));
-            _itemMap.Add("Stun grenade", new StoreItems("Stun grenade", 5));
-            _itemMap.Add("Boombox", new StoreItems("Boombox", 6));
-            _itemMap.Add("TZP-Inhalant", new StoreItems("TZP-Inhalant", 7));
-            _itemMap.Add("Zap gun", new StoreItems("Zap gun", 8));
-            _itemMap.Add("Jetpack", new StoreItems("Jetpack", 9));
-            _itemMap.Add("Extension ladder", new StoreItems("Extension ladder", 10));
-            _itemMap.Add("Radar-booster", new StoreItems("Radar-booster", 11));
-            _itemMap.Add("Spray paint", new StoreItems("Spray paint", 12));
+            for (int i = 0; i < store.Length; i++)
+            {
+                _itemMap.Add(store[i].itemName, new StoreItems(store[i].itemName, i));
+            }
 
             //Ship upgrades
             _itemMap.Add("LoudHorn", new ShipUpgrades("LoudHorn", 26));
@@ -221,14 +240,13 @@ public class MultiworldHandler
             _itemMap.Add("InverseTeleporter", new ShipUpgrades("InverseTeleporter", 28));
 
             //Moons
-            _itemMap.Add("Experimentation", new MoonItems("Experimentation"));
-            _itemMap.Add("Assurance", new MoonItems("Assurance"));
-            _itemMap.Add("Vow", new MoonItems("Vow"));
-            _itemMap.Add("Offense", new MoonItems("Offense"));
-            _itemMap.Add("March", new MoonItems("March"));
-            _itemMap.Add("Rend", new MoonItems("Rend"));
-            _itemMap.Add("Dine", new MoonItems("Dine"));
-            _itemMap.Add("Titan", new MoonItems("Titan"));
+            for (int i = 0; i < moons.Length; i++)
+            {
+                string moonName = moons[i].PlanetName;
+                moonName = moonName.Substring(moonName.IndexOf(" ") + 1, moonName.Length - moonName.IndexOf(" ") - 1);
+                if (moonName.Contains("Gordion") || moonName.Contains("Liquidation")) continue;
+                _itemMap.Add(moonName, new MoonItems(moonName));
+            }
             if (GetSlotSetting("randomizecompany") == 1)
             {
                 _itemMap.Add("Company", new MoonItems("Company"));
@@ -266,7 +284,7 @@ public class MultiworldHandler
                 TimeOfDay.Instance.timeUntilDeadline -= TimeOfDay.Instance.totalTime;
                 if (TimeOfDay.Instance.timeUntilDeadline < TimeOfDay.Instance.totalTime)
                 {
-                    TimeOfDay.Instance.timeUntilDeadline = TimeOfDay.Instance.totalTime;
+                    TimeOfDay.Instance.timeUntilDeadline += TimeOfDay.Instance.totalTime;
                 }
 
                 TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
@@ -320,6 +338,7 @@ public class MultiworldHandler
         int lowGrade;
         int medGrade;
         int highGrade;
+        Terminal t = Plugin._instance.getTerminal();
         if (GetSlotSetting("splitgrades") == 1)
         {
             lowGrade = GetSlotSetting("lowMoon", 2);
@@ -331,44 +350,65 @@ public class MultiworldHandler
             lowGrade = medGrade = highGrade = GetSlotSetting("moonRank", 2);
         }
         //Moons
-        _locationMap.Add("Experimentation",
-            new MoonLocations("Experimentation", lowGrade, GetSlotSetting("checksPerMoon", 3)));
-        _locationMap.Add("Assurance",
-            new MoonLocations("Assurance", lowGrade, GetSlotSetting("checksPerMoon", 3)));
-        _locationMap.Add("Vow",
-            new MoonLocations("Vow", lowGrade, GetSlotSetting("checksPerMoon", 3)));
-        _locationMap.Add("Offense",
-            new MoonLocations("Offense", medGrade, GetSlotSetting("checksPerMoon", 3)));
-        _locationMap.Add("March",
-            new MoonLocations("March", medGrade, GetSlotSetting("checksPerMoon", 3)));
-        _locationMap.Add("Rend",
-            new MoonLocations("Rend", highGrade, GetSlotSetting("checksPerMoon", 3)));
-        _locationMap.Add("Dine",
-            new MoonLocations("Dine", highGrade, GetSlotSetting("checksPerMoon", 3)));
-        _locationMap.Add("Titan",
-            new MoonLocations("Titan", highGrade, GetSlotSetting("checksPerMoon", 3)));
+        for (int i = 0; i < moons.Length; i++)
+        {
+            if (moons[i].PlanetName.Contains("Gordion") || moons[i].PlanetName.Contains("Liquidation")) continue;
+            string moonName = moons[i].PlanetName;
+            moonName = moonName.Substring(moonName.IndexOf(" ") + 1, moonName.Length - moonName.IndexOf(" ") - 1);
+            int keywordIndex = 0;
+            int terminalIndex = 0;
+            for (int j = 0; j < t.terminalNodes.allKeywords.Length; j++)
+            {
+                if (t.terminalNodes.allKeywords[j].name == "Route")
+                {
+                    keywordIndex = j;
+                }
+            }
+            for (var j = 0; j < t.terminalNodes.allKeywords[keywordIndex].compatibleNouns.Length; j++)
+            {
+                if (t.terminalNodes.allKeywords[keywordIndex].compatibleNouns[j].noun.word.ToLower()
+                    .Contains(moonName.ToLower()))
+                {
+                    terminalIndex = j;
+                }
+            }
+
+            double cost = t.terminalNodes.allKeywords[keywordIndex].compatibleNouns[terminalIndex].result.itemCost;
+
+            if (cost < 100 && moons[i].factorySizeMultiplier <= 1.15)
+            {
+                _locationMap.Add(moonName, new MoonLocations(moonName, lowGrade, GetSlotSetting("checksPerMoon", 3)));
+                Plugin._instance.LogWarning($"Easy: {moonName}");
+            }
+            else if (cost < 120)
+            {
+                _locationMap.Add(moonName, new MoonLocations(moonName, medGrade, GetSlotSetting("checksPerMoon", 3)));
+                Plugin._instance.LogWarning($"Medium: {moonName}");
+            }
+            else
+            {
+                _locationMap.Add(moonName, new MoonLocations(moonName, highGrade, GetSlotSetting("checksPerMoon", 3)));
+                Plugin._instance.LogWarning($"Hard: {moonName}");
+            }
+        }
 
         //Quota
         _locationMap.Add("Quota", new Quota(GetSlotSetting("moneyPerQuotaCheck", 500), GetSlotSetting("numQuota", 20)));
 
         //Bestiary
-        _locationMap.Add("Roaming Locust", new BestiaryLocations(15, "Roaming Locust"));
-        _locationMap.Add("Manticoil", new BestiaryLocations(13, "Manticoil"));
-        _locationMap.Add("Circuit Bee", new BestiaryLocations(14, "Circuit Bee"));
-        _locationMap.Add("Hoarding Bug", new BestiaryLocations(4, "Hoarding Bug"));
-        _locationMap.Add("Snare Flea", new BestiaryLocations(0, "Snare Flea"));
-        _locationMap.Add("Spore Lizard", new BestiaryLocations(11, "Spore Lizard"));
-        _locationMap.Add("Hygrodere", new BestiaryLocations(5, "Hygrodere"));
-        _locationMap.Add("Bunker Spider", new BestiaryLocations(12, "Bunker Spider"));
-        _locationMap.Add("Bracken", new BestiaryLocations(1, "Bracken"));
-        _locationMap.Add("Thumper", new BestiaryLocations(2, "Thumper"));
-        _locationMap.Add("Coil-Head", new BestiaryLocations(7, "Coil-Head"));
-        _locationMap.Add("Jester", new BestiaryLocations(10, "Jester"));
-        _locationMap.Add("Forest Keeper", new BestiaryLocations(6, "Forest Keeper"));
-        _locationMap.Add("Eyeless Dog", new BestiaryLocations(3, "Eyeless Dog"));
-        _locationMap.Add("Earth Leviathan", new BestiaryLocations(9, "Earth Leviathan"));
-        _locationMap.Add("Baboon Hawk", new BestiaryLocations(16, "Baboon Hawk"));
-        _locationMap.Add("Nutcracker", new BestiaryLocations(17, "Nutcracker"));
+        foreach (var key in bestiaryData.Keys)
+        {
+            int id = 0;
+            for (int i = 0; i < t.enemyFiles.Count; i++)
+            {
+                if (t.enemyFiles[i].creatureName.Contains(key))
+                {
+                    id = i;
+                    break;
+                }
+            }
+            _locationMap.Add(key, new BestiaryLocations(id, key));
+        }
 
         //Logs
         _locationMap.Add("Smells Here!", new LogLocations(1, "Smells Here!"));
@@ -385,51 +425,12 @@ public class MultiworldHandler
         _locationMap.Add("Desmond", new LogLocations(12, "Desmond"));
 
         //Scrap
-        string[] checkNames =
-        {
-            "Airhorn", "Apparatice", "Bee Hive", "Big bolt", "Bottles", "Brass bell", "Candy", "Cash register",
-            "Chemical jug", "Clown horn", "Coffee mug", "Comedy", "Cookie mold pan", "DIY-Flashbang", "Double-barrel", "Dust pan",
-            "Egg beater", "Fancy lamp", "Flask", "Gift Box", "Gold bar", "Golden cup", "Hair brush", "Hairdryer",
-            "Jar of pickles", "Large axle", "Laser pointer", "Magic 7 ball", "Magnifying glass", "Old phone",
-            "Painting", "Perfume bottle", "Pill bottle", "Plastic fish", "Red soda", "Remote", "Ring", "Robot toy",
-            "Rubber Ducky", "Steering wheel", "Stop sign", "Tattered metal sheet", "Tea kettle", "Teeth", "Toothpaste",
-            "Toy cube", "Tragedy", "V-type engine", "Whoopie-Cushion", "Yield sign"
-        };
-
-        string[] scrapNames =
-        {
-            "Airhorn", "Apparatus", "Hive", "Big bolt", "Bottles", "Bell", "Candy", "Cash register",
-            "Chemical jug", "Clown horn", "Mug", "Comedy", "Cookie mold pan", "Homemade flashbang", "Shotgun", "Dust pan",
-            "Egg beater", "Fancy lamp", "Flask", "Gift", "Gold bar", "Golden cup", "Brush", "Hairdryer",
-            "Jar of pickles", "Large axle", "Laser pointer", "Magic 7 ball", "Magnifying glass", "Old phone",
-            "Painting", "Perfume bottle", "Pill bottle", "Plastic fish", "Red soda", "Remote", "Ring", "Toy robot",
-            "Rubber Ducky", "Steering wheel", "Stop sign", "Metal sheet", "Tea kettle", "Teeth", "Toothpaste",
-            "Toy cube", "Tragedy", "V-type engine", "Whoopie cushion", "Yield sign"
-        };
-
         if (GetSlotSetting("fixscrapsanity") == 1)
         {
-            Dictionary<string, string[]> moonToScrapMap = new Dictionary<string, string[]>();
 
-            moonToScrapMap.Add("Experimentation",
-                new[] { "V-type engine", "Homemade flashbang", "Dust pan", "Steering wheel", "Yield sign" });
-            moonToScrapMap.Add("Assurance",
-                new[] { "Big bolt", "Bottles", "Cookie mold pan", "Red soda", "Stop sign" });
-            moonToScrapMap.Add("Vow", new[] { "Egg beater", "Chemical jug", "Flask", "Brush", "Rubber Ducky" });
-            moonToScrapMap.Add("Offense", new[] { "Metal sheet", "Gift", "Magnifying glass", "Remote", "Toy robot" });
-            moonToScrapMap.Add("March", new[] { "Whoopie cushion", "Airhorn", "Clown horn", "Gold bar", "Toy cube" });
-            moonToScrapMap.Add("Rend", new[] { "Painting", "Ring", "Fancy lamp", "Candy", "Bell" });
-            moonToScrapMap.Add("Dine", new[] { "Tragedy", "Jar of pickles", "Cash register", "Mug", "Hairdryer" });
-            moonToScrapMap.Add("Titan", new[] { "Comedy", "Golden cup", "Old phone", "Perfume bottle", "Pill bottle" });
-            moonToScrapMap.Add("Common",
-                new[]
-                {
-                    "Large axle", "Laser pointer", "Magic 7 ball", "Plastic fish", "Tea kettle", "Teeth", "Toothpaste"
-                });
+            Dictionary<string, string[]> scrapToMoonMap = GetScrapToMoonMap();
 
             Dictionary<string, SpawnableItemWithRarity> scrapNameToScrapMap = new Dictionary<string, SpawnableItemWithRarity>();
-
-            SelectableLevel[] moons = Plugin._instance.getTerminal().moonsCatalogueList;
 
             foreach (var moon in moons)
             {
@@ -447,52 +448,68 @@ public class MultiworldHandler
             
             foreach (var moon in moons)
             {
-                List<SpawnableItemWithRarity> scrap = moon.spawnableScrap;
-                scrap.Clear();
-                foreach (string moonScrapName in moonToScrapMap[moon.PlanetName.Split(' ')[1]])
+                try
                 {
-                    SpawnableItemWithRarity item = scrapNameToScrapMap[moonScrapName];
-                    scrap.Add(item);
+                    List<SpawnableItemWithRarity> scrap = moon.spawnableScrap;
+                    scrap.Clear();
+                    foreach (string scrapName in scrapToMoonMap.Keys)
+                    {
+                        if (scrapToMoonMap[scrapName].Any(moonName=>moon.PlanetName.Contains(moonName)))
+                        {
+                            SpawnableItemWithRarity item = scrapNameToScrapMap[scrapName];
+                            scrap.Add(item);
+                        }
+                        else if (scrapToMoonMap[scrapName].Any(moonName=>"Common".Contains(moonName)))
+                        {                            
+                            SpawnableItemWithRarity item = scrapNameToScrapMap[scrapName];
+                            scrap.Add(item);
+                        }
+                    }
+
+                    if (GetGoal() == 1)
+                    {
+                        scrap.Add(scrapNameToScrapMap["Archipelago Chest"]);
+                    }
+                    else if (GetGoal() == 0)
+                    {
+                        try
+                        {
+                            scrap.Add(scrapNameToScrapMap[$"ap_apparatus_{moon.PlanetName.Split(' ')[1].ToLower()}"]);
+                        }
+                        catch (Exception)
+                        {
+                            /*
+                             * Create a new apparatus item for this moon.
+                             */
+                        }
+                    }
                 }
-                foreach (string moonScrapName in moonToScrapMap["Common"])
+                catch (Exception)
                 {
-                    SpawnableItemWithRarity item = scrapNameToScrapMap[moonScrapName];
-                    scrap.Add(item);
-                }
-                
-                if (GetGoal() == 1)
-                {
-                    scrap.Add(scrapNameToScrapMap["Archipelago Chest"]);
-                }
-                else if (GetGoal() == 0)
-                {
-                    scrap.Add(scrapNameToScrapMap[$"ap_apparatus_{moon.PlanetName.Split(' ')[1].ToLower()}"]);
+                    continue;
                 }
             }
         }
 
-        _locationMap.Add("Scrap", new ScrapLocations(scrapNames, checkNames));
+        string[] scrapNames = new string[scrapData.Keys.Count];
+        int ind = 0;
+        foreach (var key in scrapData.Keys)
+        {
+            scrapNames[ind] = key;
+            ind++;
+        }
 
-        // Terminal t = Plugin._instance.getTerminal();
-        // TerminalKeyword ap = ScriptableObject.CreateInstance<TerminalKeyword>();
-        // ap.word = "ap";
-        // CompatibleNoun hints = new CompatibleNoun
-        // {
-        //     noun = ScriptableObject.CreateInstance<TerminalKeyword>()
-        // };
-        // hints.noun.word = "hints";
-        // hints.result = ScriptableObject.CreateInstance<TerminalNode>();
-        // hints.result.displayText = "This is a test";
-        // ap.compatibleNouns = new[]
-        // {
-        //     hints
-        // };
-        // t.terminalNodes.allKeywords.AddItem(ap);
+        _locationMap.Add("Scrap", new ScrapLocations(scrapNames, scrapNames));
     }
 
     public bool IsConnected()
     {
         return _slotInfo != null;
+    }
+
+    public bool CheckComplete(string locationName)
+    {
+        return _session.Locations.AllLocationsChecked.Contains(_session.Locations.GetLocationIdFromName("Lethal Company", locationName));
     }
 
     public ArchipelagoSession GetSession()
@@ -512,6 +529,46 @@ public class MultiworldHandler
         {
             return def;
         }
+    }
+    
+    public double GetSlotSettingDouble(string settingName, double def = 0.0)
+    {
+        if (_slotInfo == null) return def;
+
+        try
+        {
+            return double.Parse(_slotInfo.SlotData[settingName].ToString());
+        }
+        catch (Exception)
+        {
+            return def;
+        }
+    }
+
+    public Dictionary<string, string[]> GetScrapToMoonMap()
+    {
+        var map = _slotInfo.SlotData["moon_to_scrap_map"];
+        string input = map.ToString();
+        input = input.Substring(2, input.Length - 5);
+        string[] slots = input.Split("],");
+        Dictionary<string, string[]> result = new();
+        foreach (string slot in slots)
+        {
+            string[] data = slot.Split("[");
+            string scrapName = data[0].Trim();
+            string[] scrapMoons = data[1].Split(",");
+            for (int i = 0; i < scrapMoons.Length; i++)
+            {
+                scrapMoons[i] = scrapMoons[i].Trim();
+                scrapMoons[i] = scrapMoons[i].Substring(1, scrapMoons[i].Length - 2);
+            }
+            
+            scrapName = scrapName.Substring(1, scrapName.Length - 3);
+            
+            result.Add(scrapName, scrapMoons);
+        }
+
+        return result;
     }
 
     private void OnMessageReceived(LogMessage message)
@@ -600,7 +657,7 @@ public class MultiworldHandler
     public void CompleteTrophy(string moon)
     {
         if (Array.IndexOf(_trophyModeComplete, moon) != -1) return;
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < moons.Length; i++)
         {
             if (_trophyModeComplete[i] is string) continue;
             _trophyModeComplete[i] = moon;
@@ -608,8 +665,14 @@ public class MultiworldHandler
             break;
         }
 
-        string[] moons = { "Experimentation", "Assurance", "Vow", "Offense", "March", "Rend", "Dine", "Titan" };
-        if (moons.Any(m => Array.IndexOf(_trophyModeComplete, m) == -1)) return;
+        string[] moonNames = new string[moons.Length];
+        for (int i = 0; i < moons.Length; i++)
+        {
+            moonNames[i] = String.Join(" ", moons[i].PlanetName.Split(" ").Skip(1)
+                .Take(moons[i].PlanetName.Split(" ").Length - 1).ToArray());
+        }
+
+        if (moonNames.Any(m => Array.IndexOf(_trophyModeComplete, m) == -1)) return;
         Victory();
     }
 
@@ -664,7 +727,15 @@ public class MultiworldHandler
 
     public void TickItems()
     {
-        string planetName = StartOfRound.Instance.currentLevel.PlanetName.Split(" ")[1];
+        if (!_session.Socket.Connected)
+        {
+            ChatHandler.SendMessage("AP: Lost connection to Archipelago server. Please reconnect before getting any new checks.");
+            Disconnect();
+        }
+        
+        string planetName = StartOfRound.Instance.currentLevel.PlanetName;
+        planetName = String.Join(" ", planetName.Split(" ").Skip(1)
+            .Take(planetName.Split(" ").Length - 1).ToArray());
         if (planetName == "Gordion")
         {
             planetName = "Company";
@@ -758,9 +829,10 @@ public class MultiworldHandler
                 {
                     _itemMap[name].OnReceived();
                 }
-                catch (Exception)
+                catch (Exception e)
                 { 
                     //Ignore exception
+                    Plugin._instance.LogError($"{e.Message}\n{e.StackTrace}");
                 }
             }
         }

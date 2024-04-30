@@ -4,6 +4,7 @@ from BaseClasses import Item, MultiWorld, ItemClassification
 from typing import Dict, Any
 from worlds.AutoWorld import World
 from .locations import generate_locations
+from .imported import data
 
 
 class LethalCompanyItem(Item):
@@ -52,7 +53,7 @@ class LCItem:
 
 
 def calculate_credits(world):
-    if not world.options.game_mode == 2:
+    if not world.options.game_mode.value == 2:
         return 0
 
     location_count = len(generate_locations(world.options.checks_per_moon.value, world.options.num_quotas.value,
@@ -78,30 +79,10 @@ moons = []
 shop_items = []
 
 items = [
-    LCItem("Walkie-talkie", shop_item=True),
-    LCItem("Shovel", shop_item=True),
-    LCItem("Lockpicker", shop_item=True),
-    LCItem("Progressive Flashlight", 0, 2, shop_item=True),
-    LCItem("Stun grenade", shop_item=True),
-    LCItem("Boombox", shop_item=True),
-    LCItem("TZP-Inhalant", shop_item=True),
-    LCItem("Zap gun", shop_item=True),
-    LCItem("Jetpack", shop_item=True),
-    LCItem("Extension ladder", shop_item=True),
-    LCItem("Radar-booster", shop_item=True),
-    LCItem("Spray paint", shop_item=True),
-    LCItem("LoudHorn", shop_item=True),
-    LCItem("SignalTranslator", shop_item=True),
-    LCItem("Teleporter", shop_item=True),
-    LCItem("InverseTeleporter", shop_item=True),
-    LCItem("Experimentation", environment=True, classification=ItemClassification.progression),
-    LCItem("Assurance", environment=True, classification=ItemClassification.progression),
-    LCItem("Vow", environment=True, classification=ItemClassification.progression),
-    LCItem("Offense", environment=True, classification=ItemClassification.progression),
-    LCItem("March", environment=True, classification=ItemClassification.progression),
-    LCItem("Rend", environment=True, classification=ItemClassification.progression),
-    LCItem("Dine", environment=True, classification=ItemClassification.progression),
-    LCItem("Titan", environment=True, classification=ItemClassification.progression),
+    LCItem("LoudHorn", classification=ItemClassification.useful),
+    LCItem("SignalTranslator", classification=ItemClassification.useful),
+    LCItem("Teleporter", classification=ItemClassification.useful),
+    LCItem("InverseTeleporter", classification=ItemClassification.useful),
     LCItem("Company Building", 1, "randomize_company_building", classification=ItemClassification.progression),
     LCItem("Terminal", 1, "randomize_terminal", classification=ItemClassification.progression),
     LCItem("Inventory Slot", 2, lambda w: 4 - w.options.starting_inventory_slots.value,
@@ -120,3 +101,9 @@ items = [
     LCItem("BrackenTrap", 3, "bracken_trap", classification=ItemClassification.trap),
     LCItem("Less Time", 3, "time_trap", classification=ItemClassification.trap)
 ]
+
+for item in data.get("store"):
+    items.append(LCItem(item, shop_item=True))
+
+for moon in data.get("moons"):
+    items.append(LCItem(" ".join(moon.split(" ")[1:]), environment=True))

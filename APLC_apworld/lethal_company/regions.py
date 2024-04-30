@@ -1,7 +1,7 @@
-from BaseClasses import MultiWorld, Region, Location
-from Utils import visualize_regions
+from BaseClasses import MultiWorld, Region, Location, ItemClassification
 from .items import moons, shop_items
-from .locations import bestiary_names, scrap_names, bestiary_moons, scrap_moons, max_locations, log_names, scrap_moons_alt
+from .locations import (bestiary_names, scrap_names, generate_bestiary_moons, generate_scrap_moons, max_locations,
+                        log_names, generate_scrap_moons_alt)
 from .rules import check_item_accessible
 from .options import LCOptions
 
@@ -35,9 +35,9 @@ def create_regions(options: LCOptions, world):
                                                                count=world.required_credit_count)))
     else:
         company_building.connect(victory, rule=lambda state: (state.has_all(shop_items, player)
-                                                              and state.has_all(moons, player)
-                                                              and state.has("Progressive Flashlight", player, count=2)))
+                                                              and state.has_all(moons, player)))
 
+    print(world.initial_world)
     menu.connect(ship, rule=lambda state: True)
     ship.connect(starting_moon, rule=lambda state: True)
     ship.connect(terminal, rule=lambda state: state.has("Terminal", player) or options.randomize_terminal.value == 0)
@@ -54,51 +54,48 @@ def create_regions(options: LCOptions, world):
                                                          and (state.has("Stamina Bar", player)
                                                               or options.starting_stamina_bars.value >= 1)))
 
+    bestiary_moons = generate_bestiary_moons(options.min_monster_chance.value/100.0)
+    scrap_moons = generate_scrap_moons(options.min_scrap_chance.value/100.0) if options.modify_scrap_spawns.value == 0 \
+        else generate_scrap_moons_alt(world)
+
+    print(bestiary_moons)
+    print(scrap_moons)
+
     for monster in bestiary_names:
         bestiary.append(Region(monster, player, multiworld))
         multiworld.regions.append(bestiary[-1])
-        cant_spawn = bestiary_moons[monster]
-        can_spawn = [moon for moon in moons]
-        for moon in cant_spawn:
-            can_spawn.remove(moon)
+        can_spawn = bestiary_moons[monster]
         for moon in can_spawn:
             multiworld.get_region(moon, player).connect(multiworld.get_region(monster, player),
                                                         rule=lambda state: (state.has("Scanner", player)
-                                                                            or options.randomize_scanner == 0))
+                                                                            or options.randomize_scanner.value == 0))
 
     if options.scrapsanity.value == 1:
         for scrap_name in scrap_names:
             scrap.append(Region(scrap_name, player, multiworld))
             multiworld.regions.append(scrap[-1])
 
-        if options.modify_scrap_spawns.value == 0:
-            for moon in scrap_moons.keys():
-                for scrap_ind in scrap_moons[moon]:
-                    multiworld.get_region(moon, player).connect(scrap[scrap_ind],
-                                                                rule=lambda state, s_name=scrap_names[scrap_ind]:
-                                                                ((state.has("Stamina Bar", player)
-                                                                  or options.starting_stamina_bars.value > 0)
-                                                                 and (check_item_accessible(state, "Shovel",
-                                                                                            player, options)
-                                                                      or s_name != "Double-barrel")))
-        else:
-            for moon in scrap_moons.keys():
-                for scrap_name in scrap_moons_alt[moon]:
+        for scrap_name in scrap_moons.keys():
+            for moon in scrap_moons[scrap_name]:
+                if moon == "Common":
+                    for r_moon in moons:
+                        multiworld.get_region(r_moon, player).connect(multiworld.get_region(scrap_name, player),
+                                                                      rule=lambda state, s_name=scrap_name:
+                                                                      ((state.has("Stamina Bar", player)
+                                                                        or options.starting_stamina_bars.value > 0)
+                                                                       and (check_item_accessible(state, "Shovel",
+                                                                                                  player, options)
+                                                                            or (s_name != "Shotgun"
+                                                                                and s_name != "Knife"))))
+                else:
                     multiworld.get_region(moon, player).connect(multiworld.get_region(scrap_name, player),
                                                                 rule=lambda state, s_name=scrap_name:
                                                                 ((state.has("Stamina Bar", player)
                                                                   or options.starting_stamina_bars.value > 0)
                                                                  and (check_item_accessible(state, "Shovel",
                                                                                             player, options)
-                                                                      or s_name != "Double-barrel")))
-                for scrap_name in scrap_moons_alt["Common"]:
-                    multiworld.get_region(moon, player).connect(multiworld.get_region(scrap_name, player),
-                                                                rule=lambda state, s_name=scrap_name:
-                                                                ((state.has("Stamina Bar", player)
-                                                                  or options.starting_stamina_bars.value > 0)
-                                                                 and (check_item_accessible(state, "Shovel",
-                                                                                            player, options)
-                                                                      or s_name != "Double-barrel")))
+                                                                      or (s_name != "Shotgun"
+                                                                          and s_name != "Knife"))))
 
     logs.append(Region("Sound Behind the Wall", player, multiworld))
     multiworld.regions.append(logs[-1])
@@ -164,12 +161,19 @@ def create_regions(options: LCOptions, world):
 
     for monster in bestiary_names:
         add_location(player, f"Bestiary Entry - {monster}", multiworld.get_region(monster, player))
+        if len(bestiary_moons[monster]) < 1:
+            multiworld.get_location(f"Bestiary Entry - {monster}", player).item_rule = lambda item: not \
+                    (item.classification == ItemClassification.progression or
+                     item.classification == ItemClassification.useful)
 
     if options.scrapsanity.value == 1:
         for scrap_name in scrap_names:
             add_location(player, f"Scrap - {scrap_name}", multiworld.get_region(scrap_name, player))
 
-    visualize_regions(menu, "lc_regions")
+            if len(scrap_moons[scrap_name]) < 1:
+                multiworld.get_location(f"Scrap - {scrap_name}", player).item_rule = lambda item: not \
+                    (item.classification == ItemClassification.progression or
+                     item.classification == ItemClassification.useful)
 
 
 def add_location(player: int, location: str, region: Region):

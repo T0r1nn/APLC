@@ -82,9 +82,9 @@ public class MoonLocations : Locations
         if (_timesChecked >= _maxChecks) return;
         var gradeNum = Array.IndexOf(new[] { "S", "A", "B", "C", "D", "F" }, grade);
         if (gradeNum > _grade) return;
+        MultiworldHandler.Instance.CompleteLocation($"{_name} check {_timesChecked+1}");
         _timesChecked++;
         MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} checks"] = _timesChecked;
-        MultiworldHandler.Instance.CompleteLocation($"{_name} check {_timesChecked+1}");
     }
     
     public override void CheckComplete(){}

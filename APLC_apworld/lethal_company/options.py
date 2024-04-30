@@ -1,5 +1,7 @@
 from dataclasses import dataclass
-from Options import Toggle, DeathLink, Range, Choice, PerGameCommonOptions
+from Options import Toggle, DeathLink, Range, Choice, PerGameCommonOptions, FreeText
+from .imported import data
+from typing import List
 
 
 class Goal(Choice):
@@ -170,21 +172,12 @@ class MaxMoneyCheck(Range):
     slot_name = "maxMoney"
 
 
-class StartingMoon(Choice):
+class StartingMoon(FreeText):
     """
     The moon you start on
     """
     display_name = "Starting Moon"
-    option_experimentation = 0
-    option_assurance = 1
-    option_vow = 2
-    option_offense = 3
-    option_march = 4
-    option_rend = 5
-    option_dine = 6
-    option_titan = 7
-    option_randomize = 8
-    default = 8
+    default = "randomize"
     slot = False
 
 
@@ -254,6 +247,19 @@ class RandomizeScanner(Toggle):
     slot_name = "scanner"
 
 
+class MonsterSpawnChance(Range):
+    """
+    Monsters will be in logic if their spawn chance on an in-logic moon is greater than or equal to this percentage. A
+    value of less than 3% can significantly slow down your game.
+    """
+    display_name = "Minimum Monster Spawn Chance"
+    default = 5
+    range_start = 0
+    range_end = 20
+    slot = True
+    slot_name = "minmonsterchance"
+
+
 class WeightReducers(Range):
     """
     The total weight of strength training items. Every item received makes you 2% stronger.
@@ -267,11 +273,24 @@ class WeightReducers(Range):
 class Scrapsanity(Toggle):
     """
     Enables scrapsanity, where the first time each item is recovered from a moon is a check,
-    adds 50 checks to the randomizer
+    adds >50 checks to the randomizer
     """
     display_name = "Scrapsanity"
     slot = True
     slot_name = "scrapsanity"
+
+
+class ScrapSpawnChance(Range):
+    """
+    Scrap will be in logic if their spawn chance on an in-logic moon is greater than or equal to this percentage. A
+    value of less than 3% can significantly slow down your game.
+    """
+    display_name = "Minimum Scrap Spawn Chance"
+    default = 3
+    range_start = 0
+    range_end = 20
+    slot = True
+    slot_name = "minscrapchance"
 
 
 class ExcludeShotguns(Toggle):
@@ -403,6 +422,26 @@ class ModifyScrapSpawns(Toggle):
     slot_name = "fixscrapsanity"
 
 
+class LogicDifficulty(Choice):
+    """
+    Changes the logic to adjust the difficulty of what is logically required to complete checks.
+    Easy:
+    Medium:
+    Hard:
+    Min Logic: The minimum possible requirements. Could make worlds impossible if you aren't skilled enough to complete
+    some checks.
+    Min Logic MP: THe minimum possible requirements when playing multiplayer. Main change is that experimentation no
+    longer requires a stamina bar because one player can bring stuff out of the facility and c
+    """
+    display_name = "Logic Difficulty"
+    option_Easy = 0
+    option_Medium = 1
+    option_Hard = 2
+    option_Min_Logic = 3
+    option_Min_Logic_MP = 4
+    default = 1
+
+
 @dataclass
 class LCOptions(PerGameCommonOptions):
     game_mode: Goal
@@ -415,14 +454,17 @@ class LCOptions(PerGameCommonOptions):
     starting_inventory_slots: StartingInventorySlots
     starting_stamina_bars: StartingStaminaBars
     randomize_scanner: RandomizeScanner
+    min_monster_chance: MonsterSpawnChance
     randomize_terminal: RandomizeTerminal
     randomize_company_building: RandomizeCompanyBuilding
     scrapsanity: Scrapsanity
+    min_scrap_chance: ScrapSpawnChance
     exclude_shotgun: ExcludeShotguns
     exclude_hive: ExcludeHive
     modify_scrap_spawns: ModifyScrapSpawns
     min_money: MinMoneyCheck
     max_money: MaxMoneyCheck
+    logic_difficulty: LogicDifficulty
     starting_moon: StartingMoon
     split_moon_grades: SplitMoonGrades
     moon_grade: MoonCheckGrade

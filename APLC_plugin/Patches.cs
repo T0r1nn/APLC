@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Text;
 using Archipelago.MultiClient.Net.Packets;
 using GameNetcodeStuff;
 using HarmonyLib;
@@ -13,7 +15,7 @@ public class Patches
     private static float _time;
     private static float _time1Sec;
     private static bool _waitingForTerminalQuit;
-    
+
     /**
      * Patches the game with all the patches in this file.
      */
@@ -21,7 +23,7 @@ public class Patches
     {
         Harmony.PatchAll(typeof(Patches));
     }
-    
+
     //Player upgrade managing
     /**
      * Cancels the scan functionality when the scanner isn't unlocked
@@ -59,10 +61,11 @@ public class Patches
             __instance.sprintMeter = Mathf.Min(__instance.sprintMeter, 0.35f);
             return true;
         }
+
         __instance.sprintMeter = Mathf.Min(__instance.sprintMeter, staminaChecks * 0.25f);
         return true;
     }
-    
+
     /**
      * Limits grabbing when your inventory is full, stops you from getting things in an unreachable spot in your inventory
      */
@@ -76,7 +79,7 @@ public class Patches
             __result = -1;
         }
     }
-    
+
     /**
      * Stops you from scrolling past your unlocked inventory slots
      */
@@ -84,7 +87,7 @@ public class Patches
     [HarmonyPatch(typeof(PlayerControllerB), "NextItemSlot")]
     private static void LimitInventory(PlayerControllerB __instance, ref int __result, ref bool forward)
     {
-        
+
         if (MultiworldHandler.Instance == null) return;
         int invSlots = ((PlayerUpgrades)MultiworldHandler.Instance.GetItemMap("Inventory Slot")).GetNum();
         if (__result >= invSlots)
@@ -95,7 +98,7 @@ public class Patches
                 __result = invSlots - 1;
         }
     }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PlayerControllerB), "Update")]
     private static void FixCarryWeight(PlayerControllerB __instance)
@@ -113,7 +116,7 @@ public class Patches
 
         __instance.carryWeight = Mathf.Max(1f, newWeight);
     }
-    
+
     //Archipelago connection
     /**
      * Ticks all waiting items and refreshes the unlocked items
@@ -143,10 +146,54 @@ public class Patches
             _waitingForTerminalQuit = false;
         }
     }
-    
-    /**
-     * Handles log and bestiary scanning and sends the check to the server
-     */
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(StartOfRound), "Start")]
+    public static void GetArchiInfoFromFile(StartOfRound __instance)
+    {
+        if (__instance.IsServer)
+        {
+            if (ES3.KeyExists("ArchipelagoURL", GameNetworkManager.Instance.currentSaveFileName) &&
+                MultiworldHandler.Instance == null)
+            {
+                string url = ES3.Load<string>("ArchipelagoURL", GameNetworkManager.Instance.currentSaveFileName);
+                int port = ES3.Load<int>("ArchipelagoPort", GameNetworkManager.Instance.currentSaveFileName);
+                string slot = ES3.Load<string>("ArchipelagoSlot", GameNetworkManager.Instance.currentSaveFileName);
+                string password =
+                    ES3.Load<string>("ArchipelagoPassword", GameNetworkManager.Instance.currentSaveFileName);
+                new MultiworldHandler(url, port, slot, password);
+            }
+            else
+            {
+                // string url;
+                // Plugin._instance.LogWarning(Plugin.url.TryGet<string>(out url).ToString());
+                // int port = Plugin.port.Get<int>();
+                // string slot;
+                // Plugin._instance.LogWarning(Plugin.slot.TryGet<string>(out slot).ToString());
+                // string password;
+                // Plugin._instance.LogWarning(Plugin.slot.TryGet<string>(out password).ToString());
+                // new MultiworldHandler(url, port, slot, password);
+            }
+        }
+        else
+        {
+            ChatHandler.SendMessage("__RequestAPConnection");
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(MenuManager), "Update")]
+    public static void DisconnectIfInMenu()
+    {
+        if (MultiworldHandler.Instance != null && StartOfRound.Instance == null)
+        {
+            MultiworldHandler.Instance.Disconnect();
+        }
+    }
+
+/**
+ * Handles log and bestiary scanning and sends the check to the server
+ */
     [HarmonyPrefix]
     [HarmonyPatch(typeof(HUDManager), "DisplayGlobalNotification")]
     public static bool CheckIfLogOrBestiary(string displayText)
@@ -169,11 +216,79 @@ public class Patches
         TerminalHandler.DisplayMoonTracker(__instance);
         TerminalHandler.DisplayLogTracker(__instance);
         TerminalHandler.DisplayBestiaryTracker(__instance);
+        TerminalHandler.DisplayModifiedShop(__instance);
         if (MultiworldHandler.Instance.GetSlotSetting("randomizeterminal") == 1)
         {
             if (MultiworldHandler.Instance.GetItemMap<PlayerUpgrades>("Terminal").GetNum() == 0)
             {
                 _waitingForTerminalQuit = true;
+            }
+        }
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Terminal), "TextPostProcess")]
+    private static void ModifyItemPricesToShowAsLocked(ref string modifiedDisplayText, TerminalNode node, Terminal __instance)
+    {
+        if (MultiworldHandler.Instance == null) return;
+        if (modifiedDisplayText.Contains("[buyableItemsList]"))
+        {
+            if (__instance.buyableItemsList == null || __instance.buyableItemsList.Length == 0)
+            {
+                modifiedDisplayText = modifiedDisplayText.Replace("[buyableItemsList]", "[No items in stock!]");
+            }
+            else
+            {
+                StringBuilder stringBuilder2 = new StringBuilder();
+                for (int j = 0; j < __instance.buyableItemsList.Length; j++)
+                {
+                    try
+                    {
+                        if (GameNetworkManager.Instance.isDemo && __instance.buyableItemsList[j].lockedInDemo)
+                        {
+                            stringBuilder2.Append("\n* " + __instance.buyableItemsList[j].itemName + " (Locked)");
+                        }
+                        else
+                        {
+                            if (MultiworldHandler.Instance
+                                    .GetItemMap<StoreItems>(__instance.buyableItemsList[j].itemName)
+                                    .GetTotal() >= 1)
+                            {
+                                stringBuilder2.Append("\n* " + __instance.buyableItemsList[j].itemName +
+                                                      "  //  Price: $" +
+                                                      ((float)__instance.buyableItemsList[j].creditsWorth *
+                                                       ((float)__instance.itemSalesPercentages[j] / 100f)).ToString());
+
+                            }
+                            else
+                            {
+                                stringBuilder2.Append(
+                                    "\n* " + __instance.buyableItemsList[j].itemName + "  //  Locked!");
+                            }
+                        }
+
+                        if (__instance.itemSalesPercentages[j] != 100 && MultiworldHandler.Instance
+                                .GetItemMap<StoreItems>(__instance.buyableItemsList[j].itemName).GetTotal() >= 1)
+                        {
+                            stringBuilder2.Append(string.Format("   ({0}% OFF!)",
+                                100 - __instance.itemSalesPercentages[j]));
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        stringBuilder2.Append(string.Format("\n* " + __instance.buyableItemsList[j].itemName +
+                                                            "  //  Price: $" +
+                                                            ((float)__instance.buyableItemsList[j].creditsWorth *
+                                                             ((float)__instance.itemSalesPercentages[j] / 100f))
+                                                            .ToString()));
+                        if (__instance.itemSalesPercentages[j] != 100)
+                        {
+                            stringBuilder2.Append(string.Format("   ({0}% OFF!)",
+                                100 - __instance.itemSalesPercentages[j]));
+                        }
+                    }
+                }
+                modifiedDisplayText = modifiedDisplayText.Replace("[buyableItemsList]", stringBuilder2.ToString());
             }
         }
     }
@@ -231,32 +346,11 @@ public class Patches
             }
             else if (MultiworldHandler.Instance.GetGoal() == 0)
             {
-                switch (scrap.name)
+                if (scrap.name.Contains("ap_apparataus_"))
                 {
-                    case "ap_apparatus_experimentation(Clone)":
-                        MultiworldHandler.Instance.CompleteTrophy("Experimentation");
-                        break;
-                    case "ap_apparatus_assurance(Clone)":
-                        MultiworldHandler.Instance.CompleteTrophy("Assurance");
-                        break;
-                    case "ap_apparatus_vow(Clone)":
-                        MultiworldHandler.Instance.CompleteTrophy("Vow");
-                        break;
-                    case "ap_apparatus_offense(Clone)":
-                        MultiworldHandler.Instance.CompleteTrophy("Offense");
-                        break;
-                    case "ap_apparatus_march(Clone)":
-                        MultiworldHandler.Instance.CompleteTrophy("March");
-                        break;
-                    case "ap_apparatus_rend(Clone)":
-                        MultiworldHandler.Instance.CompleteTrophy("Rend");
-                        break;
-                    case "ap_apparatus_dine(Clone)":
-                        MultiworldHandler.Instance.CompleteTrophy("Dine");
-                        break;
-                    case "ap_apparatus_titan(Clone)":
-                        MultiworldHandler.Instance.CompleteTrophy("Titan");
-                        break;
+                    string[] landing = new string[scrap.name.Split("_").Length-2];
+                    Array.ConstrainedCopy(scrap.name.Split("_"), 2, landing, 0, scrap.name.Split("_").Length - 2);
+                    MultiworldHandler.Instance.CompleteTrophy(String.Join(" ", landing).Split("(Clone)")[0].ToLower());
                 }
             }
         }
@@ -296,13 +390,12 @@ public class Patches
     // //Trophy case stuff
     // [HarmonyPostfix]
     // [HarmonyPatch(typeof(StartOfRound), "OnShipLandedMiscEvents")]
-    // private static void SpawnTrophyCase()
-    // {
-    //     //if (MultiworldHandler.Instance == null || MultiworldHandler.Instance.GetGoal() == 1/* || StartOfRound.Instance.currentLevel.PlanetName != "Company"*/) return;
-    //     var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-    //     go.transform.localScale = new Vector3(0.7f,7,10);
-    //     go.transform.position = new Vector3(-28.25f, 0.8f, 0);
-    //     go.AddComponent<TrophyCase>();
-    //     Object.Instantiate(go, new Vector3(-28.25f, 0.8f, 0), Quaternion.identity);
-    // }
+//     private static void SpawnTrophyCase()
+//     {
+//         //if (MultiworldHandler.Instance == null || MultiworldHandler.Instance.GetGoal() == 1/* || StartOfRound.Instance.currentLevel.PlanetName != "Company"*/) return;
+//         var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+// //        go.transform.localScale = new Vector3(0.7f,7,10);
+// //        go.transform.position = new Vector3(-28.25f, 0.8f, 0);
+// //        go.AddComponent<TrophyCase>();
+//     }
 }

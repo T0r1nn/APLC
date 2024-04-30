@@ -13,7 +13,6 @@ public class ChatHandler
     }
 
     //Archipelago connection
-    private static MultiworldHandler _multiworldHandler;
     //Stops the weird bug where messages send up to four times
     private static string _lastChatMessage = "";
     private static string _lastPrevMessage = "";
@@ -55,7 +54,7 @@ public class ChatHandler
             case "/connect":
             {
                 //If host, run connect, otherwise ask for connection info from host
-                if (GameNetworkManager.Instance.localPlayerController.IsHost)
+                if (GameNetworkManager.Instance.localPlayerController.IsHost && MultiworldHandler.Instance == null)
                 {
                     if (tokens.Length < 2) return false;
                     var connectionInfo = tokens[1].Split(":");
@@ -72,11 +71,11 @@ public class ChatHandler
 
                 return true;
             }
-            case "/disconnect" when _multiworldHandler == null:
+            case "/disconnect" when MultiworldHandler.Instance == null:
                 return true;
             case "/disconnect":
-                _multiworldHandler.Disconnect();
-                _multiworldHandler = null;
+                MultiworldHandler.Instance.Disconnect();
+                MultiworldHandler.Instance = null;
                 SendMessage("AP: Disconnect successful, please join a new save if you are doing a different Multiworld");
                 return true;
             default:
@@ -94,7 +93,8 @@ public class ChatHandler
                     _password = message == "n" ? null : message;
 
                     _waitingForPassword = false;
-                    _multiworldHandler = new MultiworldHandler(_url, _port, _slot, _password);
+                    new MultiworldHandler(_url, _port, _slot, _password);
+                    
                     HUDManager.Instance.AddTextToChatOnServer(
                         $"__APConnection: {_url} {_port} {_slot} {_password}");
                     return true;
@@ -130,7 +130,7 @@ public class ChatHandler
             }
 
             string password = tokens[^1];
-            _multiworldHandler = new MultiworldHandler(url, port, slotName, password);
+            new MultiworldHandler(url, port, slotName, password);
         }
 
         if (tokens[0] == "__RequestAPConnection:" && GameNetworkManager.Instance.isHostingGame &&

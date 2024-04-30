@@ -62,13 +62,18 @@ def set_rules(lc_world) -> None:
 
     if options.scrapsanity.value == 1:
         for scrap_index in range(len(scrap_names)):
-            if scrap_names[scrap_index] == "Bee Hive" and options.exclude_hive.value == 1:
-                multiworld.get_location("Scrap - Bee Hive", player).item_rule = lambda item: not \
+            if scrap_names[scrap_index] == "Hive" and options.exclude_hive.value == 1:
+                multiworld.get_location("Scrap - Hive", player).item_rule = lambda item: not \
                     (item.classification == ItemClassification.progression or
                      item.classification == ItemClassification.useful)
 
-            if scrap_names[scrap_index] == "Double-barrel" and options.exclude_shotgun.value == 1:
-                multiworld.get_location("Scrap - Double-barrel", player).item_rule = lambda item: not \
+            if scrap_names[scrap_index] == "Shotgun" and options.exclude_shotgun.value == 1:
+                multiworld.get_location("Scrap - Shotgun", player).item_rule = lambda item: not \
+                    (item.classification == ItemClassification.progression or
+                     item.classification == ItemClassification.useful)
+
+            if scrap_names[scrap_index] == "Knife" and options.exclude_shotgun.value == 1:
+                multiworld.get_location("Scrap - Knife", player).item_rule = lambda item: not \
                     (item.classification == ItemClassification.progression or
                      item.classification == ItemClassification.useful)
 

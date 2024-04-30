@@ -1,6 +1,11 @@
-from typing import Dict
+import math
+from typing import Dict, List, TYPE_CHECKING
 from BaseClasses import Location
 from .options import ChecksPerMoon, NumQuotas
+from .imported import data
+
+if TYPE_CHECKING:
+    from . import LethalCompanyWorld
 
 
 class LethalCompanyLocation(Location):
@@ -8,13 +13,6 @@ class LethalCompanyLocation(Location):
 
 
 lc_locations_start_id = 1966720
-
-log_offset = 12
-bestiary_offset = 17
-
-moon_names = [
-    "Experimentation", "Assurance", "Vow", "Offense", "March", "Rend", "Dine", "Titan"
-]
 
 log_names = [
     "Smells Here!",
@@ -31,101 +29,113 @@ log_names = [
     "Desmond"
 ]
 
-bestiary_names = [
-    "Snare Flea",
-    "Bunker Spider",
-    "Hoarding Bug",
-    "Bracken",
-    "Thumper",
-    "Hygrodere",
-    "Spore Lizard",
-    "Nutcracker",
-    "Coil-Head",
-    "Jester",
-    "Eyeless Dog",
-    "Forest Keeper",
-    "Earth Leviathan",
-    "Baboon Hawk",
-    "Circuit Bee",
-    "Manticoil",
-    "Roaming Locust"
-]
+bestiary_names = [[key for key in monster.keys()][0] for monster in data["bestiary"]]
 
-scrap_names = [
-    "Airhorn", "Apparatice", "Bee Hive", "Big bolt", "Bottles", "Brass bell", "Candy", "Cash register",#7
-    "Chemical jug", "Clown horn", "Coffee mug", "Comedy", "Cookie mold pan", "DIY-Flashbang", "Double-barrel", "Dust pan",#15
-    "Egg beater", "Fancy lamp", "Flask", "Gift Box", "Gold bar", "Golden cup", "Hair brush", "Hairdryer",#23
-    "Jar of pickles", "Large axle", "Laser pointer", "Magic 7 ball", "Magnifying glass", "Old phone",#29
-    "Painting", "Perfume bottle", "Pill bottle", "Plastic fish", "Red soda", "Remote", "Ring", "Robot toy",#37
-    "Rubber Ducky", "Steering wheel", "Stop sign", "Tattered metal sheet", "Tea kettle", "Teeth", "Toothpaste",#44
-    "Toy cube", "Tragedy", "V-type engine", "Whoopie-Cushion", "Yield sign"#49
-]
+moons = [" ".join(moon.split(" ")[1:]) for moon in data.get("moons")]
 
-scrap_moons = {
-    "Experimentation": [47, 41, 25, 3, 18, 39, 15, 13, 4, 19, 33, 16, 24, 49, 12, 1, 2],
-    "Assurance": [3, 4, 12, 47, 40, 16, 42, 25, 5, 22, 45, 41, 28, 24, 19, 49, 13, 35, 39, 34, 18, 10, 48, 33, 9, 0, 26,
-                  29, 37, 1, 2],
-    "Vow": [16, 12, 18, 48, 22, 8, 47, 40, 5, 33, 42, 3, 25, 4, 28, 38, 19, 24, 35, 45, 41, 49, 13, 10, 34, 39, 0, 9,
-            26, 29, 1, 2],
-    "Offense": [41, 25, 3, 47, 4, 33, 40, 42, 19, 9, 35, 0, 28, 45, 49, 43, 13, 26, 37, 29, 12, 1],
-    "March": [25, 3, 41, 47, 4, 9, 18, 0, 40, 33, 42, 19, 45, 35, 12, 49, 1, 2, 20],
-    "Rend": [30, 11, 17, 5, 37, 4, 10, 23, 28, 45, 43, 31, 34, 22, 42, 46, 21, 44, 27, 36, 19, 29, 33, 38, 7, 6, 0, 9,
-             14],
-    "Dine": [46, 30, 17, 5, 37, 4, 10, 23, 28, 45, 43, 11, 31, 34, 22, 42, 21, 44, 27, 19, 36, 48, 29, 33, 38, 6, 7, 0,
-             9, 13, 14],
-    "Titan": [3, 46, 11, 47, 34, 25, 5, 44, 37, 30, 4, 22, 23, 42, 17, 21, 36, 48, 28, 38, 0, 29, 10, 43, 45, 19, 33,
-              27, 9, 32, 31, 26, 13, 24, 1, 14]
-}
+scrap_names = []
 
-scrap_moons_alt = {
-    "Experimentation": ["V-type engine", "DIY-Flashbang", "Dust pan", "Steering wheel", "Yield sign", "Apparatice", "Bee Hive"],
-    "Assurance": ["Big bolt", "Bottles", "Cookie mold pan", "Red soda", "Stop sign", "Apparatice", "Bee Hive"],
-    "Vow": ["Egg beater", "Chemical jug", "Flask", "Hair brush", "Rubber Ducky", "Apparatice", "Bee Hive"],
-    "Offense": ["Tattered metal sheet", "Gift Box", "Magnifying glass", "Remote", "Robot toy", "Apparatice"],
-    "March":  ["Whoopie-Cushion", "Airhorn", "Clown horn", "Gold bar", "Toy cube", "Apparatice", "Bee Hive"],
-    "Rend": ["Painting", "Ring", "Fancy lamp", "Candy", "Brass bell", "Double-barrel"],
-    "Dine": ["Tragedy", "Jar of pickles", "Cash register", "Coffee mug", "Hairdryer", "Double-barrel"],
-    "Titan": ["Comedy", "Golden cup", "Old phone", "Perfume bottle", "Pill bottle", "Apparatice", "Double-barrel"],
-    "Common": ["Large axle", "Laser pointer", "Magic 7 ball", "Plastic fish", "Tea kettle", "Teeth", "Toothpaste"],
-}
+for item in data["scrap"]:
+    key = [key for key in item.keys()][0]
+    scrap_names.append(key)
 
-bestiary_moons = {
-    "Snare Flea": [],
-    "Bunker Spider": [],
-    "Hoarding Bug": ["Rend"],
-    "Bracken": [],
-    "Thumper": ["Rend"],
-    "Hygrodere": [],
-    "Spore Lizard": [],
-    "Nutcracker": ["Experimentation", "Assurance", "Offense", "March", "Vow"],
-    "Coil-Head": ["Experimentation", "Assurance"],
-    "Jester": ["Experimentation", "Assurance", "Vow", "Offense", "March"],
-    "Eyeless Dog": ["Experimentation", "Assurance", "Vow", "Offense", "March", "Dine"],
-    "Forest Keeper": ["Experimentation", "Assurance"],
-    "Earth Leviathan": [],
-    "Baboon Hawk": ["Experimentation", "Rend", "Dine", "Titan"],
-    "Circuit Bee": ["Offense", "Rend", "Dine", "Titan"],
-    "Manticoil": ["Rend", "Dine", "Titan"],
-    "Roaming Locust": ["Offense", "Rend", "Dine", "Titan"]
-}
+for moon in moons:
+    if not f"AP Apparatus - {moon}" in scrap_names:
+        scrap_names.append(f"AP Apparatus - {moon}")
+
+
+def generate_bestiary_moons(chance: float) -> Dict[str, List[str]]:
+    bestiary_moons = {
+
+    }
+
+    bestiary_data = data["bestiary"]
+    for entry in bestiary_data:
+        key = [key for key in entry.keys()][0]
+        b_moons = []
+        for moon in entry[key]:
+            if moon["chance"] > chance:
+                b_moons.append(" ".join(moon["moon_name"].split(" ")[1:]))
+        bestiary_moons[key] = b_moons
+
+    return bestiary_moons
+
+
+def generate_scrap_moons(chance: float) -> Dict[str, List[str]]:
+    scrap_moons = {
+
+    }
+
+    scrap_data = data["scrap"]
+    for entry in scrap_data:
+        key = [key for key in entry.keys()][0]
+        s_moons = []
+        for moon in entry[key]:
+            if moon["chance"] > chance:
+                s_moons.append(" ".join(moon["moon_name"].split(" ")[1:]))
+        scrap_moons[key] = s_moons
+
+    return scrap_moons
+
+
+def generate_scrap_moons_alt(world: 'LethalCompanyWorld') -> Dict[str, List[str]]:
+    scrap_moons = {
+
+    }
+
+    normal = generate_scrap_moons(chance=world.options.min_scrap_chance.value/100)
+
+    scrap = [name for name in scrap_names]
+
+    for name in scrap:
+        if "AP Apparatus" in name:
+            scrap.remove(name)
+        elif "Archipelago Chest" in name:
+            scrap.remove(name)
+        elif "Apparatus" in name or "Shotgun" in name or "Knife" in name or "Hive" in name:
+            scrap.remove(name)
+
+    items_per_bin = math.floor(len(scrap) / len(moons))
+    world.multiworld.random.shuffle(scrap)
+
+    for i in range(len(scrap)):
+        bin_num = math.floor(i/items_per_bin)
+        if bin_num < len(moons):
+            scrap_moons[scrap[i]] = [moons[bin_num]]
+        else:
+            scrap_moons[scrap[i]] = ["Common"]
+
+    scrap_moons["Archipelago Chest"] = []
+    scrap_moons["Apparatus"] = normal["Apparatus"]
+    scrap_moons["Shotgun"] = normal["Shotgun"]
+    scrap_moons["Knife"] = normal["Knife"]
+    scrap_moons["Hive"] = normal["Hive"]
+
+    for moon in moons:
+        scrap_moons[f"AP Apparatus - {moon}"] = [moon]
+        scrap_moons["Archipelago Chest"].append(moon)
+
+    world.scrap_map = scrap_moons
+
+    return scrap_moons
 
 
 def generate_locations(checks_per_moon: int, num_quota: int, scrapsanity: int) -> Dict[str, int]:
     locations = {}
     offset = lc_locations_start_id
-    for i in range(len(moon_names)):
+    for i in range(len(moons)):
         for j in range(checks_per_moon):
-            locations.update({f"{moon_names[i]} check {j+1}": j + i * checks_per_moon + offset})
-    offset += 8 * checks_per_moon
+            locations.update({f"{moons[i]} check {j + 1}": j + i * checks_per_moon + offset})
+    offset += len(moons) * checks_per_moon
     for i in range(num_quota):
-        locations.update({f"Quota check {i+1}": offset + i})
+        locations.update({f"Quota check {i + 1}": offset + i})
     offset += num_quota
     for i in range(len(log_names)):
         locations.update({f"Log - {log_names[i]}": offset + i})
-    offset += log_offset
+    offset += len(log_names)
     for i in range(len(bestiary_names)):
         locations.update({f"Bestiary Entry - {bestiary_names[i]}": offset + i})
-    offset += bestiary_offset
+    offset += len(bestiary_names)
     if scrapsanity == 1:
         for i in range(len(scrap_names)):
             locations.update({f"Scrap - {scrap_names[i]}": offset + i})

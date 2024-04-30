@@ -100,27 +100,35 @@ public class FillerItems : Items
 public class MoonItems : Items
 {
     private readonly int _terminalIndex;
+    private readonly int keywordIndex = 26;
     public MoonItems(string name)
     {
-        Setup(name, resetAll:true);
-        for (var i = 0; i < Plugin._instance.getTerminal().terminalNodes.allKeywords[26].compatibleNouns.Length; i++)
+        for (int i = 0; i < Plugin._instance.getTerminal().terminalNodes.allKeywords.Length; i++)
         {
-            if (Plugin._instance.getTerminal().terminalNodes.allKeywords[26].compatibleNouns[i].noun.word
+            if (Plugin._instance.getTerminal().terminalNodes.allKeywords[i].name == "Route")
+            {
+                keywordIndex = i;
+            }
+        }
+        Setup(name, resetAll:true);
+        for (var i = 0; i < Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns.Length; i++)
+        {
+            if (Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns[i].noun.word.ToLower()
                 .Contains(name.ToLower()))
             {
                 _terminalIndex = i;
             }
         }
-        Plugin._instance.getTerminal().terminalNodes.allKeywords[26].compatibleNouns[_terminalIndex].result.itemCost = 10000000;
-        Plugin._instance.getTerminal().terminalNodes.allKeywords[26].compatibleNouns[_terminalIndex].result.terminalOptions[1].result
+        Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns[_terminalIndex].result.itemCost = 10000000;
+        Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns[_terminalIndex].result.terminalOptions[1].result
             .itemCost = 10000000;
     }
 
     protected override bool HandleReceived(bool isTick=false)
     {
-        Plugin._instance.LogInfo($"Unlocking moon {Plugin._instance.getTerminal().terminalNodes.allKeywords[26].compatibleNouns[_terminalIndex].noun.word}");
-        Plugin._instance.getTerminal().terminalNodes.allKeywords[26].compatibleNouns[_terminalIndex].result.itemCost = 0;
-        Plugin._instance.getTerminal().terminalNodes.allKeywords[26].compatibleNouns[_terminalIndex].result.terminalOptions[1].result
+        Plugin._instance.LogInfo($"Unlocking moon {Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns[_terminalIndex].noun.word}");
+        Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns[_terminalIndex].result.itemCost = 0;
+        Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns[_terminalIndex].result.terminalOptions[1].result
             .itemCost = 0;
         return true;
     }

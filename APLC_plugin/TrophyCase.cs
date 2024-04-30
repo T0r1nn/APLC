@@ -21,8 +21,12 @@ public class TrophyCase : MonoBehaviour
     public GameObject din;
     public GameObject tit;
     
-    private void Awake()
+    private void Start()
     {
+        gameObject.GetComponent<MeshRenderer>().enabled = true;
+        gameObject.GetComponent<MeshRenderer>().enabled = true;
+
+        
         trigger = gameObject.AddComponent<InteractTrigger>();
         trigger.oneHandedItemAllowed = false;
         trigger.twoHandedItemAllowed = true;
@@ -78,6 +82,7 @@ public class TrophyCase : MonoBehaviour
 
     private void Update()
     {
+        if (GameNetworkManager.Instance.localPlayerController.currentlyHeldObject == null) return;
         trigger.interactable =
             GameNetworkManager.Instance.localPlayerController.currentlyHeldObject.name.Contains("ap_apparatus");
     }
