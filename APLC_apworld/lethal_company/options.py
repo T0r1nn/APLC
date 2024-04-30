@@ -464,7 +464,6 @@ class LCOptions(PerGameCommonOptions):
     modify_scrap_spawns: ModifyScrapSpawns
     min_money: MinMoneyCheck
     max_money: MaxMoneyCheck
-    logic_difficulty: LogicDifficulty
     starting_moon: StartingMoon
     split_moon_grades: SplitMoonGrades
     moon_grade: MoonCheckGrade
