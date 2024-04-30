@@ -96,6 +96,19 @@ The items are:
   - Ghost girl spawns
   - Quota time decreases
 
+## Adding custom scrap, monsters, and moons to the randomizer
+EXPERIMENTAL FEATURE - WILL CHANGE OVER TIME, MAY BE BUGGY AND BROKEN
+As of 0.6.0, APLC now supports adding custom scrap, monsters, moons, and store items to the randomizer. To do this, first you must install all custom content that you want to include, as well as the UnityExplorer mod. Boot up the game and create a new save file, then open the C# console. From the dropdown, click REPL, then replace all content in the file with the line: APLC.Plugin._instance.GetGameLogicString(); Click run, then navigate to the Lethal Company console window. Highlight any text to temporarily pause the game, preventing the console from autoscrolling while you are trying to copy the logic string, then highlight the entirety of the logic string, from the first { to the last }. Once it's highlighted, copy it, then go to your lethal company apworld. Rename the file to lethal_company.zip and open it, then copy the lethal_company folder into the worlds folder. Finally, inside the lethal_company folder, replace the contents of imported.py with data = , then paste your logic string. Now, you can generate a multiworld using this apworld to use the custom content.
+
+### Custom Content Disclaimers:
+Custom content doesn't work if multiple people are playing lethal company with differing custom content(this would require multiple lethal company apworlds, which would collide and break). However, if everyone playing lethal company uses the same custom content, they should all be able to use the same apworld and coexist.
+
+Eventually, this will be added as a yaml setting so that a few of the main issues are fixed.
+
+Multiworlds might be unbeatable with custom content. If this happens, let me know so I can improve the logic string generation method.
+
+Trophy mode is currently unbeatable with custom moons.
+
 ## Credits
 Thanks to my friends for helping me test this and fix a few
 annoying crashes. Thanks to everyone in the Lethal Company thread in the Archipelago
