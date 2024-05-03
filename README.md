@@ -107,8 +107,6 @@ Eventually, this will be added as a yaml setting so that a few of the main issue
 
 Multiworlds might be unbeatable with custom content. If this happens, let me know so I can improve the logic string generation method.
 
-Trophy mode is currently unbeatable with custom moons.
-
 ## Credits
 Thanks to my friends for helping me test this and fix a few
 annoying crashes. Thanks to everyone in the Lethal Company thread in the Archipelago
