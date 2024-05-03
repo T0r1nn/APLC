@@ -78,6 +78,10 @@ public class ChatHandler
                 MultiworldHandler.Instance = null;
                 SendMessage("AP: Disconnect successful, please join a new save if you are doing a different Multiworld");
                 return true;
+            case "/resync":
+                MultiworldHandler.Instance.RefreshItems();
+                SendMessage("AP: Resyncing items");
+                return true;
             default:
             {
                 if (_waitingForSlot)

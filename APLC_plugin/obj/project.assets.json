@@ -2739,7 +2739,7 @@
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
-    "version": "0.6.1",
+    "version": "0.6.2",
     "restore": {
       "projectUniqueName": "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
       "projectName": "APLC",

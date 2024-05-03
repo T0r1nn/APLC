@@ -992,10 +992,10 @@ public class MultiworldHandler
             item.Tick();
         }
 
-        RefreshItems();
+        //RefreshItems();
     }
 
-    private void RefreshItems()
+    public void RefreshItems()
     {
         _receivedItemNames.Clear();
 
