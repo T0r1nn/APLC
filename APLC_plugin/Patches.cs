@@ -346,11 +346,11 @@ public class Patches
             }
             else if (MultiworldHandler.Instance.GetGoal() == 0)
             {
-                if (scrap.name.Contains("ap_apparataus_"))
+                if (scrap.name.Contains("ap_apparatus_"))
                 {
                     string[] landing = new string[scrap.name.Split("_").Length-2];
                     Array.ConstrainedCopy(scrap.name.Split("_"), 2, landing, 0, scrap.name.Split("_").Length - 2);
-                    MultiworldHandler.Instance.CompleteTrophy(String.Join(" ", landing).Split("(Clone)")[0].ToLower());
+                    MultiworldHandler.Instance.CompleteTrophy(String.Join(" ", landing).Split("(Clone)")[0].ToLower(), scrap);
                 }
             }
         }

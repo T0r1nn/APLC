@@ -167,6 +167,15 @@ public class ScrapLocations : Locations
             select obj).ToList();
         foreach (var scrap in list)
         {
+            string name = scrap.itemProperties.itemName.ToLower();
+            if (scrap.name.Contains("ap_apparatus_custom"))
+            {
+                name = "ap apparatus - custom";
+            }
+            if (name == "ap apparatus - custom")
+            {
+                name = $"ap apparatus - {MultiworldHandler.Instance.GetCurrentMoonName().ToLower()}";
+            }
             for (int i = 0; i < _scrapNames.Length; i++)
             {
                 if (string.Equals(scrap.itemProperties.itemName.ToLower(), _scrapNames[i].ToLower(),

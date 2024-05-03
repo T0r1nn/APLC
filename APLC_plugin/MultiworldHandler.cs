@@ -217,6 +217,7 @@ public class MultiworldHandler
 
     public void Disconnect()
     {
+        _session.Socket.DisconnectAsync();
         _receivedItemNames.Clear();
         _session = null;
         _slotInfo = null;
@@ -456,8 +457,26 @@ public class MultiworldHandler
                     {
                         if (scrapToMoonMap[scrapName].Any(moonName=>moon.PlanetName.Contains(moonName)))
                         {
-                            SpawnableItemWithRarity item = scrapNameToScrapMap[scrapName];
-                            scrap.Add(item);
+                            try
+                            {
+                                string keyName = scrapName;
+                                if (scrapName.Contains("AP Apparatus"))
+                                {
+                                    keyName = $"ap_apparatus_{moon.PlanetName.Split(' ')[1].ToLower()}";
+                                }
+                                Plugin._instance.LogWarning(keyName);
+                                SpawnableItemWithRarity item = scrapNameToScrapMap[keyName];
+                                scrap.Add(item);
+                            }
+                            catch (Exception e)
+                            {
+                                if (scrapName.Contains("AP Apparatus"))
+                                {
+                                    Plugin._instance.LogWarning(e.Message + "\n" + e.StackTrace);
+                                    SpawnableItemWithRarity item = scrapNameToScrapMap["ap_apparatus_custom"];
+                                    scrap.Add(item);
+                                }
+                            }
                         }
                         else if (scrapToMoonMap[scrapName].Any(moonName=>"Common".Contains(moonName)))
                         {                            
@@ -466,23 +485,23 @@ public class MultiworldHandler
                         }
                     }
 
-                    if (GetGoal() == 1)
-                    {
-                        scrap.Add(scrapNameToScrapMap["Archipelago Chest"]);
-                    }
-                    else if (GetGoal() == 0)
-                    {
-                        try
-                        {
-                            scrap.Add(scrapNameToScrapMap[$"ap_apparatus_{moon.PlanetName.Split(' ')[1].ToLower()}"]);
-                        }
-                        catch (Exception)
-                        {
-                            /*
-                             * Create a new apparatus item for this moon.
-                             */
-                        }
-                    }
+                    // if (GetGoal() == 1)
+                    // {
+                    //     scrap.Add(scrapNameToScrapMap["Archipelago Chest"]);
+                    // }
+                    // else if (GetGoal() == 0)
+                    // {
+                    //     try
+                    //     {
+                    //         scrap.Add(scrapNameToScrapMap[$"ap_apparatus_{moon.PlanetName.Split(' ')[1].ToLower()}"]);
+                    //     }
+                    //     catch (Exception)
+                    //     {
+                    //         /*
+                    //          * Create a new apparatus item for this moon.
+                    //          */
+                    //     }
+                    // }
                 }
                 catch (Exception)
                 {
@@ -547,8 +566,189 @@ public class MultiworldHandler
 
     public Dictionary<string, string[]> GetScrapToMoonMap()
     {
-        var map = _slotInfo.SlotData["moon_to_scrap_map"];
-        string input = map.ToString();
+        string input;
+
+        try
+        {
+            var map = _slotInfo.SlotData["moon_to_scrap_map"];
+            input = map.ToString();
+        }
+        catch (Exception)
+        {
+            input = @"{
+""V-type engine"": [
+""Experimentation""
+]
+""Homemade flashbang"": [
+""Experimentation""
+]
+""Dust pan"": [
+""Experimentation""
+]
+""Steering wheel"": [
+""Experimentation""
+]
+""Yield sign"": [
+""Experimentation""
+]
+""Apparatus"": [
+""Experimentation"",
+]
+""Assurance"",
+]
+""Vow"",
+]
+""Offense"",
+]
+""March"",
+]
+""Titan""
+]
+""Hive"": [
+""Experimentation"",
+]
+""Assurance"",
+]
+""Vow"",
+]
+""March""
+]
+""Big bolt"": [
+""Assurance""
+]
+""Bottles"": [
+""Assurance""
+]
+""Cookie mold pan"": [
+""Assurance""
+]
+""Red soda"": [
+""Assurance""
+]
+""Stop sign"": [
+""Assurance""
+]
+""Egg beater"": [
+""Vow""
+]
+""Chemical jug"": [
+""Vow""
+]
+""Flask"": [
+""Vow""
+]
+""Brush"": [
+""Vow""
+]
+""Rubber Ducky"": [
+""Vow""
+]
+""Metal sheet"": [
+""Offense""
+]
+""Gift"": [
+""Offense""
+]
+""Magnifying glass"": [
+""Offense""
+]
+""Remote"": [
+""Offense""
+]
+""Toy robot"": [
+""Offense""
+]
+"" Whoopie cushion"": [
+""March""
+]
+""Airhorn"": [
+""March""
+]
+""Clown horn"": [
+""March""
+]
+""Gold bar"": [
+""March""
+]
+""Toy cube"": [
+""March""
+]
+""Painting"": [
+""Rend""
+]
+""Ring"": [
+""Rend""
+]
+""Fancy lamp"": [
+""Rend""
+]
+""Candy"": [
+""Rend""
+]
+""Bell"": [
+""Rend""
+]
+""Shotgun"": [
+""Rend"",
+]
+""Dine"",
+]
+""Titan""
+]
+""Tragedy"": [
+""Dine""
+]
+""Jar of pickles"": [
+""Dine""
+]
+""Cash register"": [
+""Dine""
+]
+""Mug"": [
+""Dine""
+]
+""Hairdryer"": [
+""Dine""
+]
+""Comedy"": [
+""Titan""
+]
+""Golden cup"": [
+""Titan""
+]
+""Old phone"": [
+""Titan""
+]
+""Perfume bottle"": [
+""Titan""
+]
+""Pill bottle"": [
+""Titan""
+]
+""Large axle"": [
+""Common""
+]
+""Laser pointer"": [
+""Common""
+]
+""Magic 7 ball"": [
+""Common""
+]
+""Plastic fish"": [
+""Common""
+]
+""Tea kettle"": [
+""Common""
+]
+""Teeth"": [
+""Common""
+]
+""Toothpaste"": [
+""Common""
+]
+}";
+        }
+
         input = input.Substring(2, input.Length - 5);
         string[] slots = input.Split("],");
         Dictionary<string, string[]> result = new();
@@ -569,6 +769,7 @@ public class MultiworldHandler
         }
 
         return result;
+        
     }
 
     private void OnMessageReceived(LogMessage message)
@@ -654,9 +855,22 @@ public class MultiworldHandler
         return Array.IndexOf(_trophyModeComplete, moon) != -1;
     }
 
-    public void CompleteTrophy(string moon)
+    public string GetCurrentMoonName()
+    {
+        string moon = StartOfRound.Instance.currentLevel.PlanetName;
+        string[] parts = moon.Split(" ");
+        parts = parts.Skip(1).Take(parts.Length - 1).ToArray();
+        moon = String.Join(" ", parts);
+        return moon;
+    }
+    
+    public void CompleteTrophy(string moon, GrabbableObject scrap)
     {
         if (Array.IndexOf(_trophyModeComplete, moon) != -1) return;
+        if (moon.ToLower().Contains("custom") && !scrap.scrapPersistedThroughRounds)
+        {
+            moon = GetCurrentMoonName();
+        }
         for (var i = 0; i < moons.Length; i++)
         {
             if (_trophyModeComplete[i] is string) continue;

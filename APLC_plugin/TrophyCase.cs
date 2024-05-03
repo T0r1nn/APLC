@@ -89,32 +89,6 @@ public class TrophyCase : MonoBehaviour
 
     private void OnInteract()
     {
-        switch (GameNetworkManager.Instance.localPlayerController.currentlyHeldObject.name)
-        {
-            case "ap_apparatus_experimentation(Clone)":
-                MultiworldHandler.Instance.CompleteTrophy("Experimentation");
-                break;
-            case "ap_apparatus_assurance(Clone)":
-                MultiworldHandler.Instance.CompleteTrophy("Assurance");
-                break;
-            case "ap_apparatus_vow(Clone)":
-                MultiworldHandler.Instance.CompleteTrophy("Vow");
-                break;
-            case "ap_apparatus_offense(Clone)":
-                MultiworldHandler.Instance.CompleteTrophy("Offense");
-                break;
-            case "ap_apparatus_march(Clone)":
-                MultiworldHandler.Instance.CompleteTrophy("March");
-                break;
-            case "ap_apparatus_rend(Clone)":
-                MultiworldHandler.Instance.CompleteTrophy("Rend");
-                break;
-            case "ap_apparatus_dine(Clone)":
-                MultiworldHandler.Instance.CompleteTrophy("Dine");
-                break;
-            case "ap_apparatus_titan(Clone)":
-                MultiworldHandler.Instance.CompleteTrophy("Titan");
-                break;
-        }
+        
     }
 }

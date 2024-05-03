@@ -4,6 +4,6 @@ namespace APLC
     {
         public const string PLUGIN_GUID = "APLC";
         public const string PLUGIN_NAME = "APLC";
-        public const string PLUGIN_VERSION = "0.6.0";
+        public const string PLUGIN_VERSION = "0.6.1";
     }
 }
