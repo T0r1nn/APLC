@@ -3,7 +3,7 @@ Download the following two files from the [Releases page in Github](https://gith
 - lethal_company.yaml
 - lethal_company.apworld
 
-You also need to install the [Archipelago Multiworld Randomizer version 0.4.4](https://github.com/ArchipelagoMW/Archipelago/releases/latest) client.
+You also need to install the [Archipelago Multiworld Randomizer version 0.4.6](https://github.com/ArchipelagoMW/Archipelago/releases/latest) client.
 
 Install the APLC mod from the Thunderstore (you may also install the mod via the R2ModManager).
 
