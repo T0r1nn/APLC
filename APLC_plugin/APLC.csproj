@@ -49,5 +49,11 @@
         <Reference Include="LethalAPI.Terminal.dll">
             <HintPath>C:\Users\tyler\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\AP\BepInEx\plugins\LethalAPI-LethalAPI_Terminal\LethalAPI.Terminal.dll</HintPath>
         </Reference>
+        <Reference Include="LethalLevelLoader.dll">
+            <HintPath>C:\Users\tyler\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\AP\BepInEx\plugins\IAmBatby-LethalLevelLoader\LethalLevelLoader.dll</HintPath>
+        </Reference>
+        <Reference Include="TerminalFormatter.dll">
+            <HintPath>C:\Users\tyler\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\AP\BepInEx\plugins\mrov-TerminalFormatter\TerminalFormatter.dll</HintPath>
+        </Reference>
     </ItemGroup>
 </Project>

@@ -18,6 +18,8 @@
           "Assembly-CSharp": "0.0.0.0",
           "Facepunch.Steamworks.Win64": "1.0.0.0",
           "LethalAPI.Terminal": "1.0.0.0",
+          "LethalLevelLoader": "1.1.0.0",
+          "TerminalFormatter": "0.0.1.0",
           "Unity.Netcode.Runtime": "0.0.0.0",
           "Unity.TextMeshPro": "0.0.0.0",
           "UnityEngine.UI": "1.0.0.0"
@@ -401,6 +403,22 @@
           "LethalAPI.Terminal.dll": {
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "LethalLevelLoader/1.1.0.0": {
+        "runtime": {
+          "LethalLevelLoader.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.1.0.0"
+          }
+        }
+      },
+      "TerminalFormatter/0.0.1.0": {
+        "runtime": {
+          "TerminalFormatter.dll": {
+            "assemblyVersion": "0.0.1.0",
+            "fileVersion": "0.0.1.0"
           }
         }
       },
@@ -957,6 +975,16 @@
       "sha512": ""
     },
     "LethalAPI.Terminal/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "LethalLevelLoader/1.1.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "TerminalFormatter/0.0.1.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

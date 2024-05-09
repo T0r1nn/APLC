@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Archipelago.MultiClient.Net.Packets;
+using BepInEx.Bootstrap;
 using GameNetcodeStuff;
 using HarmonyLib;
+using LethalLevelLoader;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -22,6 +25,20 @@ public class Patches
     public static void Patch()
     {
         Harmony.PatchAll(typeof(Patches));
+        foreach (var plugin in Chainloader.PluginInfos)
+        {
+            var metadata = plugin.Value.Metadata;
+            if (metadata.GUID.Equals(""))
+            {
+                [HarmonyPatch(typeof(TerminalFormatter.Nodes.Moons), "GetNodeText")]
+                [HarmonyPostfix]
+                static void PreventTerminalFormatterMoonsScreenOverride(string __result)
+                {
+                    if (MultiworldHandler.Instance == null) return;
+                    __result = TerminalHandler.MoonTrackerText();
+                }
+            }
+        }
     }
 
     //Player upgrade managing
@@ -224,6 +241,14 @@ public class Patches
                 _waitingForTerminalQuit = true;
             }
         }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(LethalLevelLoader.TerminalManager), "RefreshMoonsCataloguePage")]
+    private static void PreventLLLMoonsScreenOverride()
+    {
+        if (MultiworldHandler.Instance == null) return;
+        Plugin._instance.getTerminal().currentNode.displayText = TerminalHandler.MoonTrackerText();
     }
 
     [HarmonyPrefix]

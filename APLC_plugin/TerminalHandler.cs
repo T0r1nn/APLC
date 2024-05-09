@@ -9,6 +9,19 @@ public static class TerminalHandler
     private static int bestiaryIndex = 16;
     private static int storeIndex = 7;
     private static bool setIndecies = false;
+
+    public static string MoonTrackerText()
+    {
+        return $@"Welcome to the exomoons catalogue.
+To route the autopilot to a moon, use the word ROUTE.
+To learn about any moon, use the word INFO.{(MultiworldHandler.Instance.GetGoal() == 1 ? $"\nCollectathon progress: {MultiworldHandler.Instance.GetCollectathonTracker()}" : "")}{(MultiworldHandler.Instance.GetGoal() == 2 ? $"\nCredit progress: {MultiworldHandler.Instance.GetCreditTracker()}" : "")}
+____________________________
+
+* The Company building   //   {GetCompanyTrackerText()}
+
+{GetMoonList()}
+";
+    }
     
     public static void DisplayMoonTracker(Terminal t)
     {
