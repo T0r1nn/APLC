@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Packets;
 using BepInEx.Bootstrap;
 using GameNetcodeStuff;
@@ -25,20 +26,6 @@ public class Patches
     public static void Patch()
     {
         Harmony.PatchAll(typeof(Patches));
-        foreach (var plugin in Chainloader.PluginInfos)
-        {
-            var metadata = plugin.Value.Metadata;
-            if (metadata.GUID.Equals(""))
-            {
-                [HarmonyPatch(typeof(TerminalFormatter.Nodes.Moons), "GetNodeText")]
-                [HarmonyPostfix]
-                static void PreventTerminalFormatterMoonsScreenOverride(string __result)
-                {
-                    if (MultiworldHandler.Instance == null) return;
-                    __result = TerminalHandler.MoonTrackerText();
-                }
-            }
-        }
     }
 
     //Player upgrade managing
@@ -178,6 +165,7 @@ public class Patches
                 string slot = ES3.Load<string>("ArchipelagoSlot", GameNetworkManager.Instance.currentSaveFileName);
                 string password =
                     ES3.Load<string>("ArchipelagoPassword", GameNetworkManager.Instance.currentSaveFileName);
+                ChatHandler.SetConnectionInfo(url, port, slot, password);
                 new MultiworldHandler(url, port, slot, password);
             }
             else
@@ -241,14 +229,6 @@ public class Patches
                 _waitingForTerminalQuit = true;
             }
         }
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(LethalLevelLoader.TerminalManager), "RefreshMoonsCataloguePage")]
-    private static void PreventLLLMoonsScreenOverride()
-    {
-        if (MultiworldHandler.Instance == null) return;
-        Plugin._instance.getTerminal().currentNode.displayText = TerminalHandler.MoonTrackerText();
     }
 
     [HarmonyPrefix]
@@ -375,7 +355,28 @@ public class Patches
                 {
                     string[] landing = new string[scrap.name.Split("_").Length-2];
                     Array.ConstrainedCopy(scrap.name.Split("_"), 2, landing, 0, scrap.name.Split("_").Length - 2);
-                    MultiworldHandler.Instance.CompleteTrophy(String.Join(" ", landing).Split("(Clone)")[0].ToLower(), scrap);
+                }
+
+                ArchipelagoSession session = MultiworldHandler.Instance.GetSession();
+                var moons = StartOfRound.Instance.levels;
+                bool win = true;
+                foreach (var moon in moons)
+                {
+                    if (moon.PlanetName.Contains("Gordion") || moon.PlanetName.Contains("Liquidation")) continue;
+            
+                    string moonName = moon.PlanetName;
+                    moonName = moonName.Substring(moonName.IndexOf(" ") + 1, moonName.Length - moonName.IndexOf(" ") - 1);
+
+                    if (!session.Locations.AllLocationsChecked.Contains(session.Locations.GetLocationIdFromName("Lethal Company", $"Scrap - AP Apparatus - {moonName}")))
+                    {
+                        win = false;
+                        break;
+                    }
+                }
+
+                if (win)
+                {
+                    MultiworldHandler.Instance.Victory();
                 }
             }
         }

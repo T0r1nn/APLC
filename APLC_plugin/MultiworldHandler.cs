@@ -10,6 +10,7 @@ using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Packets;
 using GameNetcodeStuff;
 using HarmonyLib;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Unity.Netcode;
 using UnityEngine;
@@ -43,10 +44,7 @@ public class MultiworldHandler
     //Whether the player has been chosen to be killed by deathlink
     public static bool _waitingForDeath;
     public static string _dlMessage;
-
-    //Shows which trophies are collected
-    private readonly object[] _trophyModeComplete = new object[8];
-
+    
     //Shows how much scrap is collected, and the scrap goal
     private int _scrapCollected;
     private readonly int _scrapGoal;
@@ -115,9 +113,7 @@ public class MultiworldHandler
         moons = logic.Item2;
         bestiaryData = logic.Item3;
         scrapData = logic.Item4;
-
-        _trophyModeComplete = new object[moons.Length];
-
+        
         CreateLocations();
         CreateItems();
 
@@ -131,8 +127,6 @@ public class MultiworldHandler
         _scrapGoal = GetSlotSetting("collectathonGoal", 5);
         _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-scrapCollected"].Initialize(_scrapCollected);
         _scrapCollected = _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-scrapCollected"];
-        _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-trophies"].Initialize(new JArray(_trophyModeComplete));
-        _trophyModeComplete = _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-trophies"];
         _deathLink = GetSlotSetting("deathLink") == 1;
         _dlService = _session.CreateDeathLinkService();
         if (_deathLink)
@@ -595,195 +589,226 @@ public class MultiworldHandler
         catch (Exception)
         {
             input = @"{
-""V-type engine"": [
-""Experimentation""
-]
-""Homemade flashbang"": [
-""Experimentation""
-]
-""Dust pan"": [
-""Experimentation""
-]
-""Steering wheel"": [
-""Experimentation""
-]
-""Yield sign"": [
-""Experimentation""
-]
-""Apparatus"": [
-""Experimentation"",
-]
-""Assurance"",
-]
-""Vow"",
-]
-""Offense"",
-]
-""March"",
-]
-""Titan""
-]
-""Hive"": [
-""Experimentation"",
-]
-""Assurance"",
-]
-""Vow"",
-]
-""March""
-]
-""Big bolt"": [
-""Assurance""
-]
-""Bottles"": [
-""Assurance""
-]
-""Cookie mold pan"": [
-""Assurance""
-]
-""Red soda"": [
-""Assurance""
-]
-""Stop sign"": [
-""Assurance""
-]
-""Egg beater"": [
-""Vow""
-]
-""Chemical jug"": [
-""Vow""
-]
-""Flask"": [
-""Vow""
-]
-""Brush"": [
-""Vow""
-]
-""Rubber Ducky"": [
-""Vow""
-]
-""Metal sheet"": [
-""Offense""
-]
-""Gift"": [
-""Offense""
-]
-""Magnifying glass"": [
-""Offense""
-]
-""Remote"": [
-""Offense""
-]
-""Toy robot"": [
-""Offense""
-]
-"" Whoopie cushion"": [
-""March""
-]
-""Airhorn"": [
-""March""
-]
-""Clown horn"": [
-""March""
-]
-""Gold bar"": [
-""March""
-]
-""Toy cube"": [
-""March""
-]
-""Painting"": [
-""Rend""
-]
-""Ring"": [
-""Rend""
-]
-""Fancy lamp"": [
-""Rend""
-]
-""Candy"": [
-""Rend""
-]
-""Bell"": [
-""Rend""
-]
-""Shotgun"": [
-""Rend"",
-]
-""Dine"",
-]
-""Titan""
-]
-""Tragedy"": [
-""Dine""
-]
-""Jar of pickles"": [
-""Dine""
-]
-""Cash register"": [
-""Dine""
-]
-""Mug"": [
-""Dine""
-]
-""Hairdryer"": [
-""Dine""
-]
-""Comedy"": [
-""Titan""
-]
-""Golden cup"": [
-""Titan""
-]
-""Old phone"": [
-""Titan""
-]
-""Perfume bottle"": [
-""Titan""
-]
-""Pill bottle"": [
-""Titan""
-]
-""Large axle"": [
-""Common""
-]
-""Laser pointer"": [
-""Common""
-]
-""Magic 7 ball"": [
-""Common""
-]
-""Plastic fish"": [
-""Common""
-]
-""Tea kettle"": [
-""Common""
-]
-""Teeth"": [
-""Common""
-]
-""Toothpaste"": [
-""Common""
-]
+    ""V-type engine"": [
+        ""Experimentation""
+    ],
+    ""Homemade flashbang"": [
+        ""Experimentation""
+    ],
+    ""Dust pan"": [
+        ""Experimentation""
+    ],
+    ""Steering wheel"": [
+        ""Experimentation""
+    ],
+    ""Yield sign"": [
+        ""Experimentation""
+    ],
+    ""Apparatus"": [
+        ""Experimentation"",
+        ""Assurance"",
+        ""Vow"",
+        ""Offense"",
+        ""March"",
+        ""Titan""
+    ],
+    ""Hive"": [
+        ""Experimentation"",
+        ""Assurance"",
+        ""Vow"",
+        ""March""
+    ],
+    ""Big bolt"": [
+        ""Assurance""
+    ],
+    ""Bottles"": [
+        ""Assurance""
+    ],
+    ""Cookie mold pan"": [
+        ""Assurance""
+    ],
+    ""Red soda"": [
+        ""Assurance""
+    ],
+    ""Stop sign"": [
+        ""Assurance""
+    ],
+    ""Egg beater"": [
+        ""Vow""
+    ],
+    ""Chemical jug"": [
+        ""Vow""
+    ],
+    ""Flask"": [
+        ""Vow""
+    ],
+    ""Brush"": [
+        ""Vow""
+    ],
+    ""Rubber Ducky"": [
+        ""Vow""
+    ],
+    ""Metal sheet"": [
+        ""Offense""
+    ],
+    ""Gift"": [
+        ""Offense""
+    ],
+    ""Magnifying glass"": [
+        ""Offense""
+    ],
+    ""Remote"": [
+        ""Offense""
+    ],
+    ""Toy robot"": [
+        ""Offense""
+    ],
+    ""Whoopie cushion"": [
+        ""March""
+    ],
+    ""Airhorn"": [
+        ""March""
+    ],
+    ""Clown horn"": [
+        ""March""
+    ],
+    ""Gold bar"": [
+        ""March""
+    ],
+    ""Toy cube"": [
+        ""March""
+    ],
+    ""Painting"": [
+        ""Rend""
+    ],
+    ""Ring"": [
+        ""Rend""
+    ],
+    ""Fancy lamp"": [
+        ""Rend""
+    ],
+    ""Candy"": [
+        ""Rend""
+    ],
+    ""Bell"": [
+        ""Rend""
+    ],
+    ""Shotgun"": [
+        ""Rend"",
+        ""Dine"",
+        ""Titan""
+    ],
+    ""Tragedy"": [
+        ""Dine""
+    ],
+    ""Jar of pickles"": [
+        ""Dine""
+    ],
+    ""Cash register"": [
+        ""Dine""
+    ],
+    ""Mug"": [
+        ""Dine""
+    ],
+    ""Hairdryer"": [
+        ""Dine""
+    ],
+    ""Comedy"": [
+        ""Titan""
+    ],
+    ""Golden cup"": [
+        ""Titan""
+    ],
+    ""Old phone"": [
+        ""Titan""
+    ],
+    ""Perfume bottle"": [
+        ""Titan""
+    ],
+    ""Pill bottle"": [
+        ""Titan""
+    ],
+    ""Large axle"": [
+        ""Common""
+    ],
+    ""Laser pointer"": [
+        ""Common""
+    ],
+    ""Magic 7 ball"": [
+        ""Common""
+    ],
+    ""Plastic fish"": [
+        ""Common""
+    ],
+    ""Tea kettle"": [
+        ""Common""
+    ],
+    ""Teeth"": [
+        ""Common""
+    ],
+    ""Toothpaste"": [
+        ""Common""
+    ],
+    ""AP Apparatus - Experimentation"": [
+        ""Experimentation""
+    ],
+    ""AP Apparatus - Assurance"": [
+        ""Assurance""
+    ],
+    ""AP Apparatus - Vow"": [
+        ""Vow""
+    ],
+    ""AP Apparatus - Offense"": [
+        ""Offense""
+    ],
+    ""AP Apparatus - March"": [
+        ""March""
+    ],
+    ""AP Apparatus - Rend"": [
+        ""Rend""
+    ],
+    ""AP Apparatus - Dine"": [
+        ""Dine""
+    ],
+    ""AP Apparatus - Titan"": [
+        ""Titan""
+    ],
+    ""Archipelago Chest"": [
+        ""Common""
+    ]
 }";
         }
-
-        input = input.Substring(2, input.Length - 5);
+        
+        Plugin._instance.LogWarning(input);
+        
+        input = input.Substring(2, input.Length - 6);
         string[] slots = input.Split("],");
         Dictionary<string, string[]> result = new();
         foreach (string slot in slots)
         {
             string[] data = slot.Split("[");
             string scrapName = data[0].Trim();
+            
+            Plugin._instance.LogWarning(scrapName);
+            
             string[] scrapMoons = data[1].Split(",");
             for (int i = 0; i < scrapMoons.Length; i++)
             {
                 scrapMoons[i] = scrapMoons[i].Trim();
                 scrapMoons[i] = scrapMoons[i].Substring(1, scrapMoons[i].Length - 2);
             }
+
+            if (Char.IsLetter(scrapName.ToCharArray()[0]))
+            {
+                scrapName = scrapName.Substring(0, scrapName.Length - 1);
+            }
+            else
+            {
+                scrapName = scrapName.Substring(1, scrapName.Length - 3);
+            }
             
-            scrapName = scrapName.Substring(1, scrapName.Length - 3);
-            
+            Plugin._instance.LogWarning(scrapName);
+
             result.Add(scrapName, scrapMoons);
         }
 
@@ -871,7 +896,9 @@ public class MultiworldHandler
 
     public bool CheckTrophy(string moon)
     {
-        return Array.IndexOf(_trophyModeComplete, moon) != -1;
+        Plugin._instance.LogWarning(_session.Locations.GetLocationIdFromName("Lethal Company", $"Scrap - AP Apparatus - {moon}").ToString());
+        Plugin._instance.LogWarning(_session.Locations.AllLocationsChecked.Count.ToString());
+        return _session.Locations.AllLocationsChecked.Contains(_session.Locations.GetLocationIdFromName("Lethal Company", $"Scrap - AP Apparatus - {moon}"));
     }
 
     public string GetCurrentMoonName()
@@ -881,32 +908,6 @@ public class MultiworldHandler
         parts = parts.Skip(1).Take(parts.Length - 1).ToArray();
         moon = String.Join(" ", parts);
         return moon;
-    }
-    
-    public void CompleteTrophy(string moon, GrabbableObject scrap)
-    {
-        if (Array.IndexOf(_trophyModeComplete, moon) != -1) return;
-        if (moon.ToLower().Contains("custom") && !scrap.scrapPersistedThroughRounds)
-        {
-            moon = GetCurrentMoonName();
-        }
-        for (var i = 0; i < moons.Length; i++)
-        {
-            if (_trophyModeComplete[i] is string) continue;
-            _trophyModeComplete[i] = moon;
-            _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-trophies"] = new JArray(_trophyModeComplete);
-            break;
-        }
-
-        string[] moonNames = new string[moons.Length];
-        for (int i = 0; i < moons.Length; i++)
-        {
-            moonNames[i] = String.Join(" ", moons[i].PlanetName.Split(" ").Skip(1)
-                .Take(moons[i].PlanetName.Split(" ").Length - 1).ToArray());
-        }
-
-        if (moonNames.Any(m => Array.IndexOf(_trophyModeComplete, m) == -1)) return;
-        Victory();
     }
 
     public void AddCollectathonScrap(int amount)
@@ -919,7 +920,7 @@ public class MultiworldHandler
         }
     }
 
-    private void Victory()
+    public void Victory()
     {
         StatusUpdatePacket victory = new()
         {

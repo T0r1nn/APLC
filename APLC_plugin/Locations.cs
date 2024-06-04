@@ -16,9 +16,9 @@ public abstract class Locations
 
 public class Quota: Locations
 {
-    private readonly int _moneyPerQuotaCheck;
+    public readonly int _moneyPerQuotaCheck;
     private readonly int _numQuotas;
-    private int _totalQuota;
+    public int _totalQuota;
     public Quota(int moneyPerQuotaCheck, int numQuotas)
     {
         Type = "Quota";
@@ -83,6 +83,15 @@ public class MoonLocations : Locations
         var gradeNum = Array.IndexOf(new[] { "S", "A", "B", "C", "D", "F" }, grade);
         if (gradeNum > _grade) return;
         MultiworldHandler.Instance.CompleteLocation($"{_name} check {_timesChecked+1}");
+        for (int i = 1; i < _timesChecked + 1; i++)
+        {
+            long id = MultiworldHandler.Instance.GetSession().Locations
+                .GetLocationIdFromName("Lethal Company", $"{_name} check {_timesChecked + 1}");
+            if (!MultiworldHandler.Instance.GetSession().Locations.AllLocationsChecked.Contains(id))
+            {
+                MultiworldHandler.Instance.CompleteLocation($"{_name} check {_timesChecked+1}");
+            }
+        }
         _timesChecked++;
         MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} checks"] = _timesChecked;
     }
@@ -152,12 +161,20 @@ public class ScrapLocations : Locations
 {
     private readonly string[] _scrapNames;
     private readonly string[] _checkNames;
+    private readonly bool[] checkedScrap;
 
     public ScrapLocations(string[] scrapNames, string[] checkNames)
     {
         Type = "scrap";
         _scrapNames = scrapNames;
         _checkNames = checkNames;
+        checkedScrap = new bool[_checkNames.Length];
+        MultiworldHandler.Instance.GetSession()
+            .DataStorage[
+                $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"]
+            .Initialize(checkedScrap);
+        checkedScrap = MultiworldHandler.Instance.GetSession().DataStorage[
+            $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"];
     }
 
     public override void CheckComplete()
@@ -182,6 +199,10 @@ public class ScrapLocations : Locations
                         StringComparison.Ordinal))
                 {
                     MultiworldHandler.Instance.CompleteLocation($"Scrap - {_checkNames[i]}");
+                    checkedScrap[i] = true;
+                    MultiworldHandler.Instance.GetSession().DataStorage[
+                            $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"] =
+                        checkedScrap;
                 }
             }
         }
@@ -189,6 +210,14 @@ public class ScrapLocations : Locations
 
     public override string GetTrackerText()
     {
-        return null;
+        int count = 0;
+        foreach (var check in checkedScrap)
+        {
+            if (check)
+            {
+                count++;
+            }
+        }
+        return $"{count}/{checkedScrap.Length}";
     }
 }

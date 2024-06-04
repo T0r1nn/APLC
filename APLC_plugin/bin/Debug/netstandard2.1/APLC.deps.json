@@ -7,7 +7,7 @@
   "targets": {
     ".NETStandard,Version=v2.1": {},
     ".NETStandard,Version=v2.1/": {
-      "APLC/0.6.2": {
+      "APLC/0.6.6": {
         "dependencies": {
           "Archipelago.MultiClient.Net": "5.0.6",
           "BepInEx.Analyzers": "1.0.8",
@@ -19,7 +19,6 @@
           "Facepunch.Steamworks.Win64": "1.0.0.0",
           "LethalAPI.Terminal": "1.0.0.0",
           "LethalLevelLoader": "1.1.0.0",
-          "TerminalFormatter": "0.0.1.0",
           "Unity.Netcode.Runtime": "0.0.0.0",
           "Unity.TextMeshPro": "0.0.0.0",
           "UnityEngine.UI": "1.0.0.0"
@@ -414,14 +413,6 @@
           }
         }
       },
-      "TerminalFormatter/0.0.1.0": {
-        "runtime": {
-          "TerminalFormatter.dll": {
-            "assemblyVersion": "0.0.1.0",
-            "fileVersion": "0.0.1.0"
-          }
-        }
-      },
       "Unity.Netcode.Runtime/0.0.0.0": {
         "runtime": {
           "Unity.Netcode.Runtime.dll": {
@@ -681,7 +672,7 @@
     }
   },
   "libraries": {
-    "APLC/0.6.2": {
+    "APLC/0.6.6": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -980,11 +971,6 @@
       "sha512": ""
     },
     "LethalLevelLoader/1.1.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "TerminalFormatter/0.0.1.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

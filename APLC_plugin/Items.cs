@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using LethalLevelLoader;
 
 namespace APLC;
 
@@ -101,6 +103,7 @@ public class MoonItems : Items
 {
     private readonly int _terminalIndex;
     private readonly int keywordIndex = 26;
+    private readonly string _name;
     public MoonItems(string name)
     {
         for (int i = 0; i < Plugin._instance.getTerminal().terminalNodes.allKeywords.Length; i++)
@@ -122,6 +125,17 @@ public class MoonItems : Items
         Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns[_terminalIndex].result.itemCost = 10000000;
         Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns[_terminalIndex].result.terminalOptions[1].result
             .itemCost = 10000000;
+
+        for (int i = 0; i < StartOfRound.Instance.levels.Length; i++)
+        {
+            var moon = StartOfRound.Instance.levels[i];
+            if (moon.PlanetName.Contains(name))
+            {
+                LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteHidden = true;
+            }
+        }
+
+        _name = name;
     }
 
     protected override bool HandleReceived(bool isTick=false)
@@ -130,6 +144,15 @@ public class MoonItems : Items
         Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns[_terminalIndex].result.itemCost = 0;
         Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns[_terminalIndex].result.terminalOptions[1].result
             .itemCost = 0;
+
+        for (int i = 0; i < StartOfRound.Instance.levels.Length; i++)
+        {
+            var moon = StartOfRound.Instance.levels[i];
+            if (moon.PlanetName.Contains(_name))
+            {
+                LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteHidden = false;
+            }
+        }
         return true;
     }
 }

@@ -94,4 +94,3 @@ C:\Users\tyler\OneDrive\Documents\GitHub\APLC\APLC_plugin\obj\Debug\netstandard2
 C:\Users\tyler\OneDrive\Documents\GitHub\APLC\APLC_plugin\obj\Debug\netstandard2.1\APLC.pdb
 C:\Users\tyler\OneDrive\Documents\GitHub\APLC\APLC_plugin\bin\Debug\netstandard2.1\LethalAPI.Terminal.dll
 C:\Users\tyler\OneDrive\Documents\GitHub\APLC\APLC_plugin\bin\Debug\netstandard2.1\LethalLevelLoader.dll
-C:\Users\tyler\OneDrive\Documents\GitHub\APLC\APLC_plugin\bin\Debug\netstandard2.1\TerminalFormatter.dll

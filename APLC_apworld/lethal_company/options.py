@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 from Options import Toggle, DeathLink, Range, Choice, PerGameCommonOptions, FreeText
-from .imported import data
-from typing import List
 
 
 class Goal(Choice):
@@ -431,7 +429,8 @@ class LogicDifficulty(Choice):
     Min Logic: The minimum possible requirements. Could make worlds impossible if you aren't skilled enough to complete
     some checks.
     Min Logic MP: THe minimum possible requirements when playing multiplayer. Main change is that experimentation no
-    longer requires a stamina bar because one player can bring stuff out of the facility and c
+    longer requires a stamina bar because one player can bring stuff out of the facility and a second player can ferry
+    to the ship.
     """
     display_name = "Logic Difficulty"
     option_Easy = 0
@@ -440,6 +439,15 @@ class LogicDifficulty(Choice):
     option_Min_Logic = 3
     option_Min_Logic_MP = 4
     default = 1
+
+# Will contain a diff from the original imported and the new one, find a way to interpret that.
+class CustomContent(FreeText):
+    """
+    Contains any custom content the player wants to use. See the guide on the github page to use this option
+    """
+    display_name = "Custom Content"
+    default = ""
+    slot = False
 
 
 @dataclass
@@ -479,3 +487,4 @@ class LCOptions(PerGameCommonOptions):
     time_trap: DayDecreaseWeight
     money: MoneyWeight
     death_link: DeathLink
+    custom_content: CustomContent

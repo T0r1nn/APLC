@@ -150,6 +150,14 @@ public class ChatHandler
         return true;
     }
 
+    public static void SetConnectionInfo(string url, int port, string slot, string password)
+    {
+        _url = url;
+        _port = port;
+        _slot = slot;
+        _password = password;
+    }
+
     /**
      * Sends messages to the game chat
      */
