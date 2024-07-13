@@ -108,7 +108,7 @@ Eventually, this will be added as a yaml setting so that a few of the main issue
 Multiworlds might be unbeatable with custom content. If this happens, let me know so I can improve the logic string generation method.
 
 ## Credits
-Thanks to my friends for helping me test this and fix a few
-annoying crashes. Thanks to everyone in the Lethal Company thread in the Archipelago
-discord server, who helped me fix a ton of bugs and get a bunch of ideas, without which this archipelago
-mod probably wouldn't be possible. Thanks to Faxium for rewriting the setup portion of this guide, making it easier to understand.
+Thanks to my friends for helping me test this and fix a few annoying crashes. 
+Thanks to everyone in the Lethal Company thread in the Archipelago discord server, who helped me fix a ton of bugs and get a bunch of ideas, without which this archipelago mod probably wouldn't be possible.
+Thanks to Faxium for rewriting the setup portion of this guide, making it easier to understand.
+Thanks to StevieSP for helping troubleshoot problems in the discord.
