@@ -355,28 +355,7 @@ public class Patches
                 {
                     string[] landing = new string[scrap.name.Split("_").Length-2];
                     Array.ConstrainedCopy(scrap.name.Split("_"), 2, landing, 0, scrap.name.Split("_").Length - 2);
-                }
-
-                ArchipelagoSession session = MultiworldHandler.Instance.GetSession();
-                var moons = StartOfRound.Instance.levels;
-                bool win = true;
-                foreach (var moon in moons)
-                {
-                    if (moon.PlanetName.Contains("Gordion") || moon.PlanetName.Contains("Liquidation")) continue;
-            
-                    string moonName = moon.PlanetName;
-                    moonName = moonName.Substring(moonName.IndexOf(" ") + 1, moonName.Length - moonName.IndexOf(" ") - 1);
-
-                    if (!session.Locations.AllLocationsChecked.Contains(session.Locations.GetLocationIdFromName("Lethal Company", $"Scrap - AP Apparatus - {moonName}")))
-                    {
-                        win = false;
-                        break;
-                    }
-                }
-
-                if (win)
-                {
-                    MultiworldHandler.Instance.Victory();
+                    MultiworldHandler.Instance.CompleteTrophy(String.Join(" ", landing).Split("(Clone)")[0].ToLower(), scrap);
                 }
             }
         }

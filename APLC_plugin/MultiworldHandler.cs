@@ -21,7 +21,7 @@ namespace APLC;
 public class MultiworldHandler
 {
     //A list of the names of every received AP item
-    private readonly Collection<string> _receivedItemNames = new();
+    public readonly Collection<string> _receivedItemNames = new();
 
     //The AP session and slot data
     private ArchipelagoSession _session;
@@ -63,6 +63,8 @@ public class MultiworldHandler
     
     //Store items to randomize
     private readonly Item[] store;
+
+    private readonly BuyableVehicle[] vehicles;
     
     //Moons to randomize
     private readonly SelectableLevel[] moons;
@@ -72,6 +74,9 @@ public class MultiworldHandler
     
     //Scrap data
     private readonly Dictionary<string, Collection<Tuple<string, double>>> scrapData;
+    
+    //Shows which trophies are collected
+    public readonly object[] _trophyModeComplete = new object[8];
 
     public MultiworldHandler(string url, int port, string slot, string password)
     {
@@ -108,11 +113,14 @@ public class MultiworldHandler
         _goal = GetSlotSetting("goal");
 
         var logic = Plugin._instance.GetGameLogic();
-
+        
         store = logic.Item1;
-        moons = logic.Item2;
-        bestiaryData = logic.Item3;
-        scrapData = logic.Item4;
+        vehicles = logic.Item2;
+        moons = logic.Item3;
+        bestiaryData = logic.Item4;
+        scrapData = logic.Item5;
+        
+        _trophyModeComplete = new object[moons.Length];
         
         CreateLocations();
         CreateItems();
@@ -127,6 +135,8 @@ public class MultiworldHandler
         _scrapGoal = GetSlotSetting("collectathonGoal", 5);
         _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-scrapCollected"].Initialize(_scrapCollected);
         _scrapCollected = _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-scrapCollected"];
+        _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-trophies"].Initialize(new JArray(_trophyModeComplete));
+        _trophyModeComplete = _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-trophies"];
         _deathLink = GetSlotSetting("deathLink") == 1;
         _dlService = _session.CreateDeathLinkService();
         if (_deathLink)
@@ -148,6 +158,8 @@ public class MultiworldHandler
         foreach (var itemName in _receivedItemNames)
         {
             Items item = GetItemMap(itemName);
+            Plugin._instance.LogWarning(itemName);
+            Plugin._instance.LogWarning(item.GetType().FullName);
             if (item.GetType() == typeof(MoonItems))
             {
                 return itemName;
@@ -225,7 +237,13 @@ public class MultiworldHandler
             //Shop items
             for (int i = 0; i < store.Length; i++)
             {
-                _itemMap.Add(store[i].itemName, new StoreItems(store[i].itemName, i));
+                _itemMap.Add(store[i].itemName, new StoreItems(store[i].itemName, i, false));
+            }
+            
+            
+            for (int i = 0; i < vehicles.Length; i++)
+            {
+                _itemMap.Add(vehicles[i].vehicleDisplayName, new StoreItems(vehicles[i].vehicleDisplayName, i, true));
             }
 
             //Ship upgrades
@@ -794,6 +812,11 @@ public class MultiworldHandler
             string[] scrapMoons = data[1].Split(",");
             for (int i = 0; i < scrapMoons.Length; i++)
             {
+                if (scrapMoons[i].Length < 3 && scrapMoons.Length == 1)
+                {
+                    scrapMoons = new string[0];
+                    break;
+                }
                 scrapMoons[i] = scrapMoons[i].Trim();
                 scrapMoons[i] = scrapMoons[i].Substring(1, scrapMoons[i].Length - 2);
             }
@@ -844,7 +867,7 @@ public class MultiworldHandler
 
     private void OnItemReceived(ReceivedItemsHelper helper)
     {
-        string itemName = helper.PeekItemName();
+        string itemName = helper.PeekItem().ItemName;
         _receivedItemNames.Add(itemName);
         helper.DequeueItem();
 
@@ -896,11 +919,38 @@ public class MultiworldHandler
 
     public bool CheckTrophy(string moon)
     {
-        Plugin._instance.LogWarning(_session.Locations.GetLocationIdFromName("Lethal Company", $"Scrap - AP Apparatus - {moon}").ToString());
-        Plugin._instance.LogWarning(_session.Locations.AllLocationsChecked.Count.ToString());
-        return _session.Locations.AllLocationsChecked.Contains(_session.Locations.GetLocationIdFromName("Lethal Company", $"Scrap - AP Apparatus - {moon}"));
+        // Plugin._instance.LogWarning(_session.Locations.GetLocationIdFromName("Lethal Company", $"Scrap - AP Apparatus - {moon}").ToString());
+        // Plugin._instance.LogWarning(_session.Locations.AllLocationsChecked.Count.ToString());
+        // return _session.Locations.AllLocationsChecked.Contains(_session.Locations.GetLocationIdFromName("Lethal Company", $"Scrap - AP Apparatus - {moon}"));
+        return Array.IndexOf(_trophyModeComplete, moon.ToLower()) != -1;
     }
 
+    public void CompleteTrophy(string moon, GrabbableObject scrap)
+    {
+        if (Array.IndexOf(_trophyModeComplete, moon) != -1) return;
+        if (moon.ToLower().Contains("custom") && !scrap.scrapPersistedThroughRounds)
+        {
+            moon = GetCurrentMoonName().ToLower();
+        }
+        for (var i = 0; i < moons.Length; i++)
+        {
+            if (_trophyModeComplete[i] is string) continue;
+            _trophyModeComplete[i] = moon;
+            _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-trophies"] = new JArray(_trophyModeComplete);
+            break;
+        }
+
+        string[] moonNames = new string[moons.Length];
+        for (int i = 0; i < moons.Length; i++)
+        {
+            moonNames[i] = String.Join(" ", moons[i].PlanetName.Split(" ").Skip(1)
+                .Take(moons[i].PlanetName.Split(" ").Length - 1).ToArray());
+        }
+
+        if (moonNames.Any(m => Array.IndexOf(_trophyModeComplete, m.ToLower()) == -1)) return;
+        Victory();
+    }
+    
     public string GetCurrentMoonName()
     {
         string moon = StartOfRound.Instance.currentLevel.PlanetName;
@@ -1021,7 +1071,7 @@ public class MultiworldHandler
 
         foreach (var item in _session.Items.AllItemsReceived)
         {
-            _receivedItemNames.Add(_session.Items.GetItemName(item.Item));
+            _receivedItemNames.Add(_session.Items.GetItemName(item.ItemId));
         }
 
         ProcessItems(_receivedItemNames);

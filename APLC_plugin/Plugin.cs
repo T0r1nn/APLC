@@ -115,6 +115,9 @@ public class Plugin : BaseUnityPlugin
          * }
          */
         var store = t.buyableItemsList;
+
+        var vehicles = t.buyableVehicles;
+        
         string json = @"{
     ""moons"": [
 ";
@@ -132,6 +135,14 @@ public class Plugin : BaseUnityPlugin
         foreach (Item item in store)
         {
             json += "        \"" + item.itemName + "\",\n";
+        }
+        
+        json += @"    ],
+    ""vehicles"": [
+";
+        foreach (BuyableVehicle item in vehicles)
+        {
+            json += "        \"" + item.vehicleDisplayName + "\",\n";
         }
         
         json += @"    ],
@@ -452,7 +463,7 @@ public class Plugin : BaseUnityPlugin
         return str;
     }
     
-    public Tuple<Item[], SelectableLevel[], Dictionary<string, Collection<Tuple<string, double>>>, Dictionary<string, Collection<Tuple<string, double>>>> GetGameLogic()
+    public Tuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<Tuple<string, double>>>, Dictionary<string, Collection<Tuple<string, double>>>> GetGameLogic()
     {
         Terminal t = getTerminal();
         /*
@@ -493,9 +504,24 @@ public class Plugin : BaseUnityPlugin
          * }
          */
         var store = t.buyableItemsList;
-        
-        var moons = StartOfRound.Instance.levels;
 
+        var vehicles = t.buyableVehicles;
+        
+        var allMoons = StartOfRound.Instance.levels;
+
+        var moons = new SelectableLevel[allMoons.Length - 2];
+
+        int skipped = 0;
+        for (int i = 0; i < allMoons.Length; i++)
+        {
+            if (allMoons[i].PlanetName.Contains("Liquidation") || allMoons[i].PlanetName.Contains("Gordion"))
+            {
+                skipped++;
+                continue;
+            }
+            moons[i - skipped] = allMoons[i];
+        }
+        
         var scrapMap = new Dictionary<string, Collection<Tuple<string, double>>>();
         scrapMap.Add("Apparatus", new Collection<Tuple<string, double>>());
         scrapMap.Add("Shotgun", new Collection<Tuple<string, double>>());
@@ -622,6 +648,6 @@ public class Plugin : BaseUnityPlugin
             }
         }
 
-        return new Tuple<Item[], SelectableLevel[], Dictionary<string, Collection<Tuple<string, double>>>, Dictionary<string, Collection<Tuple<string, double>>>>(store, moons, bestiaryMap, scrapMap);
+        return new Tuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<Tuple<string, double>>>, Dictionary<string, Collection<Tuple<string, double>>>>(store, vehicles, moons, bestiaryMap, scrapMap);
     }
 }

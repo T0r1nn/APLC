@@ -4,13 +4,13 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>APLC</AssemblyName>
         <Description>Archipelago integration for Lethal Company</Description>
-        <Version>0.6.6</Version>
+        <Version>0.6.8</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Archipelago.MultiClient.Net" Version="5.0.6"/>
+        <PackageReference Include="Archipelago.MultiClient.Net" Version="6.0.0-rc5"/>
         <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all"/>
         <PackageReference Include="BepInEx.Core" Version="5.*"/>
         <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*"/>

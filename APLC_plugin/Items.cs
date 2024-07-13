@@ -160,20 +160,36 @@ public class MoonItems : Items
 public class StoreItems : Items
 {
     private readonly int _itemsIndex;
+    private readonly bool _isVehicle;
     private readonly int _normalCost;
 
-    public StoreItems(string name, int itemsIndex)
+    public StoreItems(string name, int itemsIndex, bool isVehicle = false)
     {
         Setup(name, resetAll:true);
         _itemsIndex = itemsIndex;
-        _normalCost = Plugin._instance.getTerminal().buyableItemsList[_itemsIndex].creditsWorth;
-        Plugin._instance.getTerminal().buyableItemsList[_itemsIndex].creditsWorth = 10000000;
-        
+        _isVehicle = isVehicle;
+        if (isVehicle)
+        {
+            _normalCost = Plugin._instance.getTerminal().buyableVehicles[_itemsIndex].creditsWorth;
+            Plugin._instance.getTerminal().buyableVehicles[_itemsIndex].creditsWorth = 10000000;
+        }
+        else
+        {
+            _normalCost = Plugin._instance.getTerminal().buyableItemsList[_itemsIndex].creditsWorth;
+            Plugin._instance.getTerminal().buyableItemsList[_itemsIndex].creditsWorth = 10000000;
+        }
     }
 
     protected override bool HandleReceived(bool isTick=false)
     {
-        Plugin._instance.getTerminal().buyableItemsList[_itemsIndex].creditsWorth = _normalCost;
+        if (_isVehicle)
+        {
+            Plugin._instance.getTerminal().buyableVehicles[_itemsIndex].creditsWorth = _normalCost;
+        }
+        else
+        {
+            Plugin._instance.getTerminal().buyableItemsList[_itemsIndex].creditsWorth = _normalCost;
+        }
         return true;
     }
 }

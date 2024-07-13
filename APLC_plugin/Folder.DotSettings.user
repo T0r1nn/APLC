@@ -12,6 +12,7 @@
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=DE86791D_002D059D_002D39FB_002D91DA_002DC72E61CC4208_002Ff_003ATrophyCase_002Ecs/@EntryIndexedValue">ExplicitlyExcluded</s:String>
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="C:\Users\tyler\.nuget\packages\archipelago.multiclient.net\5.0.6\lib\netstandard2.0\Archipelago.MultiClient.Net.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\tyler\.nuget\packages\archipelago.multiclient.net\6.0.0-rc5\lib\netstandard2.0\Archipelago.MultiClient.Net.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=multiworld/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=splitgrades/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

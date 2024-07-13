@@ -1,25 +1,26 @@
 import math
 import string
 
-from BaseClasses import MultiWorld, CollectionState, ItemClassification
-from .locations import scrap_names
+from BaseClasses import MultiWorld, CollectionState, ItemClassification, LocationProgressType
 from .options import LCOptions
-from .items import moons
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from . import LethalCompanyWorld
 
 
-def has_location_access_rule(multiworld: MultiWorld, moon: str, player: int, item_number: int, options: LCOptions,
-                             lc_world) -> None:
+def has_location_access_rule(multiworld: MultiWorld, moon: str, player: int, item_number: int,
+                             options: LCOptions) -> None:
     if item_number == 1:
         multiworld.get_location(f"{moon} check {item_number}", player).access_rule = \
             lambda state: ((state.has("Inventory Slot", player) or options.starting_inventory_slots.value >= 2) and
-                            (state.has("Stamina Bar", player) or options.starting_stamina_bars.value >= 1))
+                           (state.has("Stamina Bar", player) or options.starting_stamina_bars.value >= 1))
     else:
         multiworld.get_location(f"{moon} check {item_number}", player).access_rule = \
             lambda state: check_location(moon=moon, player=player, state=state, item_number=item_number)
 
 
-def has_quota_access_rule(multiworld: MultiWorld, player: int, item_number: int, options: LCOptions,
-                          lc_world) -> None:
+def has_quota_access_rule(multiworld: MultiWorld, player: int, item_number: int, options: LCOptions) -> None:
     if item_number == 1:
         return
     elif item_number == math.ceil(options.num_quotas.value / 4.0):
@@ -44,16 +45,16 @@ def check_quota(state, player: int, item_number: int) -> None:
     return state.can_reach(f"Quota check {item_number - 1}", "Location", player)
 
 
-def set_rules(lc_world) -> None:
+def set_rules(lc_world: 'LethalCompanyWorld') -> None:
     player = lc_world.player
     multiworld = lc_world.multiworld
     options: LCOptions = lc_world.options
-    for moon in moons:
+    for moon in lc_world.slot_item_data.moons:
         for i in range(options.checks_per_moon.value):
-            has_location_access_rule(multiworld, moon, player, i + 1, options, lc_world)
+            has_location_access_rule(multiworld, moon, player, i + 1, options)
     
     for i in range(options.num_quotas.value):
-        has_quota_access_rule(multiworld, player, i + 1, options, lc_world)
+        has_quota_access_rule(multiworld, player, i + 1, options)
 
     multiworld.get_location("Quota 50%", player).access_rule = \
         lambda state: state.has("Completed 25% Quota", player)
@@ -61,26 +62,18 @@ def set_rules(lc_world) -> None:
         lambda state: state.has("Completed 50% Quota", player)
 
     if options.scrapsanity.value == 1:
-        for scrap_index in range(len(scrap_names)):
-            if scrap_names[scrap_index] == "Hive" and options.exclude_hive.value == 1:
-                multiworld.get_location("Scrap - Hive", player).item_rule = lambda item: not \
-                    (item.classification == ItemClassification.progression or
-                     item.classification == ItemClassification.useful)
+        for scrap_index in range(len(lc_world.scrap_names)):
+            if lc_world.scrap_names[scrap_index] == "Hive" and options.exclude_hive.value == 1:
+                multiworld.get_location("Scrap - Hive", player).progress_type = LocationProgressType.EXCLUDED
 
-            if scrap_names[scrap_index] == "Shotgun" and options.exclude_shotgun.value == 1:
-                multiworld.get_location("Scrap - Shotgun", player).item_rule = lambda item: not \
-                    (item.classification == ItemClassification.progression or
-                     item.classification == ItemClassification.useful)
+            if lc_world.scrap_names[scrap_index] == "Shotgun" and options.exclude_killing.value == 1:
+                multiworld.get_location("Scrap - Shotgun", player).progress_type = LocationProgressType.EXCLUDED
 
-            if scrap_names[scrap_index] == "Knife" and options.exclude_shotgun.value == 1:
-                multiworld.get_location("Scrap - Knife", player).item_rule = lambda item: not \
-                    (item.classification == ItemClassification.progression or
-                     item.classification == ItemClassification.useful)
+            if lc_world.scrap_names[scrap_index] == "Knife" and options.exclude_killing.value == 1:
+                multiworld.get_location("Scrap - Knife", player).progress_type = LocationProgressType.EXCLUDED
 
-            if scrap_names[scrap_index] == "Gold bar":
-                multiworld.get_location("Scrap - Gold bar", player).item_rule = lambda item: not \
-                    (item.classification == ItemClassification.progression or
-                     item.classification == ItemClassification.useful)
+            if lc_world.scrap_names[scrap_index] == "Gold bar":
+                multiworld.get_location("Scrap - Gold bar", player).progress_type = LocationProgressType.EXCLUDED
 
     multiworld.completion_condition[player] = lambda state: state.has("Victory", player)
 

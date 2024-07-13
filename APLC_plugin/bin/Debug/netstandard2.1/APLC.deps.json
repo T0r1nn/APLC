@@ -7,9 +7,9 @@
   "targets": {
     ".NETStandard,Version=v2.1": {},
     ".NETStandard,Version=v2.1/": {
-      "APLC/0.6.6": {
+      "APLC/0.6.8": {
         "dependencies": {
-          "Archipelago.MultiClient.Net": "5.0.6",
+          "Archipelago.MultiClient.Net": "6.0.0-rc5",
           "BepInEx.Analyzers": "1.0.8",
           "BepInEx.Core": "5.4.21",
           "BepInEx.PluginInfoProps": "1.1.0",
@@ -27,11 +27,11 @@
           "APLC.dll": {}
         }
       },
-      "Archipelago.MultiClient.Net/5.0.6": {
+      "Archipelago.MultiClient.Net/6.0.0-rc5": {
         "runtime": {
           "lib/netstandard2.0/Archipelago.MultiClient.Net.dll": {
-            "assemblyVersion": "5.0.6.0",
-            "fileVersion": "5.0.6.0"
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.0.0"
           },
           "lib/netstandard2.0/Newtonsoft.Json.dll": {
             "assemblyVersion": "11.0.0.0",
@@ -672,17 +672,17 @@
     }
   },
   "libraries": {
-    "APLC/0.6.6": {
+    "APLC/0.6.8": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "Archipelago.MultiClient.Net/5.0.6": {
+    "Archipelago.MultiClient.Net/6.0.0-rc5": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-d38F0oI3Iysz9dZBq9Ml1AgHZ/flL4elG5YaFGoX4JYpMxqvb2BKBn3ikFVUQu0/YSlTNZHFXfqvhPAqBN6gXA==",
-      "path": "archipelago.multiclient.net/5.0.6",
-      "hashPath": "archipelago.multiclient.net.5.0.6.nupkg.sha512"
+      "sha512": "sha512-xfgDSAfASYrIT4929iJ8TPkbBUWV5OTe5fcirZwOcBzbYFWhcPuVM5s9Pa3vrLH1r0ZHLafu7UvEqGEreZfg6Q==",
+      "path": "archipelago.multiclient.net/6.0.0-rc5",
+      "hashPath": "archipelago.multiclient.net.6.0.0-rc5.nupkg.sha512"
     },
     "BepInEx.Analyzers/1.0.8": {
       "type": "package",

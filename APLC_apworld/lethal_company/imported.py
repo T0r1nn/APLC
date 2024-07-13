@@ -26,6 +26,10 @@ data = {
         "Extension ladder",
         "Radar-booster",
         "Spray paint",
+        "Weed killer",
+    ],
+    "vehicles": [
+        "Cruiser",
     ],
     "scrap": [
         {
@@ -85,7 +89,7 @@ data = {
                 },
                 {
                     "moon_name": "220 Assurance",
-                    "chance": 0.0031055900621118
+                    "chance": 0.00307692307692308
                 },
                 {
                     "moon_name": "61 March",
@@ -93,15 +97,15 @@ data = {
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.0222222222222222
+                    "chance": 0.0220385674931129
                 },
                 {
                     "moon_name": "85 Rend",
-                    "chance": 0.247524752475248
+                    "chance": 0.240963855421687
                 },
                 {
                     "moon_name": "7 Dine",
-                    "chance": 0.0510204081632653
+                    "chance": 0.0495049504950495
                 },
                 {
                     "moon_name": "21 Offense",
@@ -113,11 +117,11 @@ data = {
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.087719298245614
+                    "chance": 0.0862068965517241
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0782918149466192
+                    "chance": 0.0694006309148265
                 }
 
             ]
@@ -126,19 +130,19 @@ data = {
             "Knife": [
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.0277777777777778
+                    "chance": 0.0275482093663912
                 },
                 {
                     "moon_name": "85 Rend",
-                    "chance": 0.0445544554455446
+                    "chance": 0.0433734939759036
                 },
                 {
                     "moon_name": "7 Dine",
-                    "chance": 0.438775510204082
+                    "chance": 0.306930693069307
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.087719298245614
+                    "chance": 0.0862068965517241
                 }
 
             ]
@@ -151,23 +155,23 @@ data = {
                 },
                 {
                     "moon_name": "220 Assurance",
-                    "chance": 0.219387755102041
+                    "chance": 0.223958333333333
                 },
                 {
                     "moon_name": "56 Vow",
-                    "chance": 0.259574468085106
+                    "chance": 0.262931034482759
                 },
                 {
                     "moon_name": "61 March",
-                    "chance": 0.35
+                    "chance": 0.357142857142857
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.144067796610169
+                    "chance": 0.146551724137931
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.227941176470588
+                    "chance": 0.241935483870968
                 }
 
             ]
@@ -216,7 +220,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0987804878048781
+                    "chance": 0.100496277915633
                 }
 
             ]
@@ -265,7 +269,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0975609756097561
+                    "chance": 0.0992555831265509
                 }
 
             ]
@@ -314,7 +318,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0341463414634146
+                    "chance": 0.0347394540942928
                 }
 
             ]
@@ -347,7 +351,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.121951219512195
+                    "chance": 0.124069478908189
                 }
 
             ]
@@ -396,7 +400,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.00731707317073171
+                    "chance": 0.00744416873449132
                 }
 
             ]
@@ -445,7 +449,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0804878048780488
+                    "chance": 0.0818858560794045
                 }
 
             ]
@@ -494,7 +498,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0634146341463415
+                    "chance": 0.0645161290322581
                 }
 
             ]
@@ -573,7 +577,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0634146341463415
+                    "chance": 0.0645161290322581
                 }
 
             ]
@@ -689,7 +693,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0280487804878049
+                    "chance": 0.0285359801488834
                 }
 
             ]
@@ -738,7 +742,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0219512195121951
+                    "chance": 0.0223325062034739
                 }
 
             ]
@@ -846,7 +850,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0146341463414634
+                    "chance": 0.0173697270471464
                 }
 
             ]
@@ -887,7 +891,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0146341463414634
+                    "chance": 0.011166253101737
                 }
 
             ]
@@ -936,7 +940,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0207317073170732
+                    "chance": 0.0210918114143921
                 }
 
             ]
@@ -1010,7 +1014,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.11219512195122
+                    "chance": 0.0645161290322581
                 }
 
             ]
@@ -1255,7 +1259,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0182926829268293
+                    "chance": 0.0186104218362283
                 }
 
             ]
@@ -1598,7 +1602,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0146341463414634
+                    "chance": 0.0148883374689826
                 }
 
             ]
@@ -1643,7 +1647,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0158536585365854
+                    "chance": 0.0310173697270471
                 }
 
             ]
@@ -1672,7 +1676,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0341463414634146
+                    "chance": 0.0347394540942928
                 }
 
             ]
@@ -1717,7 +1721,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0524390243902439
+                    "chance": 0.0533498759305211
                 }
 
             ]
@@ -1762,7 +1766,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.00731707317073171
+                    "chance": 0.0173697270471464
                 }
 
             ]
@@ -1791,7 +1795,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0341463414634146
+                    "chance": 0.0347394540942928
                 }
 
             ]
@@ -1836,7 +1840,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0280487804878049
+                    "chance": 0.0285359801488834
                 }
 
             ]
@@ -1947,7 +1951,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.00975609756097561
+                    "chance": 0.00992555831265509
                 }
 
             ]
@@ -2318,7 +2322,7 @@ data = {
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.00609756097560976
+                    "chance": 0.0148883374689826
                 }
 
             ]
@@ -2354,23 +2358,23 @@ data = {
                 },
                 {
                     "moon_name": "220 Assurance",
-                    "chance": 0.219387755102041
+                    "chance": 0.223958333333333
                 },
                 {
                     "moon_name": "56 Vow",
-                    "chance": 0.259574468085106
+                    "chance": 0.262931034482759
                 },
                 {
                     "moon_name": "61 March",
-                    "chance": 0.35
+                    "chance": 0.357142857142857
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.144067796610169
+                    "chance": 0.146551724137931
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.227941176470588
+                    "chance": 0.241935483870968
                 }
 
             ]
@@ -2383,19 +2387,19 @@ data = {
                 },
                 {
                     "moon_name": "220 Assurance",
-                    "chance": 0.510204081632653
+                    "chance": 0.520833333333333
                 },
                 {
                     "moon_name": "56 Vow",
-                    "chance": 0.425531914893617
+                    "chance": 0.431034482758621
                 },
                 {
                     "moon_name": "61 March",
-                    "chance": 0.415
+                    "chance": 0.423469387755102
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.533898305084746
+                    "chance": 0.543103448275862
                 },
                 {
                     "moon_name": "21 Offense",
@@ -2403,11 +2407,7 @@ data = {
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.735294117647059
-                },
-                {
-                    "moon_name": "5 Embrion",
-                    "chance": 1
+                    "chance": 0.725806451612903
                 }
 
             ]
@@ -2420,19 +2420,19 @@ data = {
                 },
                 {
                     "moon_name": "220 Assurance",
-                    "chance": 0.23469387755102
+                    "chance": 0.239583333333333
                 },
                 {
                     "moon_name": "56 Vow",
-                    "chance": 0.285106382978723
+                    "chance": 0.288793103448276
                 },
                 {
                     "moon_name": "61 March",
-                    "chance": 0.195
+                    "chance": 0.198979591836735
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.254237288135593
+                    "chance": 0.258620689655172
                 }
 
             ]
@@ -2441,23 +2441,23 @@ data = {
             "Tulip snake": [
                 {
                     "moon_name": "220 Assurance",
-                    "chance": 0.0357142857142857
+                    "chance": 0.015625
                 },
                 {
                     "moon_name": "56 Vow",
-                    "chance": 0.0297872340425532
+                    "chance": 0.0172413793103448
                 },
                 {
                     "moon_name": "61 March",
-                    "chance": 0.04
+                    "chance": 0.0204081632653061
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.0677966101694915
+                    "chance": 0.0517241379310345
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.0367647058823529
+                    "chance": 0.032258064516129
                 }
 
             ]
@@ -2486,7 +2486,7 @@ data = {
                 },
                 {
                     "moon_name": "85 Rend",
-                    "chance": 0.486842105263158
+                    "chance": 0.552238805970149
                 },
                 {
                     "moon_name": "7 Dine",
@@ -2535,7 +2535,7 @@ data = {
                 },
                 {
                     "moon_name": "85 Rend",
-                    "chance": 0.394736842105263
+                    "chance": 0.447761194029851
                 },
                 {
                     "moon_name": "7 Dine",
@@ -2581,10 +2581,6 @@ data = {
                 {
                     "moon_name": "20 Adamance",
                     "chance": 0.0631578947368421
-                },
-                {
-                    "moon_name": "85 Rend",
-                    "chance": 0.118421052631579
                 },
                 {
                     "moon_name": "7 Dine",
@@ -2679,11 +2675,11 @@ data = {
                 },
                 {
                     "moon_name": "220 Assurance",
-                    "chance": 0.288819875776398
+                    "chance": 0.286153846153846
                 },
                 {
                     "moon_name": "56 Vow",
-                    "chance": 0.199346405228758
+                    "chance": 0.190625
                 },
                 {
                     "moon_name": "61 March",
@@ -2691,15 +2687,15 @@ data = {
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.116666666666667
+                    "chance": 0.115702479338843
                 },
                 {
                     "moon_name": "85 Rend",
-                    "chance": 0.0767326732673267
+                    "chance": 0.0746987951807229
                 },
                 {
                     "moon_name": "7 Dine",
-                    "chance": 0.0510204081632653
+                    "chance": 0.0495049504950495
                 },
                 {
                     "moon_name": "21 Offense",
@@ -2711,11 +2707,11 @@ data = {
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.0745614035087719
+                    "chance": 0.0732758620689655
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0533807829181495
+                    "chance": 0.0473186119873817
                 }
 
             ]
@@ -2728,11 +2724,11 @@ data = {
                 },
                 {
                     "moon_name": "220 Assurance",
-                    "chance": 0.214285714285714
+                    "chance": 0.212307692307692
                 },
                 {
                     "moon_name": "56 Vow",
-                    "chance": 0.130718954248366
+                    "chance": 0.125
                 },
                 {
                     "moon_name": "61 March",
@@ -2740,15 +2736,15 @@ data = {
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.172222222222222
+                    "chance": 0.170798898071625
                 },
                 {
                     "moon_name": "85 Rend",
-                    "chance": 0.106435643564356
+                    "chance": 0.103614457831325
                 },
                 {
                     "moon_name": "7 Dine",
-                    "chance": 0.0714285714285714
+                    "chance": 0.0693069306930693
                 },
                 {
                     "moon_name": "21 Offense",
@@ -2760,11 +2756,11 @@ data = {
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.087719298245614
+                    "chance": 0.0862068965517241
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0818505338078292
+                    "chance": 0.0725552050473186
                 }
 
             ]
@@ -2777,11 +2773,11 @@ data = {
                 },
                 {
                     "moon_name": "220 Assurance",
-                    "chance": 0.242236024844721
+                    "chance": 0.24
                 },
                 {
                     "moon_name": "56 Vow",
-                    "chance": 0.205882352941176
+                    "chance": 0.196875
                 },
                 {
                     "moon_name": "61 March",
@@ -2789,11 +2785,11 @@ data = {
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.158333333333333
+                    "chance": 0.15702479338843
                 },
                 {
                     "moon_name": "7 Dine",
-                    "chance": 0.0816326530612245
+                    "chance": 0.0792079207920792
                 },
                 {
                     "moon_name": "21 Offense",
@@ -2805,11 +2801,11 @@ data = {
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.0833333333333333
+                    "chance": 0.0818965517241379
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.306049822064057
+                    "chance": 0.271293375394322
                 }
 
             ]
@@ -2822,11 +2818,11 @@ data = {
                 },
                 {
                     "moon_name": "220 Assurance",
-                    "chance": 0.0434782608695652
+                    "chance": 0.0430769230769231
                 },
                 {
                     "moon_name": "56 Vow",
-                    "chance": 0.261437908496732
+                    "chance": 0.25
                 },
                 {
                     "moon_name": "61 March",
@@ -2834,15 +2830,15 @@ data = {
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.111111111111111
+                    "chance": 0.110192837465565
                 },
                 {
                     "moon_name": "85 Rend",
-                    "chance": 0.126237623762376
+                    "chance": 0.12289156626506
                 },
                 {
                     "moon_name": "7 Dine",
-                    "chance": 0.0816326530612245
+                    "chance": 0.0792079207920792
                 },
                 {
                     "moon_name": "21 Offense",
@@ -2854,11 +2850,11 @@ data = {
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.087719298245614
+                    "chance": 0.0862068965517241
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0106761565836299
+                    "chance": 0.00946372239747634
                 }
 
             ]
@@ -2871,11 +2867,11 @@ data = {
                 },
                 {
                     "moon_name": "220 Assurance",
-                    "chance": 0.0745341614906832
+                    "chance": 0.0738461538461539
                 },
                 {
                     "moon_name": "56 Vow",
-                    "chance": 0.0294117647058824
+                    "chance": 0.028125
                 },
                 {
                     "moon_name": "61 March",
@@ -2883,11 +2879,11 @@ data = {
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.186111111111111
+                    "chance": 0.184573002754821
                 },
                 {
                     "moon_name": "7 Dine",
-                    "chance": 0.0306122448979592
+                    "chance": 0.0297029702970297
                 },
                 {
                     "moon_name": "21 Offense",
@@ -2899,11 +2895,11 @@ data = {
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.0815789473684211
+                    "chance": 0.0801724137931034
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.106761565836299
+                    "chance": 0.0946372239747634
                 }
 
             ]
@@ -2916,11 +2912,11 @@ data = {
                 },
                 {
                     "moon_name": "220 Assurance",
-                    "chance": 0.0869565217391304
+                    "chance": 0.0861538461538462
                 },
                 {
                     "moon_name": "56 Vow",
-                    "chance": 0.0915032679738562
+                    "chance": 0.0875
                 },
                 {
                     "moon_name": "61 March",
@@ -2928,15 +2924,15 @@ data = {
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.0472222222222222
+                    "chance": 0.046831955922865
                 },
                 {
                     "moon_name": "85 Rend",
-                    "chance": 0.0148514851485149
+                    "chance": 0.0144578313253012
                 },
                 {
                     "moon_name": "7 Dine",
-                    "chance": 0.0306122448979592
+                    "chance": 0.0297029702970297
                 },
                 {
                     "moon_name": "21 Offense",
@@ -2948,11 +2944,11 @@ data = {
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.0640350877192983
+                    "chance": 0.0629310344827586
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.149466192170818
+                    "chance": 0.132492113564669
                 }
 
             ]
@@ -2965,11 +2961,11 @@ data = {
                 },
                 {
                     "moon_name": "220 Assurance",
-                    "chance": 0.0434782608695652
+                    "chance": 0.0430769230769231
                 },
                 {
                     "moon_name": "56 Vow",
-                    "chance": 0.0620915032679739
+                    "chance": 0.059375
                 },
                 {
                     "moon_name": "61 March",
@@ -2977,15 +2973,15 @@ data = {
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.0916666666666667
+                    "chance": 0.0909090909090909
                 },
                 {
                     "moon_name": "85 Rend",
-                    "chance": 0.0173267326732673
+                    "chance": 0.0168674698795181
                 },
                 {
                     "moon_name": "7 Dine",
-                    "chance": 0.0306122448979592
+                    "chance": 0.0297029702970297
                 },
                 {
                     "moon_name": "21 Offense",
@@ -2997,11 +2993,11 @@ data = {
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.0789473684210526
+                    "chance": 0.0775862068965517
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.124555160142349
+                    "chance": 0.110410094637224
                 }
 
             ]
@@ -3014,7 +3010,7 @@ data = {
                 },
                 {
                     "moon_name": "220 Assurance",
-                    "chance": 0.0031055900621118
+                    "chance": 0.00307692307692308
                 },
                 {
                     "moon_name": "61 March",
@@ -3022,15 +3018,15 @@ data = {
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.0222222222222222
+                    "chance": 0.0220385674931129
                 },
                 {
                     "moon_name": "85 Rend",
-                    "chance": 0.247524752475248
+                    "chance": 0.240963855421687
                 },
                 {
                     "moon_name": "7 Dine",
-                    "chance": 0.0510204081632653
+                    "chance": 0.0495049504950495
                 },
                 {
                     "moon_name": "21 Offense",
@@ -3042,11 +3038,44 @@ data = {
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.087719298245614
+                    "chance": 0.0862068965517241
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0782918149466192
+                    "chance": 0.0694006309148265
+                }
+
+            ]
+        },
+        {
+            "Barber": [
+                {
+                    "moon_name": "220 Assurance",
+                    "chance": 0.00923076923076923
+                },
+                {
+                    "moon_name": "56 Vow",
+                    "chance": 0.04375
+                },
+                {
+                    "moon_name": "20 Adamance",
+                    "chance": 0.00826446280991736
+                },
+                {
+                    "moon_name": "85 Rend",
+                    "chance": 0.0265060240963855
+                },
+                {
+                    "moon_name": "7 Dine",
+                    "chance": 0.148514851485149
+                },
+                {
+                    "moon_name": "68 Artifice",
+                    "chance": 0.0172413793103448
+                },
+                {
+                    "moon_name": "5 Embrion",
+                    "chance": 0.113564668769716
                 }
 
             ]
@@ -3055,7 +3084,7 @@ data = {
             "Coil-head": [
                 {
                     "moon_name": "56 Vow",
-                    "chance": 0.0196078431372549
+                    "chance": 0.01875
                 },
                 {
                     "moon_name": "61 March",
@@ -3063,15 +3092,15 @@ data = {
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.0277777777777778
+                    "chance": 0.0275482093663912
                 },
                 {
                     "moon_name": "85 Rend",
-                    "chance": 0.106435643564356
+                    "chance": 0.103614457831325
                 },
                 {
                     "moon_name": "7 Dine",
-                    "chance": 0.0612244897959184
+                    "chance": 0.0594059405940594
                 },
                 {
                     "moon_name": "21 Offense",
@@ -3083,11 +3112,11 @@ data = {
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.0771929824561404
+                    "chance": 0.0758620689655172
                 },
                 {
                     "moon_name": "5 Embrion",
-                    "chance": 0.0889679715302491
+                    "chance": 0.0788643533123028
                 }
 
             ]
@@ -3100,15 +3129,15 @@ data = {
                 },
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.0194444444444444
+                    "chance": 0.0192837465564738
                 },
                 {
                     "moon_name": "85 Rend",
-                    "chance": 0.148514851485149
+                    "chance": 0.144578313253012
                 },
                 {
                     "moon_name": "7 Dine",
-                    "chance": 0.0510204081632653
+                    "chance": 0.0495049504950495
                 },
                 {
                     "moon_name": "8 Titan",
@@ -3116,7 +3145,7 @@ data = {
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.0807017543859649
+                    "chance": 0.0793103448275862
                 }
 
             ]
@@ -3125,22 +3154,27 @@ data = {
             "Butler": [
                 {
                     "moon_name": "20 Adamance",
-                    "chance": 0.0277777777777778
+                    "chance": 0.0275482093663912
                 },
                 {
                     "moon_name": "85 Rend",
-                    "chance": 0.0445544554455446
+                    "chance": 0.0433734939759036
                 },
                 {
                     "moon_name": "7 Dine",
-                    "chance": 0.438775510204082
+                    "chance": 0.306930693069307
                 },
                 {
                     "moon_name": "68 Artifice",
-                    "chance": 0.087719298245614
+                    "chance": 0.0862068965517241
                 }
-
             ]
         },
+        {
+            "Kidnapper Fox": []
+        },
+        {
+            "Vain Shroud": []
+        }
     ]
 }

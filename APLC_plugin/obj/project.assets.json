@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     ".NETStandard,Version=v2.1": {
-      "Archipelago.MultiClient.Net/5.0.6": {
+      "Archipelago.MultiClient.Net/6.0.0-rc5": {
         "type": "package",
         "compile": {
           "lib/netstandard2.0/Archipelago.MultiClient.Net.dll": {
@@ -640,15 +640,15 @@
     }
   },
   "libraries": {
-    "Archipelago.MultiClient.Net/5.0.6": {
-      "sha512": "d38F0oI3Iysz9dZBq9Ml1AgHZ/flL4elG5YaFGoX4JYpMxqvb2BKBn3ikFVUQu0/YSlTNZHFXfqvhPAqBN6gXA==",
+    "Archipelago.MultiClient.Net/6.0.0-rc5": {
+      "sha512": "xfgDSAfASYrIT4929iJ8TPkbBUWV5OTe5fcirZwOcBzbYFWhcPuVM5s9Pa3vrLH1r0ZHLafu7UvEqGEreZfg6Q==",
       "type": "package",
-      "path": "archipelago.multiclient.net/5.0.6",
+      "path": "archipelago.multiclient.net/6.0.0-rc5",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "README.md",
-        "archipelago.multiclient.net.5.0.6.nupkg.sha512",
+        "archipelago.multiclient.net.6.0.0-rc5.nupkg.sha512",
         "archipelago.multiclient.net.nuspec",
         "blue-icon.png",
         "lib/net35/Archipelago.MultiClient.Net.dll",
@@ -2727,7 +2727,7 @@
   },
   "projectFileDependencyGroups": {
     ".NETStandard,Version=v2.1": [
-      "Archipelago.MultiClient.Net >= 5.0.6",
+      "Archipelago.MultiClient.Net >= 6.0.0-rc5",
       "BepInEx.Analyzers >= 1.*",
       "BepInEx.Core >= 5.*",
       "BepInEx.PluginInfoProps >= 1.*",
@@ -2739,7 +2739,7 @@
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
-    "version": "0.6.6",
+    "version": "0.6.8",
     "restore": {
       "projectUniqueName": "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
       "projectName": "APLC",
@@ -2782,7 +2782,7 @@
         "dependencies": {
           "Archipelago.MultiClient.Net": {
             "target": "Package",
-            "version": "[5.0.6, )"
+            "version": "[6.0.0-rc5, )"
           },
           "BepInEx.Analyzers": {
             "suppressParent": "All",

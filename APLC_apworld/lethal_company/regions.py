@@ -1,12 +1,14 @@
 from BaseClasses import MultiWorld, Region, Location, ItemClassification
-from .items import moons, shop_items
-from .locations import (bestiary_names, scrap_names, generate_bestiary_moons, generate_scrap_moons, max_locations,
-                        log_names, generate_scrap_moons_alt)
+from .locations import generate_bestiary_moons, generate_scrap_moons, locations, generate_scrap_moons_alt
 from .rules import check_item_accessible
 from .options import LCOptions
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from . import LethalCompanyWorld
 
 
-def create_regions(options: LCOptions, world):
+def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
     multiworld: MultiWorld = world.multiworld
     player: int = world.player
 
@@ -34,14 +36,13 @@ def create_regions(options: LCOptions, world):
                                  rule=lambda state: (state.has("Company Credit", player,
                                                                count=world.required_credit_count)))
     else:
-        company_building.connect(victory, rule=lambda state: (state.has_all(shop_items, player)
-                                                              and state.has_all(moons, player)))
+        company_building.connect(victory, rule=lambda state: (state.has_all(world.slot_item_data.shop_items, player)
+                                                              and state.has_all(world.slot_item_data.moons, player)))
 
-    print(world.initial_world)
     menu.connect(ship, rule=lambda state: True)
     ship.connect(starting_moon, rule=lambda state: True)
     ship.connect(terminal, rule=lambda state: state.has("Terminal", player) or options.randomize_terminal.value == 0)
-    for moon in moons:
+    for moon in world.slot_item_data.moons:
         if not moon == world.initial_world:
             moon_regions.append(Region(moon, player, multiworld))
             multiworld.regions.append(moon_regions[-1])
@@ -54,14 +55,11 @@ def create_regions(options: LCOptions, world):
                                                          and (state.has("Stamina Bar", player)
                                                               or options.starting_stamina_bars.value >= 1)))
 
-    bestiary_moons = generate_bestiary_moons(options.min_monster_chance.value/100.0)
-    scrap_moons = generate_scrap_moons(options.min_scrap_chance.value/100.0) if options.modify_scrap_spawns.value == 0 \
+    bestiary_moons = generate_bestiary_moons(world, options.min_monster_chance.value/100.0)
+    scrap_moons = generate_scrap_moons(world, options.min_scrap_chance.value/100.0) if options.modify_scrap_spawns.value == 0 \
         else generate_scrap_moons_alt(world)
 
-    print(bestiary_moons)
-    print(scrap_moons)
-
-    for monster in bestiary_names:
+    for monster in world.bestiary_names:
         bestiary.append(Region(monster, player, multiworld))
         multiworld.regions.append(bestiary[-1])
         can_spawn = bestiary_moons[monster]
@@ -71,14 +69,14 @@ def create_regions(options: LCOptions, world):
                                                                             or options.randomize_scanner.value == 0))
 
     if options.scrapsanity.value == 1:
-        for scrap_name in scrap_names:
+        for scrap_name in world.scrap_names:
             scrap.append(Region(scrap_name, player, multiworld))
             multiworld.regions.append(scrap[-1])
 
         for scrap_name in scrap_moons.keys():
             for moon in scrap_moons[scrap_name]:
                 if moon == "Common":
-                    for r_moon in moons:
+                    for r_moon in world.slot_item_data.moons:
                         multiworld.get_region(r_moon, player).connect(multiworld.get_region(scrap_name, player),
                                                                       rule=lambda state, s_name=scrap_name:
                                                                       ((state.has("Stamina Bar", player)
@@ -150,16 +148,16 @@ def create_regions(options: LCOptions, world):
 
     # Generate locations
     for i in range(options.checks_per_moon.value):
-        for moon in moons:
+        for moon in world.slot_item_data.moons:
             add_location(player, f"{moon} check {i+1}", multiworld.get_region(moon, player))
 
     for i in range(options.num_quotas.value):
         add_location(player, f"Quota check {i+1}", quotas)
 
-    for log in log_names:
+    for log in world.log_names:
         add_location(player, f"Log - {log}", multiworld.get_region(log, player))
 
-    for monster in bestiary_names:
+    for monster in world.bestiary_names:
         add_location(player, f"Bestiary Entry - {monster}", multiworld.get_region(monster, player))
         if len(bestiary_moons[monster]) < 1:
             multiworld.get_location(f"Bestiary Entry - {monster}", player).item_rule = lambda item: not \
@@ -167,7 +165,7 @@ def create_regions(options: LCOptions, world):
                      item.classification == ItemClassification.useful)
 
     if options.scrapsanity.value == 1:
-        for scrap_name in scrap_names:
+        for scrap_name in world.scrap_names:
             add_location(player, f"Scrap - {scrap_name}", multiworld.get_region(scrap_name, player))
 
             if len(scrap_moons[scrap_name]) < 1:
@@ -177,5 +175,5 @@ def create_regions(options: LCOptions, world):
 
 
 def add_location(player: int, location: str, region: Region):
-    region.locations.append(Location(player, location, max_locations[location]))
+    region.locations.append(Location(player, location, locations[location]))
     region.locations[-1].parent_region = region

@@ -5,7 +5,7 @@
   },
   "projects": {
     "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj": {
-      "version": "0.6.6",
+      "version": "0.6.8",
       "restore": {
         "projectUniqueName": "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
         "projectName": "APLC",
@@ -48,7 +48,7 @@
           "dependencies": {
             "Archipelago.MultiClient.Net": {
               "target": "Package",
-              "version": "[5.0.6, )"
+              "version": "[6.0.0-rc5, )"
             },
             "BepInEx.Analyzers": {
               "suppressParent": "All",

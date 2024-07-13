@@ -13,7 +13,7 @@ public class Logic
 
     public Logic()
     {
-        Tuple<Item[], SelectableLevel[], Dictionary<string, Collection<Tuple<string, double>>>, Dictionary<string, Collection<Tuple<string, double>>>> importedLogic = Plugin._instance.GetGameLogic();
+        Tuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<Tuple<string, double>>>, Dictionary<string, Collection<Tuple<string, double>>>> importedLogic = Plugin._instance.GetGameLogic();
         
         Rule canBuy = state =>
             (MultiworldHandler.Instance.GetSlotSetting("randomizeterminal") == 0 || state.Has("Terminal")) &&
@@ -24,7 +24,7 @@ public class Logic
         Region terminal = new Region("Terminal");
         _menu.AddConnection(terminal, state => MultiworldHandler.Instance.GetSlotSetting("randomizeterminal")==0 || state.Has("Terminal"));
         Region companyBuilding = new Region("Company Building");
-        Region[] moons = new Region[importedLogic.Item2.Length-2];
+        Region[] moons = new Region[importedLogic.Item2.Length];
         
         terminal.AddConnection(companyBuilding, state => MultiworldHandler.Instance.GetSlotSetting("randomizecompany")==0 || state.Has("Company"));
 
@@ -33,20 +33,12 @@ public class Logic
             companyBuilding.AddLocation(new Location($"Quota check {i+1}", state=>state.Has("Stamina Bar") && state.Has("Inventory Slot", 2)));
         }
 
-        string[] moonNames = new string[importedLogic.Item2.Length-2];
-        int skipped = 0;
-        for (int i = 0; i < importedLogic.Item2.Length; i++)
+        string[] moonNames = new string[importedLogic.Item3.Length];
+        for (int i = 0; i < importedLogic.Item3.Length; i++)
         {
-            if (importedLogic.Item2[i].PlanetName.Contains("Gordion") ||
-                importedLogic.Item2[i].PlanetName.Contains("Liquidation"))
-            {
-                skipped++;
-                continue;
-            }
-            
-            moonNames[i-skipped] = String.Join(" ",
-                importedLogic.Item2[i].PlanetName.Split(" ").Skip(1)
-                    .Take(importedLogic.Item2[i].PlanetName.Split(" ").Length - 1).ToArray());
+            moonNames[i] = String.Join(" ",
+                importedLogic.Item3[i].PlanetName.Split(" ").Skip(1)
+                    .Take(importedLogic.Item3[i].PlanetName.Split(" ").Length - 1).ToArray());
         }
         for (var index = 0; index < moonNames.Length; index++)
         {
@@ -105,15 +97,15 @@ public class Logic
 
         string[] scrapNames = MultiworldHandler.Instance.GetSlotSetting("fixscrapsanity") == 1
             ? MultiworldHandler.Instance.GetScrapToMoonMap().Keys.ToArray()
-            : importedLogic.Item4.Keys.ToArray();
+            : importedLogic.Item5.Keys.ToArray();
 
-        Dictionary<string, Collection<Tuple<string, double>>> scrapMoons = importedLogic.Item4;
+        Dictionary<string, Collection<Tuple<string, double>>> scrapMoons = importedLogic.Item5;
 
         Dictionary<string, string[]> scrapMoonsAlt = MultiworldHandler.Instance.GetSlotSetting("fixscrapsanity") == 1
             ? MultiworldHandler.Instance.GetScrapToMoonMap()
             : new Dictionary<string, string[]>();
 
-        Dictionary<string, Collection<Tuple<string, double>>> bestiaryMoons = importedLogic.Item3;
+        Dictionary<string, Collection<Tuple<string, double>>> bestiaryMoons = importedLogic.Item4;
 
         foreach (string key in bestiaryMoons.Keys)
         {

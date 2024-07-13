@@ -1,35 +1,50 @@
 import math
 
-from BaseClasses import Item, MultiWorld, ItemClassification
-from typing import Dict, Any
-from worlds.AutoWorld import World
+from BaseClasses import Item, ItemClassification
+from typing import Dict, Any, TYPE_CHECKING, Tuple, List
 from .locations import generate_locations
 from .imported import data
+
+if TYPE_CHECKING:
+    from . import LethalCompanyWorld
 
 
 class LethalCompanyItem(Item):
     game: str = "Lethal Company"
 
 
+class SlotItemData:
+    def __init__(self):
+        self.environment_pool: Dict[str, int] = {}
+        self.moons: List[str] = []
+        self.shop_items: List[str] = []
+        self.classification_table: Dict[str, ItemClassification] = {}
+        self.filler_items: Dict[str, int] = {}
+
+
 class LCItem:
     id = 1966720
 
-    def __init__(self, name, count_mode=0, count_arg: Any = 1, environment=False,
+    def __init__(self, slot_item_data: SlotItemData, name, count_mode=0, count_arg: Any = 1, environment=False,
                  classification=ItemClassification.progression, shop_item=False):
         self.name = name
-        self.item_id = LCItem.id
-        LCItem.id += 1
+        if self.name in item_table.keys():
+            self.item_id = item_table[self.name]
+        else:
+            self.item_id = LCItem.id
+            LCItem.id += 1
         self.count_mode = count_mode
         self.count_arg = count_arg
+        self.slot_item_data = slot_item_data
         item_table.update({self.name: self.item_id})
         if environment:
-            environment_pool[self.name] = self.item_id
-            moons.append(self.name)
+            slot_item_data.environment_pool[self.name] = self.item_id
+            slot_item_data.moons.append(self.name)
         if shop_item:
-            shop_items.append(self.name)
-        classification_table[self.name] = classification
+            slot_item_data.shop_items.append(self.name)
+        slot_item_data.classification_table[self.name] = classification
 
-    def create_item(self, lcworld: World):
+    def create_item(self, lcworld: "LethalCompanyWorld"):
         names = []
         match self.count_mode:
             case 0:
@@ -46,7 +61,7 @@ class LCItem:
                     names.append(self.name)
             case 3:
                 # used for filler items
-                filler_items.update({self.name: getattr(lcworld.options, self.count_arg).value})
+                self.slot_item_data.filler_items.update({self.name: getattr(lcworld.options, self.count_arg).value})
                 return []
 
         return names
@@ -56,8 +71,7 @@ def calculate_credits(world):
     if not world.options.game_mode.value == 2:
         return 0
 
-    location_count = len(generate_locations(world.options.checks_per_moon.value, world.options.num_quotas.value,
-                                            world.options.scrapsanity.value))
+    location_count = len(generate_locations(world))
     location_count -= 7
     location_count -= world.options.randomize_company_building.value
     location_count -= world.options.randomize_scanner.value
@@ -71,39 +85,49 @@ def calculate_credits(world):
     return credit_count
 
 
-filler_items: Dict[str, int] = {}
-environment_pool: Dict[str, int] = {}
-classification_table: Dict[str, ItemClassification] = {}
 item_table: Dict[str, int] = {}
-moons = []
-shop_items = []
 
-items = [
-    LCItem("LoudHorn", classification=ItemClassification.useful),
-    LCItem("SignalTranslator", classification=ItemClassification.useful),
-    LCItem("Teleporter", classification=ItemClassification.useful),
-    LCItem("InverseTeleporter", classification=ItemClassification.useful),
-    LCItem("Company Building", 1, "randomize_company_building", classification=ItemClassification.progression),
-    LCItem("Terminal", 1, "randomize_terminal", classification=ItemClassification.progression),
-    LCItem("Inventory Slot", 2, lambda w: 4 - w.options.starting_inventory_slots.value,
-           classification=ItemClassification.progression),
-    LCItem("Stamina Bar", 2, lambda w: 4 - w.options.starting_stamina_bars.value,
-           classification=ItemClassification.progression),
-    LCItem("Company Credit", 2, calculate_credits, classification=ItemClassification.progression),
-    LCItem("Strength Training", 3, "weight_reducers",
-           classification=ItemClassification.filler),
-    LCItem("Scanner", 1, "randomize_scanner", classification=ItemClassification.progression),
-    LCItem("Money", 3, "money", classification=ItemClassification.filler),
-    LCItem("More Time", 3, "time_add", classification=ItemClassification.filler),
-    LCItem("Clone Scrap", 3, "scrap_clone", classification=ItemClassification.filler),
-    LCItem("Birthday Gift", 3, "birthday", classification=ItemClassification.filler),
-    LCItem("HauntTrap", 3, "haunt_trap", classification=ItemClassification.trap),
-    LCItem("BrackenTrap", 3, "bracken_trap", classification=ItemClassification.trap),
-    LCItem("Less Time", 3, "time_trap", classification=ItemClassification.trap)
-]
 
-for item in data.get("store"):
-    items.append(LCItem(item, shop_item=True))
+def get_default_item_map():
+    generate_items(data)
+    return item_table
 
-for moon in data.get("moons"):
-    items.append(LCItem(" ".join(moon.split(" ")[1:]), environment=True))
+
+def generate_items(imported_data) -> Tuple[List[LCItem], SlotItemData]:
+    slot_item_data = SlotItemData()
+
+    items = [
+        LCItem(slot_item_data, "LoudHorn", classification=ItemClassification.useful),
+        LCItem(slot_item_data, "SignalTranslator", classification=ItemClassification.useful),
+        LCItem(slot_item_data, "Teleporter", classification=ItemClassification.useful),
+        LCItem(slot_item_data, "InverseTeleporter", classification=ItemClassification.useful),
+        LCItem(slot_item_data, "Company Building", 1, "randomize_company_building",
+               classification=ItemClassification.progression),
+        LCItem(slot_item_data, "Terminal", 1, "randomize_terminal", classification=ItemClassification.progression),
+        LCItem(slot_item_data, "Inventory Slot", 2, lambda w: 4 - w.options.starting_inventory_slots.value,
+               classification=ItemClassification.progression),
+        LCItem(slot_item_data, "Stamina Bar", 2, lambda w: 4 - w.options.starting_stamina_bars.value,
+               classification=ItemClassification.progression),
+        LCItem(slot_item_data, "Company Credit", 2, calculate_credits, classification=ItemClassification.progression),
+        LCItem(slot_item_data, "Strength Training", 3, "weight_reducers",
+               classification=ItemClassification.filler),
+        LCItem(slot_item_data, "Scanner", 1, "randomize_scanner", classification=ItemClassification.progression),
+        LCItem(slot_item_data, "Money", 3, "money", classification=ItemClassification.filler),
+        LCItem(slot_item_data, "More Time", 3, "time_add", classification=ItemClassification.filler),
+        LCItem(slot_item_data, "Clone Scrap", 3, "scrap_clone", classification=ItemClassification.filler),
+        LCItem(slot_item_data, "Birthday Gift", 3, "birthday", classification=ItemClassification.filler),
+        LCItem(slot_item_data, "HauntTrap", 3, "haunt_trap", classification=ItemClassification.trap),
+        LCItem(slot_item_data, "BrackenTrap", 3, "bracken_trap", classification=ItemClassification.trap),
+        LCItem(slot_item_data, "Less Time", 3, "time_trap", classification=ItemClassification.trap)
+    ]
+
+    for item in imported_data.get("store"):
+        items.append(LCItem(slot_item_data, item, shop_item=True))
+
+    for item in imported_data.get("vehicles"):
+        items.append(LCItem(slot_item_data, item, shop_item=True))
+
+    for moon in imported_data.get("moons"):
+        items.append(LCItem(slot_item_data, " ".join(moon.split(" ")[1:]), environment=True))
+
+    return items, slot_item_data

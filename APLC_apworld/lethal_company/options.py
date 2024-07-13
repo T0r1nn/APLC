@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from Options import Toggle, DeathLink, Range, Choice, PerGameCommonOptions, FreeText
+from Options import Toggle, DeathLink, Range, Choice, PerGameCommonOptions, FreeText, OptionGroup
 
 
 class Goal(Choice):
@@ -47,7 +47,8 @@ class MoneyPerQuotaCheck(Range):
 
 class NumQuotas(Range):
     """
-    Will not give checks for quotas past this number. For example, if maximum quotas is 10, the 11th quota check will not count as a check
+    Will not give checks for quotas past this number. For example, if maximum quotas is 10, the 11th quota check will
+    not count as a check
     """
     display_name = "Num Quotas"
     range_start = 10
@@ -81,7 +82,8 @@ class HauntTrapWeight(Range):
 
 class MoneyWeight(Range):
     """
-    The weight of money drops in the pool. Each money drop can give anywhere from 100-1000 scrap, though it doesn't count towards the quota
+    The weight of money drops in the pool. Each money drop can give anywhere from 100-1000 scrap,
+    though it doesn't count towards the quota
     """
     display_name = "Money Weight"
     range_start = 0
@@ -293,9 +295,9 @@ class ScrapSpawnChance(Range):
 
 class ExcludeShotguns(Toggle):
     """
-    Makes it so there is guaranteed to be a filler item or trap in the shotgun scrapsanity check
+    Makes it so there is guaranteed to be a filler item or trap in every check that can only be obtained through killing
     """
-    display_name = "Exclude Shotguns"
+    display_name = "Exclude Killing"
     slot = True
     slot_name = "excludeshotguns"
 
@@ -440,51 +442,51 @@ class LogicDifficulty(Choice):
     option_Min_Logic_MP = 4
     default = 1
 
+
 # Will contain a diff from the original imported and the new one, find a way to interpret that.
 class CustomContent(FreeText):
     """
     Contains any custom content the player wants to use. See the guide on the github page to use this option
     """
     display_name = "Custom Content"
-    default = ""
+    default = "false"
     slot = False
 
 
 @dataclass
 class LCOptions(PerGameCommonOptions):
-    game_mode: Goal
-    collectathon_scrap_goal: CollectathonScrapGoal
-    credit_replacement: CreditReplacement
-    required_credits: RequiredCredits
-    checks_per_moon: ChecksPerMoon
-    money_per_quota_check: MoneyPerQuotaCheck
-    num_quotas: NumQuotas
-    starting_inventory_slots: StartingInventorySlots
-    starting_stamina_bars: StartingStaminaBars
-    randomize_scanner: RandomizeScanner
-    min_monster_chance: MonsterSpawnChance
-    randomize_terminal: RandomizeTerminal
-    randomize_company_building: RandomizeCompanyBuilding
-    scrapsanity: Scrapsanity
-    min_scrap_chance: ScrapSpawnChance
-    exclude_shotgun: ExcludeShotguns
+    game_mode: Goal #done
+    collectathon_scrap_goal: CollectathonScrapGoal #done
+    credit_replacement: CreditReplacement #done
+    required_credits: RequiredCredits #done
+    checks_per_moon: ChecksPerMoon #done
+    money_per_quota_check: MoneyPerQuotaCheck #done
+    num_quotas: NumQuotas #done
+    starting_inventory_slots: StartingInventorySlots #done
+    starting_stamina_bars: StartingStaminaBars #done
+    randomize_scanner: RandomizeScanner #done
+    min_monster_chance: MonsterSpawnChance #done
+    randomize_terminal: RandomizeTerminal #done
+    randomize_company_building: RandomizeCompanyBuilding #done
+    scrapsanity: Scrapsanity #done
+    min_scrap_chance: ScrapSpawnChance #done
+    exclude_killing: ExcludeShotguns
     exclude_hive: ExcludeHive
     modify_scrap_spawns: ModifyScrapSpawns
-    min_money: MinMoneyCheck
-    max_money: MaxMoneyCheck
-    starting_moon: StartingMoon
-    split_moon_grades: SplitMoonGrades
-    moon_grade: MoonCheckGrade
-    low_moon_grade: EasyMoonCheckGrade
-    medium_moon_grade: MedMoonCheckGrade
-    high_moon_grade: HighMoonCheckGrade
-    time_add: DayIncreaseWeight
-    scrap_clone: ScrapDupeWeight
-    birthday: BirthdayGiftWeight
-    weight_reducers: WeightReducers
-    bracken_trap: BrackenTrapWeight
-    haunt_trap: HauntTrapWeight
-    time_trap: DayDecreaseWeight
-    money: MoneyWeight
+    min_money: MinMoneyCheck #done
+    max_money: MaxMoneyCheck #done
+    starting_moon: StartingMoon #done
+    split_moon_grades: SplitMoonGrades #done
+    moon_grade: MoonCheckGrade #done
+    low_moon_grade: EasyMoonCheckGrade #done
+    medium_moon_grade: MedMoonCheckGrade #done
+    high_moon_grade: HighMoonCheckGrade #done
+    time_add: DayIncreaseWeight #done
+    scrap_clone: ScrapDupeWeight #done
+    birthday: BirthdayGiftWeight #done
+    weight_reducers: WeightReducers #done
+    bracken_trap: BrackenTrapWeight #done
+    haunt_trap: HauntTrapWeight #done
+    time_trap: DayDecreaseWeight #done
+    money: MoneyWeight #done
     death_link: DeathLink
-    custom_content: CustomContent

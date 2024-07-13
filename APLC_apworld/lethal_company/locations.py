@@ -1,8 +1,8 @@
 import math
 from typing import Dict, List, TYPE_CHECKING
 from BaseClasses import Location
-from .options import ChecksPerMoon, NumQuotas
 from .imported import data
+from .options import ChecksPerMoon, NumQuotas
 
 if TYPE_CHECKING:
     from . import LethalCompanyWorld
@@ -13,43 +13,108 @@ class LethalCompanyLocation(Location):
 
 
 lc_locations_start_id = 1966720
-
-log_names = [
-    "Smells Here!",
-    "Swing of Things",
-    "Shady",
-    "Golden Planet",
-    "Sound Behind the Wall",
-    "Goodbye",
-    "Screams",
-    "Idea",
-    "Nonsense",
-    "Hiding",
-    "Real Job",
-    "Desmond"
-]
-
-bestiary_names = [[key for key in monster.keys()][0] for monster in data["bestiary"]]
-
-moons = [" ".join(moon.split(" ")[1:]) for moon in data.get("moons")]
-
-scrap_names = []
-
-for item in data["scrap"]:
-    key = [key for key in item.keys()][0]
-    scrap_names.append(key)
-
-for moon in moons:
-    if not f"AP Apparatus - {moon}" in scrap_names:
-        scrap_names.append(f"AP Apparatus - {moon}")
+max_id = lc_locations_start_id
 
 
-def generate_bestiary_moons(chance: float) -> Dict[str, List[str]]:
+def get_default_location_map():
+    log_names = [
+        "Smells Here!",
+        "Swing of Things",
+        "Shady",
+        "Golden Planet",
+        "Sound Behind the Wall",
+        "Goodbye",
+        "Screams",
+        "Idea",
+        "Nonsense",
+        "Hiding",
+        "Real Job",
+        "Desmond"
+    ]
+
+    bestiary_names = [[key for key in monster.keys()][0] for monster in data["bestiary"]]
+
+    moons = [" ".join(moon.split(" ")[1:]) for moon in data.get("moons")]
+
+    scrap_names = []
+
+    for item in data["scrap"]:
+        key = [key for key in item.keys()][0]
+        scrap_names.append(key)
+
+    for moon in moons:
+        if not f"AP Apparatus - {moon}" in scrap_names:
+            scrap_names.append(f"AP Apparatus - {moon}")
+
+    location_result = {}
+
+    for i in range(len(moons)):
+        for j in range(ChecksPerMoon.range_end):
+            location_result.update(check_location(f"{moons[i]} check {j + 1}"))
+    for i in range(NumQuotas.range_end):
+        location_result.update(check_location(f"Quota check {i + 1}"))
+    for i in range(len(log_names)):
+        location_result.update(check_location(f"Log - {log_names[i]}"))
+    for i in range(len(bestiary_names)):
+        location_result.update(check_location(f"Bestiary Entry - {bestiary_names[i]}"))
+    for i in range(len(scrap_names)):
+        location_result.update(check_location(f"Scrap - {scrap_names[i]}"))
+    return location_result
+
+
+def generate_locations(world: "LethalCompanyWorld"):
+    world.log_names = [
+        "Smells Here!",
+        "Swing of Things",
+        "Shady",
+        "Golden Planet",
+        "Sound Behind the Wall",
+        "Goodbye",
+        "Screams",
+        "Idea",
+        "Nonsense",
+        "Hiding",
+        "Real Job",
+        "Desmond"
+    ]
+
+    world.bestiary_names = [[key for key in monster.keys()][0] for monster in world.imported_data["bestiary"]]
+
+    moons = [" ".join(moon.split(" ")[1:]) for moon in world.imported_data.get("moons")]
+
+    world.scrap_names = []
+
+    for item in world.imported_data["scrap"]:
+        key = [key for key in item.keys()][0]
+        world.scrap_names.append(key)
+
+    for moon in moons:
+        if not f"AP Apparatus - {moon}" in world.scrap_names:
+            world.scrap_names.append(f"AP Apparatus - {moon}")
+
+    location_result = {}
+
+    for i in range(len(moons)):
+        for j in range(world.options.checks_per_moon.value):
+            location_result.update(check_location(f"{moons[i]} check {j + 1}"))
+    for i in range(world.options.num_quotas.value):
+        location_result.update(check_location(f"Quota check {i + 1}"))
+    for i in range(len(world.log_names)):
+        location_result.update(check_location(f"Log - {world.log_names[i]}"))
+    for i in range(len(world.bestiary_names)):
+        location_result.update(check_location(f"Bestiary Entry - {world.bestiary_names[i]}"))
+    if world.options.scrapsanity.value == 1:
+        for i in range(len(world.scrap_names)):
+            location_result.update(check_location(f"Scrap - {world.scrap_names[i]}"))
+    return location_result
+
+
+def generate_bestiary_moons(world: "LethalCompanyWorld", chance: float) -> Dict[str, List[str]]:
     bestiary_moons = {
 
     }
 
-    bestiary_data = data["bestiary"]
+    bestiary_data = world.imported_data["bestiary"]
     for entry in bestiary_data:
         key = [key for key in entry.keys()][0]
         b_moons = []
@@ -61,12 +126,25 @@ def generate_bestiary_moons(chance: float) -> Dict[str, List[str]]:
     return bestiary_moons
 
 
-def generate_scrap_moons(chance: float) -> Dict[str, List[str]]:
+def check_location(location_name: "str") -> Dict[str, int]:
+    global max_id
+    global locations
+
+    if location_name in locations.keys():
+        location_id = locations[location_name]
+    else:
+        location_id = max_id
+        max_id += 1
+    locations.update({location_name: location_id})
+    return {location_name: location_id}
+
+
+def generate_scrap_moons(world: "LethalCompanyWorld", chance: float) -> Dict[str, List[str]]:
     scrap_moons = {
 
     }
 
-    scrap_data = data["scrap"]
+    scrap_data = world.imported_data["scrap"]
     for entry in scrap_data:
         key = [key for key in entry.keys()][0]
         s_moons = []
@@ -83,9 +161,9 @@ def generate_scrap_moons_alt(world: 'LethalCompanyWorld') -> Dict[str, List[str]
 
     }
 
-    normal = generate_scrap_moons(chance=world.options.min_scrap_chance.value/100)
+    normal = generate_scrap_moons(world=world, chance=world.options.min_scrap_chance.value/100)
 
-    scrap = [name for name in scrap_names]
+    scrap = [name for name in world.scrap_names]
 
     for name in scrap:
         if "AP Apparatus" in name:
@@ -95,13 +173,13 @@ def generate_scrap_moons_alt(world: 'LethalCompanyWorld') -> Dict[str, List[str]
         elif "Apparatus" in name or "Shotgun" in name or "Knife" in name or "Hive" in name:
             scrap.remove(name)
 
-    items_per_bin = math.floor(len(scrap) / len(moons))
+    items_per_bin = math.floor(len(scrap) / len(world.moons))
     world.multiworld.random.shuffle(scrap)
 
     for i in range(len(scrap)):
         bin_num = math.floor(i/items_per_bin)
-        if bin_num < len(moons):
-            scrap_moons[scrap[i]] = [moons[bin_num]]
+        if bin_num < len(world.moons):
+            scrap_moons[scrap[i]] = [world.moons[bin_num]]
         else:
             scrap_moons[scrap[i]] = ["Common"]
 
@@ -111,7 +189,7 @@ def generate_scrap_moons_alt(world: 'LethalCompanyWorld') -> Dict[str, List[str]
     scrap_moons["Knife"] = normal["Knife"]
     scrap_moons["Hive"] = normal["Hive"]
 
-    for moon in moons:
+    for moon in world.moons:
         scrap_moons[f"AP Apparatus - {moon}"] = [moon]
         scrap_moons["Archipelago Chest"].append(moon)
 
@@ -120,26 +198,4 @@ def generate_scrap_moons_alt(world: 'LethalCompanyWorld') -> Dict[str, List[str]
     return scrap_moons
 
 
-def generate_locations(checks_per_moon: int, num_quota: int, scrapsanity: int) -> Dict[str, int]:
-    locations = {}
-    offset = lc_locations_start_id
-    for i in range(len(moons)):
-        for j in range(checks_per_moon):
-            locations.update({f"{moons[i]} check {j + 1}": j + i * checks_per_moon + offset})
-    offset += len(moons) * checks_per_moon
-    for i in range(num_quota):
-        locations.update({f"Quota check {i + 1}": offset + i})
-    offset += num_quota
-    for i in range(len(log_names)):
-        locations.update({f"Log - {log_names[i]}": offset + i})
-    offset += len(log_names)
-    for i in range(len(bestiary_names)):
-        locations.update({f"Bestiary Entry - {bestiary_names[i]}": offset + i})
-    offset += len(bestiary_names)
-    if scrapsanity == 1:
-        for i in range(len(scrap_names)):
-            locations.update({f"Scrap - {scrap_names[i]}": offset + i})
-    return locations
-
-
-max_locations = generate_locations(ChecksPerMoon.range_end, NumQuotas.range_end, 1)
+locations = {}

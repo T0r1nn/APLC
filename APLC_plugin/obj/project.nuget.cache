@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "o0iRBQGpware0zTL3cT0CO1ktwzsdjYIHS4wrLQeGAGbaQiTquFq3LiZ2aQvU/zidCATjyVh4xJ2u83GQ6AZGA==",
+  "dgSpecHash": "kmxdxcps3n/ofQGoj+p/ltTAl7uBjLe5JcVQdhqh8HhkXqT1g0n0Jv0BiuTH9RxZbXKBWzMHsf8sbYmuu29kpg==",
   "success": true,
   "projectFilePath": "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\tyler\\.nuget\\packages\\archipelago.multiclient.net\\5.0.6\\archipelago.multiclient.net.5.0.6.nupkg.sha512",
+    "C:\\Users\\tyler\\.nuget\\packages\\archipelago.multiclient.net\\6.0.0-rc5\\archipelago.multiclient.net.6.0.0-rc5.nupkg.sha512",
     "C:\\Users\\tyler\\.nuget\\packages\\bepinex.analyzers\\1.0.8\\bepinex.analyzers.1.0.8.nupkg.sha512",
     "C:\\Users\\tyler\\.nuget\\packages\\bepinex.baselib\\5.4.20\\bepinex.baselib.5.4.20.nupkg.sha512",
     "C:\\Users\\tyler\\.nuget\\packages\\bepinex.core\\5.4.21\\bepinex.core.5.4.21.nupkg.sha512",
