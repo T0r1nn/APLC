@@ -10,10 +10,12 @@ using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Packets;
 using GameNetcodeStuff;
 using HarmonyLib;
+using LethalLevelLoader;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements.Collections;
 using Random = UnityEngine.Random;
 
 namespace APLC;
@@ -144,9 +146,10 @@ public class MultiworldHandler
             _dlService.OnDeathLinkReceived += KillRandom;
             _dlService.EnableDeathLink();
         }
+
         ProcessItems(_receivedItemNames);
         TerminalCommands.SetLogic();
-                    
+
         ES3.Save<string>("ArchipelagoURL", url, GameNetworkManager.Instance.currentSaveFileName);
         ES3.Save<int>("ArchipelagoPort", port, GameNetworkManager.Instance.currentSaveFileName);
         ES3.Save<string>("ArchipelagoSlot", slot, GameNetworkManager.Instance.currentSaveFileName);

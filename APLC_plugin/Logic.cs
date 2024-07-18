@@ -24,7 +24,7 @@ public class Logic
         Region terminal = new Region("Terminal");
         _menu.AddConnection(terminal, state => MultiworldHandler.Instance.GetSlotSetting("randomizeterminal")==0 || state.Has("Terminal"));
         Region companyBuilding = new Region("Company Building");
-        Region[] moons = new Region[importedLogic.Item2.Length];
+        Region[] moons = new Region[importedLogic.Item3.Length];
         
         terminal.AddConnection(companyBuilding, state => MultiworldHandler.Instance.GetSlotSetting("randomizecompany")==0 || state.Has("Company"));
 
