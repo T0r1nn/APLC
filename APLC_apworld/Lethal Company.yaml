@@ -1,0 +1,426 @@
+﻿# Q. What is this file?
+# A. This file contains options which allow you to configure your multiworld experience while allowing
+#    others to play how they want as well.
+#
+# Q. How do I use it?
+# A. The options in this file are weighted. This means the higher number you assign to a value, the
+#    more chances you have for that option to be chosen. For example, an option like this:
+#
+#    map_shuffle:
+#      on: 5
+#      off: 15
+#
+#    Means you have 5 chances for map shuffle to occur, and 15 chances for map shuffle to be turned
+#    off.
+#
+# Q. I've never seen a file like this before. What characters am I allowed to use?
+# A. This is a .yaml file. You are allowed to use most characters.
+#    To test if your yaml is valid or not, you can use this website:
+#        http://www.yamllint.com/
+#    You can also verify that your Archipelago options are valid at this site:
+#        https://archipelago.gg/check
+
+# Your name in-game, limited to 16 characters.
+#     {player} will be replaced with the player's slot number.
+#     {PLAYER} will be replaced with the player's slot number, if that slot number is greater than 1.
+#     {number} will be replaced with the counter value of the name.
+#     {NUMBER} will be replaced with the counter value of the name, if the counter value is greater than 1.
+name: Player{number}
+
+# Used to describe your yaml. Useful if you have multiple files.
+description: Default Lethal Company Template
+
+game: Lethal Company
+requires:
+  version: 0.5.0 # Version of Archipelago required for this yaml to work as expected.
+
+Lethal Company:
+  # Game Options
+  progression_balancing:
+    # A system that can move progression earlier, to try and prevent the player from getting stuck and bored early.
+    # 
+    # A lower setting means more getting stuck. A higher setting means less getting stuck.
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 0
+    # Maximum value is 99
+    random: 0
+    random-low: 0
+    random-high: 0
+    disabled: 0 # equivalent to 0
+    normal: 50 # equivalent to 50
+    extreme: 0 # equivalent to 99
+
+  accessibility:
+    # Set rules for reachability of your items/locations.
+    # 
+    # - **Locations:** ensure everything can be reached and acquired.
+    # - **Items:** ensure all logically relevant items can be acquired.
+    # - **Minimal:** ensure what is needed to reach your goal can be acquired.
+    locations: 0
+    items: 50
+    minimal: 0
+
+  death_link:
+    # When you die, everyone dies. Of course the reverse is true too.
+    'false': 50
+    'true': 0
+
+  # Goal
+  game_mode:
+    # Trophy Mode: Each moon has a rare trophy scrap, the goal is to get all eight
+    # 
+    # Collectathon: A new rare scrap is added, you need to collect at least ten of it to win
+    # 
+    # Credit Hunt: You must receive a number of company credit items as specified by the yaml to win. This can lead to
+    # very short or very long games depending on your settings
+    trophy: 50
+    collectathon: 0
+    credit_hunt: 0
+
+  collectathon_scrap_goal:
+    # The number of collectathon scrap you need to complete the collectathon goal
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 3
+    # Maximum value is 99
+    10: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  credit_replacement:
+    # Credit Hunt mode:
+    # Replaces the specified percent of filler items with company credits
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 5
+    # Maximum value is 80
+    50: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  required_credits:
+    # Credit Hunt mode:
+    # The percent of company credits in the pool that are required to beat the game. If there are 20 credits in the pool
+    # and you set this to 75, then once 75% of the 20 credits, or 15 credits, are collected, you will win
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 10
+    # Maximum value is 100
+    75: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  # Checks
+  checks_per_moon:
+    # The total number of checks you can get at one moon
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 1
+    # Maximum value is 10
+    3: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  money_per_quota_check:
+    # The total amount of quota you have to acheive to meet each quota check
+    # For example, if money per quota check is 1000, you need to reach 1000 total quota for each quota check
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 100
+    # Maximum value is 10000
+    500: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  num_quotas:
+    # Will not give checks for quotas past this number. For example, if maximum quotas is 10, the 11th quota check will
+    # not count as a check
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 10
+    # Maximum value is 50
+    20: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  randomize_scanner:
+    # Allows you to randomize your scanner, rendering you unable to scan until you receive the check
+    'false': 50
+    'true': 0
+
+  randomize_terminal:
+    # Adds the terminal to the item pool
+    'false': 50
+    'true': 0
+
+  randomize_company_building:
+    # Adds the company building to the item pool
+    'false': 50
+    'true': 0
+
+  scrapsanity:
+    # Enables scrapsanity, where the first time each item is recovered from a moon is a check,
+    # adds >50 checks to the randomizer
+    'false': 50
+    'true': 0
+
+  # Starting Info
+  starting_inventory_slots:
+    # The number of inventory slots you start the game with
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 1
+    # Maximum value is 4
+    4: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  starting_stamina_bars:
+    # The number of stamina bars you start the game with
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 0
+    # Maximum value is 4
+    4: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  starting_moon:
+    # The moon you start on
+    randomize: 50
+
+  # Logic Config
+  min_monster_chance:
+    # Monsters will be in logic if their spawn chance on an in-logic moon is greater than or equal to this percentage. A
+    # value of less than 3% can significantly slow down your game.
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 0
+    # Maximum value is 20
+    5: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  min_scrap_chance:
+    # Scrap will be in logic if their spawn chance on an in-logic moon is greater than or equal to this percentage. A
+    # value of less than 3% can significantly slow down your game.
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 0
+    # Maximum value is 20
+    3: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  exclude_killing:
+    # Makes it so there is guaranteed to be a filler item or trap in every check that can only be obtained through killing
+    'false': 50
+    'true': 0
+
+  exclude_hive:
+    # Makes it so there is guaranteed to be a filler item or trap in the hive scrapsanity check
+    'false': 50
+    'true': 0
+
+  modify_scrap_spawns:
+    # Modifies the spawn rates and availability of scrap on every moon to make sure that you are never stuck for a long
+    # time trying to find that one specific scrap to unlock your terminal.
+    'false': 50
+    'true': 0
+
+  min_money:
+    # The minimum amount of money that a money check can give you
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 0
+    # Maximum value is 5000
+    100: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  max_money:
+    # The maximum amount of money that a money check can give you
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 0
+    # Maximum value is 10000
+    1000: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  split_moon_grades:
+    # Enables customizing the required grade for easy, medium, and hard moons separately.
+    'false': 50
+    'true': 0
+
+  moon_grade:
+    # The grade you need to get to get a check on a moon
+    s: 0
+    a: 0
+    b: 50
+    c: 0
+    d: 0
+    f: 0
+
+  low_moon_grade:
+    # The grade you need to get to get a check on an easy moon
+    s: 0
+    a: 0
+    b: 50
+    c: 0
+    d: 0
+    f: 0
+
+  medium_moon_grade:
+    # The grade you need to get to get a check on a medium difficulty moon
+    s: 0
+    a: 0
+    b: 50
+    c: 0
+    d: 0
+    f: 0
+
+  high_moon_grade:
+    # The grade you need to get to get a check on a hard moon
+    s: 0
+    a: 0
+    b: 50
+    c: 0
+    d: 0
+    f: 0
+
+  # Weights
+  time_add:
+    # The weight of extra day items in the pool
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 0
+    # Maximum value is 100
+    20: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  scrap_clone:
+    # The weight of scrap duplication items in the pool
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 0
+    # Maximum value is 100
+    20: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  birthday:
+    # The weight of birthday gifts in the pool(random item sent in a dropship)
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 0
+    # Maximum value is 100
+    20: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  weight_reducers:
+    # The total weight of strength training items. Every item received makes you 2% stronger.
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 0
+    # Maximum value is 100
+    5: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  bracken_trap:
+    # The weight of the bracken traps in the pool.
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 0
+    # Maximum value is 100
+    8: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  haunt_trap:
+    # The weight of haunt traps in the pool.
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 0
+    # Maximum value is 100
+    4: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  time_trap:
+    # The weight of day decrease traps in the pool.
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 0
+    # Maximum value is 100
+    30: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  money:
+    # The weight of money drops in the pool. Each money drop can give anywhere from 100-1000 scrap,
+    # though it doesn't count towards the quota
+    #
+    # You can define additional values between the minimum and maximum values.
+    # Minimum value is 0
+    # Maximum value is 100
+    80: 50
+    random: 0
+    random-low: 0
+    random-high: 0
+
+  # Item & Location Options
+  local_items:
+    # Forces these items to be in their native world.
+    []
+
+  non_local_items:
+    # Forces these items to be outside their native world.
+    []
+
+  start_inventory:
+    # Start with these items.
+    {}
+
+  start_hints:
+    # Start with these item's locations prefilled into the ``!hint`` command.
+    []
+
+  start_location_hints:
+    # Start with these locations and their item prefilled into the ``!hint`` command.
+    []
+
+  exclude_locations:
+    # Prevent these locations from having an important item.
+    []
+
+  priority_locations:
+    # Prevent these locations from having an unimportant item.
+    []
+
+  item_links:
+    # Share part of your item pool with other players.
+    []

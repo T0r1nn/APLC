@@ -77,7 +77,7 @@ public class Plugin : BaseUnityPlugin
     public string GetGameLogicString()
     {
         Terminal t = getTerminal();
-
+        
         var logic = GetGameLogic();
         
         /*
@@ -210,6 +210,28 @@ public class Plugin : BaseUnityPlugin
     public Tuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<Tuple<string, double>>>, Dictionary<string, Collection<Tuple<string, double>>>> GetGameLogic()
     {
         Terminal t = getTerminal();
+        
+        String[] vanillaMoonNames = { "experimentation", "assurance", "vow", "adamance", "offense", "march", "embrion", "rend", "dine", "titan", "artifice", "liquidation" };
+        foreach (var moon in StartOfRound.Instance.levels)
+        {
+            if(!vanillaMoonNames.Contains(String.Join(' ',moon.PlanetName.Split(" ").Skip(1).Take(moon.PlanetName.Split(" ").Length-1).ToArray()).ToLower()))
+            {
+                int totalRarity = 0;
+                foreach (var scrap in moon.spawnableScrap)
+                {
+                    totalRarity += scrap.rarity;
+                }
+                foreach (var scrap in moon.spawnableScrap)
+                {
+                    if (scrap.spawnableItem.name.Equals("ap_apparatus_custom"))
+                    {
+                        scrap.rarity = (int)(0.03626943005 * totalRarity);
+                        scrap.spawnableItem.itemName = "AP Apparatus - Custom";
+                    }
+                }
+            }
+        }
+        
         /*
          * {
          *      moons: [],

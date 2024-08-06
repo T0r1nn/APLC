@@ -7,7 +7,7 @@
   "targets": {
     ".NETStandard,Version=v2.1": {},
     ".NETStandard,Version=v2.1/": {
-      "APLC/0.6.9": {
+      "APLC/0.6.10": {
         "dependencies": {
           "Archipelago.MultiClient.Net": "6.0.0-rc5",
           "BepInEx.Analyzers": "1.0.8",
@@ -18,7 +18,7 @@
           "Assembly-CSharp": "0.0.0.0",
           "Facepunch.Steamworks.Win64": "1.0.0.0",
           "LethalAPI.Terminal": "1.0.0.0",
-          "LethalLevelLoader": "1.1.0.0",
+          "LethalLevelLoader": "1.0.0.0",
           "Unity.Netcode.Runtime": "0.0.0.0",
           "Unity.TextMeshPro": "0.0.0.0",
           "UnityEngine.UI": "1.0.0.0"
@@ -405,11 +405,11 @@
           }
         }
       },
-      "LethalLevelLoader/1.1.0.0": {
+      "LethalLevelLoader/1.0.0.0": {
         "runtime": {
           "LethalLevelLoader.dll": {
-            "assemblyVersion": "1.1.0.0",
-            "fileVersion": "1.1.0.0"
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.3.8.0"
           }
         }
       },
@@ -672,7 +672,7 @@
     }
   },
   "libraries": {
-    "APLC/0.6.9": {
+    "APLC/0.6.10": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -970,7 +970,7 @@
       "serviceable": false,
       "sha512": ""
     },
-    "LethalLevelLoader/1.1.0.0": {
+    "LethalLevelLoader/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
