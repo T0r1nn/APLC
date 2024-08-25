@@ -91,6 +91,10 @@ def generate_locations(world: "LethalCompanyWorld"):
     for moon in moons:
         if not f"AP Apparatus - {moon}" in world.scrap_names:
             world.scrap_names.append(f"AP Apparatus - {moon}")
+            print(f"AP Apparatus - {moon}")
+
+    if "AP Apparatus - Custom" in world.scrap_names:
+        world.scrap_names.remove("AP Apparatus - Custom")
 
     location_result = {}
 
@@ -147,11 +151,16 @@ def generate_scrap_moons(world: "LethalCompanyWorld", chance: float) -> Dict[str
     scrap_data = world.imported_data["scrap"]
     for entry in scrap_data:
         key = [key for key in entry.keys()][0]
-        s_moons = []
-        for moon in entry[key]:
-            if moon["chance"] > chance:
-                s_moons.append(" ".join(moon["moon_name"].split(" ")[1:]))
-        scrap_moons[key] = s_moons
+        if key == "AP Apparatus - Custom":
+            for moon in entry[key]:
+                if moon["chance"] > 0:
+                    scrap_moons[f"AP Apparatus - {' '.join(moon['moon_name'].split(' ')[1:])}"] = ([' '.join(moon['moon_name'].split(' ')[1:])] if moon["chance"] > chance else [])
+        else:
+            s_moons = []
+            for moon in entry[key]:
+                if moon["chance"] > chance:
+                    s_moons.append(" ".join(moon["moon_name"].split(" ")[1:]))
+                scrap_moons[key] = s_moons
 
     return scrap_moons
 
@@ -194,6 +203,34 @@ def generate_scrap_moons_alt(world: 'LethalCompanyWorld') -> Dict[str, List[str]
         scrap_moons["Archipelago Chest"].append(moon)
 
     world.scrap_map = scrap_moons
+
+    inverse_scrap_map = {
+        "Common": [],
+        "Experimentation": [],
+        "Assurance": [],
+        "Vow": [],
+        "Offense": [],
+        "March": [],
+        "Adamance": [],
+        "Embrion": [],
+        "Rend": [],
+        "Dine": [],
+        "Titan": [],
+        "Artifice": []
+    }
+
+    for scrap, moons in world.scrap_map.items():
+        for moon in moons:
+            if not (moon in inverse_scrap_map):
+                inverse_scrap_map[moon] = []
+            inverse_scrap_map[moon].append(scrap)
+
+    spoiler_string = f"\n{world.player_name}'s Randomized scrap placements:"
+
+    for moon, scrap in inverse_scrap_map.items():
+        spoiler_string += f"{moon}: {', '.join(scrap)}\n"
+
+    world.spoiler_text = spoiler_string
 
     return scrap_moons
 

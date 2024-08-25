@@ -5,7 +5,7 @@
   },
   "projects": {
     "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj": {
-      "version": "0.6.10",
+      "version": "0.6.11",
       "restore": {
         "projectUniqueName": "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
         "projectName": "APLC",
@@ -13,20 +13,14 @@
         "packagesPath": "C:\\Users\\tyler\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
           "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\NuGet.Config",
-          "C:\\Users\\tyler\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\tyler\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netstandard2.1"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://nuget.bepinex.dev/v3/index.json": {}
         },
@@ -40,6 +34,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -85,7 +84,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.410\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Users\\tyler\\.dotnet\\sdk\\8.0.303\\RuntimeIdentifierGraph.json"
         }
       }
     }

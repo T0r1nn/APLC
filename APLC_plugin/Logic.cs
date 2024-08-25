@@ -10,6 +10,7 @@ public class Logic
 {
     private readonly Region _menu = new("Menu");
     private readonly State _state;
+    private readonly Region[] moons;
 
     public Logic()
     {
@@ -24,7 +25,7 @@ public class Logic
         Region terminal = new Region("Terminal");
         _menu.AddConnection(terminal, state => MultiworldHandler.Instance.GetSlotSetting("randomizeterminal")==0 || state.Has("Terminal"));
         Region companyBuilding = new Region("Company Building");
-        Region[] moons = new Region[importedLogic.Item3.Length];
+        moons = new Region[importedLogic.Item3.Length];
         
         terminal.AddConnection(companyBuilding, state => MultiworldHandler.Instance.GetSlotSetting("randomizecompany")==0 || state.Has("Company"));
 
@@ -146,38 +147,55 @@ public class Logic
             scrapRegionMap.Add(scrap, scrapRegion);
         }
 
-        if (MultiworldHandler.Instance.GetSlotSetting("fixscrapsanity") == 1)
+        if (MultiworldHandler.Instance.GetSlotSetting("scrapsanity") == 1)
         {
-            foreach (string scrapName in scrapMoonsAlt.Keys)
+            if (MultiworldHandler.Instance.GetSlotSetting("fixscrapsanity") == 1)
             {
-                foreach (string moon in scrapMoonsAlt[scrapName])
+                foreach (string scrapName in scrapMoonsAlt.Keys)
                 {
-                    foreach (Region moonRegion in moons)
+                    foreach (string moon in scrapMoonsAlt[scrapName])
                     {
-                        if (moonRegion.GetName() == moon || moon == "Common")
+                        foreach (Region moonRegion in moons)
                         {
-                            moonRegion.AddConnection(scrapRegionMap[scrapName], state=>state.Has("Stamina Bar"));
+                            if (moonRegion.GetName() == moon || moon == "Common")
+                            {
+                                moonRegion.AddConnection(scrapRegionMap[scrapName], state => state.Has("Stamina Bar"));
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (string scrapName in scrapMoons.Keys)
+                {
+                    foreach (Tuple<string, double> data in scrapMoons[scrapName])
+                    {
+                        foreach (Region moonRegion in moons)
+                        {
+                            if (data.Item1.Contains(moonRegion.GetName()) && data.Item2 >
+                                MultiworldHandler.Instance.GetSlotSetting("minscrapchance", 3) / 100f)
+                            {
+                                moonRegion.AddConnection(scrapRegionMap[scrapName], state => state.Has("Stamina Bar"));
+                            }
                         }
                     }
                 }
             }
         }
-        else
+    }
+
+    public Region GetMoonRegion(string moonName)
+    {
+        foreach (Region region in moons)
         {
-            foreach (string scrapName in scrapMoons.Keys)
+            if (region.GetName().ToLower().Contains(moonName.ToLower()))
             {
-                foreach (Tuple<string, double> data in scrapMoons[scrapName])
-                {
-                    foreach (Region moonRegion in moons)
-                    {
-                        if (data.Item1.Contains(moonRegion.GetName()) && data.Item2 > MultiworldHandler.Instance.GetSlotSetting("minscrapchance", 3)/100f)
-                        {
-                            moonRegion.AddConnection(scrapRegionMap[scrapName], state=>state.Has("Stamina Bar"));
-                        }
-                    }
-                }
+                return region;
             }
         }
+
+        return null;
     }
 
     public Collection<Location> GetAccessibleLocations()

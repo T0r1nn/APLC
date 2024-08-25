@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from Options import Toggle, DeathLink, Range, Choice, PerGameCommonOptions, FreeText, PlandoTexts
+from Options import Toggle, DeathLink, Range, Choice, PerGameCommonOptions, FreeText, OptionGroup
 
 
 class Goal(Choice):
@@ -417,7 +417,7 @@ class ModifyScrapSpawns(Toggle):
     time trying to find that one specific scrap to unlock your terminal.
     """
     display_name = "Modify Scrap Spawns"
-    default = 0
+    default = 1
     slot = True
     slot_name = "fixscrapsanity"
 

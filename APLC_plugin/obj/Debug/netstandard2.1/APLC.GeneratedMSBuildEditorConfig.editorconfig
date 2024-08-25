@@ -1,3 +1,5 @@
 is_global = true
 build_property.RootNamespace = APLC
 build_property.ProjectDir = C:\Users\tyler\OneDrive\Documents\GitHub\APLC\APLC_plugin\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 

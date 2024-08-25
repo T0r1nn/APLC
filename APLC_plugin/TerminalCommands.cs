@@ -63,9 +63,7 @@ public class TerminalCommands
 
 Logs: {t.unlockedStoryLogs.Count - 1}/{t.logEntryFiles.Count - 1}
 
-Bestiary: {t.scannedEnemyIDs.Count}/{t.enemyFiles.Count - 1}
-
-Scrap: {MultiworldHandler.Instance.GetLocationMap("Scrap").GetTrackerText()}
+Bestiary: {t.scannedEnemyIDs.Count}/{t.enemyFiles.Count - 1}{(MultiworldHandler.Instance.GetSlotSetting("scrapsanity") == 1 ? "\n\nScrap: "+MultiworldHandler.Instance.GetLocationMap("Scrap").GetTrackerText() : "")}
 
 Quota: {((Quota)MultiworldHandler.Instance.GetLocationMap("Quota")).GetTrackerText()}, {totalQuota % moneyPerQuota}/{moneyPerQuota}";
             return result;
@@ -86,21 +84,44 @@ Quota: {((Quota)MultiworldHandler.Instance.GetLocationMap("Quota")).GetTrackerTe
         }
 
         string result = "";
-        
-        foreach (var moon in StartOfRound.Instance.levels)
+        if (MultiworldHandler.Instance == null || MultiworldHandler.Instance.GetSlotSetting("scrapsanity") == 0)
         {
-            if (moon.PlanetName.ToLower().Contains(text.ToLower()))
+            foreach (var moon in StartOfRound.Instance.levels)
             {
-                result += $"Scrap on {moon.PlanetName}:\n";
-                foreach (var scrap in moon.spawnableScrap)
+                if (moon.PlanetName.ToLower().Contains(text.ToLower()))
                 {
-                    result+=$" - {scrap.spawnableItem.itemName}\n";
-                }
+                    result += $"Scrap on {moon.PlanetName}:\n";
+                    foreach (var scrap in moon.spawnableScrap)
+                    {
+                        result += $" - {scrap.spawnableItem.itemName}\n";
+                    }
 
-                return result;
+                    return result;
+                }
             }
         }
-        
+        else
+        {
+            Region moonRegion = LcLogic.GetMoonRegion(text);
+            if (moonRegion == null)
+            {
+                return $"No moons found with name {text}";
+            }
+            result += $"Scrap on {moonRegion.GetName()}:\n";
+            foreach (Connection connection in moonRegion.GetConnections())
+            {
+                foreach (Location location in connection.GetExit().GetLocations())
+                {
+                    if (location.GetLocationString().Contains("Scrap"))
+                    {
+                        result +=
+                            $" - {location.GetLocationString().Remove(0, 8)}{(MultiworldHandler.Instance.GetLocationMap<ScrapLocations>("Scrap").CheckCollected(location.GetLocationString().Remove(0, 8)) ? "(found)" : (LcLogic.GetAccessibleLocations().Contains(location) ? "(in logic)" : "(out of logic)"))}\n";
+                    }
+                }
+            }
+
+            return result;
+        }
         return $"No moons found with name {text}";
     }
 

@@ -52,7 +52,7 @@ def set_rules(lc_world: 'LethalCompanyWorld') -> None:
     for moon in lc_world.slot_item_data.moons:
         for i in range(options.checks_per_moon.value):
             has_location_access_rule(multiworld, moon, player, i + 1, options)
-
+    
     for i in range(options.num_quotas.value):
         has_quota_access_rule(multiworld, player, i + 1, options)
 

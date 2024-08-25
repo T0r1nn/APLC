@@ -143,8 +143,8 @@ public class Patches
             _time1Sec -= 1f;
             if (_waitingForTerminalQuit && StartOfRound.Instance.localPlayerController.inTerminalMenu)
             {
-                AccessTools.Method(typeof(Terminal), "QuitTerminal")
-                    .Invoke(Plugin._instance.getTerminal(), new object[] { });
+                AccessTools.Method(typeof(Terminal), "QuitTerminal", new []{ typeof(bool) })
+                    .Invoke(Plugin._instance.getTerminal(), new object[] { true });
             }
 
             _waitingForTerminalQuit = false;

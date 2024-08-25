@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>APLC</AssemblyName>
         <Description>Archipelago integration for Lethal Company</Description>
-        <Version>0.6.10</Version>
+        <Version>0.6.11</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
@@ -47,10 +47,10 @@
             <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Facepunch.Steamworks.Win64.dll</HintPath> <!-- Edit this to the actual location -->
         </Reference>
         <Reference Include="LethalAPI.Terminal.dll">
-            <HintPath>C:\Users\tyler\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\AP\BepInEx\plugins\LethalAPI-LethalAPI_Terminal\LethalAPI.Terminal.dll</HintPath>
+            <HintPath>C:\Users\tyler\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\AP\BepInEx\plugins\LethalAPI-LethalAPI_Terminal\LethalAPI.Terminal.dll</HintPath>
         </Reference>
         <Reference Include="LethalLevelLoader.dll">
-            <HintPath>C:\Users\tyler\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\AP\BepInEx\plugins\IAmBatby-LethalLevelLoader\LethalLevelLoader.dll</HintPath>
+            <HintPath>C:\Users\tyler\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\AP\BepInEx\plugins\IAmBatby-LethalLevelLoader\LethalLevelLoader.dll</HintPath>
         </Reference>
     </ItemGroup>
 </Project>

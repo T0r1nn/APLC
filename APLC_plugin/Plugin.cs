@@ -349,14 +349,12 @@ public class Plugin : BaseUnityPlugin
         
         var bestiaryMap = new Dictionary<string, Collection<Tuple<string, double>>>();
         
-        bestiaryMap.Add("Kidnapper Fox", new Collection<Tuple<string, double>>());
         bestiaryMap.Add("Vain Shroud", new Collection<Tuple<string, double>>());
         
         foreach (SelectableLevel moon in moons)
         {
             if (moon.PlanetName.Contains("Gordion") || moon.PlanetName.Contains("Liquidation")) continue;
             
-            bestiaryMap.Get("Kidnapper Fox").Add(new Tuple<string, double>(moon.PlanetName, 1));
             bestiaryMap.Get("Vain Shroud").Add(new Tuple<string, double>(moon.PlanetName, 1));
             
             var scrap = moon.DaytimeEnemies.Concat(moon.OutsideEnemies).Concat(moon.Enemies);

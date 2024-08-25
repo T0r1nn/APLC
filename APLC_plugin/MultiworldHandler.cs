@@ -546,7 +546,10 @@ public class MultiworldHandler
                 ind++;
             }
 
-            _locationMap.Add("Scrap", new ScrapLocations(scrapNames, scrapNames));
+            if (GetSlotSetting("scrapsanity") == 1)
+            {
+                _locationMap.Add("Scrap", new ScrapLocations(scrapNames, scrapNames));
+            }
         }
         catch (Exception e)
         {
@@ -918,6 +921,11 @@ public class MultiworldHandler
     public Locations GetLocationMap(string key)
     {
         return _locationMap[key];
+    }
+
+    public T GetLocationMap<T>(string key) where T : Locations
+    {
+        return (T)_locationMap[key];
     }
 
     public bool CheckTrophy(string moon)

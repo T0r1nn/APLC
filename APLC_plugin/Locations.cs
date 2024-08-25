@@ -161,7 +161,28 @@ public class ScrapLocations : Locations
 {
     private readonly string[] _scrapNames;
     private readonly string[] _checkNames;
-    private readonly bool[] checkedScrap;
+    public readonly bool[] checkedScrap;
+    private readonly string[] checkNames =
+    {
+        "Airhorn", "Apparatice", "Bee Hive", "Big bolt", "Bottles", "Brass bell", "Candy", "Cash register",
+        "Chemical jug", "Clown horn", "Coffee mug", "Comedy", "Cookie mold pan", "DIY-Flashbang", "Double-barrel", "Dust pan",
+        "Egg beater", "Fancy lamp", "Flask", "Gift Box", "Gold bar", "Golden cup", "Hair brush", "Hairdryer",
+        "Jar of pickles", "Large axle", "Laser pointer", "Magic 7 ball", "Magnifying glass", "Old phone",
+        "Painting", "Perfume bottle", "Pill bottle", "Plastic fish", "Red soda", "Remote", "Ring", "Robot toy",
+        "Rubber Ducky", "Steering wheel", "Stop sign", "Tattered metal sheet", "Tea kettle", "Teeth", "Toothpaste",
+        "Toy cube", "Tragedy", "V-type engine", "Whoopie-Cushion", "Yield sign"
+    };
+
+    private readonly string[] scrapNames =
+    {
+        "Airhorn", "Apparatus", "Hive", "Big bolt", "Bottles", "Bell", "Candy", "Cash register",
+        "Chemical jug", "Clown horn", "Mug", "Comedy", "Cookie mold pan", "Homemade flashbang", "Shotgun", "Dust pan",
+        "Egg beater", "Fancy lamp", "Flask", "Gift", "Gold bar", "Golden cup", "Brush", "Hairdryer",
+        "Jar of pickles", "Large axle", "Laser pointer", "Magic 7 ball", "Magnifying glass", "Old phone",
+        "Painting", "Perfume bottle", "Pill bottle", "Plastic fish", "Red soda", "Remote", "Ring", "Toy robot",
+        "Rubber Ducky", "Steering wheel", "Stop sign", "Metal sheet", "Tea kettle", "Teeth", "Toothpaste",
+        "Toy cube", "Tragedy", "V-type engine", "Whoopie cushion", "Yield sign"
+    };
 
     public ScrapLocations(string[] scrapNames, string[] checkNames)
     {
@@ -175,6 +196,11 @@ public class ScrapLocations : Locations
             .Initialize(checkedScrap);
         checkedScrap = MultiworldHandler.Instance.GetSession().DataStorage[
             $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"];
+    }
+
+    public bool CheckCollected(string scrapName)
+    {
+        return checkedScrap[Array.IndexOf(_scrapNames, scrapName)];
     }
 
     public override void CheckComplete()
@@ -199,6 +225,11 @@ public class ScrapLocations : Locations
                         StringComparison.Ordinal))
                 {
                     MultiworldHandler.Instance.CompleteLocation($"Scrap - {_checkNames[i]}");
+
+                    if (scrapNames.Contains(_scrapNames[i]) && MultiworldHandler.Instance.GetSession().Locations.GetLocationIdFromName("Lethal Company", $"Scrap - {checkNames[Array.IndexOf(scrapNames, _scrapNames[i])]}") != -1){
+                        MultiworldHandler.Instance.CompleteLocation($"Scrap - {checkNames[Array.IndexOf(scrapNames, _scrapNames[i])]}");
+                    }
+
                     checkedScrap[i] = true;
                     MultiworldHandler.Instance.GetSession().DataStorage[
                             $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"] =

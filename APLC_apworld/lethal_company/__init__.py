@@ -6,7 +6,7 @@ from .rules import set_rules
 from BaseClasses import Item, ItemClassification, Tutorial, MultiWorld, Region
 from .options import LCOptions
 from worlds.AutoWorld import World, WebWorld
-from typing import List
+from typing import List, TextIO
 from .regions import create_regions
 from .logic_generator import GetImportedData
 from .imported import data
@@ -100,10 +100,14 @@ class LethalCompanyWorld(World):
     log_names = []
     bestiary_names = []
     scrap_names = []
+    spoiler_text = ""
 
     def __init__(self, multiworld, player: int):
         super().__init__(multiworld, player)
         self.generated_items, self.slot_item_data = generate_items(data)
+
+    def write_spoiler(self, spoiler_handle: TextIO) -> None:
+        spoiler_handle.write(self.spoiler_text)
 
     def generate_early(self) -> None:
 
