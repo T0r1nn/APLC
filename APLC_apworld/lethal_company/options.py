@@ -417,7 +417,7 @@ class ModifyScrapSpawns(Toggle):
     time trying to find that one specific scrap to unlock your terminal.
     """
     display_name = "Modify Scrap Spawns"
-    default = 1
+    default = 0
     slot = True
     slot_name = "fixscrapsanity"
 

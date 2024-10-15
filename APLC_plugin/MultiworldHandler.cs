@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
@@ -79,9 +80,19 @@ public class MultiworldHandler
     
     //Shows which trophies are collected
     public readonly object[] _trophyModeComplete = new object[8];
+    
+    //Connection info
+    public string url;
+    public int port;
+    public string slot;
+    public string password;
 
     public MultiworldHandler(string url, int port, string slot, string password)
     {
+        this.url = url;
+        this.port = port;
+        this.slot = slot;
+        this.password = password;
         Plugin._instance.LogWarning($"URL: {url}, PORT: {port}, SLOT: {slot}, PASSWORD: {password}");
         _session = ArchipelagoSessionFactory.CreateSession(url, port);
         if (password == "") password = null;
@@ -154,6 +165,8 @@ public class MultiworldHandler
         ES3.Save<int>("ArchipelagoPort", port, GameNetworkManager.Instance.currentSaveFileName);
         ES3.Save<string>("ArchipelagoSlot", slot, GameNetworkManager.Instance.currentSaveFileName);
         ES3.Save<string>("ArchipelagoPassword", password, GameNetworkManager.Instance.currentSaveFileName);
+        
+        Plugin._instance.setupNetworking();
     }
 
     public string GetStartingMoon()
@@ -231,6 +244,7 @@ public class MultiworldHandler
         _session = null;
         _slotInfo = null;
         Instance = null;
+        Plugin._instance.removeNetworking();
     }
 
     private void CreateItems()
@@ -240,7 +254,7 @@ public class MultiworldHandler
             //Shop items
             for (int i = 0; i < store.Length; i++)
             {
-                _itemMap.Add(store[i].itemName, new StoreItems(store[i].itemName, i, false));
+                _itemMap.Add(store[i].itemName, new StoreItems(store[i].itemName, i, false, store[i]));
             }
             
             
@@ -250,10 +264,10 @@ public class MultiworldHandler
             }
 
             //Ship upgrades
-            _itemMap.Add("LoudHorn", new ShipUpgrades("LoudHorn", 26));
-            _itemMap.Add("SignalTranslator", new ShipUpgrades("SignalTranslator", 34));
+            _itemMap.Add("Loud horn", new ShipUpgrades("Loud horn", 26));
+            _itemMap.Add("Signal translator", new ShipUpgrades("Signal translator", 34));
             _itemMap.Add("Teleporter", new ShipUpgrades("Teleporter", 16));
-            _itemMap.Add("InverseTeleporter", new ShipUpgrades("InverseTeleporter", 28));
+            _itemMap.Add("Inverse Teleporter", new ShipUpgrades("Inverse Teleporter", 28));
 
             //Moons
             for (int i = 0; i < moons.Length; i++)
@@ -265,7 +279,7 @@ public class MultiworldHandler
             }
             if (GetSlotSetting("randomizecompany") == 1)
             {
-                _itemMap.Add("Company", new MoonItems("Company"));
+                _itemMap.Add("Gordion", new MoonItems("Gordion"));
             }
 
             //Player Upgrades
@@ -292,7 +306,7 @@ public class MultiworldHandler
             {
                 TimeOfDay.Instance.timeUntilDeadline += TimeOfDay.Instance.totalTime;
                 TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
-                ChatHandler.SendMessage("__updateTime "+TimeOfDay.Instance.timeUntilDeadline);
+                Plugin._instance.getTerminal().GetComponent<APLCNetworking>().SetTimeUntilDeadlineServerRpc(TimeOfDay.Instance.timeUntilDeadline);
                 return true;
             }));
             _itemMap.Add("Less Time", new FillerItems("Less Time", () =>
@@ -304,7 +318,7 @@ public class MultiworldHandler
                 }
 
                 TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
-                ChatHandler.SendMessage("__updateTime "+TimeOfDay.Instance.timeUntilDeadline);
+                Plugin._instance.getTerminal().GetComponent<APLCNetworking>().SetTimeUntilDeadlineServerRpc(TimeOfDay.Instance.timeUntilDeadline);
                 return true;
             }));
             _itemMap.Add("Clone Scrap", new FillerItems("Clone Scrap", () =>
@@ -867,8 +881,12 @@ public class MultiworldHandler
             //     }
             //     break;
         }
+        
+        MethodInfo methodInfo = typeof(HUDManager).GetMethod("AddChatMessage", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        ChatHandler.SendMessage(chat);
+        var parameters = new object[] { chat, "" };
+        
+        methodInfo.Invoke(HUDManager.Instance, parameters);
     }
 
     private void OnItemReceived(ReceivedItemsHelper helper)
@@ -1031,12 +1049,9 @@ public class MultiworldHandler
         string planetName = StartOfRound.Instance.currentLevel.PlanetName;
         planetName = String.Join(" ", planetName.Split(" ").Skip(1)
             .Take(planetName.Split(" ").Length - 1).ToArray());
-        if (planetName == "Gordion")
-        {
-            planetName = "Company";
-        }
+        
 
-        if (planetName != "Company" || GetSlotSetting("randomizecompany") == 1)
+        if (planetName != "Gordion" || GetSlotSetting("randomizecompany") == 1)
         {
             if (GetItemMap<MoonItems>(planetName).GetTotal() < 1 || (GetStartingMoon() != planetName && GetSlotSetting("randomizeterminal")==1 && GetItemMap<PlayerUpgrades>("Terminal").GetNum() < 1))
             {
@@ -1111,7 +1126,40 @@ public class MultiworldHandler
             {
                 try
                 {
-                    _itemMap["Company"].OnReceived();
+                    _itemMap["Gordion"].OnReceived();
+                }
+                catch (Exception)
+                {
+                    //Ignore
+                }
+            }
+            else if (name == "LoudHorn")
+            {
+                try
+                {
+                    _itemMap["Loud horn"].OnReceived();
+                }
+                catch (Exception)
+                {
+                    //Ignore exception
+                }
+            }
+            else if (name == "SignalTranslator")
+            {
+                try
+                {
+                    _itemMap["Signal translator"].OnReceived();
+                }
+                catch (Exception)
+                {
+                    //Ignore exception
+                }
+            }
+            else if (name == "InverseTeleporter")
+            {
+                try
+                {
+                    _itemMap["Inverse Teleporter"].OnReceived();
                 }
                 catch (Exception)
                 {

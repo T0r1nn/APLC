@@ -105,7 +105,26 @@ Quota: {((Quota)MultiworldHandler.Instance.GetLocationMap("Quota")).GetTrackerTe
             Region moonRegion = LcLogic.GetMoonRegion(text);
             if (moonRegion == null)
             {
-                return $"No moons found with name {text}";
+                Region scrapRegion = LcLogic.GetScrapRegion(text);
+                if (scrapRegion == null)
+                {
+                    return $"No moons or scrap found with name {text}";
+                }
+
+                result += $"Moons with {scrapRegion.GetName()}\n";
+                foreach (var region in LcLogic.GetMoonRegions())
+                {
+                    foreach (var connection in region.GetConnections())
+                    {
+                        if (connection.GetExit() == scrapRegion)
+                        {
+                            result +=                             
+                                $" - {region.GetName()}{(LcLogic.GetAccessibleLocations().Contains(scrapRegion.GetLocations()[0]) && LcLogic.GetAccessibleRegions().Contains(region) ? "(in logic)" : "(out of logic)")}\n";
+                        }
+                    }
+                }
+
+                return result;
             }
             result += $"Scrap on {moonRegion.GetName()}:\n";
             foreach (Connection connection in moonRegion.GetConnections())

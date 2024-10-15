@@ -2738,7 +2738,7 @@
     "C:\\Users\\tyler\\.nuget\\packages\\": {}
   },
   "project": {
-    "version": "0.6.11",
+    "version": "0.6.12",
     "restore": {
       "projectUniqueName": "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
       "projectName": "APLC",
@@ -2817,7 +2817,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Users\\tyler\\.dotnet\\sdk\\8.0.303\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.401\\RuntimeIdentifierGraph.json"
       }
     }
   }

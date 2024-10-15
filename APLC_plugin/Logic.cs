@@ -11,6 +11,7 @@ public class Logic
     private readonly Region _menu = new("Menu");
     private readonly State _state;
     private readonly Region[] moons;
+    private readonly Region[] scrap;
 
     public Logic()
     {
@@ -26,6 +27,7 @@ public class Logic
         _menu.AddConnection(terminal, state => MultiworldHandler.Instance.GetSlotSetting("randomizeterminal")==0 || state.Has("Terminal"));
         Region companyBuilding = new Region("Company Building");
         moons = new Region[importedLogic.Item3.Length];
+        scrap = new Region[importedLogic.Item5.Count];
         
         terminal.AddConnection(companyBuilding, state => MultiworldHandler.Instance.GetSlotSetting("randomizecompany")==0 || state.Has("Company"));
 
@@ -147,6 +149,8 @@ public class Logic
             scrapRegionMap.Add(scrap, scrapRegion);
         }
 
+        scrap = scrapRegionMap.Values.ToArray();
+
         if (MultiworldHandler.Instance.GetSlotSetting("scrapsanity") == 1)
         {
             if (MultiworldHandler.Instance.GetSlotSetting("fixscrapsanity") == 1)
@@ -198,6 +202,24 @@ public class Logic
         return null;
     }
 
+    public Region[] GetMoonRegions()
+    {
+        return moons;
+    }
+    
+    public Region GetScrapRegion(string scrapName)
+    {
+        foreach (Region region in scrap)
+        {
+            if (region.GetName().ToLower().Contains(scrapName.ToLower()))
+            {
+                return region;
+            }
+        }
+
+        return null;
+    }
+
     public Collection<Location> GetAccessibleLocations()
     {
         Collection<Location> locations = new Collection<Location>();
@@ -234,6 +256,38 @@ public class Logic
         }
         
         return locations;
+    }
+    
+    public Collection<Region> GetAccessibleRegions()
+    {
+        Collection<Region> openRegions = new Collection<Region>();
+        Collection<Region> closedRegions = new Collection<Region>();
+        
+        openRegions.Add(_menu);
+
+        while (openRegions.Count > 0)
+        {
+            foreach (Location location in openRegions[0].GetLocations())
+            {
+                location.SetAccessible(true);
+            }
+            Collection<Connection> connections = openRegions[0].GetConnections();
+            closedRegions.Add(openRegions[0]);
+            openRegions.RemoveAt(0);
+            foreach (var connection in connections)
+            {
+                connection.SetAccessible(true);
+                if (connection.CheckAccessible(_state))
+                {
+                    if (!closedRegions.Contains(connection.GetExit()) && !openRegions.Contains(connection.GetExit()))
+                    {
+                        openRegions.Add(connection.GetExit());
+                    }
+                }
+            }
+        }
+        
+        return closedRegions;
     }
 }
 

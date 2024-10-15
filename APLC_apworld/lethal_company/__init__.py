@@ -125,19 +125,19 @@ class LethalCompanyWorld(World):
             if str(moon).lower().find(starting_moon_option.lower()) >= 0:
                 unlock = moon
         if unlock is None:
-            unlock = self.multiworld.random.choices(environment_pool, k=1)
+            unlock = self.multiworld.random.choices(environment_pool, k=1)[0]
 
         if (self.options.starting_stamina_bars.value == 0
                 and (self.options.randomize_terminal.value == 1
                      or self.options.randomize_company_building.value == 1)
                 and self.options.randomize_scanner.value == 1
                 and self.multiworld.players == 1):
-            while (unlock[0] == "Offense" or unlock[0] == "Titan" or unlock[0] == "Artifice" or unlock[0] == "Adamance"
-                   or unlock[0] == "Embrion"):
+            while (unlock == "Offense" or unlock == "Titan" or unlock == "Artifice" or unlock == "Adamance"
+                   or unlock == "Embrion"):
                 unlock = self.multiworld.random.choices(environment_pool, k=1)
 
-        self.multiworld.push_precollected(self.create_item(unlock[0]))
-        self.initial_world = unlock[0]
+        self.multiworld.push_precollected(self.create_item(unlock))
+        self.initial_world = unlock
 
     def create_items(self) -> None:
         # Generate item pool

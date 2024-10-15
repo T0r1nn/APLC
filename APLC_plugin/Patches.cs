@@ -168,21 +168,10 @@ public class Patches
                 ChatHandler.SetConnectionInfo(url, port, slot, password);
                 new MultiworldHandler(url, port, slot, password);
             }
-            else
-            {
-                // string url;
-                // Plugin._instance.LogWarning(Plugin.url.TryGet<string>(out url).ToString());
-                // int port = Plugin.port.Get<int>();
-                // string slot;
-                // Plugin._instance.LogWarning(Plugin.slot.TryGet<string>(out slot).ToString());
-                // string password;
-                // Plugin._instance.LogWarning(Plugin.slot.TryGet<string>(out password).ToString());
-                // new MultiworldHandler(url, port, slot, password);
-            }
         }
         else
         {
-            ChatHandler.SendMessage("__RequestAPConnection");
+            Plugin._instance.getTerminal().GetComponent<APLCNetworking>().RequestConnectionRpc();
         }
     }
 
@@ -363,17 +352,17 @@ public class Patches
     
     //Misc
     /**
-     * Handles the receiving of connection packets from the host(sent invisibly through the chat)
+     * Fixes the double message bug 
      */
     [HarmonyPrefix]
     [HarmonyPatch(typeof(HUDManager), "AddChatMessage")]
     private static bool CheckConnections(ref string chatMessage)
     {
-        var fail = ChatHandler.HandleConnectingOthers(chatMessage);
+        var fail = ChatHandler.PreventMultisendBug(chatMessage);
 
-        return ChatHandler.AllowChatMessageToSend(chatMessage) && fail;
+        return fail;
     }
-
+    
     /**
      * Handles the sending of commands and archipelago chat(including commands like !hint and !help)
      */
@@ -390,6 +379,97 @@ public class Patches
             Text = chatMessage
         };
         MultiworldHandler.Instance.GetSession().Socket.SendPacket(packet);
+    }
+    
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Terminal), "LoadNewNode")]
+    private static bool PreventBuyingLockedItems(TerminalNode node){
+        if (MultiworldHandler.Instance == null || !MultiworldHandler.Instance.IsConnected())
+        {
+            return true;
+        }
+        if (node.buyItemIndex != -1)
+        {
+            if (node.buyItemIndex != -7)
+            {
+                Item item = Plugin._instance.getTerminal().buyableItemsList[node.buyItemIndex];
+                if (MultiworldHandler.Instance.GetItemMap<StoreItems>(item.itemName).GetTotal() < 1)
+                {
+                    Plugin._instance.getTerminal().LoadNewNode(Plugin._instance.getTerminal().currentNode);
+                    return false;
+                }
+            }
+        }
+
+        if (node.buyVehicleIndex != -1)
+        {
+            BuyableVehicle vehicle = Plugin._instance.getTerminal().buyableVehicles[node.buyVehicleIndex];
+            if (MultiworldHandler.Instance.GetItemMap<StoreItems>(vehicle.vehicleDisplayName).GetTotal() < 1)
+            {
+                Plugin._instance.getTerminal().LoadNewNode(Plugin._instance.getTerminal().currentNode);
+                return false;
+            }
+        }
+
+        if (node.shipUnlockableID != -1)
+        {
+            if (node.shipUnlockableID < StartOfRound.Instance.unlockablesList.unlockables.Count)
+            {
+                try
+                {
+                    if (MultiworldHandler.Instance.GetItemMap<ShipUpgrades>(StartOfRound.Instance.unlockablesList
+                            .unlockables[node.shipUnlockableID].unlockableName).GetTotal() < 1)
+                    {
+                        Plugin._instance.getTerminal().LoadNewNode(Plugin._instance.getTerminal().currentNode);
+                        return false;
+                    }
+                }
+                catch (Exception)
+                {
+                    //Ignore, means that we collided with a cosmetic item which we don't randomize(yet)
+                }
+            }
+        }
+
+        if (node.buyRerouteToMoon != -1 && node.buyRerouteToMoon != -2)
+        {
+            SelectableLevel level = StartOfRound.Instance.levels[node.buyRerouteToMoon];
+            
+            string moonName = level.PlanetName;
+            moonName = moonName.Substring(moonName.IndexOf(" ") + 1, moonName.Length - moonName.IndexOf(" ") - 1);
+            if (moonName.Contains("Liquidation")) return true;
+
+            if (moonName.Contains("Gordion"))
+            {
+                //TODO: check if company is rando'd, if yes block if not unlocked, if no then return true;
+            }
+
+            if (MultiworldHandler.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
+            {
+                Plugin._instance.getTerminal().LoadNewNode(Plugin._instance.getTerminal().currentNode);
+                return false;
+            }
+        }
+        else if (node.buyRerouteToMoon == -2)
+        {
+            SelectableLevel level = StartOfRound.Instance.levels[node.terminalOptions[1].result.buyRerouteToMoon];
+            string moonName = level.PlanetName;
+            moonName = moonName.Substring(moonName.IndexOf(" ") + 1, moonName.Length - moonName.IndexOf(" ") - 1);
+            if (moonName.Contains("Liquidation")) return true;
+
+            if (moonName.Contains("Gordion"))
+            {
+                //TODO: check if company is rando'd, if yes block if not unlocked, if no then return true;
+            }
+
+            if (MultiworldHandler.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
+            {
+                Plugin._instance.getTerminal().LoadNewNode(Plugin._instance.getTerminal().currentNode);
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // //Trophy case stuff

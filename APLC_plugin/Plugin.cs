@@ -50,6 +50,16 @@ public class Plugin : BaseUnityPlugin
         return FindObjectOfType<Terminal>();
     }
 
+    public void setupNetworking()
+    {
+        getTerminal().gameObject.AddComponent<APLCNetworking>();
+    }
+
+    public void removeNetworking()
+    {
+        Destroy(getTerminal().gameObject.GetComponent<APLCNetworking>());
+    }
+
     /**
      * Logs a warning to the console
      */

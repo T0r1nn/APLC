@@ -46,24 +46,22 @@ class LCItem:
 
     def create_item(self, lcworld: "LethalCompanyWorld"):
         names = []
-        match self.count_mode:
-            case 0:
-                # arg is # of item
-                for i in range(self.count_arg):
-                    names.append(self.name)
-            case 1:
-                # arg is name of option that contains the count of the item
-                for i in range(getattr(lcworld.options, self.count_arg).value):
-                    names.append(self.name)
-            case 2:
-                # arg is a lambda function that takes in the multiworld and outputs a number
-                for i in range(self.count_arg(lcworld)):
-                    names.append(self.name)
-            case 3:
-                # used for filler items
-                self.slot_item_data.filler_items.update({self.name: getattr(lcworld.options, self.count_arg).value})
-                return []
-
+        if self.count_mode == 0:
+            # arg is # of item
+            for i in range(self.count_arg):
+                names.append(self.name)
+        elif self.count_mode == 1:
+            # arg is name of option that contains the count of the item
+            for i in range(getattr(lcworld.options, self.count_arg).value):
+                names.append(self.name)
+        elif self.count_mode == 2:
+            # arg is a lambda function that takes in the multiworld and outputs a number
+            for i in range(self.count_arg(lcworld)):
+                names.append(self.name)
+        elif self.count_mode == 3:
+            # used for filler items
+            self.slot_item_data.filler_items.update({self.name: getattr(lcworld.options, self.count_arg).value})
+            return []
         return names
 
 

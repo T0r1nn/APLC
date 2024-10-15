@@ -271,10 +271,10 @@ ____________________________
 [buyableItemsList]
 
 SHIP UPGRADES:
-* Loud horn    //    {(MultiworldHandler.Instance.GetItemMap<ShipUpgrades>("LoudHorn").GetTotal() >= 1 ? "Price: $100" : "Locked!")}
-* Signal Translator    //    {(MultiworldHandler.Instance.GetItemMap<ShipUpgrades>("SignalTranslator").GetTotal() >= 1 ? "Price: $255" : "Locked!")}
+* Loud horn    //    {(MultiworldHandler.Instance.GetItemMap<ShipUpgrades>("Loud horn").GetTotal() >= 1 ? "Price: $100" : "Locked!")}
+* Signal Translator    //    {(MultiworldHandler.Instance.GetItemMap<ShipUpgrades>("Signal translator").GetTotal() >= 1 ? "Price: $255" : "Locked!")}
 * Teleporter    //    {(MultiworldHandler.Instance.GetItemMap<ShipUpgrades>("Teleporter").GetTotal() >= 1 ? "Price: $375" : "Locked!")}
-* Inverse Teleporter    //    {(MultiworldHandler.Instance.GetItemMap<ShipUpgrades>("InverseTeleporter").GetTotal() >= 1 ? "Price: $425" : "Locked!")}
+* Inverse Teleporter    //    {(MultiworldHandler.Instance.GetItemMap<ShipUpgrades>("Inverse Teleporter").GetTotal() >= 1 ? "Price: $425" : "Locked!")}
 
 The selection of ship decor rotates per-quota. Be sure to check back next week:
 ------------------------------

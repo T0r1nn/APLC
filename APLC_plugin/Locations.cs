@@ -35,9 +35,9 @@ public class Quota: Locations
 
     public override void CheckComplete()
     {
-        var quotaChecksMet = 0;
         if (!GameNetworkManager.Instance.localPlayerController.IsHost) return;
         if (!(TimeOfDay.Instance.profitQuota - TimeOfDay.Instance.quotaFulfilled <= 0f)) return;
+        var quotaChecksMet = 0;
         _totalQuota += TimeOfDay.Instance.profitQuota;
         MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"] = _totalQuota;
         while ((quotaChecksMet + 1) * _moneyPerQuotaCheck <= _totalQuota && quotaChecksMet < _numQuotas)
@@ -221,19 +221,30 @@ public class ScrapLocations : Locations
             }
             for (int i = 0; i < _scrapNames.Length; i++)
             {
-                if (string.Equals(scrap.itemProperties.itemName.ToLower(), _scrapNames[i].ToLower(),
-                        StringComparison.Ordinal))
+                try
                 {
-                    MultiworldHandler.Instance.CompleteLocation($"Scrap - {_checkNames[i]}");
+                    if (string.Equals(scrap.itemProperties.itemName.ToLower(), _scrapNames[i].ToLower(),
+                            StringComparison.Ordinal))
+                    {
+                        MultiworldHandler.Instance.CompleteLocation($"Scrap - {_checkNames[i]}");
 
-                    if (scrapNames.Contains(_scrapNames[i]) && MultiworldHandler.Instance.GetSession().Locations.GetLocationIdFromName("Lethal Company", $"Scrap - {checkNames[Array.IndexOf(scrapNames, _scrapNames[i])]}") != -1){
-                        MultiworldHandler.Instance.CompleteLocation($"Scrap - {checkNames[Array.IndexOf(scrapNames, _scrapNames[i])]}");
+                        if (scrapNames.Contains(_scrapNames[i]) && MultiworldHandler.Instance.GetSession().Locations
+                                .GetLocationIdFromName("Lethal Company",
+                                    $"Scrap - {checkNames[Array.IndexOf(scrapNames, _scrapNames[i])]}") != -1)
+                        {
+                            MultiworldHandler.Instance.CompleteLocation(
+                                $"Scrap - {checkNames[Array.IndexOf(scrapNames, _scrapNames[i])]}");
+                        }
+
+                        checkedScrap[i] = true;
+                        MultiworldHandler.Instance.GetSession().DataStorage[
+                                $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"] =
+                            checkedScrap;
                     }
-
-                    checkedScrap[i] = true;
-                    MultiworldHandler.Instance.GetSession().DataStorage[
-                            $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"] =
-                        checkedScrap;
+                }
+                catch (IndexOutOfRangeException e)
+                {
+                    Plugin._instance.LogError($"Extra logging info: i: {i}, _scrapNames.Length: {_scrapNames.Length}, _checkNames.Length: {_checkNames.Length}, checkedScrap.Length: {checkedScrap.Length}, scrap: {scrap.itemProperties.itemName}\n\n" + e.Message + "\n" + e.StackTrace);
                 }
             }
         }
