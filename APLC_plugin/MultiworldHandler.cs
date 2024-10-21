@@ -165,8 +165,6 @@ public class MultiworldHandler
         ES3.Save<int>("ArchipelagoPort", port, GameNetworkManager.Instance.currentSaveFileName);
         ES3.Save<string>("ArchipelagoSlot", slot, GameNetworkManager.Instance.currentSaveFileName);
         ES3.Save<string>("ArchipelagoPassword", password, GameNetworkManager.Instance.currentSaveFileName);
-        
-        Plugin._instance.setupNetworking();
     }
 
     public string GetStartingMoon()
@@ -244,7 +242,7 @@ public class MultiworldHandler
         _session = null;
         _slotInfo = null;
         Instance = null;
-        Plugin._instance.removeNetworking();
+        GameObject.Destroy(APLCNetworking.networkGameObject);
     }
 
     private void CreateItems()
@@ -306,7 +304,7 @@ public class MultiworldHandler
             {
                 TimeOfDay.Instance.timeUntilDeadline += TimeOfDay.Instance.totalTime;
                 TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
-                Plugin._instance.getTerminal().GetComponent<APLCNetworking>().SetTimeUntilDeadlineServerRpc(TimeOfDay.Instance.timeUntilDeadline);
+                APLCNetworking.Instance.SetTimeUntilDeadlineServerRpc(TimeOfDay.Instance.timeUntilDeadline);
                 return true;
             }));
             _itemMap.Add("Less Time", new FillerItems("Less Time", () =>
@@ -318,7 +316,7 @@ public class MultiworldHandler
                 }
 
                 TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
-                Plugin._instance.getTerminal().GetComponent<APLCNetworking>().SetTimeUntilDeadlineServerRpc(TimeOfDay.Instance.timeUntilDeadline);
+                APLCNetworking.Instance.SetTimeUntilDeadlineServerRpc(TimeOfDay.Instance.timeUntilDeadline);
                 return true;
             }));
             _itemMap.Add("Clone Scrap", new FillerItems("Clone Scrap", () =>

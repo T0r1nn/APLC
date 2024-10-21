@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Helpers;
 using BepInEx;
 using System.Collections.ObjectModel;
-// using Amrv.ConfigurableCompany;
-// using Amrv.ConfigurableCompany.API;
+using System.IO;
 using LethalAPI.LibTerminal;
 using LethalAPI.LibTerminal.Models;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements.Collections;
@@ -17,17 +18,12 @@ namespace APLC;
 
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 [BepInProcess("Lethal Company.exe")]
-//[BepInDependency(ConfigAPI.PLUGIN_GUID, BepInDependency.DependencyFlags.HardDependency)] 
 public class Plugin : BaseUnityPlugin
 {
     //Instance of the plugin for other classes to access
     public static Plugin _instance;
     public static float carryWeight;
     public static float initialWeight;
-    // public static CConfig url;
-    // public static CConfig port;
-    // public static CConfig slot;
-    // public static CConfig password;
     
     /**
      * Patches the game on startup, injecting the code into the game.
@@ -36,6 +32,7 @@ public class Plugin : BaseUnityPlugin
     {
         if (_instance == null) _instance = this;
         
+        NetcodePatch();
         Patches.Patch();
         TerminalCommands.Patch();
     
@@ -48,16 +45,6 @@ public class Plugin : BaseUnityPlugin
     public Terminal getTerminal()
     {
         return FindObjectOfType<Terminal>();
-    }
-
-    public void setupNetworking()
-    {
-        getTerminal().gameObject.AddComponent<APLCNetworking>();
-    }
-
-    public void removeNetworking()
-    {
-        Destroy(getTerminal().gameObject.GetComponent<APLCNetworking>());
     }
 
     /**
@@ -366,14 +353,103 @@ public class Plugin : BaseUnityPlugin
             if (moon.PlanetName.Contains("Gordion") || moon.PlanetName.Contains("Liquidation")) continue;
             
             bestiaryMap.Get("Vain Shroud").Add(new Tuple<string, double>(moon.PlanetName, 1));
-            
-            var scrap = moon.DaytimeEnemies.Concat(moon.OutsideEnemies).Concat(moon.Enemies);
-            int totalRarity = 0;
-            foreach (var item in scrap)
+
+            var daytime = moon.DaytimeEnemies;
+            var outside = moon.OutsideEnemies;
+            var inside = moon.Enemies;
+            int[] totalRarity = new int[]{0,0,0};
+            foreach (var item in daytime)
             {
-                totalRarity += item.rarity;
+                totalRarity[0] += item.rarity;
             }
-            foreach (var item in scrap)
+            foreach (var item in outside)
+            {
+                totalRarity[1] += item.rarity;
+            }
+            foreach (var item in inside)
+            {
+                totalRarity[2] += item.rarity;
+            }
+            foreach (var item in daytime)
+            {
+                try
+                {
+                    string name = t.enemyFiles[
+                            item.enemyType.enemyPrefab.GetComponentInChildren<ScanNodeProperties>()
+                                .creatureScanID]
+                        .creatureName;
+                    if (name[name.Length - 1] == 's')
+                    {
+                        name = name.Substring(0, name.Length - 1);
+                    }
+                    bestiaryMap.TryAdd(name, new Collection<Tuple<string, double>>());
+                    bool existsAlready = false;
+                    var checkMoons = bestiaryMap.Get(name);
+                    for (var index = 0; index < checkMoons.Count; index++)
+                    {
+                        var entry = checkMoons[index];
+                        if (entry.Item1 == moon.PlanetName)
+                        {
+                            checkMoons[index] = new Tuple<string, double>(entry.Item1,
+                                entry.Item2 + (double)item.rarity / totalRarity[0]);
+                            existsAlready = true;
+                        }
+                    }
+
+                    if (!existsAlready)
+                    {
+                        bestiaryMap.Get(name)
+                            .Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[0]));
+                    }
+                }
+                catch (Exception)
+                {
+                    // Ignore exception
+                }
+
+                if (item.enemyType.enemyName.Contains("Red Locust"))
+                {
+                    scrapMap.Get("Hive").Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[0]));
+                }
+            }
+            foreach (var item in outside)
+            {
+                try
+                {
+                    string name = t.enemyFiles[
+                            item.enemyType.enemyPrefab.GetComponentInChildren<ScanNodeProperties>()
+                                .creatureScanID]
+                        .creatureName;
+                    if (name[name.Length - 1] == 's')
+                    {
+                        name = name.Substring(0, name.Length - 1);
+                    }
+                    bestiaryMap.TryAdd(name, new Collection<Tuple<string, double>>());
+                    bool existsAlready = false;
+                    var checkMoons = bestiaryMap.Get(name);
+                    for (var index = 0; index < checkMoons.Count; index++)
+                    {
+                        var entry = checkMoons[index];
+                        if (entry.Item1 == moon.PlanetName)
+                        {
+                            checkMoons[index] = new Tuple<string, double>(entry.Item1,
+                                entry.Item2 + (double)item.rarity / totalRarity[1]);
+                            existsAlready = true;
+                        }
+                    }
+
+                    if (!existsAlready)
+                    {
+                        bestiaryMap.Get(name)
+                            .Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[1]));
+                    }
+                }
+                catch (Exception)
+                {
+                    // Ignore exception
+                }
+            }
+            foreach (var item in inside)
             {
                 if (!item.enemyType.enemyName.Contains("Lasso"))
                 {
@@ -396,7 +472,7 @@ public class Plugin : BaseUnityPlugin
                             if (entry.Item1 == moon.PlanetName)
                             {
                                 checkMoons[index] = new Tuple<string, double>(entry.Item1,
-                                    entry.Item2 + (double)item.rarity / totalRarity);
+                                    entry.Item2 + (double)item.rarity / totalRarity[2]);
                                 existsAlready = true;
                             }
                         }
@@ -404,7 +480,7 @@ public class Plugin : BaseUnityPlugin
                         if (!existsAlready)
                         {
                             bestiaryMap.Get(name)
-                                .Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity));
+                                .Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[2]));
                         }
                     }
                     catch (Exception)
@@ -414,20 +490,40 @@ public class Plugin : BaseUnityPlugin
 
                     if (item.enemyType.enemyName.Contains("Nutcracker"))
                     {
-                        scrapMap.Get("Shotgun").Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity));
+                        scrapMap.Get("Shotgun").Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[2]));
                     }
                     if (item.enemyType.enemyName.Contains("Butler"))
                     {
-                        scrapMap.Get("Knife").Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity));
-                    }
-                    if (item.enemyType.enemyName.Contains("Red Locust"))
-                    {
-                        scrapMap.Get("Hive").Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity));
+                        scrapMap.Get("Knife").Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[2]));
                     }
                 }
             }
         }
 
         return new Tuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<Tuple<string, double>>>, Dictionary<string, Collection<Tuple<string, double>>>>(store, vehicles, moons, bestiaryMap, scrapMap);
+    }
+    
+    private void NetcodePatch()
+    {
+        try
+        {
+            var types = Assembly.GetExecutingAssembly().GetTypes();
+            foreach (var type in types)
+            {
+                var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+                foreach (var method in methods)
+                {
+                    var attributes = method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false);
+                    if (attributes.Length > 0)
+                    {
+                        method.Invoke(null, null);
+                    }
+                }
+            }
+        }
+        catch
+        {
+            LogError("NetcodePatcher Failed! This Is Very Bad.");
+        }
     }
 }

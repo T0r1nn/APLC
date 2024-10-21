@@ -1,4 +1,4 @@
-﻿using Archipelago.MultiClient.Net.Helpers;
+﻿using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -6,36 +6,71 @@ namespace APLC;
 
 public class APLCNetworking : NetworkBehaviour
 {
-    public static APLCNetworking Instance { get; private set; }
-    private int p = 0;
-
-    private void Awake()
+    private static APLCNetworking _instance;
+    public static APLCNetworking Instance
     {
-        if (Instance == null)
+        get
         {
-            Instance = this;
+            if (_instance == null)
+                _instance = FindObjectOfType<APLCNetworking>();
+            return _instance;
         }
-        else
-        {
-            if (Instance.gameObject != null)
-                Destroy(Instance.gameObject);
-            else
-                Destroy(Instance);
-            Instance = this;
-        }
+        set => _instance = value;
+    }
+    public static NetworkManager networkManager;
+    public static GameObject networkingManagerPrefab;
+    public static List<GameObject> queuedNetworkPrefabs = new List<GameObject>();
+    public static bool networkHasStarted = false;
+    public static GameObject networkGameObject;
 
-        Debug.Log("Successfully loaded APLC Networking");
+    
+    
+    public override void OnNetworkSpawn()
+    {
+        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            Instance?.gameObject.GetComponent<NetworkObject>().Despawn();
+        Instance = this;
+
+        base.OnNetworkSpawn();
+    }
+    
+    public static void RegisterNetworkPrefab(GameObject prefab)
+    {
+        if (!networkHasStarted)
+        {
+            queuedNetworkPrefabs.Add(prefab);
+        }
+    }
+    
+    internal static void RegisterPrefabs(NetworkManager networkManager)
+    {
+        List<GameObject> addedNetworkPrefabs = new List<GameObject>();
+        foreach (NetworkPrefab networkPrefab in networkManager.NetworkConfig.Prefabs.Prefabs)
+        {
+            addedNetworkPrefabs.Add(networkPrefab.Prefab);
+        }
+        foreach (GameObject queuedNetworkPrefab in queuedNetworkPrefabs)
+        {
+            if (!addedNetworkPrefabs.Contains(queuedNetworkPrefab))
+            {
+                networkManager.AddNetworkPrefab(queuedNetworkPrefab);
+                addedNetworkPrefabs.Add(queuedNetworkPrefab);
+            }
+        }
+        networkHasStarted = true;
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SendConnectionRpc(string url, int port, string slot, string password)
+    public void SendConnectionServerRpc(string url, int port, string slot, string password)
     {
-        ReceiveConnectionRpc(url, port, slot, password);
+        Debug.Log("Sending connection to server: " + url + ":" + port);
+        SendConnectionClientRpc(url, port, slot, password);
     }
 
     [ClientRpc]
-    public void ReceiveConnectionRpc(string url, int port, string slot, string password)
+    public void SendConnectionClientRpc(string url, int port, string slot, string password)
     {
+        Debug.Log("Received connection to server: " + url + ":" + port);
         if (MultiworldHandler.Instance == null)
         {
             new MultiworldHandler(url, port, slot, password);
@@ -43,18 +78,20 @@ public class APLCNetworking : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void RequestConnectionRpc()
+    public void RequestConnectionServerRpc()
     {
-        ReceiveRequestConnectionRpc();
+        Debug.Log("Requesting connection to server");
+        RequestConnectionClientRpc();
     }
 
     [ClientRpc]
-    public void ReceiveRequestConnectionRpc()
+    public void RequestConnectionClientRpc()
     {
+        Debug.Log("Received request to connect to server");
         if (MultiworldHandler.Instance != null && GameNetworkManager.Instance.localPlayerController.IsHost)
         {
             MultiworldHandler connection = MultiworldHandler.Instance;
-            SendConnectionRpc(connection.url, connection.port, connection.slot, connection.password);
+            SendConnectionServerRpc(connection.url, connection.port, connection.slot, connection.password);
         }
     }
 
@@ -69,8 +106,9 @@ public class APLCNetworking : NetworkBehaviour
     {
         TimeOfDay.Instance.timeUntilDeadline = time;
     }
-    
-    void Update()
+
+    private void Start()
     {
+        Plugin._instance.LogInfo("APLC Networking Started");
     }
 }

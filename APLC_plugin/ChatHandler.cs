@@ -91,7 +91,7 @@ public class ChatHandler
                     _waitingForPassword = false;
                     new MultiworldHandler(_url, _port, _slot, _password);
                     
-                    Plugin._instance.getTerminal().GetComponent<APLCNetworking>().SendConnectionRpc(_url, _port, _slot, _password);
+                    APLCNetworking.Instance.SendConnectionServerRpc(_url, _port, _slot, _password);
                     return true;
                 }
 
@@ -131,6 +131,6 @@ public class ChatHandler
      */
     private static void SendConnectionRequest()
     {
-        Plugin._instance.getTerminal().GetComponent<APLCNetworking>().RequestConnectionRpc();
+        APLCNetworking.Instance.RequestConnectionServerRpc();
     }
 }

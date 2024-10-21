@@ -7,7 +7,7 @@
   "targets": {
     ".NETStandard,Version=v2.1": {},
     ".NETStandard,Version=v2.1/": {
-      "APLC/0.6.12": {
+      "APLC/0.6.16": {
         "dependencies": {
           "Archipelago.MultiClient.Net": "6.0.0-rc5",
           "BepInEx.Analyzers": "1.0.8",
@@ -672,7 +672,7 @@
     }
   },
   "libraries": {
-    "APLC/0.6.12": {
+    "APLC/0.6.16": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -10,6 +10,7 @@ using HarmonyLib;
 using LethalLevelLoader;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using Unity.Netcode;
 
 namespace APLC;
 
@@ -120,7 +121,37 @@ public class Patches
 
         __instance.carryWeight = Mathf.Max(1f, newWeight);
     }
+    
+    // Token: 0x060001F4 RID: 500 RVA: 0x00007030 File Offset: 0x00005230
+    [HarmonyPriority(200)]
+    [HarmonyPatch(typeof(GameNetworkManager), "Start")]
+    [HarmonyPrefix]
+    internal static void GameNetworkManagerStart_Prefix(GameNetworkManager __instance)
+    {
+        APLCNetworking.networkManager = __instance.GetComponent<NetworkManager>();
+        
+        GameObject networkManagerPrefab = PrefabHelper.CreateNetworkPrefab("APLCNetworkManager");
+        networkManagerPrefab.AddComponent<APLCNetworking>();
+        networkManagerPrefab.GetComponent<NetworkObject>().DontDestroyWithOwner = true;
+        networkManagerPrefab.GetComponent<NetworkObject>().SceneMigrationSynchronization = true;
+        networkManagerPrefab.GetComponent<NetworkObject>().DestroyWithScene = false;
+        Object.DontDestroyOnLoad(networkManagerPrefab);
+        
+        APLCNetworking.networkingManagerPrefab = networkManagerPrefab;
+        APLCNetworking.networkManager.AddNetworkPrefab(networkManagerPrefab);
+    }
 
+    [HarmonyPriority(200)]
+    [HarmonyPatch(typeof(StartOfRound), "Awake")]
+    [HarmonyPrefix]
+    internal static void StartOfRoundAwake_Prefix(StartOfRound __instance)
+    {
+        if (GameNetworkManager.Instance.GetComponent<NetworkManager>().IsServer)
+        {
+            GameObject.Instantiate(APLCNetworking.networkingManagerPrefab).GetComponent<NetworkObject>().Spawn(destroyWithScene: false);
+        }
+    }
+    
     //Archipelago connection
     /**
      * Ticks all waiting items and refreshes the unlocked items
@@ -167,11 +198,12 @@ public class Patches
                     ES3.Load<string>("ArchipelagoPassword", GameNetworkManager.Instance.currentSaveFileName);
                 ChatHandler.SetConnectionInfo(url, port, slot, password);
                 new MultiworldHandler(url, port, slot, password);
+                APLCNetworking.Instance.SendConnectionServerRpc(url, port, slot, password);
             }
         }
         else
         {
-            Plugin._instance.getTerminal().GetComponent<APLCNetworking>().RequestConnectionRpc();
+            APLCNetworking.Instance.RequestConnectionServerRpc();
         }
     }
 
