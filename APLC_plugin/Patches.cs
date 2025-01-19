@@ -11,6 +11,8 @@ using LethalLevelLoader;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Unity.Netcode;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 namespace APLC;
 
@@ -38,7 +40,7 @@ public class Patches
     private static bool CancelScan()
     {
         if (MultiworldHandler.Instance == null) return true;
-        return ((PlayerUpgrades)MultiworldHandler.Instance.GetItemMap("Scanner")).GetNum() >= 1;
+        return ((PlayerUpgrades)MwState.Instance.GetItemMap("Scanner")).GetNum() >= 1;
     }
 
     /**
@@ -49,7 +51,7 @@ public class Patches
     private static bool CancelScanAnimation()
     {
         if (MultiworldHandler.Instance == null) return true;
-        return ((PlayerUpgrades)MultiworldHandler.Instance.GetItemMap("Scanner")).GetNum() >= 1;
+        return ((PlayerUpgrades)MwState.Instance.GetItemMap("Scanner")).GetNum() >= 1;
     }
 
     /**
@@ -60,7 +62,7 @@ public class Patches
     private static bool Sprint(PlayerControllerB __instance)
     {
         if (MultiworldHandler.Instance == null) return true;
-        int staminaChecks = ((PlayerUpgrades)MultiworldHandler.Instance.GetItemMap("Stamina Bar")).GetNum();
+        int staminaChecks = ((PlayerUpgrades)MwState.Instance.GetItemMap("Stamina Bar")).GetNum();
         if (staminaChecks == 1)
         {
             __instance.sprintMeter = Mathf.Min(__instance.sprintMeter, 0.35f);
@@ -79,7 +81,7 @@ public class Patches
     private static void LimitGrabbing(PlayerControllerB __instance, ref int __result)
     {
         if (MultiworldHandler.Instance == null) return;
-        if (__result >= ((PlayerUpgrades)MultiworldHandler.Instance.GetItemMap("Inventory Slot")).GetNum())
+        if (__result >= ((PlayerUpgrades)MwState.Instance.GetItemMap("Inventory Slot")).GetNum())
         {
             __result = -1;
         }
@@ -94,7 +96,7 @@ public class Patches
     {
 
         if (MultiworldHandler.Instance == null) return;
-        int invSlots = ((PlayerUpgrades)MultiworldHandler.Instance.GetItemMap("Inventory Slot")).GetNum();
+        int invSlots = ((PlayerUpgrades)MwState.Instance.GetItemMap("Inventory Slot")).GetNum();
         if (__result >= invSlots)
         {
             if (forward)
@@ -112,7 +114,7 @@ public class Patches
         var newWeight = 1f + __instance.ItemSlots.Where(item => item != null).Sum(
             item => Mathf.Clamp(
                 (item.itemProperties.weight - 1f) * Mathf.Pow(
-                    0.90f, MultiworldHandler.Instance.GetItemMap<PlayerUpgrades>("Strength Training").GetNum()
+                    0.90f, MwState.Instance.GetItemMap<PlayerUpgrades>("Strength Training").GetNum()
                 ),
                 0f,
                 10f
@@ -128,17 +130,17 @@ public class Patches
     [HarmonyPrefix]
     internal static void GameNetworkManagerStart_Prefix(GameNetworkManager __instance)
     {
-        APLCNetworking.networkManager = __instance.GetComponent<NetworkManager>();
+        Plugin.Instance.LogWarning("Attempting to create APLC Network Manager");
         
         GameObject networkManagerPrefab = PrefabHelper.CreateNetworkPrefab("APLCNetworkManager");
         networkManagerPrefab.AddComponent<APLCNetworking>();
-        networkManagerPrefab.GetComponent<NetworkObject>().DontDestroyWithOwner = true;
         networkManagerPrefab.GetComponent<NetworkObject>().SceneMigrationSynchronization = true;
         networkManagerPrefab.GetComponent<NetworkObject>().DestroyWithScene = false;
         Object.DontDestroyOnLoad(networkManagerPrefab);
         
-        APLCNetworking.networkingManagerPrefab = networkManagerPrefab;
-        APLCNetworking.networkManager.AddNetworkPrefab(networkManagerPrefab);
+        APLCNetworking.NetworkingManagerPrefab = networkManagerPrefab;
+        __instance.GetComponent<NetworkManager>().AddNetworkPrefab(networkManagerPrefab);
+        
     }
 
     [HarmonyPriority(200)]
@@ -148,7 +150,7 @@ public class Patches
     {
         if (GameNetworkManager.Instance.GetComponent<NetworkManager>().IsServer)
         {
-            GameObject.Instantiate(APLCNetworking.networkingManagerPrefab).GetComponent<NetworkObject>().Spawn(destroyWithScene: false);
+            Object.Instantiate(APLCNetworking.NetworkingManagerPrefab).GetComponent<NetworkObject>().Spawn(destroyWithScene: false);
         }
     }
     
@@ -166,7 +168,7 @@ public class Patches
         while (_time >= 5f)
         {
             _time -= 5f;
-            MultiworldHandler.Instance.TickItems();
+            MultiworldHandler.Instance.Tick(new AplcEventArgs(MultiworldHandler.Instance.GetReceivedItems()));
         }
 
         while (_time1Sec >= 1f)
@@ -174,8 +176,8 @@ public class Patches
             _time1Sec -= 1f;
             if (_waitingForTerminalQuit && StartOfRound.Instance.localPlayerController.inTerminalMenu)
             {
-                AccessTools.Method(typeof(Terminal), "QuitTerminal", new []{ typeof(bool) })
-                    .Invoke(Plugin._instance.getTerminal(), new object[] { true });
+                AccessTools.Method(typeof(Terminal), "QuitTerminal", [typeof(bool)])
+                    .Invoke(Plugin.Instance.GetTerminal(), [true]);
             }
 
             _waitingForTerminalQuit = false;
@@ -197,8 +199,9 @@ public class Patches
                 string password =
                     ES3.Load<string>("ArchipelagoPassword", GameNetworkManager.Instance.currentSaveFileName);
                 ChatHandler.SetConnectionInfo(url, port, slot, password);
-                new MultiworldHandler(url, port, slot, password);
-                APLCNetworking.Instance.SendConnectionServerRpc(url, port, slot, password);
+                ConnectionInfo info = new ConnectionInfo(url, port, slot, password);
+                MwState state = new MwState(info);
+                APLCNetworking.Instance.SendConnection(info);
             }
         }
         else
@@ -226,7 +229,7 @@ public class Patches
     {
         if (MultiworldHandler.Instance == null) return true;
         if (displayText == "New creature data sent to terminal!" ||
-            displayText.Substring(0, 19) == "Found journal entry") MultiworldHandler.Instance.CheckLogs();
+            displayText.Substring(0, 19) == "Found journal entry") MwState.Instance.CheckLogs();
 
         return true;
     }
@@ -245,7 +248,7 @@ public class Patches
         TerminalHandler.DisplayModifiedShop(__instance);
         if (MultiworldHandler.Instance.GetSlotSetting("randomizeterminal") == 1)
         {
-            if (MultiworldHandler.Instance.GetItemMap<PlayerUpgrades>("Terminal").GetNum() == 0)
+            if (MwState.Instance.GetItemMap<PlayerUpgrades>("Terminal").GetNum() == 0)
             {
                 _waitingForTerminalQuit = true;
             }
@@ -276,14 +279,14 @@ public class Patches
                         }
                         else
                         {
-                            if (MultiworldHandler.Instance
+                            if (MwState.Instance
                                     .GetItemMap<StoreItems>(__instance.buyableItemsList[j].itemName)
                                     .GetTotal() >= 1)
                             {
                                 stringBuilder2.Append("\n* " + __instance.buyableItemsList[j].itemName +
                                                       "  //  Price: $" +
-                                                      ((float)__instance.buyableItemsList[j].creditsWorth *
-                                                       ((float)__instance.itemSalesPercentages[j] / 100f)).ToString());
+                                                      (__instance.buyableItemsList[j].creditsWorth *
+                                                       (__instance.itemSalesPercentages[j] / 100f)));
 
                             }
                             else
@@ -293,7 +296,7 @@ public class Patches
                             }
                         }
 
-                        if (__instance.itemSalesPercentages[j] != 100 && MultiworldHandler.Instance
+                        if (__instance.itemSalesPercentages[j] != 100 && MwState.Instance
                                 .GetItemMap<StoreItems>(__instance.buyableItemsList[j].itemName).GetTotal() >= 1)
                         {
                             stringBuilder2.Append(string.Format("   ({0}% OFF!)",
@@ -304,9 +307,8 @@ public class Patches
                     {
                         stringBuilder2.Append(string.Format("\n* " + __instance.buyableItemsList[j].itemName +
                                                             "  //  Price: $" +
-                                                            ((float)__instance.buyableItemsList[j].creditsWorth *
-                                                             ((float)__instance.itemSalesPercentages[j] / 100f))
-                                                            .ToString()));
+                                                            __instance.buyableItemsList[j].creditsWorth *
+                                                             (__instance.itemSalesPercentages[j] / 100f)));
                         if (__instance.itemSalesPercentages[j] != 100)
                         {
                             stringBuilder2.Append(string.Format("   ({0}% OFF!)",
@@ -338,7 +340,7 @@ public class Patches
     private static void RoundEndPrefix(StartOfRound __instance)
     {
         if (MultiworldHandler.Instance == null) return;
-        MultiworldHandler.Instance.GetLocationMap("Quota").CheckComplete();
+        MwState.Instance.GetLocationMap("Quota").CheckComplete();
     }
     
     /**
@@ -351,13 +353,14 @@ public class Patches
         if (MultiworldHandler.Instance == null) return;
         var grade = HUDManager.Instance.statsUIElements.gradeLetter.text;
         var dead = StartOfRound.Instance.allPlayersDead;
-        if (dead) MultiworldHandler.Instance.HandleDeathLink();
+        if (dead && !MwState.Instance.IgnoreDL) MultiworldHandler.Instance.HandleDeathLink();
+        if (dead) MwState.Instance.IgnoreDL = false;
         
-        ((MoonLocations)MultiworldHandler.Instance.GetLocationMap(StartOfRound.Instance.currentLevel.PlanetName.Split(" ")[1])).OnFinishMoon(StartOfRound.Instance.currentLevel.PlanetName, grade);
+        ((MoonLocations)MwState.Instance.GetLocationMap(StartOfRound.Instance.currentLevel.PlanetName.Split(" ")[1])).OnFinishMoon(StartOfRound.Instance.currentLevel.PlanetName, grade);
 
         if (MultiworldHandler.Instance.GetSlotSetting("scrapsanity") == 1)
         {
-            MultiworldHandler.Instance.GetLocationMap("Scrap").CheckComplete();
+            MwState.Instance.GetLocationMap("Scrap").CheckComplete();
         }
 
         var list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()
@@ -365,18 +368,18 @@ public class Patches
             select obj).ToList();
         foreach (var scrap in list)
         {
-            if (scrap.name == "ap_chest(Clone)" && MultiworldHandler.Instance.GetGoal() == 1)
+            if (scrap.name == "ap_chest(Clone)" && MwState.Instance.GetGoal() == 1)
             {
                 Object.Destroy(scrap.gameObject);
-                MultiworldHandler.Instance.AddCollectathonScrap(1);
+                MwState.Instance.AddCollectathonScrap(1);
             }
-            else if (MultiworldHandler.Instance.GetGoal() == 0)
+            else if (MwState.Instance.GetGoal() == 0)
             {
                 if (scrap.name.Contains("ap_apparatus_"))
                 {
                     string[] landing = new string[scrap.name.Split("_").Length-2];
                     Array.ConstrainedCopy(scrap.name.Split("_"), 2, landing, 0, scrap.name.Split("_").Length - 2);
-                    MultiworldHandler.Instance.CompleteTrophy(String.Join(" ", landing).Split("(Clone)")[0].ToLower(), scrap);
+                    MwState.Instance.CompleteTrophy(String.Join(" ", landing).Split("(Clone)")[0].ToLower(), scrap);
                 }
             }
         }
@@ -406,11 +409,72 @@ public class Patches
             return;
         var used = ChatHandler.HandleCommands(chatMessage, nameOfUserWhoTyped);
         if (!ChatHandler.IsChatMessage(chatMessage) || used) return;
+        if (!Config.SendChatMessagesAsAPChat) return;
         var packet = new SayPacket()
         {
             Text = chatMessage
         };
         MultiworldHandler.Instance.GetSession().Socket.SendPacket(packet);
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(HUDManager), "SubmitChat_performed")]
+    private static bool SubmitChat_preformed_override(ref InputAction.CallbackContext context, HUDManager __instance)
+    {
+        __instance.localPlayer = GameNetworkManager.Instance.localPlayerController;
+        if (!context.performed)
+        {
+            return false;
+        }
+        if (__instance.localPlayer == null || !__instance.localPlayer.isTypingChat)
+        {
+            return false;
+        }
+        if ((!__instance.localPlayer.IsOwner || (__instance.IsServer && !__instance.localPlayer.isHostPlayerObject)) && !__instance.localPlayer.isTestingPlayer)
+        {
+            return false;
+        }
+        if (__instance.localPlayer.isPlayerDead)
+        {
+            return false;
+        }
+        if (!string.IsNullOrEmpty(__instance.chatTextField.text) && __instance.chatTextField.text.Length <= Config.MaxCharactersPerChatMessage)
+        {
+            __instance.AddTextToChatOnServer(__instance.chatTextField.text, (int)__instance.localPlayer.playerClientId);
+        }
+        for (int i = 0; i < StartOfRound.Instance.allPlayerScripts.Length; i++)
+        {
+            if (StartOfRound.Instance.allPlayerScripts[i].isPlayerControlled && Vector3.Distance(GameNetworkManager.Instance.localPlayerController.transform.position, StartOfRound.Instance.allPlayerScripts[i].transform.position) > 24.4f && (!GameNetworkManager.Instance.localPlayerController.holdingWalkieTalkie || !StartOfRound.Instance.allPlayerScripts[i].holdingWalkieTalkie))
+            {
+                __instance.playerCouldRecieveTextChatAnimator.SetTrigger("ping");
+                break;
+            }
+        }
+        __instance.localPlayer.isTypingChat = false;
+        __instance.chatTextField.text = "";
+        EventSystem.current.SetSelectedGameObject(null);
+        __instance.PingHUDElement(__instance.Chat, 2f, 1f, 0.2f);
+        __instance.typingIndicator.enabled = false;
+        return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(HUDManager), "AddPlayerChatMessageServerRpc")]
+    private static bool ChatLengthOverridePart2(ref string chatMessage, ref int playerId, HUDManager __instance)
+    {
+        NetworkManager networkManager = __instance.NetworkManager;
+        if (networkManager == null || !networkManager.IsListening)
+            return false;
+        if (!networkManager.IsServer && !networkManager.IsHost || chatMessage.Length > Config.MaxCharactersPerChatMessage)
+            return false;
+        
+        MethodInfo methodInfo = typeof(HUDManager).GetMethod("AddPlayerChatMessageClientRpc", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        var parameters = new object[] { chatMessage, playerId };
+        
+        methodInfo?.Invoke(__instance, parameters);
+        
+        return false;
     }
     
     [HarmonyPrefix]
@@ -424,10 +488,10 @@ public class Patches
         {
             if (node.buyItemIndex != -7)
             {
-                Item item = Plugin._instance.getTerminal().buyableItemsList[node.buyItemIndex];
-                if (MultiworldHandler.Instance.GetItemMap<StoreItems>(item.itemName).GetTotal() < 1)
+                Item item = Plugin.Instance.GetTerminal().buyableItemsList[node.buyItemIndex];
+                if (MwState.Instance.GetItemMap<StoreItems>(item.itemName).GetTotal() < 1)
                 {
-                    Plugin._instance.getTerminal().LoadNewNode(Plugin._instance.getTerminal().currentNode);
+                    Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
                     return false;
                 }
             }
@@ -435,10 +499,10 @@ public class Patches
 
         if (node.buyVehicleIndex != -1)
         {
-            BuyableVehicle vehicle = Plugin._instance.getTerminal().buyableVehicles[node.buyVehicleIndex];
-            if (MultiworldHandler.Instance.GetItemMap<StoreItems>(vehicle.vehicleDisplayName).GetTotal() < 1)
+            BuyableVehicle vehicle = Plugin.Instance.GetTerminal().buyableVehicles[node.buyVehicleIndex];
+            if (MwState.Instance.GetItemMap<StoreItems>(vehicle.vehicleDisplayName).GetTotal() < 1)
             {
-                Plugin._instance.getTerminal().LoadNewNode(Plugin._instance.getTerminal().currentNode);
+                Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
                 return false;
             }
         }
@@ -449,10 +513,10 @@ public class Patches
             {
                 try
                 {
-                    if (MultiworldHandler.Instance.GetItemMap<ShipUpgrades>(StartOfRound.Instance.unlockablesList
+                    if (MwState.Instance.GetItemMap<ShipUpgrades>(StartOfRound.Instance.unlockablesList
                             .unlockables[node.shipUnlockableID].unlockableName).GetTotal() < 1)
                     {
-                        Plugin._instance.getTerminal().LoadNewNode(Plugin._instance.getTerminal().currentNode);
+                        Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
                         return false;
                     }
                 }
@@ -468,25 +532,26 @@ public class Patches
             SelectableLevel level = StartOfRound.Instance.levels[node.buyRerouteToMoon];
             
             string moonName = level.PlanetName;
-            moonName = moonName.Substring(moonName.IndexOf(" ") + 1, moonName.Length - moonName.IndexOf(" ") - 1);
-            if (moonName.Contains("Liquidation")) return true;
-
-            if (moonName.Contains("Gordion"))
+            if (moonName != null)
             {
-                //TODO: check if company is rando'd, if yes block if not unlocked, if no then return true;
-            }
+                if (moonName.Contains("Liquidation")) return true;
 
-            if (MultiworldHandler.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
-            {
-                Plugin._instance.getTerminal().LoadNewNode(Plugin._instance.getTerminal().currentNode);
-                return false;
+                if (moonName.Contains("Gordion"))
+                {
+                    //TODO: check if company is rando'd, if yes block if not unlocked, if no then return true;
+                }
+
+                if (MwState.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
+                {
+                    Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
+                    return false;
+                }
             }
         }
         else if (node.buyRerouteToMoon == -2)
         {
             SelectableLevel level = StartOfRound.Instance.levels[node.terminalOptions[1].result.buyRerouteToMoon];
             string moonName = level.PlanetName;
-            moonName = moonName.Substring(moonName.IndexOf(" ") + 1, moonName.Length - moonName.IndexOf(" ") - 1);
             if (moonName.Contains("Liquidation")) return true;
 
             if (moonName.Contains("Gordion"))
@@ -494,25 +559,13 @@ public class Patches
                 //TODO: check if company is rando'd, if yes block if not unlocked, if no then return true;
             }
 
-            if (MultiworldHandler.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
+            if (MwState.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
             {
-                Plugin._instance.getTerminal().LoadNewNode(Plugin._instance.getTerminal().currentNode);
+                Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
                 return false;
             }
         }
 
         return true;
     }
-
-    // //Trophy case stuff
-    // [HarmonyPostfix]
-    // [HarmonyPatch(typeof(StartOfRound), "OnShipLandedMiscEvents")]
-//     private static void SpawnTrophyCase()
-//     {
-//         //if (MultiworldHandler.Instance == null || MultiworldHandler.Instance.GetGoal() == 1/* || StartOfRound.Instance.currentLevel.PlanetName != "Company"*/) return;
-//         var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-// //        go.transform.localScale = new Vector3(0.7f,7,10);
-// //        go.transform.position = new Vector3(-28.25f, 0.8f, 0);
-// //        go.AddComponent<TrophyCase>();
-//     }
 }

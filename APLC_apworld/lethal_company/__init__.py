@@ -87,8 +87,22 @@ class LethalCompanyWorld(World):
     item_name_to_id = get_default_item_map()
     location_name_to_id = get_default_location_map()
 
+    item_name_groups = {
+        "Moons": {moon for moon in data["moons"]},
+        "Items": {item for item in data["store"]},
+        "Vehicles": {vehicle for vehicle in data["vehicles"]}
+    }
+
+    location_name_groups = {
+        "Moons": {location for location in locations if " ".join(location.split(" ")[:-2]) in {moon for moon in data["moons"]}},
+        "Bestiary": {location for location in locations if "Bestiary" in location},
+        "Scrap": {location for location in locations if "Scrap" in location},
+        "Quota": {location for location in locations if "Quota" in location},
+        "Logs": {location for location in locations if "Log" in location}
+    }
+
     data_version = 7
-    required_client_version = (0, 4, 4)
+    required_client_version = (0, 5, 0)
     web = LethalCompanyWeb()
     initial_world: string
     scrap_map = {}

@@ -1,13 +1,11 @@
-﻿using UnityEngine.UIElements;
+﻿namespace APLC;
 
-namespace APLC;
-
-public class ChatHandler
+public static class ChatHandler
 {
     //Archipelago connection
     //Stops the weird bug where messages send up to four times
     private static string _lastChatMessage = "";
-    private static string _lastPrevMessage = "";
+    private const string LastPrevMessage = "";
 
     /**
      * Checks if a message should be sent to the AP chat
@@ -27,9 +25,9 @@ public class ChatHandler
     private static string _password;
 
     //True if waiting for user to enter slot name
-    private static bool _waitingForSlot = false;
+    private static bool _waitingForSlot;
     //True if waiting for user to enter password
-    private static bool _waitingForPassword = false;
+    private static bool _waitingForPassword;
 
     //Handles the entering of /connect, /disconnect, and the slot and password
     public static bool HandleCommands(string message, string user)
@@ -71,7 +69,7 @@ public class ChatHandler
                 SendMessage("AP: Disconnect successful, please join a new save if you are doing a different Multiworld");
                 return true;
             case "/resync":
-                MultiworldHandler.Instance.RefreshItems();
+                MultiworldHandler.Instance.Refresh(new AplcEventArgs(MultiworldHandler.Instance.GetReceivedItems()));
                 SendMessage("AP: Resyncing items");
                 return true;
             default:
@@ -89,9 +87,12 @@ public class ChatHandler
                     _password = message == "n" ? null : message;
 
                     _waitingForPassword = false;
-                    new MultiworldHandler(_url, _port, _slot, _password);
                     
-                    APLCNetworking.Instance.SendConnectionServerRpc(_url, _port, _slot, _password);
+                    ConnectionInfo info = new ConnectionInfo(_url, _port, _slot, _password);
+                    
+                    _ = new MwState(info);
+                    
+                    APLCNetworking.Instance.SendConnection(info);
                     return true;
                 }
 
@@ -104,7 +105,7 @@ public class ChatHandler
     
      public static bool PreventMultisendBug(string chatMessage)
     {
-        if (_lastPrevMessage == chatMessage) return false;
+        if (LastPrevMessage == chatMessage) return false;
         if (_lastChatMessage == chatMessage) return false;
         return true;
     }

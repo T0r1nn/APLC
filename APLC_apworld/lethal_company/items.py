@@ -4,13 +4,14 @@ from BaseClasses import Item, ItemClassification
 from typing import Dict, Any, TYPE_CHECKING, Tuple, List
 from .locations import generate_locations
 from .imported import data
+from .custom_content import custom_content
 
 if TYPE_CHECKING:
     from . import LethalCompanyWorld
 
 
 class LethalCompanyItem(Item):
-    game: str = "Lethal Company"
+    game: str = f"Lethal Company{custom_content['name']}"
 
 
 class SlotItemData:
@@ -126,6 +127,6 @@ def generate_items(imported_data) -> Tuple[List[LCItem], SlotItemData]:
         items.append(LCItem(slot_item_data, item, shop_item=True))
 
     for moon in imported_data.get("moons"):
-        items.append(LCItem(slot_item_data, " ".join(moon.split(" ")[1:]), environment=True))
+        items.append(LCItem(slot_item_data, moon, environment=True))
 
     return items, slot_item_data

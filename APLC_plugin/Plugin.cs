@@ -2,16 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Archipelago.MultiClient.Net;
-using Archipelago.MultiClient.Net.Helpers;
 using BepInEx;
 using System.Collections.ObjectModel;
-using System.IO;
-using LethalAPI.LibTerminal;
-using LethalAPI.LibTerminal.Models;
-using Unity.Netcode;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UIElements.Collections;
 
 namespace APLC;
@@ -21,16 +15,14 @@ namespace APLC;
 public class Plugin : BaseUnityPlugin
 {
     //Instance of the plugin for other classes to access
-    public static Plugin _instance;
-    public static float carryWeight;
-    public static float initialWeight;
+    public static Plugin Instance;
     
     /**
      * Patches the game on startup, injecting the code into the game.
      */
     private void Awake()
     {
-        if (_instance == null) _instance = this;
+        if (Instance == null) Instance = this;
         
         NetcodePatch();
         Patches.Patch();
@@ -42,7 +34,7 @@ public class Plugin : BaseUnityPlugin
     /**
      * Gets the terminal object for editing(needs to be here because only monobehaviors can findobjectoftype)
      */
-    public Terminal getTerminal()
+    public Terminal GetTerminal()
     {
         return FindObjectOfType<Terminal>();
     }
@@ -73,8 +65,6 @@ public class Plugin : BaseUnityPlugin
 
     public string GetGameLogicString()
     {
-        Terminal t = getTerminal();
-        
         var logic = GetGameLogic();
         
         /*
@@ -183,6 +173,7 @@ public class Plugin : BaseUnityPlugin
         return json + "\n}";
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     private string CreateScrapJSON(Collection<Tuple<string, double>> scrapData)
     {
         var str = "";
@@ -206,12 +197,12 @@ public class Plugin : BaseUnityPlugin
     
     public Tuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<Tuple<string, double>>>, Dictionary<string, Collection<Tuple<string, double>>>> GetGameLogic()
     {
-        Terminal t = getTerminal();
+        Terminal t = GetTerminal();
         
-        String[] vanillaMoonNames = { "experimentation", "assurance", "vow", "adamance", "offense", "march", "embrion", "rend", "dine", "titan", "artifice", "liquidation" };
+        String[] vanillaMoonNames = ["experimentation", "assurance", "vow", "adamance", "offense", "march", "embrion", "rend", "dine", "titan", "artifice", "liquidation"];
         foreach (var moon in StartOfRound.Instance.levels)
         {
-            if(!vanillaMoonNames.Contains(String.Join(' ',moon.PlanetName.Split(" ").Skip(1).Take(moon.PlanetName.Split(" ").Length-1).ToArray()).ToLower()))
+            if(!vanillaMoonNames.Contains(moon.PlanetName))
             {
                 int totalRarity = 0;
                 foreach (var scrap in moon.spawnableScrap)
@@ -285,11 +276,13 @@ public class Plugin : BaseUnityPlugin
             moons[i - skipped] = allMoons[i];
         }
         
-        var scrapMap = new Dictionary<string, Collection<Tuple<string, double>>>();
-        scrapMap.Add("Apparatus", new Collection<Tuple<string, double>>());
-        scrapMap.Add("Shotgun", new Collection<Tuple<string, double>>());
-        scrapMap.Add("Knife", new Collection<Tuple<string, double>>());
-        scrapMap.Add("Hive", new Collection<Tuple<string, double>>());
+        var scrapMap = new Dictionary<string, Collection<Tuple<string, double>>>
+        {
+            { "Apparatus", new Collection<Tuple<string, double>>() },
+            { "Shotgun", new Collection<Tuple<string, double>>() },
+            { "Knife", new Collection<Tuple<string, double>>() },
+            { "Hive", new Collection<Tuple<string, double>>() }
+        };
 
         foreach (SelectableLevel moon in moons)
         {
@@ -344,15 +337,12 @@ public class Plugin : BaseUnityPlugin
             scrapMap.Get("Apparatus").Add(new Tuple<string, double>(moon.PlanetName, (double)facilityRarity/totalIntRarity));
         }
         
-        var bestiaryMap = new Dictionary<string, Collection<Tuple<string, double>>>();
-        
-        bestiaryMap.Add("Vain Shroud", new Collection<Tuple<string, double>>());
-        
+        var bestiaryMap = new Dictionary<string, Collection<Tuple<string, double>>> { };
+
         foreach (SelectableLevel moon in moons)
         {
             if (moon.PlanetName.Contains("Gordion") || moon.PlanetName.Contains("Liquidation")) continue;
             
-            bestiaryMap.Get("Vain Shroud").Add(new Tuple<string, double>(moon.PlanetName, 1));
 
             var daytime = moon.DaytimeEnemies;
             var outside = moon.OutsideEnemies;
@@ -374,17 +364,17 @@ public class Plugin : BaseUnityPlugin
             {
                 try
                 {
-                    string name = t.enemyFiles[
+                    string creatureName = t.enemyFiles[
                             item.enemyType.enemyPrefab.GetComponentInChildren<ScanNodeProperties>()
                                 .creatureScanID]
                         .creatureName;
-                    if (name[name.Length - 1] == 's')
+                    if (creatureName[^1] == 's')
                     {
-                        name = name.Substring(0, name.Length - 1);
+                        creatureName = creatureName.Substring(0, creatureName.Length - 1);
                     }
-                    bestiaryMap.TryAdd(name, new Collection<Tuple<string, double>>());
+                    bestiaryMap.TryAdd(creatureName, new Collection<Tuple<string, double>>());
                     bool existsAlready = false;
-                    var checkMoons = bestiaryMap.Get(name);
+                    var checkMoons = bestiaryMap.Get(creatureName);
                     for (var index = 0; index < checkMoons.Count; index++)
                     {
                         var entry = checkMoons[index];
@@ -398,7 +388,7 @@ public class Plugin : BaseUnityPlugin
 
                     if (!existsAlready)
                     {
-                        bestiaryMap.Get(name)
+                        bestiaryMap.Get(creatureName)
                             .Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[0]));
                     }
                 }
@@ -416,17 +406,17 @@ public class Plugin : BaseUnityPlugin
             {
                 try
                 {
-                    string name = t.enemyFiles[
+                    string creatureName = t.enemyFiles[
                             item.enemyType.enemyPrefab.GetComponentInChildren<ScanNodeProperties>()
                                 .creatureScanID]
                         .creatureName;
-                    if (name[name.Length - 1] == 's')
+                    if (creatureName[^1] == 's')
                     {
-                        name = name.Substring(0, name.Length - 1);
+                        creatureName = creatureName[..^1];
                     }
-                    bestiaryMap.TryAdd(name, new Collection<Tuple<string, double>>());
+                    bestiaryMap.TryAdd(creatureName, []);
                     bool existsAlready = false;
-                    var checkMoons = bestiaryMap.Get(name);
+                    var checkMoons = bestiaryMap.Get(creatureName);
                     for (var index = 0; index < checkMoons.Count; index++)
                     {
                         var entry = checkMoons[index];
@@ -440,7 +430,7 @@ public class Plugin : BaseUnityPlugin
 
                     if (!existsAlready)
                     {
-                        bestiaryMap.Get(name)
+                        bestiaryMap.Get(creatureName)
                             .Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[1]));
                     }
                 }
@@ -455,17 +445,17 @@ public class Plugin : BaseUnityPlugin
                 {
                     try
                     {
-                        string name = t.enemyFiles[
+                        string creatureName = t.enemyFiles[
                                 item.enemyType.enemyPrefab.GetComponentInChildren<ScanNodeProperties>()
                                     .creatureScanID]
                             .creatureName;
-                        if (name[name.Length - 1] == 's')
+                        if (creatureName[^1] == 's')
                         {
-                            name = name.Substring(0, name.Length - 1);
+                            creatureName = creatureName[..^1];
                         }
-                        bestiaryMap.TryAdd(name, new Collection<Tuple<string, double>>());
+                        bestiaryMap.TryAdd(creatureName, []);
                         bool existsAlready = false;
-                        var checkMoons = bestiaryMap.Get(name);
+                        var checkMoons = bestiaryMap.Get(creatureName);
                         for (var index = 0; index < checkMoons.Count; index++)
                         {
                             var entry = checkMoons[index];
@@ -479,7 +469,7 @@ public class Plugin : BaseUnityPlugin
 
                         if (!existsAlready)
                         {
-                            bestiaryMap.Get(name)
+                            bestiaryMap.Get(creatureName)
                                 .Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[2]));
                         }
                     }

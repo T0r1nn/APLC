@@ -7,12 +7,44 @@ using Object = UnityEngine.Object;
 
 namespace APLC;
 
+public enum EnemyType
+{
+    GhostGirl,
+    Bracken
+}
+
 public static class EnemyTrapHandler
 {
+    private static SpawnableEnemyWithRarity ghostGirl;
+    private static SpawnableEnemyWithRarity bracken;
+
+    public static void SetupEnemyTrapHandler()
+    {
+        foreach (var moon in StartOfRound.Instance.levels)
+        {
+            foreach (var enemy in moon.Enemies)
+            {
+                if (enemy.enemyType.enemyName.ToLower().Contains("dress"))
+                {
+                    ghostGirl = enemy;
+                }
+                else if (enemy.enemyType.enemyName.ToLower().Contains("flower"))
+                {
+                    bracken = enemy;
+                }
+
+                if (bracken != null && ghostGirl != null)
+                {
+                    return;
+                }
+            }
+        }
+    }
+    
     /**
      * Attempts to spawn an enemy, return true if the spawn succeeds
      */
-    private static bool SpawnEnemy(SpawnableEnemyWithRarity enemy, int amount, bool inside, PlayerControllerB player)
+    private static bool SpawnEnemy(SpawnableEnemyWithRarity enemy, bool inside, PlayerControllerB player)
     {
         try
         {
@@ -33,7 +65,7 @@ public static class EnemyTrapHandler
     /**
      * Attempts to spawn an enemy given the in code name of the enemy, returns true if spawn succeeds.
      */
-    public static bool SpawnEnemyByName(string name)
+    public static bool SpawnEnemyByName(EnemyType enemyType)
     {
         if (!StartOfRound.Instance.shipHasLanded || !StartOfRound.Instance.localPlayerController.IsHost)
         {
@@ -60,12 +92,11 @@ public static class EnemyTrapHandler
             }
         }
 
-        foreach (var enemy in StartOfRound.Instance.currentLevel.Enemies.Where(enemy => enemy.enemyType.enemyName.ToLower().Contains(name)))
-            return SpawnEnemy(enemy, 1, true, spawnPlayer);
-
-        foreach (var enemy in StartOfRound.Instance.currentLevel.OutsideEnemies.Where(enemy => enemy.enemyType.enemyName.ToLower().Contains(name)))
-            return SpawnEnemy(enemy, 1, false, spawnPlayer);
-
-        return (from enemy in StartOfRound.Instance.currentLevel.DaytimeEnemies where enemy.enemyType.enemyName.ToLower().Contains(name) select SpawnEnemy(enemy, 1, false, spawnPlayer)).FirstOrDefault();
+        return enemyType switch
+        {
+            EnemyType.Bracken => SpawnEnemy(bracken, true, spawnPlayer),
+            EnemyType.GhostGirl => SpawnEnemy(ghostGirl, true, spawnPlayer),
+            _ => false
+        };
     }
 }

@@ -29,6 +29,9 @@
         <Reference Include="Assembly-CSharp">
             <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Assembly-CSharp.dll</HintPath> <!-- Edit this to the actual location -->
         </Reference>
+        <Reference Include="Unity.InputSystem">
+            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.InputSystem.dll</HintPath>
+        </Reference>
         <Reference Include="Assembly-CSharp-firstpass">
             <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath> <!-- Edit this to the actual location -->
         </Reference>

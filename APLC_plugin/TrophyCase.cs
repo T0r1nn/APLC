@@ -35,7 +35,7 @@ public class TrophyCase : MonoBehaviour
         trigger.onInteract.AddCall(new InvokableCall(this, SymbolExtensions.GetMethodInfo(()=>OnInteract())));
 
         List<SpawnableItemWithRarity> scrap = new();
-        foreach (SelectableLevel moon in Plugin._instance.getTerminal().moonsCatalogueList)
+        foreach (SelectableLevel moon in Plugin.Instance.GetTerminal().moonsCatalogueList)
         {
             scrap.AddRange(moon.spawnableScrap);
         }

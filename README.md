@@ -3,9 +3,9 @@ Download the following two files from the [Releases page in Github](https://gith
 - lethal_company.yaml
 - lethal_company.apworld
 
-You also need to install the [Archipelago Multiworld Randomizer version 0.4.6](https://github.com/ArchipelagoMW/Archipelago/releases/latest) client.
+You also need to install the [Archipelago Multiworld Randomizer version 0.5.1](https://github.com/ArchipelagoMW/Archipelago/releases/latest) client.
 
-Install the APLC mod from the Thunderstore (you may also install the mod via the R2ModManager).
+Install the APLC mod from the Thunderstore (you may also install the mod via the R2ModManager, Gale, or other Thunderstore alternatives).
 
 Then, follow the below steps to setup the randomizer:
 
@@ -65,7 +65,7 @@ the Spoiler log. Click on Create New Room and that’s done! The Archipelago ser
 running!
 
 ### Setting up the mod
-Run the game through Thunderstore (or as you would usually start your modded LC game),
+Run the game through your chosen mod installer (as you would usually start a modded LC game),
 and boot up a save. Once you are ready, you can type /connect archipelago.gg:port in the
 chat, then follow the instructions as they appear. Everyone in the lobby should connect when the host performs a /connect, but if anyone joins late, they can type /connect with no arguments in the chat to connect themselves to the multiworld.
 
@@ -74,9 +74,9 @@ In multiworld games setups, locations are the places you need to go to unlock ne
 The locations in Lethal Company are as follows:
 - Log Entries(Excluding first log).
 - Bestiary Entries.
-- Completing moons on a B or higher grade.
+- Completing moons on a set grade or higher as specified in the yaml.
 - Completing a set amount of quota.
-- Gathering each type of scrap for the first time
+- Gathering each type of scrap for the first time if scrapsanity is enabled.
 
 The items are:
 - Moons
@@ -96,19 +96,67 @@ The items are:
   - Ghost girl spawns
   - Quota time decreases
 
+## Useful Terminal Commands
+`hints` - Shows all hints in your world that you haven't completed yet, where the item is, and whether the item is logically accessible.
+
+`progress` - Shows your current progress in the multiworld
+
+`scrap [moon name]` - Shows all scrap on a moon and whether they're logically accessible
+
+`scrap [scrap name]` - Shows all moons a scrap can be found on and whether it's logically accessible on those moons
+
+`config` - Shows the current value of all config settings, as well as what you can set them to.
+
+`config [setting name] [value]` - Sets a config setting to the value
+
+`apfiller` - Shows how many of each filler item has been received, as well as how many are available to be used
+
+`apfiller [item name]` - Uses a filler item if that item is currently available to use
+
+`tracker` - Shows all logically accessible checks
+
+`world [world name]` - Used only for advanced custom content, will allow you to connect to custom apworlds
+
 ## Adding custom scrap, monsters, and moons to the randomizer
 EXPERIMENTAL FEATURE - WILL CHANGE OVER TIME, MAY BE BUGGY AND BROKEN
-As of 0.6.0, APLC now supports adding custom scrap, monsters, moons, and store items to the randomizer. To do this, first you must install all custom content that you want to include, as well as the UnityExplorer mod. Boot up the game and create a new save file, then open the C# console. From the dropdown, click REPL, then replace all content in the file with the line: APLC.Plugin._instance.GetGameLogicString(); Click run, then navigate to the Lethal Company console window. Highlight any text to temporarily pause the game, preventing the console from autoscrolling while you are trying to copy the logic string, then highlight the entirety of the logic string, from the first { to the last }. Once it's highlighted, copy it, then go to your lethal company apworld. Rename the file to lethal_company.zip and open it, then copy the lethal_company folder into the worlds folder. Finally, inside the lethal_company folder, replace the contents of imported.py with data = , then paste your logic string. Now, you can generate a multiworld using this apworld to use the custom content.
+As of 0.6.0, APLC now supports adding custom scrap, monsters, moons, and store items to the randomizer.
+To do this, first you must install all custom content that you want to include, as well as the UnityExplorer
+mod. Boot up the game and create a new save file, then open the C# console. From the dropdown, click REPL, then
+replace all content in the file with the line: APLC.Plugin._instance.GetGameLogicString(); Click run, then navigate
+to the Lethal Company console window. Highlight any text to temporarily pause the game, preventing the console from
+autoscrolling while you are trying to copy the logic string, then highlight the entirety of the logic string, from
+the first { to the last }. Once it's highlighted, copy it, then go to your lethal company apworld. Rename the file to
+lethal_company.zip and open it, then copy the lethal_company folder into the worlds folder. Finally, inside the lethal_company
+folder, replace the contents of imported.py with data = , then paste your logic string. Now, you can generate a multiworld
+using this apworld to use the custom content.
+
+### Using custom content in multiworlds with other lethal company games
+Once you have your custom content apworld, to make it compatible with other people you need to do a few more steps.
+First, you must decided on a name for your game. This name can't be the same as anyone else who is making a custom
+content lethal company game, as its what keeps the apworlds from colliding. In the custom_content.py file, navigate
+to the "name": "" line, and replace the "" with " - [world name]" where you replace [world name] with whatever you
+chose for your game's name. You then must rename the lethal_company folder to lethal_company-[world name], then zip
+it back up and change the filetype back to apworld, before changing the apworld's name to lethal_company[world_name].apworld
+
+Once this is complete, you can boot up the game. Before you connect to the game, you first must enter the following command 
+in the ship terminal: `world [world name]`. This will sync your save file up to the new apworld name, which will allow you to 
+successfully connect to archipelago. If you ever delete the save file or make a new one, make sure to always run this command
+BEFORE running /connect
 
 ### Custom Content Disclaimers:
-Custom content doesn't work if multiple people are playing lethal company with differing custom content(this would require multiple lethal company apworlds, which would collide and break). However, if everyone playing lethal company uses the same custom content, they should all be able to use the same apworld and coexist.
-
-Eventually, this will be added as a yaml setting so that a few of the main issues are fixed.
-
 Multiworlds might be unbeatable with custom content. If this happens, let me know so I can improve the logic string generation method.
+
+Custom content might be bugged, as testing with every possible modded moon/scrap/monster combo is not feasible for me.
+If you run into any bugs, however, don't hesitate to either create a github issue or message me in the archipelago discord
+so I can work on fixing that bug.
 
 ## Credits
 Thanks to my friends for helping me test this and fix a few annoying crashes. 
+
 Thanks to everyone in the Lethal Company thread in the Archipelago discord server, who helped me fix a ton of bugs and get a bunch of ideas, without which this archipelago mod probably wouldn't be possible.
+
 Thanks to Faxium for rewriting the setup portion of this guide, making it easier to understand.
+
 Thanks to StevieSP for helping troubleshoot problems in the discord.
+
+Thanks to ThisGuyHere for his feedback on bugs in the custom content system.

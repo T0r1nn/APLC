@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using Unity.Netcode;
+﻿using Unity.Netcode;
 using UnityEngine;
 
 namespace APLC;
 
+// ReSharper disable once InconsistentNaming
 public class APLCNetworking : NetworkBehaviour
 {
     private static APLCNetworking _instance;
@@ -12,54 +12,25 @@ public class APLCNetworking : NetworkBehaviour
         get
         {
             if (_instance == null)
-                _instance = FindObjectOfType<APLCNetworking>();
+                _instance = GameObject.FindGameObjectWithTag("APLCNetworking").GetComponent<APLCNetworking>();
             return _instance;
         }
-        set => _instance = value;
+        private set => _instance = value;
     }
-    public static NetworkManager networkManager;
-    public static GameObject networkingManagerPrefab;
-    public static List<GameObject> queuedNetworkPrefabs = new List<GameObject>();
-    public static bool networkHasStarted = false;
-    public static GameObject networkGameObject;
+    public static GameObject NetworkingManagerPrefab;
 
-    
-    
     public override void OnNetworkSpawn()
     {
-        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
-            Instance?.gameObject.GetComponent<NetworkObject>().Despawn();
-        Instance = this;
-
         base.OnNetworkSpawn();
-    }
-    
-    public static void RegisterNetworkPrefab(GameObject prefab)
-    {
-        if (!networkHasStarted)
-        {
-            queuedNetworkPrefabs.Add(prefab);
-        }
-    }
-    
-    internal static void RegisterPrefabs(NetworkManager networkManager)
-    {
-        List<GameObject> addedNetworkPrefabs = new List<GameObject>();
-        foreach (NetworkPrefab networkPrefab in networkManager.NetworkConfig.Prefabs.Prefabs)
-        {
-            addedNetworkPrefabs.Add(networkPrefab.Prefab);
-        }
-        foreach (GameObject queuedNetworkPrefab in queuedNetworkPrefabs)
-        {
-            if (!addedNetworkPrefabs.Contains(queuedNetworkPrefab))
-            {
-                networkManager.AddNetworkPrefab(queuedNetworkPrefab);
-                addedNetworkPrefabs.Add(queuedNetworkPrefab);
-            }
-        }
-        networkHasStarted = true;
+        gameObject.name = "APLCNetworkManager";
+        Instance = this;
     }
 
+    public void SendConnection(ConnectionInfo info)
+    {
+        SendConnectionServerRpc(info.URL, info.Port, info.Slot, info.Password);
+    }
+    
     [ServerRpc(RequireOwnership = false)]
     public void SendConnectionServerRpc(string url, int port, string slot, string password)
     {
@@ -73,7 +44,7 @@ public class APLCNetworking : NetworkBehaviour
         Debug.Log("Received connection to server: " + url + ":" + port);
         if (MultiworldHandler.Instance == null)
         {
-            new MultiworldHandler(url, port, slot, password);
+            _ = new MwState(new ConnectionInfo(url, port, slot, password));
         }
     }
 
@@ -91,7 +62,7 @@ public class APLCNetworking : NetworkBehaviour
         if (MultiworldHandler.Instance != null && GameNetworkManager.Instance.localPlayerController.IsHost)
         {
             MultiworldHandler connection = MultiworldHandler.Instance;
-            SendConnectionServerRpc(connection.url, connection.port, connection.slot, connection.password);
+            SendConnection(connection.ApConnectionInfo);
         }
     }
 
@@ -109,6 +80,6 @@ public class APLCNetworking : NetworkBehaviour
 
     private void Start()
     {
-        Plugin._instance.LogInfo("APLC Networking Started");
+        Plugin.Instance.LogInfo("APLC Networking Started");
     }
 }

@@ -25,7 +25,7 @@ public abstract class Items
         catch (Exception e)
         {
             _total = 0;
-            Plugin._instance.LogError(e.Message+"\n"+e.StackTrace);
+            Plugin.Instance.LogError(e.Message+"\n"+e.StackTrace);
         }
 
         _resetAll = resetAll;
@@ -73,58 +73,88 @@ public abstract class Items
         if (!GameNetworkManager.Instance.localPlayerController.IsHost) return;
         if (_waiting <= 0) return;
         if (!HandleReceived(true)) return;
-        _waiting--;
-        _total++;
-        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-"+_name] = _total;
+        SuccessfulUse();
     }
 
     public int GetTotal()
     {
         return _total;
     }
+
+    public int GetUsed()
+    {
+        return _total;
+    }
+
+    public int GetReceived()
+    {
+        return _received;
+    }
+
+    protected void SuccessfulUse()
+    {
+        _waiting--;
+        _total++;
+        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-"+_name] = _total;
+    }
 }
 
 public class FillerItems : Items
 {
     private readonly Func<bool> _receivedFunc;
-    public FillerItems(string name, Func<bool> receivedFunc)
+    private readonly bool _trap;
+    public FillerItems(string name, Func<bool> receivedFunc, bool trap)
     {
         Setup(name);
         _receivedFunc = receivedFunc;
+        _trap = trap;
     }
 
     protected override bool HandleReceived(bool isTick=false)
     {
-        return isTick && _receivedFunc();
+        return isTick && (Config.FillerTriggersInstantly || _trap) && _receivedFunc();
+    }
+
+    public bool Use()
+    {
+        if (_receivedFunc())
+        {
+            SuccessfulUse();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }
 
 public class MoonItems : Items
 {
     private readonly int _terminalIndex;
-    private readonly int keywordIndex = 26;
+    private readonly int _keywordIndex = 26;
     private readonly string _name;
     public MoonItems(string name)
     {
-        for (int i = 0; i < Plugin._instance.getTerminal().terminalNodes.allKeywords.Length; i++)
+        for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
         {
-            if (Plugin._instance.getTerminal().terminalNodes.allKeywords[i].name == "Route")
+            if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Route")
             {
-                keywordIndex = i;
+                _keywordIndex = i;
             }
         }
         Setup(name, resetAll:true);
-        for (var i = 0; i < Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns.Length; i++)
+        for (var i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns.Length; i++)
         {
-            if (Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns[i].noun.word.ToLower()
+            if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns[i].noun.word.ToLower()
                 .Contains(name.ToLower()))
             {
                 _terminalIndex = i;
             }
         }
         
-        Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns[_terminalIndex].result.itemCost = 0;
-        Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns[_terminalIndex].result.terminalOptions[1].result
+        Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns[_terminalIndex].result.itemCost = 0;
+        Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns[_terminalIndex].result.terminalOptions[1].result
             .itemCost = 0;
 
         for (int i = 0; i < StartOfRound.Instance.levels.Length; i++)
@@ -141,7 +171,7 @@ public class MoonItems : Items
 
     protected override bool HandleReceived(bool isTick=false)
     {
-        Plugin._instance.LogInfo($"Unlocking moon {Plugin._instance.getTerminal().terminalNodes.allKeywords[keywordIndex].compatibleNouns[_terminalIndex].noun.word}");
+        Plugin.Instance.LogInfo($"Unlocking moon {Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns[_terminalIndex].noun.word}");
 
         for (int i = 0; i < StartOfRound.Instance.levels.Length; i++)
         {
@@ -182,7 +212,7 @@ public class ShipUpgrades : Items
     public ShipUpgrades(string name, int upgradeIndex)
     {
         Setup(name, resetAll:true);
-        _upgradeNode = Plugin._instance.getTerminal().terminalNodes.allKeywords[0].compatibleNouns[upgradeIndex].result;
+        _upgradeNode = Plugin.Instance.GetTerminal().terminalNodes.allKeywords[0].compatibleNouns[upgradeIndex].result;
     }
 
     protected override bool HandleReceived(bool isTick=false)

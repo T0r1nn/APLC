@@ -16,21 +16,21 @@ public abstract class Locations
 
 public class Quota: Locations
 {
-    public readonly int _moneyPerQuotaCheck;
+    public readonly int MoneyPerQuotaCheck;
     private readonly int _numQuotas;
-    public int _totalQuota;
+    public int TotalQuota;
     public Quota(int moneyPerQuotaCheck, int numQuotas)
     {
         Type = "Quota";
-        _moneyPerQuotaCheck = moneyPerQuotaCheck;
+        MoneyPerQuotaCheck = moneyPerQuotaCheck;
         _numQuotas = numQuotas;
         MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"].Initialize(0);
-        _totalQuota = MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"];
+        TotalQuota = MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"];
     }
 
     public override string GetTrackerText()
     {
-        return $"({Math.Min(_totalQuota/_moneyPerQuotaCheck, _numQuotas)}/{_numQuotas})";
+        return $"({Math.Min(TotalQuota/MoneyPerQuotaCheck, _numQuotas)}/{_numQuotas})";
     }
 
     public override void CheckComplete()
@@ -38,24 +38,24 @@ public class Quota: Locations
         if (!GameNetworkManager.Instance.localPlayerController.IsHost) return;
         if (!(TimeOfDay.Instance.profitQuota - TimeOfDay.Instance.quotaFulfilled <= 0f)) return;
         var quotaChecksMet = 0;
-        _totalQuota += TimeOfDay.Instance.profitQuota;
-        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"] = _totalQuota;
-        while ((quotaChecksMet + 1) * _moneyPerQuotaCheck <= _totalQuota && quotaChecksMet < _numQuotas)
+        TotalQuota += TimeOfDay.Instance.profitQuota;
+        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"] = TotalQuota;
+        while ((quotaChecksMet + 1) * MoneyPerQuotaCheck <= TotalQuota && quotaChecksMet < _numQuotas)
         {
             quotaChecksMet++;
             if (quotaChecksMet == (int)Math.Ceiling(_numQuotas / 4.0) - 1)
             {
-                MultiworldHandler.Instance.CompleteLocation("Quota 25%");
+                SaveManager.CompleteLocation("Quota 25%");
             }
             if (quotaChecksMet == (int)Math.Ceiling(_numQuotas / 2.0) - 1)
             {
-                MultiworldHandler.Instance.CompleteLocation("Quota 50%");
+                SaveManager.CompleteLocation("Quota 50%");
             }
             if (quotaChecksMet == (int)Math.Ceiling(3.0 * _numQuotas / 4.0) - 1)
             {
-                MultiworldHandler.Instance.CompleteLocation("Quota 75%");
+                SaveManager.CompleteLocation("Quota 75%");
             }
-            MultiworldHandler.Instance.CompleteLocation($"Quota check {quotaChecksMet}");
+            SaveManager.CompleteLocation($"Quota check {quotaChecksMet}");
         }
     }
 }
@@ -82,14 +82,14 @@ public class MoonLocations : Locations
         if (_timesChecked >= _maxChecks) return;
         var gradeNum = Array.IndexOf(new[] { "S", "A", "B", "C", "D", "F" }, grade);
         if (gradeNum > _grade) return;
-        MultiworldHandler.Instance.CompleteLocation($"{_name} check {_timesChecked+1}");
+        SaveManager.CompleteLocation($"{_name} check {_timesChecked+1}");
         for (int i = 1; i < _timesChecked + 1; i++)
         {
             long id = MultiworldHandler.Instance.GetSession().Locations
-                .GetLocationIdFromName("Lethal Company", $"{_name} check {_timesChecked + 1}");
+                .GetLocationIdFromName(MultiworldHandler.Instance.Game, $"{_name} check {_timesChecked + 1}");
             if (!MultiworldHandler.Instance.GetSession().Locations.AllLocationsChecked.Contains(id))
             {
-                MultiworldHandler.Instance.CompleteLocation($"{_name} check {_timesChecked+1}");
+                SaveManager.CompleteLocation($"{_name} check {_timesChecked+1}");
             }
         }
         _timesChecked++;
@@ -101,7 +101,7 @@ public class MoonLocations : Locations
     public override string GetTrackerText()
     {
         return
-            $"({_timesChecked}/{_maxChecks}) {(((MoonItems)MultiworldHandler.Instance.GetItemMap(_name)).GetTotal() > 0 ? MultiworldHandler.Instance.CheckTrophy(_name) ? "Trophy Found!" : "" : "Locked!")}";
+            $"({_timesChecked}/{_maxChecks}) {(((MoonItems)MwState.Instance.GetItemMap(_name)).GetTotal() > 0 ? MwState.Instance.CheckTrophy(_name) ? "Trophy Found!" : "" : "Locked!")}";
     }
 }
 
@@ -119,9 +119,9 @@ public class LogLocations : Locations
 
     public override void CheckComplete()
     {
-        if (Plugin._instance.getTerminal().unlockedStoryLogs.IndexOf(_logID) != -1)
+        if (Plugin.Instance.GetTerminal().unlockedStoryLogs.IndexOf(_logID) != -1)
         {
-            MultiworldHandler.Instance.CompleteLocation($"Log - {_logName}");
+            SaveManager.CompleteLocation($"Log - {_logName}");
         }
     }
 
@@ -145,9 +145,9 @@ public class BestiaryLocations : Locations
 
     public override void CheckComplete()
     {
-        if (Plugin._instance.getTerminal().scannedEnemyIDs.IndexOf(_bestiaryID) != -1)
+        if (Plugin.Instance.GetTerminal().scannedEnemyIDs.IndexOf(_bestiaryID) != -1)
         {
-            MultiworldHandler.Instance.CompleteLocation($"Bestiary Entry - {_bestiaryName}");
+            SaveManager.CompleteLocation($"Bestiary Entry - {_bestiaryName}");
         }
     }
 
@@ -160,47 +160,24 @@ public class BestiaryLocations : Locations
 public class ScrapLocations : Locations
 {
     private readonly string[] _scrapNames;
-    private readonly string[] _checkNames;
-    public readonly bool[] checkedScrap;
-    private readonly string[] checkNames =
-    {
-        "Airhorn", "Apparatice", "Bee Hive", "Big bolt", "Bottles", "Brass bell", "Candy", "Cash register",
-        "Chemical jug", "Clown horn", "Coffee mug", "Comedy", "Cookie mold pan", "DIY-Flashbang", "Double-barrel", "Dust pan",
-        "Egg beater", "Fancy lamp", "Flask", "Gift Box", "Gold bar", "Golden cup", "Hair brush", "Hairdryer",
-        "Jar of pickles", "Large axle", "Laser pointer", "Magic 7 ball", "Magnifying glass", "Old phone",
-        "Painting", "Perfume bottle", "Pill bottle", "Plastic fish", "Red soda", "Remote", "Ring", "Robot toy",
-        "Rubber Ducky", "Steering wheel", "Stop sign", "Tattered metal sheet", "Tea kettle", "Teeth", "Toothpaste",
-        "Toy cube", "Tragedy", "V-type engine", "Whoopie-Cushion", "Yield sign"
-    };
+    private readonly bool[] _checkedScrap;
 
-    private readonly string[] scrapNames =
-    {
-        "Airhorn", "Apparatus", "Hive", "Big bolt", "Bottles", "Bell", "Candy", "Cash register",
-        "Chemical jug", "Clown horn", "Mug", "Comedy", "Cookie mold pan", "Homemade flashbang", "Shotgun", "Dust pan",
-        "Egg beater", "Fancy lamp", "Flask", "Gift", "Gold bar", "Golden cup", "Brush", "Hairdryer",
-        "Jar of pickles", "Large axle", "Laser pointer", "Magic 7 ball", "Magnifying glass", "Old phone",
-        "Painting", "Perfume bottle", "Pill bottle", "Plastic fish", "Red soda", "Remote", "Ring", "Toy robot",
-        "Rubber Ducky", "Steering wheel", "Stop sign", "Metal sheet", "Tea kettle", "Teeth", "Toothpaste",
-        "Toy cube", "Tragedy", "V-type engine", "Whoopie cushion", "Yield sign"
-    };
-
-    public ScrapLocations(string[] scrapNames, string[] checkNames)
+    public ScrapLocations(string[] scrapNames)
     {
         Type = "scrap";
         _scrapNames = scrapNames;
-        _checkNames = checkNames;
-        checkedScrap = new bool[_checkNames.Length];
+        _checkedScrap = new bool[_scrapNames.Length];
         MultiworldHandler.Instance.GetSession()
             .DataStorage[
                 $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"]
-            .Initialize(checkedScrap);
-        checkedScrap = MultiworldHandler.Instance.GetSession().DataStorage[
+            .Initialize(_checkedScrap);
+        _checkedScrap = MultiworldHandler.Instance.GetSession().DataStorage[
             $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"];
     }
 
     public bool CheckCollected(string scrapName)
     {
-        return checkedScrap[Array.IndexOf(_scrapNames, scrapName)];
+        return _checkedScrap[Array.IndexOf(_scrapNames, scrapName)];
     }
 
     public override void CheckComplete()
@@ -217,7 +194,7 @@ public class ScrapLocations : Locations
             }
             if (name == "ap apparatus - custom")
             {
-                name = $"ap apparatus - {MultiworldHandler.Instance.GetCurrentMoonName().ToLower()}";
+                name = $"ap apparatus - {MwState.Instance.GetCurrentMoonName().ToLower()}";
             }
             for (int i = 0; i < _scrapNames.Length; i++)
             {
@@ -226,25 +203,25 @@ public class ScrapLocations : Locations
                     if (string.Equals(scrap.itemProperties.itemName.ToLower(), _scrapNames[i].ToLower(),
                             StringComparison.Ordinal))
                     {
-                        MultiworldHandler.Instance.CompleteLocation($"Scrap - {_checkNames[i]}");
+                        SaveManager.CompleteLocation($"Scrap - {_scrapNames[i]}");
 
-                        if (scrapNames.Contains(_scrapNames[i]) && MultiworldHandler.Instance.GetSession().Locations
-                                .GetLocationIdFromName("Lethal Company",
-                                    $"Scrap - {checkNames[Array.IndexOf(scrapNames, _scrapNames[i])]}") != -1)
+                        if (_scrapNames.Contains(name) && MultiworldHandler.Instance.GetSession().Locations
+                                .GetLocationIdFromName(MultiworldHandler.Instance.Game,
+                                    $"Scrap - {_scrapNames[Array.IndexOf(_scrapNames, name)]}") != -1)
                         {
-                            MultiworldHandler.Instance.CompleteLocation(
-                                $"Scrap - {checkNames[Array.IndexOf(scrapNames, _scrapNames[i])]}");
+                            SaveManager.CompleteLocation(
+                                $"Scrap - {_scrapNames[Array.IndexOf(_scrapNames, name)]}");
                         }
 
-                        checkedScrap[i] = true;
+                        _checkedScrap[i] = true;
                         MultiworldHandler.Instance.GetSession().DataStorage[
                                 $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"] =
-                            checkedScrap;
+                            _checkedScrap;
                     }
                 }
                 catch (IndexOutOfRangeException e)
                 {
-                    Plugin._instance.LogError($"Extra logging info: i: {i}, _scrapNames.Length: {_scrapNames.Length}, _checkNames.Length: {_checkNames.Length}, checkedScrap.Length: {checkedScrap.Length}, scrap: {scrap.itemProperties.itemName}\n\n" + e.Message + "\n" + e.StackTrace);
+                    Plugin.Instance.LogError($"Extra logging info: i: {i}, _scrapNames.Length: {_scrapNames.Length}, checkedScrap.Length: {_checkedScrap.Length}, scrap: {scrap.itemProperties.itemName}\n\n" + e.Message + "\n" + e.StackTrace);
                 }
             }
         }
@@ -253,13 +230,13 @@ public class ScrapLocations : Locations
     public override string GetTrackerText()
     {
         int count = 0;
-        foreach (var check in checkedScrap)
+        foreach (var check in _checkedScrap)
         {
             if (check)
             {
                 count++;
             }
         }
-        return $"{count}/{checkedScrap.Length}";
+        return $"{count}/{_checkedScrap.Length}";
     }
 }
