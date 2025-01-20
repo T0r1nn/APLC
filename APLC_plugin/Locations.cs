@@ -159,14 +159,11 @@ public class BestiaryLocations : Locations
 
 public class ScrapLocations : Locations
 {
-    private readonly string[] _scrapNames;
-    private readonly bool[] _checkedScrap;
+    private int _checkedScrap;
 
     public ScrapLocations(string[] scrapNames)
     {
         Type = "scrap";
-        _scrapNames = scrapNames;
-        _checkedScrap = new bool[_scrapNames.Length];
         MultiworldHandler.Instance.GetSession()
             .DataStorage[
                 $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"]
@@ -177,7 +174,8 @@ public class ScrapLocations : Locations
 
     public bool CheckCollected(string scrapName)
     {
-        return _checkedScrap[Array.IndexOf(_scrapNames, scrapName)];
+        return MultiworldHandler.Instance.GetSession().Locations.AllLocationsChecked.Contains(MultiworldHandler.Instance
+            .GetSession().Locations.GetLocationIdFromName(MultiworldHandler.Instance.Game, $"Scrap - {scrapName}"));
     }
 
     public override void CheckComplete()
@@ -187,56 +185,42 @@ public class ScrapLocations : Locations
             select obj).ToList();
         foreach (var scrap in list)
         {
-            string name = scrap.itemProperties.itemName.ToLower();
+            string scrapName = scrap.itemProperties.itemName;
             if (scrap.name.Contains("ap_apparatus_custom"))
             {
-                name = "ap apparatus - custom";
+                scrap.itemProperties.itemName = $"AP Apparatus - {MwState.Instance.GetCurrentMoonName().ToLower()}";
+                scrapName = $"AP Apparatus - {MwState.Instance.GetCurrentMoonName().ToLower()}";
             }
-            if (name == "ap apparatus - custom")
+            try
             {
-                name = $"ap apparatus - {MwState.Instance.GetCurrentMoonName().ToLower()}";
-            }
-            for (int i = 0; i < _scrapNames.Length; i++)
-            {
-                try
+                
+                if (scrap.itemProperties.isScrap)
                 {
-                    if (string.Equals(scrap.itemProperties.itemName.ToLower(), _scrapNames[i].ToLower(),
-                            StringComparison.Ordinal))
+                    SaveManager.CompleteLocation($"Scrap - {scrapName}");
+
+                    if (MultiworldHandler.Instance.GetSession().Locations
+                            .GetLocationIdFromName(MultiworldHandler.Instance.Game,
+                                $"Scrap - {scrapName}") != -1)
                     {
-                        SaveManager.CompleteLocation($"Scrap - {_scrapNames[i]}");
-
-                        if (_scrapNames.Contains(name) && MultiworldHandler.Instance.GetSession().Locations
-                                .GetLocationIdFromName(MultiworldHandler.Instance.Game,
-                                    $"Scrap - {_scrapNames[Array.IndexOf(_scrapNames, name)]}") != -1)
-                        {
-                            SaveManager.CompleteLocation(
-                                $"Scrap - {_scrapNames[Array.IndexOf(_scrapNames, name)]}");
-                        }
-
-                        _checkedScrap[i] = true;
-                        MultiworldHandler.Instance.GetSession().DataStorage[
-                                $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"] =
-                            _checkedScrap;
+                        SaveManager.CompleteLocation(
+                            $"Scrap - {scrapName}");
+                        _checkedScrap++;
                     }
+
+                    MultiworldHandler.Instance.GetSession().DataStorage[
+                            $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"] =
+                        _checkedScrap;
                 }
-                catch (IndexOutOfRangeException e)
-                {
-                    Plugin.Instance.LogError($"Extra logging info: i: {i}, _scrapNames.Length: {_scrapNames.Length}, checkedScrap.Length: {_checkedScrap.Length}, scrap: {scrap.itemProperties.itemName}\n\n" + e.Message + "\n" + e.StackTrace);
-                }
+            }
+            catch (IndexOutOfRangeException e)
+            {
+                Plugin.Instance.LogError($"Extra logging info: scrapName: {scrapName}, checkedScrap: {_checkedScrap}\n\n" + e.Message + "\n" + e.StackTrace);
             }
         }
     }
 
     public override string GetTrackerText()
     {
-        int count = 0;
-        foreach (var check in _checkedScrap)
-        {
-            if (check)
-            {
-                count++;
-            }
-        }
-        return $"{count}/{_checkedScrap.Length}";
+        return $"{_checkedScrap}/{MwState.Instance.GetScrapData().Keys.Count + StartOfRound.Instance.levels.Length - 13}";
     }
 }

@@ -296,6 +296,16 @@ public class Plugin : BaseUnityPlugin
             }
             foreach (var item in scrap)
             {
+                if (item.spawnableItem.itemName.Contains("AP Apparatus - ") &&
+                    moon.PlanetName.Contains(
+                        item.spawnableItem.itemName[new Range(15, item.spawnableItem.itemName.Length)]))
+                {
+                    item.spawnableItem.itemName = $"AP Apparatus - {moon.PlanetName}";
+                }else if (item.spawnableItem.itemName.Contains("AP Apparatus - ") && !item.spawnableItem.itemName.Contains("Custom"))
+                {
+                    continue;
+                }
+
                 scrapMap.TryAdd(item.spawnableItem.itemName, new Collection<Tuple<string, double>>());
                 var checkMoons = scrapMap.Get(item.spawnableItem.itemName);
                 bool existsAlready = false;

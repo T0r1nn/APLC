@@ -356,7 +356,7 @@ public class Patches
         if (dead && !MwState.Instance.IgnoreDL) MultiworldHandler.Instance.HandleDeathLink();
         if (dead) MwState.Instance.IgnoreDL = false;
         
-        ((MoonLocations)MwState.Instance.GetLocationMap(StartOfRound.Instance.currentLevel.PlanetName.Split(" ")[1])).OnFinishMoon(StartOfRound.Instance.currentLevel.PlanetName, grade);
+        ((MoonLocations)MwState.Instance.GetLocationMap(StartOfRound.Instance.currentLevel.PlanetName)).OnFinishMoon(StartOfRound.Instance.currentLevel.PlanetName, grade);
 
         if (MultiworldHandler.Instance.GetSlotSetting("scrapsanity") == 1)
         {

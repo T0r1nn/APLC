@@ -44,8 +44,8 @@ def get_default_location_map():
         scrap_names.append(key)
 
     for moon in moons:
-        if not f"AP Apparatus - {' '.join(moon.split(' ')[1:])}" in scrap_names:
-            scrap_names.append(f"AP Apparatus - {' '.join(moon.split(' ')[1:])}")
+        if not f"AP Apparatus - {moon}" in scrap_names:
+            scrap_names.append(f"AP Apparatus - {moon}")
 
     location_result = {}
 
@@ -90,9 +90,9 @@ def generate_locations(world: "LethalCompanyWorld"):
         world.scrap_names.append(key)
 
     for moon in moons:
-        if not f"AP Apparatus - {' '.join(moon.split(' ')[1:])}" in world.scrap_names:
-            world.scrap_names.append(f"AP Apparatus - {' '.join(moon.split(' ')[1:])}")
-            print(f"AP Apparatus - {' '.join(moon.split(' ')[1:])}")
+        if not f"AP Apparatus - {moon}" in world.scrap_names:
+            world.scrap_names.append(f"AP Apparatus - {moon}")
+            print(f"AP Apparatus - {moon}")
 
     if "AP Apparatus - Custom" in world.scrap_names:
         world.scrap_names.remove("AP Apparatus - Custom")
@@ -152,10 +152,10 @@ def generate_scrap_moons(world: "LethalCompanyWorld", chance: float) -> Dict[str
     scrap_data = world.imported_data["scrap"]
     for entry in scrap_data:
         key = [key for key in entry.keys()][0]
-        if key == "AP Apparatus - Custom":
+        if key.find("AP Apparatus") != -1:
             for moon in entry[key]:
                 if moon["chance"] > 0:
-                    scrap_moons[f"AP Apparatus - {' '.join(moon['moon_name'].split(' ')[1:])}"] = ([' '.join(moon['moon_name'].split(' ')[1:])] if moon["chance"] > chance else [])
+                    scrap_moons[f"AP Apparatus - {moon['moon_name']}"] = ([moon['moon_name']] if moon["chance"] > chance else [])
         else:
             s_moons = []
             for moon in entry[key]:
@@ -200,7 +200,7 @@ def generate_scrap_moons_alt(world: 'LethalCompanyWorld') -> Dict[str, List[str]
     scrap_moons["Hive"] = normal["Hive"]
 
     for moon in world.moons:
-        scrap_moons[f"AP Apparatus - {' '.join(moon.split(' ')[1:])}"] = [moon]
+        scrap_moons[f"AP Apparatus - {moon}"] = [moon]
         scrap_moons["Archipelago Chest"].append(moon)
 
     world.scrap_map = scrap_moons

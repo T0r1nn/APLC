@@ -7,6 +7,7 @@ using GameNetcodeStuff;
 using Newtonsoft.Json.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 namespace APLC;
@@ -436,6 +437,14 @@ public class MwState
         {
             moon = GetCurrentMoonName().ToLower();
         }
+
+        foreach (var level in StartOfRound.Instance.levels)
+        {
+            if (level.PlanetName.ToLower().Contains(moon.ToLower()))
+            {
+                moon = level.PlanetName.ToLower();
+            }
+        }
         for (var i = 0; i < _moons.Length; i++)
         {
             if (_trophyModeComplete[i] is string) continue;
@@ -701,5 +710,10 @@ public class MwState
         {
             Plugin.Instance.LogError(e.Message+"\n"+e.StackTrace);
         }
+    }
+
+    public Dictionary<string,Collection<Tuple<string,double>>> GetScrapData()
+    {
+        return _scrapData;
     }
 }

@@ -94,7 +94,7 @@ class LethalCompanyWorld(World):
     }
 
     location_name_groups = {
-        "Moons": {location for location in locations if " ".join(location.split(" ")[:-2]) in {moon for moon in data["moons"]}},
+        "Moons": {location for location in locations if location in {moon for moon in data["moons"]}},
         "Bestiary": {location for location in locations if "Bestiary" in location},
         "Scrap": {location for location in locations if "Scrap" in location},
         "Quota": {location for location in locations if "Quota" in location},
