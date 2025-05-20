@@ -368,7 +368,8 @@ public class MultiworldHandler
                     scrapMoons = [];
                     break;
                 }
-                scrapMoons[i] = scrapMoons[i].Trim();
+
+                scrapMoons[i] = scrapMoons[i].Trim().Substring(1, scrapMoons[i].Trim().Length-2);
             }
 
             scrapName = Char.IsLetter(scrapName.ToCharArray()[0]) ? scrapName[..^1] : scrapName.Substring(1, scrapName.Length - 3);
@@ -377,6 +378,16 @@ public class MultiworldHandler
 
             result.Add(scrapName, scrapMoons);
         }
+
+        foreach (var key in result.Keys)
+        {
+            Plugin.Instance.LogWarning(key+":");
+            foreach (var moon in result[key])
+            {
+                Plugin.Instance.LogWarning("    "+moon);
+            }
+        }
+
 
         return result;
         

@@ -2735,20 +2735,20 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\tyler\\.nuget\\packages\\": {}
+    "C:\\Users\\Tyler\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "0.7.1",
     "restore": {
-      "projectUniqueName": "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
+      "projectUniqueName": "C:\\Users\\Tyler\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
       "projectName": "APLC",
-      "projectPath": "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
-      "packagesPath": "C:\\Users\\tyler\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\obj\\",
+      "projectPath": "C:\\Users\\Tyler\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
+      "packagesPath": "C:\\Users\\Tyler\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Tyler\\Documents\\GitHub\\APLC\\APLC_plugin\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\tyler\\OneDrive\\Documents\\GitHub\\APLC\\APLC_plugin\\NuGet.Config",
-        "C:\\Users\\tyler\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\Tyler\\Documents\\GitHub\\APLC\\APLC_plugin\\NuGet.Config",
+        "C:\\Users\\Tyler\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "netstandard2.1"
@@ -2772,7 +2772,8 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      }
+      },
+      "SdkAnalysisLevel": "9.0.200"
     },
     "frameworks": {
       "netstandard2.1": {
@@ -2817,7 +2818,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.401\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200\\RuntimeIdentifierGraph.json"
       }
     }
   }

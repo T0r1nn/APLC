@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Archipelago integration for Lethal Company")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.7.1.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.7.1+4b3027cd7fe20b1294232ca4e6b252caecdc3d75")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.7.1+d5a5f687d794d47472062dee052a7a7c6b53850c")]
 [assembly: System.Reflection.AssemblyProductAttribute("APLC")]
 [assembly: System.Reflection.AssemblyTitleAttribute("APLC")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.7.1.0")]
