@@ -412,10 +412,10 @@ public class MultiworldHandler
         
         MethodInfo methodInfo = typeof(HUDManager).GetMethod("AddChatMessage", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        var parameters = new object[] { chat, "" };
+        var parameters = new object[] { chat, "", -1, false };
 
         Debug.Assert(methodInfo != null, nameof(methodInfo) + " != null");
-        
+
         methodInfo.Invoke(HUDManager.Instance, parameters);
     }
 
