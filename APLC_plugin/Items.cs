@@ -146,8 +146,8 @@ public class MoonItems : Items
         Setup(name, resetAll:true);
         for (var i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns.Length; i++)
         {
-            if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns[i].noun.word.ToLower()
-                .Contains(name.ToLower()))
+            if (name.ToLower()
+                .Contains(Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns[i].noun.word.ToLower()))
             {
                 _terminalIndex = i;
             }
