@@ -432,7 +432,6 @@ public class MwState
 
     public void CompleteTrophy(string moon, GrabbableObject scrap)
     {
-        if (Array.IndexOf(_trophyModeComplete, moon) != -1) return;
         if (moon.ToLower().Contains("custom") && !scrap.scrapPersistedThroughRounds)
         {
             moon = GetCurrentMoonName().ToLower();
@@ -445,6 +444,9 @@ public class MwState
                 moon = level.PlanetName.ToLower();
             }
         }
+
+        if (Array.IndexOf(_trophyModeComplete, moon) != -1) return;
+
         for (var i = 0; i < _moons.Length; i++)
         {
             if (_trophyModeComplete[i] is string) continue;
