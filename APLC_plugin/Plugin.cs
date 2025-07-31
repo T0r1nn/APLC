@@ -39,6 +39,12 @@ public class Plugin : BaseUnityPlugin
         return FindObjectOfType<Terminal>();
     }
 
+    [System.Diagnostics.Conditional("DEBUG")]
+    public void LogIfDebugBuild(string text)
+    {
+        Logger.LogDebug(text);
+    }
+
     /**
      * Logs a warning to the console
      */

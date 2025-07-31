@@ -464,10 +464,10 @@ public class MwState
 
         if (_trophyModeComplete[^1] is string)
         {
-            Plugin.Instance.LogWarning("Game should be complete. The following moons had their trophies collected:");
+            Plugin.Instance.LogInfo("Game should be complete. The following moons had their trophies collected:");
             foreach (string trophy in _trophyModeComplete)
             {
-                Plugin.Instance.LogWarning(trophy);
+                Plugin.Instance.LogInfo(trophy);
             }
         }
 
@@ -523,7 +523,7 @@ public class MwState
         
         string planetName = StartOfRound.Instance.currentLevel.PlanetName;
 
-        if (planetName != "Gordion" || _apConnection.GetSlotSetting("randomizecompany") == 1)
+        if (planetName != "71 Gordion" || _apConnection.GetSlotSetting("randomizecompany") == 1)
         {
             if (GetItemMap<MoonItems>(planetName).GetTotal() < 1 || (GetStartingMoon() != planetName && _apConnection.GetSlotSetting("randomizeterminal")==1 && GetItemMap<PlayerUpgrades>("Terminal").GetNum() < 1))
             {
@@ -681,8 +681,8 @@ public class MwState
         foreach (var itemName in _apConnection.GetReceivedItems())
         {
             Items item = GetItemMap(itemName);
-            Plugin.Instance.LogWarning(itemName);   
-            Plugin.Instance.LogWarning(item.GetType().FullName);
+            Plugin.Instance.LogIfDebugBuild(itemName);   
+            Plugin.Instance.LogIfDebugBuild(item.GetType().FullName);
             if (item.GetType() == typeof(MoonItems))
             {
                 return itemName;
