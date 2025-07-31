@@ -432,8 +432,9 @@ public class MwState
 
     public void CompleteTrophy(string moon, GrabbableObject scrap)
     {
-        if (moon.ToLower().Contains("custom") && !scrap.scrapPersistedThroughRounds)
+        if (moon.ToLower().Contains("custom"))
         {
+            if (scrap.scrapPersistedThroughRounds) return;
             moon = GetCurrentMoonName().ToLower();
         }
 
@@ -459,6 +460,15 @@ public class MwState
         for (int i = 0; i < _moons.Length; i++)
         {
             moonNames[i] = _moons[i].PlanetName;
+        }
+
+        if (_trophyModeComplete[^1] is string)
+        {
+            Plugin.Instance.LogWarning("Game should be complete. The following moons had their trophies collected:");
+            foreach (string trophy in _trophyModeComplete)
+            {
+                Plugin.Instance.LogWarning(trophy);
+            }
         }
 
         if (moonNames.Any(m => Array.IndexOf(_trophyModeComplete, m.ToLower()) == -1)) return;
@@ -671,7 +681,7 @@ public class MwState
         foreach (var itemName in _apConnection.GetReceivedItems())
         {
             Items item = GetItemMap(itemName);
-            Plugin.Instance.LogWarning(itemName);
+            Plugin.Instance.LogWarning(itemName);   
             Plugin.Instance.LogWarning(item.GetType().FullName);
             if (item.GetType() == typeof(MoonItems))
             {
