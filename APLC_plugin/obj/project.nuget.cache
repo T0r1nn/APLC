@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "nsWA2RK9/98=",
+  "dgSpecHash": "Qh4tG3fpuzs=",
   "success": true,
   "projectFilePath": "C:\\Users\\Tyler\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Tyler\\.nuget\\packages\\archipelago.multiclient.net\\6.0.0-rc5\\archipelago.multiclient.net.6.0.0-rc5.nupkg.sha512",
+    "C:\\Users\\Tyler\\.nuget\\packages\\archipelago.multiclient.net\\6.6.0\\archipelago.multiclient.net.6.6.0.nupkg.sha512",
     "C:\\Users\\Tyler\\.nuget\\packages\\bepinex.analyzers\\1.0.8\\bepinex.analyzers.1.0.8.nupkg.sha512",
     "C:\\Users\\Tyler\\.nuget\\packages\\bepinex.baselib\\5.4.20\\bepinex.baselib.5.4.20.nupkg.sha512",
     "C:\\Users\\Tyler\\.nuget\\packages\\bepinex.core\\5.4.21\\bepinex.core.5.4.21.nupkg.sha512",
@@ -42,7 +42,8 @@
     "C:\\Users\\Tyler\\.nuget\\packages\\system.text.encoding\\4.3.0\\system.text.encoding.4.3.0.nupkg.sha512",
     "C:\\Users\\Tyler\\.nuget\\packages\\system.threading\\4.3.0\\system.threading.4.3.0.nupkg.sha512",
     "C:\\Users\\Tyler\\.nuget\\packages\\system.threading.tasks\\4.3.0\\system.threading.tasks.4.3.0.nupkg.sha512",
-    "C:\\Users\\Tyler\\.nuget\\packages\\unityengine.modules\\2022.3.9\\unityengine.modules.2022.3.9.nupkg.sha512"
+    "C:\\Users\\Tyler\\.nuget\\packages\\unityengine.modules\\2022.3.9\\unityengine.modules.2022.3.9.nupkg.sha512",
+    "C:\\Users\\Tyler\\.nuget\\packages\\microsoft.net.sdk.compilers.toolset\\9.0.200\\microsoft.net.sdk.compilers.toolset.9.0.200.nupkg.sha512"
   ],
   "logs": []
 }

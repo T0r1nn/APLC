@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     ".NETStandard,Version=v2.1": {
-      "Archipelago.MultiClient.Net/6.0.0-rc5": {
+      "Archipelago.MultiClient.Net/6.6.0": {
         "type": "package",
         "compile": {
           "lib/netstandard2.0/Archipelago.MultiClient.Net.dll": {
@@ -640,15 +640,15 @@
     }
   },
   "libraries": {
-    "Archipelago.MultiClient.Net/6.0.0-rc5": {
-      "sha512": "xfgDSAfASYrIT4929iJ8TPkbBUWV5OTe5fcirZwOcBzbYFWhcPuVM5s9Pa3vrLH1r0ZHLafu7UvEqGEreZfg6Q==",
+    "Archipelago.MultiClient.Net/6.6.0": {
+      "sha512": "ZUNmgZg1zsMwoRaTFz0rqm9UwpUcqCkAsW6GAgLwE749dRmonPLimhYU/AryA4BagTGblL5ce9euwWU4Oj1YSw==",
       "type": "package",
-      "path": "archipelago.multiclient.net/6.0.0-rc5",
+      "path": "archipelago.multiclient.net/6.6.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "README.md",
-        "archipelago.multiclient.net.6.0.0-rc5.nupkg.sha512",
+        "archipelago.multiclient.net.6.6.0.nupkg.sha512",
         "archipelago.multiclient.net.nuspec",
         "blue-icon.png",
         "lib/net35/Archipelago.MultiClient.Net.dll",
@@ -2727,7 +2727,7 @@
   },
   "projectFileDependencyGroups": {
     ".NETStandard,Version=v2.1": [
-      "Archipelago.MultiClient.Net >= 6.0.0-rc5",
+      "Archipelago.MultiClient.Net >= 6.6.0",
       "BepInEx.Analyzers >= 1.*",
       "BepInEx.Core >= 5.*",
       "BepInEx.PluginInfoProps >= 1.*",
@@ -2738,7 +2738,7 @@
     "C:\\Users\\Tyler\\.nuget\\packages\\": {}
   },
   "project": {
-    "version": "0.7.1",
+    "version": "0.7.3",
     "restore": {
       "projectUniqueName": "C:\\Users\\Tyler\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
       "projectName": "APLC",
@@ -2771,7 +2771,7 @@
       "restoreAuditProperties": {
         "enableAudit": "true",
         "auditLevel": "low",
-        "auditMode": "direct"
+        "auditMode": "all"
       },
       "SdkAnalysisLevel": "9.0.200"
     },
@@ -2781,7 +2781,7 @@
         "dependencies": {
           "Archipelago.MultiClient.Net": {
             "target": "Package",
-            "version": "[6.0.0-rc5, )"
+            "version": "[6.6.0, )"
           },
           "BepInEx.Analyzers": {
             "suppressParent": "All",
@@ -2813,6 +2813,12 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.Net.Sdk.Compilers.Toolset",
+            "version": "[9.0.200, 9.0.200]"
+          }
+        ],
         "frameworkReferences": {
           "NETStandard.Library": {
             "privateAssets": "all"

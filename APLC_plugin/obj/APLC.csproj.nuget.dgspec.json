@@ -5,7 +5,7 @@
   },
   "projects": {
     "C:\\Users\\Tyler\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj": {
-      "version": "0.7.1",
+      "version": "0.7.3",
       "restore": {
         "projectUniqueName": "C:\\Users\\Tyler\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
         "projectName": "APLC",
@@ -38,7 +38,7 @@
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
-          "auditMode": "direct"
+          "auditMode": "all"
         },
         "SdkAnalysisLevel": "9.0.200"
       },
@@ -48,7 +48,7 @@
           "dependencies": {
             "Archipelago.MultiClient.Net": {
               "target": "Package",
-              "version": "[6.0.0-rc5, )"
+              "version": "[6.6.0, )"
             },
             "BepInEx.Analyzers": {
               "suppressParent": "All",
@@ -80,6 +80,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.Net.Sdk.Compilers.Toolset",
+              "version": "[9.0.200, 9.0.200]"
+            }
+          ],
           "frameworkReferences": {
             "NETStandard.Library": {
               "privateAssets": "all"
