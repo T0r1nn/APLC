@@ -699,10 +699,12 @@ public class MwState
         {
             //ChatHandler.SendMessage($"AP: {link.Cause}");
 
-            int selected = Random.Range(0, GameNetworkManager.Instance.connectedPlayers);
-            PlayerControllerB[] players = StartOfRound.Instance.allPlayerScripts;
-            ulong[] steamIds = new ulong[players.Length];
-            for (int i = 0; i < players.Length; i++)
+            Random.InitState(link.Timestamp.Millisecond);
+
+            var selected = Random.Range(0, GameNetworkManager.Instance.connectedPlayers);
+            var players = StartOfRound.Instance.allPlayerScripts;
+            var steamIds = new ulong[players.Length];
+            for (var i = 0; i < players.Length; i++)
             {
                 steamIds[i] = players[i].playerSteamId;
             }
@@ -712,11 +714,9 @@ public class MwState
 
             Plugin.Instance.LogWarning("Attempting to kill player with steam id " + steamIds[selected]);
 
-            if (StartOfRound.Instance.localPlayerController.playerSteamId == steamIds[selected])
-            {
-                WaitingForDeath = true;
-                DLMessage = link.Cause;
-            }
+            if (StartOfRound.Instance.localPlayerController.playerSteamId != steamIds[selected]) return;
+            WaitingForDeath = true;
+            DLMessage = link.Cause;
         }
         catch (Exception e)
         {

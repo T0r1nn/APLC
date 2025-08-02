@@ -3,7 +3,7 @@ Download the following two files from the [Releases page in Github](https://gith
 - lethal_company.yaml
 - lethal_company.apworld
 
-You also need to install the [Archipelago Multiworld Randomizer version 0.5.1](https://github.com/ArchipelagoMW/Archipelago/releases/latest) client.
+You also need to install the [Archipelago Multiworld Randomizer](https://github.com/ArchipelagoMW/Archipelago/releases/latest) client.
 
 Install the APLC mod from the Thunderstore (you may also install the mod via the R2ModManager, Gale, or other Thunderstore alternatives).
 
@@ -61,7 +61,7 @@ generate a .zip in the Output folder found in your archipelago installation, in 
 where the players folder is. Once the generation finishes, navigate to [the archipelago](https://archipelago.gg)
 website, click on get started, then click Host Game, then "Upload File" and select the zip
 folder in the Output subfolder of your Archipelago folder. The game will generate along with
-the Spoiler log. Click on Create New Room and that’s done! The Archipelago server is now
+the Spoiler log. Click on Create New Room and that's done! The Archipelago server is now
 running!
 
 ### Setting up the mod
@@ -122,7 +122,7 @@ EXPERIMENTAL FEATURE - WILL CHANGE OVER TIME, MAY BE BUGGY AND BROKEN
 As of 0.6.0, APLC now supports adding custom scrap, monsters, moons, and store items to the randomizer.
 To do this, first you must install all custom content that you want to include, as well as the UnityExplorer
 mod. Boot up the game and create a new save file, then open the C# console. From the dropdown, click REPL, then
-replace all content in the file with the line: APLC.Plugin._instance.GetGameLogicString(); Click run, then navigate
+replace all content in the file with the line: APLC.Plugin.Instance.GetGameLogicString(); Click run, then navigate
 to the Lethal Company console window. Highlight any text to temporarily pause the game, preventing the console from
 autoscrolling while you are trying to copy the logic string, then highlight the entirety of the logic string, from
 the first { to the last }. Once it's highlighted, copy it, then go to your lethal company apworld. Rename the file to
