@@ -60,7 +60,7 @@ public class MultiworldHandler
         _session.Items.ItemReceived += OnItemReceived;
         _session.MessageLog.OnMessageReceived += OnMessageReceived;
         var result = _session.TryConnectAndLogin(Game, info.Slot, ItemsHandlingFlags.AllItems,
-            new Version(0, 5, 0), [], password: info.Password);
+            new Version(0, 5, 0), [], password: info.Password.Equals("") ? null : info.Password);
 
         if (!result.Successful)
         {
@@ -412,10 +412,10 @@ public class MultiworldHandler
         
         MethodInfo methodInfo = typeof(HUDManager).GetMethod("AddChatMessage", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        var parameters = new object[] { chat, "" };
+        var parameters = new object[] { chat, "", -1, false };
 
         Debug.Assert(methodInfo != null, nameof(methodInfo) + " != null");
-        
+
         methodInfo.Invoke(HUDManager.Instance, parameters);
     }
 

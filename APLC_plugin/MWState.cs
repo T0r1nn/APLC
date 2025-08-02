@@ -432,9 +432,9 @@ public class MwState
 
     public void CompleteTrophy(string moon, GrabbableObject scrap)
     {
-        if (Array.IndexOf(_trophyModeComplete, moon) != -1) return;
-        if (moon.ToLower().Contains("custom") && !scrap.scrapPersistedThroughRounds)
+        if (moon.ToLower().Contains("custom"))
         {
+            if (scrap.scrapPersistedThroughRounds) return;
             moon = GetCurrentMoonName().ToLower();
         }
 
@@ -445,6 +445,9 @@ public class MwState
                 moon = level.PlanetName.ToLower();
             }
         }
+
+        if (Array.IndexOf(_trophyModeComplete, moon) != -1) return;
+
         for (var i = 0; i < _moons.Length; i++)
         {
             if (_trophyModeComplete[i] is string) continue;
@@ -457,6 +460,15 @@ public class MwState
         for (int i = 0; i < _moons.Length; i++)
         {
             moonNames[i] = _moons[i].PlanetName;
+        }
+
+        if (_trophyModeComplete[^1] is string)
+        {
+            Plugin.Instance.LogInfo("Game should be complete. The following moons had their trophies collected:");
+            foreach (string trophy in _trophyModeComplete)
+            {
+                Plugin.Instance.LogInfo(trophy);
+            }
         }
 
         if (moonNames.Any(m => Array.IndexOf(_trophyModeComplete, m.ToLower()) == -1)) return;
@@ -511,7 +523,7 @@ public class MwState
         
         string planetName = StartOfRound.Instance.currentLevel.PlanetName;
 
-        if (planetName != "Gordion" || _apConnection.GetSlotSetting("randomizecompany") == 1)
+        if (planetName != "71 Gordion" || _apConnection.GetSlotSetting("randomizecompany") == 1)
         {
             if (GetItemMap<MoonItems>(planetName).GetTotal() < 1 || (GetStartingMoon() != planetName && _apConnection.GetSlotSetting("randomizeterminal")==1 && GetItemMap<PlayerUpgrades>("Terminal").GetNum() < 1))
             {
@@ -669,8 +681,8 @@ public class MwState
         foreach (var itemName in _apConnection.GetReceivedItems())
         {
             Items item = GetItemMap(itemName);
-            Plugin.Instance.LogWarning(itemName);
-            Plugin.Instance.LogWarning(item.GetType().FullName);
+            Plugin.Instance.LogIfDebugBuild(itemName);   
+            Plugin.Instance.LogIfDebugBuild(item.GetType().FullName);
             if (item.GetType() == typeof(MoonItems))
             {
                 return itemName;

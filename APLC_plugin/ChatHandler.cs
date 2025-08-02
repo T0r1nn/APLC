@@ -84,7 +84,7 @@ public static class ChatHandler
                 }
                 if (_waitingForPassword)
                 {
-                    _password = message == "n" ? null : message;
+                    _password = message == "n" ? "" : message;
 
                     _waitingForPassword = false;
                     
