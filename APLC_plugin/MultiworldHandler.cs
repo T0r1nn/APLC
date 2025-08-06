@@ -187,6 +187,11 @@ public class MultiworldHandler
         ""Vow"",
         ""March""
     ],
+    ""Sapsucker Egg"": [
+        ""Assurance"",
+        ""Vow"",
+        ""Adamance""
+    ],
     ""Big bolt"": [
         ""Assurance""
     ],

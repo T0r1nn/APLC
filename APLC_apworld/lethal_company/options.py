@@ -311,6 +311,15 @@ class ExcludeHive(Toggle):
     slot_name = "excludehive"
 
 
+class ExcludeEgg(Toggle):
+    """
+    Makes it so there is guaranteed to be a filler item or trap in the sapsucker egg scrapsanity check
+    """
+    display_name = "Exclude Egg"
+    slot = True
+    slot_name = "excludeegg"
+
+
 class SplitMoonGrades(Toggle):
     """
     Enables customizing the required grade for easy, medium, and hard moons separately.
@@ -472,6 +481,7 @@ class LCOptions(PerGameCommonOptions):
     min_scrap_chance: ScrapSpawnChance #done
     exclude_killing: ExcludeShotguns
     exclude_hive: ExcludeHive
+    exclude_egg: ExcludeEgg
     modify_scrap_spawns: ModifyScrapSpawns
     min_money: MinMoneyCheck #done
     max_money: MaxMoneyCheck #done

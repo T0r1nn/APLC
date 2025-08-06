@@ -49,7 +49,8 @@ class LethalCompanyWeb(WebWorld):
             options.MaxMoneyCheck,
             options.ModifyScrapSpawns,
             options.ExcludeShotguns,
-            options.ExcludeHive
+            options.ExcludeHive,
+            options.ExcludeEgg
         ], True),
         OptionGroup("Weights", [
             options.MoneyWeight,

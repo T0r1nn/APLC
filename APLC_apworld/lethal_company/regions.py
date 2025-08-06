@@ -84,7 +84,7 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
                                                                        and (check_item_accessible(state, "Shovel",
                                                                                                   player, options)
                                                                             or (s_name != "Shotgun"
-                                                                                and s_name != "Knife"))))
+                                                                                and s_name != "Kitchen knife"))))
                 else:
                     multiworld.get_region(moon, player).connect(multiworld.get_region(scrap_name, player),
                                                                 rule=lambda state, s_name=scrap_name:
@@ -93,18 +93,18 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
                                                                  and (check_item_accessible(state, "Shovel",
                                                                                             player, options)
                                                                       or (s_name != "Shotgun"
-                                                                          and s_name != "Knife"))))
+                                                                          and s_name != "Kitchen knife"))))
 
     logs.append(Region("Sound Behind the Wall", player, multiworld))
     multiworld.regions.append(logs[-1])
     company_building.connect(logs[0])
-    logs.append(Region("Smells Here!", player, multiworld))
+    logs.append(Region("Mummy", player, multiworld))
     multiworld.regions.append(logs[-1])
     multiworld.get_region("220 Assurance", player).connect(logs[1])
     logs.append(Region("Swing of Things", player, multiworld))
     multiworld.regions.append(logs[-1])
     multiworld.get_region("41 Experimentation", player).connect(logs[2])
-    logs.append(Region("Shady", player, multiworld))
+    logs.append(Region("Autopilot", player, multiworld))
     multiworld.regions.append(logs[-1])
     multiworld.get_region("41 Experimentation", player).connect(logs[3],
                                                              rule=lambda state: (state.has("Stamina Bar", player)
@@ -145,6 +145,12 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
                                                          or options.randomize_terminal == 0)
                                                     and (state.has("Company Building", player)
                                                          or options.randomize_company_building == 0)))
+    logs.append(Region("Team Synergy", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("20 Adamance", player).connect(logs[12])
+    logs.append(Region("Letter of Resignation", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("68 Artifice", player).connect(logs[13])
 
     # Generate locations
     for i in range(options.checks_per_moon.value):

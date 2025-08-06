@@ -191,6 +191,10 @@ public class ScrapLocations : Locations
                 //scrap.itemProperties.itemName = $"AP Apparatus - {MwState.Instance.GetCurrentMoonName().ToLower()}";
                 scrapName = $"AP Apparatus - {MwState.Instance.GetCurrentMoonName().ToLower()}";
             }
+            if (scrap.name.Contains("KiwiBabyItem"))
+            {
+                scrapName = "Sapsucker Egg";
+            }
             try
             {
                 

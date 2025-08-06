@@ -286,8 +286,9 @@ public class Plugin : BaseUnityPlugin
         {
             { "Apparatus", new Collection<Tuple<string, double>>() },
             { "Shotgun", new Collection<Tuple<string, double>>() },
-            { "Knife", new Collection<Tuple<string, double>>() },
-            { "Hive", new Collection<Tuple<string, double>>() }
+            { "Kitchen knife", new Collection<Tuple<string, double>>() },
+            { "Hive", new Collection<Tuple<string, double>>() },
+            { "Sapsucker Egg", new Collection<Tuple<string, double>>() }
         };
 
         foreach (SelectableLevel moon in moons)
@@ -417,6 +418,10 @@ public class Plugin : BaseUnityPlugin
                 {
                     scrapMap.Get("Hive").Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[0]));
                 }
+                else if (item.enemyType.enemyName.Contains("GiantKiwi"))
+                {
+                    scrapMap.Get("Sapsucker Egg").Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[0]));
+                }
             }
             foreach (var item in outside)
             {
@@ -500,7 +505,7 @@ public class Plugin : BaseUnityPlugin
                     }
                     if (item.enemyType.enemyName.Contains("Butler"))
                     {
-                        scrapMap.Get("Knife").Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[2]));
+                        scrapMap.Get("Kitchen knife").Add(new Tuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[2]));
                     }
                 }
             }
