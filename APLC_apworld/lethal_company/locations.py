@@ -128,8 +128,13 @@ def generate_bestiary_moons(world: "LethalCompanyWorld", chance: float) -> Dict[
         key = [key for key in entry.keys()][0]
         b_moons = []
         for moon in entry[key]:
-            if moon["chance"] > chance:
+            if moon["chance"] >= chance:
                 b_moons.append(moon["moon_name"])
+        if b_moons == []:
+                best_moon = max(entry[key], key=lambda moon_spawns: moon_spawns["chance"])
+                if best_moon["chance"] > 0:
+                    b_moons.append(best_moon["moon_name"])    # ensures that the location is still 'accessible' as long as it can be found SOMEWHERE
+                    b_moons.append("excluded")     # special indicator that this location should be excluded
         bestiary_moons[key] = b_moons
 
     return bestiary_moons
@@ -163,9 +168,14 @@ def generate_scrap_moons(world: "LethalCompanyWorld", chance: float) -> Dict[str
         else:
             s_moons = []
             for moon in entry[key]:
-                if moon["chance"] > chance:
+                if moon["chance"] >= chance:
                     s_moons.append(moon["moon_name"])
-                scrap_moons[key] = s_moons
+            if s_moons == []:
+                best_moon = max(entry[key], key=lambda moon_spawns: moon_spawns["chance"])
+                if best_moon["chance"] > 0:
+                    s_moons.append(best_moon["moon_name"])    # ensures that the location is still 'accessible' as long as it can be found SOMEWHERE
+                    s_moons.append("excluded")     # special indicator that this location should be excluded
+            scrap_moons[key] = s_moons
 
     return scrap_moons
 

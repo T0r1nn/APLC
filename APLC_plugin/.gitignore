@@ -1,5 +1,10 @@
 ﻿.idea/*
 bin/*
 obj/*
+!obj/Debug
+obj/Debug/*
+!obj/Debug/netstandard2.1
+obj/Debug/netstandard2.1/*
+!obj/Debug/netstandard2.1/PluginInfo.cs
 .vs/*
 *.sln
