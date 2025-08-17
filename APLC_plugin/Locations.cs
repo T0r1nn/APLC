@@ -197,7 +197,6 @@ public class ScrapLocations : Locations
             }
             try
             {
-                
                 if (scrap.itemProperties.isScrap)
                 {
                     SaveManager.CompleteLocation($"Scrap - {scrapName}");

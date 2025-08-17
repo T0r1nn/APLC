@@ -42,7 +42,7 @@ public class Plugin : BaseUnityPlugin
     [System.Diagnostics.Conditional("DEBUG")]
     public void LogIfDebugBuild(string text)
     {
-        Logger.LogDebug(text);
+        Plugin.Instance.LogWarning(text);
     }
 
     /**
@@ -305,9 +305,20 @@ public class Plugin : BaseUnityPlugin
             {
                 if (item.spawnableItem.itemName.Contains("AP Apparatus - ") &&
                     moon.PlanetName.Contains(
-                        item.spawnableItem.itemName[new Range(15, item.spawnableItem.itemName.Length)]))
+                        item.spawnableItem.itemName[new Range(15, item.spawnableItem.itemName.Length)]))    
                 {
-                    item.spawnableItem.itemName = $"AP Apparatus - {moon.PlanetName}";
+                    if (item.spawnableItem.itemName.Contains("Adamance"))   // Adamance has two apparatuses, and the second one seems to replace the one in moon.spawnableScrap.
+                                                                            // This is an expensive and hacky way to fix it, but I don't have a better one right now
+                    {
+                        var spawningItems = Resources.FindObjectsOfTypeAll<Item>().Where(item => item.spawnPrefab && item.itemName.Contains("AP Apparatus - Adamance")).ToHashSet();
+
+                        foreach (var appy in spawningItems)
+                        {
+                            appy.itemName = $"AP Apparatus - {moon.PlanetName}";
+                        }
+                    }
+                    else
+                        item.spawnableItem.itemName = $"AP Apparatus - {moon.PlanetName}";
                 }else if (item.spawnableItem.itemName.Contains("AP Apparatus - ") && !item.spawnableItem.itemName.Contains("Custom"))
                 {
                     continue;
