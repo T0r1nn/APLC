@@ -72,6 +72,7 @@ public class MultiworldHandler
             errorMessage = failure.ErrorCodes.Aggregate(errorMessage, (current, error) => current + $"\n    {error}");
 
             HUDManager.Instance.AddTextToChatOnServer($"AP: <color=red>{errorMessage}</color>");
+            Plugin.Instance.LogError(errorMessage);
             _session = null;
             return;
         }

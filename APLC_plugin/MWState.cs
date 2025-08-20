@@ -36,6 +36,7 @@ public class MwState
     public MwState(ConnectionInfo connectionInfo)
     {
         _apConnection = new MultiworldHandler(connectionInfo);
+        if (MultiworldHandler.Instance == null) return;
         _apConnection.ProcessItems += ProcessItems;
         _apConnection.RefreshItems += RefreshItems;
         _apConnection.ResetItems += ResetItems;
