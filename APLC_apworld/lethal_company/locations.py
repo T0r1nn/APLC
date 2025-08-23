@@ -194,7 +194,7 @@ def generate_scrap_moons_alt(world: 'LethalCompanyWorld') -> Dict[str, List[str]
             scrap.remove(name)
         elif "Archipelago Chest" in name:
             scrap.remove(name)
-        elif "Apparatus" in name or "Shotgun" in name or "Kitchen knife" in name or "Hive" in name or "Egg" in name:
+        elif "Apparatus" in name or "Shotgun" in name or "Kitchen knife" in name or "Hive" in name or "Sapsucker Egg" in name:
             scrap.remove(name)
 
     items_per_bin = math.floor(len(scrap) / len(world.moons))
@@ -212,7 +212,7 @@ def generate_scrap_moons_alt(world: 'LethalCompanyWorld') -> Dict[str, List[str]
     scrap_moons["Shotgun"] = normal["Shotgun"]
     scrap_moons["Kitchen knife"] = normal["Kitchen knife"]
     scrap_moons["Hive"] = normal["Hive"]
-    scrap_moons["Egg"] = normal["Egg"]
+    scrap_moons["Sapsucker Egg"] = normal["Sapsucker Egg"]
 
     for moon in world.moons:
         scrap_moons[f"AP Apparatus - {moon}"] = [moon]
