@@ -60,7 +60,7 @@ public class MultiworldHandler
         _session.Items.ItemReceived += OnItemReceived;
         _session.MessageLog.OnMessageReceived += OnMessageReceived;
         var result = _session.TryConnectAndLogin(Game, info.Slot, ItemsHandlingFlags.AllItems,
-            new Version(0, 5, 0), [], password: info.Password.Equals("") ? null : info.Password);
+            new Version(0, 6, 2), [], password: info.Password.Equals("") ? null : info.Password);
 
         if (!result.Successful)
         {

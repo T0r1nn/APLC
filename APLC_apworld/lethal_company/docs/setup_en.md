@@ -1,5 +1,5 @@
 ## Setup
-Download the following two files from the [Releases page in Github](https://github.com/Awesomeness278/APLC/releases/latest):
+Download the following two files from the [Releases page in Github](https://github.com/T0r1nn/APLC/releases/latest):
 - lethal_company.yaml
 - lethal_company.apworld
 
