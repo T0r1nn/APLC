@@ -568,4 +568,16 @@ public class Patches
 
         return true;
     }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GrabbableObject), nameof(GrabbableObject.Start))]
+    private static void ChangeNamesOfCustomTrophies(GrabbableObject __instance)
+    {
+        
+        if (!__instance.isInShipRoom && __instance.name.Contains("ap_apparatus_custom"))
+        {
+            string planetName = StartOfRound.Instance.currentLevel.PlanetName;
+            __instance.GetComponentInChildren<ScanNodeProperties>().headerText = $"AP Apparatus - {(int.TryParse(planetName.Split(" ", 2)[0],out _) ? planetName.Split(" ", 2)[1] : planetName)}";
+        }
+    }
 }

@@ -70,16 +70,19 @@ public class Logic
             {
                 case "Experimentation":
                     moon.AddLocation("Log - Swing of Things");
-                    moon.AddLocation(new Location("Log - Shady", state=>state.Has("Stamina Bar", 2)));
+                    moon.AddLocation(new Location("Log - Autopilot", state=>state.Has("Stamina Bar", 2)));  // this might have been renamed to Log - Autopilot
                     break;
                 case "Assurance":
-                    moon.AddLocation("Log - Smells Here!");
+                    moon.AddLocation("Log - Mummy");     // this might have been renamed to Log - Mummy
                     break;
                 case "Vow":
                     moon.AddLocation("Log - Screams");
                     break;
                 case "March":
                     moon.AddLocation("Log - Goodbye");
+                    break;
+                case "Adamance":
+                    moon.AddLocation("Log - Team Synergy");
                     break;
                 case "Rend":
                     moon.AddLocation("Log - Golden Planet");
@@ -92,6 +95,9 @@ public class Logic
                 case "Titan":
                     moon.AddLocation(new Location("Log - Real job", state => state.HasAny("Jetpack", "Extension ladder") && canBuy(state)));
                     moon.AddLocation(new Location("Log - Desmond", state => state.Has("Jetpack") && canBuy(state)));
+                    break;
+                case "Artifice":
+                    moon.AddLocation("Log - Letter of Resignation");
                     break;
             }
         }
@@ -135,7 +141,7 @@ public class Logic
         foreach (string scrap in scrapNames)
         {
             Region scrapRegion = new Region(scrap);
-            if (scrap is "Shotgun" or "Knife")
+            if (scrap is "Shotgun" or "Kitchen knife")
             {
                 scrapRegion.AddLocation(new Location($"Scrap - {scrap}", state=>canBuy(state)&&state.Has("Shovel")));
             }

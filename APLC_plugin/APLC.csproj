@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>APLC</AssemblyName>
         <Description>Archipelago integration for Lethal Company</Description>
-        <Version>0.7.3</Version>
+        <Version>0.7.5</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
@@ -14,7 +14,9 @@
     </Target>
  
     <ItemGroup>
-        <PackageReference Include="Archipelago.MultiClient.Net" Version="6.6.0" />
+        <PackageReference Include="Archipelago.MultiClient.Net" Version="6.6.1">
+          <GeneratePathProperty>True</GeneratePathProperty>
+        </PackageReference>
         <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
         <PackageReference Include="BepInEx.Core" Version="5.*" />
         <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
@@ -27,37 +29,37 @@
 
     <ItemGroup>
         <Reference Include="Assembly-CSharp">
-            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Assembly-CSharp.dll</HintPath> <!-- Edit this to the actual location -->
+            <HintPath>$(ManagedDirectory)Assembly-CSharp.dll</HintPath>
         </Reference>
         <Reference Include="Unity.InputSystem">
-            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.InputSystem.dll</HintPath>
+            <HintPath>$(ManagedDirectory)Unity.InputSystem.dll</HintPath>
         </Reference>
         <Reference Include="Assembly-CSharp-firstpass">
-            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath> <!-- Edit this to the actual location -->
+            <HintPath>$(ManagedDirectory)Assembly-CSharp-firstpass.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine">
-            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\UnityEngine.dll</HintPath> <!-- Edit this to the actual location -->
+            <HintPath>$(ManagedDirectory)UnityEngine.dll</HintPath>
         </Reference>
         <Reference Include="Unity.Netcode.Runtime">
-            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.Netcode.Runtime.dll</HintPath> <!-- Edit this to the actual location -->
+            <HintPath>$(ManagedDirectory)Unity.Netcode.Runtime.dll</HintPath>
         </Reference>
         <Reference Include="Unity.TextMeshPro">
-            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.TextMeshPro.dll</HintPath> <!-- Edit this to the actual location -->
+            <HintPath>$(ManagedDirectory)Unity.TextMeshPro.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.UI">
-            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\UnityEngine.UI.dll</HintPath> <!-- Edit this to the actual location -->
+            <HintPath>$(ManagedDirectory)UnityEngine.UI.dll</HintPath>
         </Reference>
         <Reference Include="Facepunch.Steamworks.Win64">
-            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Facepunch.Steamworks.Win64.dll</HintPath> <!-- Edit this to the actual location -->
+            <HintPath>$(ManagedDirectory)Facepunch.Steamworks.Win64.dll</HintPath>
         </Reference>
         <Reference Include="Facepunch.Steamworks.Win64">
-            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Facepunch.Steamworks.Win64.dll</HintPath> <!-- Edit this to the actual location -->
+            <HintPath>$(ManagedDirectory)Facepunch.Steamworks.Win64.dll</HintPath>
         </Reference>
         <Reference Include="LethalAPI.Terminal.dll">
-            <HintPath>C:\Users\tyler\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\AP\BepInEx\plugins\LethalAPI-LethalAPI_Terminal\LethalAPI.Terminal.dll</HintPath>
+            <HintPath>$(LethalAPITerminalDirectory)LethalAPI.Terminal.dll</HintPath>
         </Reference>
         <Reference Include="LethalLevelLoader.dll">
-            <HintPath>C:\Users\tyler\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\AP\BepInEx\plugins\IAmBatby-LethalLevelLoader\LethalLevelLoader.dll</HintPath>
+            <HintPath>$(LethalLevelLoaderDirectory)LethalLevelLoader.dll</HintPath>
         </Reference>
     </ItemGroup>
 </Project>

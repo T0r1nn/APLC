@@ -64,9 +64,10 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
         multiworld.regions.append(bestiary[-1])
         can_spawn = bestiary_moons[monster]
         for moon in can_spawn:
-            multiworld.get_region(moon, player).connect(multiworld.get_region(monster, player),
-                                                        rule=lambda state: (state.has("Scanner", player)
-                                                                            or options.randomize_scanner.value == 0))
+            if moon != "excluded":
+                multiworld.get_region(moon, player).connect(multiworld.get_region(monster, player),
+                                                            rule=lambda state: (state.has("Scanner", player)
+                                                                                or options.randomize_scanner.value == 0))
 
     if options.scrapsanity.value == 1:
         for scrap_name in world.scrap_names:
@@ -84,8 +85,8 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
                                                                        and (check_item_accessible(state, "Shovel",
                                                                                                   player, options)
                                                                             or (s_name != "Shotgun"
-                                                                                and s_name != "Knife"))))
-                else:
+                                                                                and s_name != "Kitchen knife"))))
+                elif moon != "excluded":
                     multiworld.get_region(moon, player).connect(multiworld.get_region(scrap_name, player),
                                                                 rule=lambda state, s_name=scrap_name:
                                                                 ((state.has("Stamina Bar", player)
@@ -93,18 +94,18 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
                                                                  and (check_item_accessible(state, "Shovel",
                                                                                             player, options)
                                                                       or (s_name != "Shotgun"
-                                                                          and s_name != "Knife"))))
+                                                                          and s_name != "Kitchen knife"))))
 
     logs.append(Region("Sound Behind the Wall", player, multiworld))
     multiworld.regions.append(logs[-1])
     company_building.connect(logs[0])
-    logs.append(Region("Smells Here!", player, multiworld))
+    logs.append(Region("Mummy", player, multiworld))
     multiworld.regions.append(logs[-1])
     multiworld.get_region("220 Assurance", player).connect(logs[1])
     logs.append(Region("Swing of Things", player, multiworld))
     multiworld.regions.append(logs[-1])
     multiworld.get_region("41 Experimentation", player).connect(logs[2])
-    logs.append(Region("Shady", player, multiworld))
+    logs.append(Region("Autopilot", player, multiworld))
     multiworld.regions.append(logs[-1])
     multiworld.get_region("41 Experimentation", player).connect(logs[3],
                                                              rule=lambda state: (state.has("Stamina Bar", player)
@@ -145,6 +146,12 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
                                                          or options.randomize_terminal == 0)
                                                     and (state.has("Company Building", player)
                                                          or options.randomize_company_building == 0)))
+    logs.append(Region("Team Synergy", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("20 Adamance", player).connect(logs[12])
+    logs.append(Region("Letter of Resignation", player, multiworld))
+    multiworld.regions.append(logs[-1])
+    multiworld.get_region("68 Artifice", player).connect(logs[13])
 
     # Generate locations
     for i in range(options.checks_per_moon.value):
@@ -158,17 +165,25 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
         add_location(player, f"Log - {log}", multiworld.get_region(log, player))
 
     for monster in world.bestiary_names:
-        add_location(player, f"Bestiary Entry - {monster}", multiworld.get_region(monster, player))
         if len(bestiary_moons[monster]) < 1:
+            import logging
+            logging.warning(f"Cannot find any moon that spawns Monster - {monster} for player {world.player_name}. This monster may not be scannable.")
+        #else:
+        add_location(player, f"Bestiary Entry - {monster}", multiworld.get_region(monster, player))
+        if len(bestiary_moons[monster]) < 1 or (len(bestiary_moons[monster]) <= 2 and bestiary_moons[monster][-1] == 'excluded'):
             multiworld.get_location(f"Bestiary Entry - {monster}", player).item_rule = lambda item: not \
                     (item.classification == ItemClassification.progression or
                      item.classification == ItemClassification.useful)
 
     if options.scrapsanity.value == 1:
         for scrap_name in world.scrap_names:
+            if len(scrap_moons[scrap_name]) < 1:
+                import logging
+                logging.warning(f"Cannot find any moon that spawns Scrap - {scrap_name} for player {world.player_name}. This scrap may not be obtainable.")
+            #else:
             add_location(player, f"Scrap - {scrap_name}", multiworld.get_region(scrap_name, player))
 
-            if len(scrap_moons[scrap_name]) < 1:
+            if len(scrap_moons[scrap_name]) < 1 or (len(scrap_moons[scrap_name]) <= 2 and scrap_moons[scrap_name][-1] == 'excluded'):
                 multiworld.get_location(f"Scrap - {scrap_name}", player).item_rule = lambda item: not \
                     (item.classification == ItemClassification.progression or
                      item.classification == ItemClassification.useful)

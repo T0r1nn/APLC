@@ -49,7 +49,8 @@ class LethalCompanyWeb(WebWorld):
             options.MaxMoneyCheck,
             options.ModifyScrapSpawns,
             options.ExcludeShotguns,
-            options.ExcludeHive
+            options.ExcludeHive,
+            options.ExcludeEgg
         ], True),
         OptionGroup("Weights", [
             options.MoneyWeight,
@@ -102,7 +103,7 @@ class LethalCompanyWorld(World):
     }
 
     data_version = 7
-    required_client_version = (0, 5, 0)
+    required_client_version = (0, 6, 2)
     web = LethalCompanyWeb()
     initial_world: string
     scrap_map = {}

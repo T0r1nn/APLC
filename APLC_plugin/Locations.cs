@@ -188,12 +188,15 @@ public class ScrapLocations : Locations
             string scrapName = scrap.itemProperties.itemName;
             if (scrap.name.Contains("ap_apparatus_custom"))
             {
-                scrap.itemProperties.itemName = $"AP Apparatus - {MwState.Instance.GetCurrentMoonName().ToLower()}";
+                //scrap.itemProperties.itemName = $"AP Apparatus - {MwState.Instance.GetCurrentMoonName().ToLower()}";
                 scrapName = $"AP Apparatus - {MwState.Instance.GetCurrentMoonName().ToLower()}";
+            }
+            if (scrap.name.Contains("KiwiBabyItem"))
+            {
+                scrapName = "Sapsucker Egg";
             }
             try
             {
-                
                 if (scrap.itemProperties.isScrap)
                 {
                     SaveManager.CompleteLocation($"Scrap - {scrapName}");

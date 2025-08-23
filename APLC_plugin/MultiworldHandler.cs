@@ -60,7 +60,7 @@ public class MultiworldHandler
         _session.Items.ItemReceived += OnItemReceived;
         _session.MessageLog.OnMessageReceived += OnMessageReceived;
         var result = _session.TryConnectAndLogin(Game, info.Slot, ItemsHandlingFlags.AllItems,
-            new Version(0, 5, 0), [], password: info.Password.Equals("") ? null : info.Password);
+            new Version(0, 6, 2), [], password: info.Password.Equals("") ? null : info.Password);
 
         if (!result.Successful)
         {
@@ -72,6 +72,7 @@ public class MultiworldHandler
             errorMessage = failure.ErrorCodes.Aggregate(errorMessage, (current, error) => current + $"\n    {error}");
 
             HUDManager.Instance.AddTextToChatOnServer($"AP: <color=red>{errorMessage}</color>");
+            Plugin.Instance.LogError(errorMessage);
             _session = null;
             return;
         }
@@ -186,6 +187,11 @@ public class MultiworldHandler
         ""Assurance"",
         ""Vow"",
         ""March""
+    ],
+    ""Sapsucker Egg"": [
+        ""Assurance"",
+        ""Vow"",
+        ""Adamance""
     ],
     ""Big bolt"": [
         ""Assurance""
@@ -419,7 +425,7 @@ public class MultiworldHandler
         methodInfo.Invoke(HUDManager.Instance, parameters);
     }
 
-    private void OnItemReceived(ReceivedItemsHelper helper)
+    private void OnItemReceived(IReceivedItemsHelper helper)
     {
         string itemName = helper.PeekItem().ItemName;
         _receivedItemNames.Add(itemName);

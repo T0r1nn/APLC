@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+   <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+      <PropertyGroup>
+         <!-- Edit these to the actual location -->
+         <GameDirectory>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\</GameDirectory>
+         <LethalAPITerminalDirectory>C:\Users\tyler\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\AP\BepInEx\plugins\LethalAPI-LethalAPI_Terminal\</LethalAPITerminalDirectory>
+         <LethalLevelLoaderDirectory>C:\Users\tyler\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\AP\BepInEx\plugins\IAmBatby-LethalLevelLoader\</LethalLevelLoaderDirectory>
+      </PropertyGroup>
+
+      <!-- Do Not Modify -->
+      <PropertyGroup>
+         <ManagedDirectory>$(GameDirectory)Lethal Company_Data/Managed/</ManagedDirectory>
+         <ThunderstoreDirectory>$(ProjectDir)Thunderstore\</ThunderstoreDirectory>
+      </PropertyGroup>
+      
+      <!-- Important dll files get copied over after NetcodePatcher has processed our DLL -->
+      <Target Name="CopyToModFolder" DependsOnTargets="NetcodePatch" AfterTargets="PostBuildEvent" Condition="$(ConfigurationName) == Release">
+         <MakeDir
+            Directories="$(ThunderstoreDirectory)/"
+            Condition="!Exists('$(ThunderstoreDirectory)/')"
+         />
+         <!-- We will copy the project dll and the dll of the Archipelago version we are using -->
+         <Copy SourceFiles="$(ProjectDir)bin/Release/netstandard2.1/APLC.dll" DestinationFolder="$(ThunderstoreDirectory)/"/>
+         <Copy SourceFiles="$(PkgArchipelago_MultiClient_Net)\lib\netstandard2.0\Archipelago.MultiClient.Net.dll" DestinationFolder="$(ThunderstoreDirectory)/"/>
+         <Exec Command="echo '[csproj.user] Mod files copied to $(ThunderstoreDirectory)'" />
+      </Target>
+   </Project>

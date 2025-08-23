@@ -36,6 +36,7 @@ public class MwState
     public MwState(ConnectionInfo connectionInfo)
     {
         _apConnection = new MultiworldHandler(connectionInfo);
+        if (MultiworldHandler.Instance == null) return;
         _apConnection.ProcessItems += ProcessItems;
         _apConnection.RefreshItems += RefreshItems;
         _apConnection.ResetItems += ResetItems;
@@ -167,9 +168,9 @@ public class MwState
             }
 
             //Logs
-            _locationMap.Add("Smells Here!", new LogLocations(1, "Smells Here!"));
+            _locationMap.Add("Mummy", new LogLocations(1, "Mummy"));
             _locationMap.Add("Swing of Things", new LogLocations(2, "Swing of Things"));
-            _locationMap.Add("Shady", new LogLocations(3, "Shady"));
+            _locationMap.Add("Autopilot", new LogLocations(3, "Autopilot"));
             _locationMap.Add("Sound Behind the Wall", new LogLocations(4, "Sound Behind the Wall"));
             _locationMap.Add("Goodbye", new LogLocations(5, "Goodbye"));
             _locationMap.Add("Screams", new LogLocations(6, "Screams"));
@@ -179,6 +180,8 @@ public class MwState
             _locationMap.Add("Hiding", new LogLocations(10, "Hiding"));
             _locationMap.Add("Real Job", new LogLocations(11, "Real Job"));
             _locationMap.Add("Desmond", new LogLocations(12, "Desmond"));
+            _locationMap.Add("Team Synergy", new LogLocations(13, "Team Synergy"));
+            _locationMap.Add("Letter of Resignation", new LogLocations(14, "Letter of Resignation"));
 
             //Scrap
             if (_apConnection.GetSlotSetting("fixscrapsanity") == 1)
