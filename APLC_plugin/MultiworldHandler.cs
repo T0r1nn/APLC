@@ -425,7 +425,7 @@ public class MultiworldHandler
         methodInfo.Invoke(HUDManager.Instance, parameters);
     }
 
-    private void OnItemReceived(ReceivedItemsHelper helper)
+    private void OnItemReceived(IReceivedItemsHelper helper)
     {
         string itemName = helper.PeekItem().ItemName;
         _receivedItemNames.Add(itemName);
