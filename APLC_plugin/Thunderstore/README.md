@@ -132,8 +132,6 @@ To set up a world with custom content, follow these steps:
 6. Inside the lethal_company folder, replace the contents of imported.py with 'data = ', then paste your logic string. 
 7. Right click the lethal_company folder and select 'Send to' > 'Compressed (zipped) folder'. When prompted to name the file, change the '.zip' extension to '.apworld'.
 Now, you can generate a multiworld using this apworld with the custom content.
-If you have trouble using UnityExplorer, refer to the following image:
-![alt text](./APLC_apworld/lethal_company/docs/UnityExplorer.png "UnityExplorer Reference Image")
 
 ### Using custom content in multiworlds with other lethal company games
 Once you have your custom content apworld, to make it compatible with other people you need to do a few more steps.
