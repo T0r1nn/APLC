@@ -234,6 +234,7 @@ public class MwState
                                     Plugin.Instance.LogError(e.Message + "\n" + e.StackTrace);
                                     if (scrapName.Contains("AP Apparatus"))
                                     {
+                                        Plugin.Instance.LogError(e.Message + "\n" + e.StackTrace);
                                         SpawnableItemWithRarity item = scrapNameToScrapMap["ap_apparatus_custom"];
                                         scrap.Add(item);
                                     }
