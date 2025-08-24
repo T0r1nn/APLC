@@ -60,7 +60,15 @@ public class Plugin : BaseUnityPlugin
     {
         Logger.LogInfo(message);
     }
-    
+
+    /**
+     * Logs info to the output file but not the console
+     */
+    public void LogDebug(string message)
+    {
+        Logger.LogDebug(message);
+    }
+
     /**
      * Logs an error to the console
      */

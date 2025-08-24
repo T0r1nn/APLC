@@ -130,7 +130,7 @@ public class Patches
     [HarmonyPrefix]
     internal static void GameNetworkManagerStart_Prefix(GameNetworkManager __instance)
     {
-        Plugin.Instance.LogWarning("Attempting to create APLC Network Manager");
+        Plugin.Instance.LogInfo("Attempting to create APLC Network Manager");
         
         GameObject networkManagerPrefab = PrefabHelper.CreateNetworkPrefab("APLCNetworkManager");
         networkManagerPrefab.AddComponent<APLCNetworking>();

@@ -131,19 +131,19 @@ public class MwState
                 {
                     _locationMap.Add(moonName,
                         new MoonLocations(moonName, lowGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
-                    Plugin.Instance.LogWarning($"Easy: {moonName}");
+                    Plugin.Instance.LogInfo($"Easy: {moonName}");
                 }
                 else if (cost < 120)
                 {
                     _locationMap.Add(moonName,
                         new MoonLocations(moonName, medGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
-                    Plugin.Instance.LogWarning($"Medium: {moonName}");
+                    Plugin.Instance.LogInfo($"Medium: {moonName}");
                 }
                 else
                 {
                     _locationMap.Add(moonName,
                         new MoonLocations(moonName, highGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
-                    Plugin.Instance.LogWarning($"Hard: {moonName}");
+                    Plugin.Instance.LogInfo($"Hard: {moonName}");
                 }
             }
 
@@ -225,7 +225,7 @@ public class MwState
                                     }
 
                                     //AP Apparatus - Artifice doesn't work
-                                    Plugin.Instance.LogWarning(keyName);
+                                    Plugin.Instance.LogDebug(keyName);
                                     SpawnableItemWithRarity item = scrapNameToScrapMap[keyName];
                                     scrap.Add(item);
                                 }
@@ -233,7 +233,7 @@ public class MwState
                                 {
                                     if (scrapName.Contains("AP Apparatus"))
                                     {
-                                        Plugin.Instance.LogWarning(e.Message + "\n" + e.StackTrace);
+                                        Plugin.Instance.LogError(e.Message + "\n" + e.StackTrace);
                                         SpawnableItemWithRarity item = scrapNameToScrapMap["ap_apparatus_custom"];
                                         scrap.Add(item);
                                     }
@@ -697,7 +697,7 @@ public class MwState
     
     private static void KillRandom(DeathLink link)
     {
-        Plugin.Instance.LogWarning("Received death link");
+        Plugin.Instance.LogInfo("Received death link");
         try
         {
             //ChatHandler.SendMessage($"AP: {link.Cause}");
@@ -715,7 +715,7 @@ public class MwState
             Array.Sort(steamIds);
             Array.Reverse(steamIds);
 
-            Plugin.Instance.LogWarning("Attempting to kill player with steam id " + steamIds[selected]);
+            Plugin.Instance.LogInfo("Attempting to kill player with steam id " + steamIds[selected]);
 
             if (StartOfRound.Instance.localPlayerController.playerSteamId != steamIds[selected]) return;
             WaitingForDeath = true;

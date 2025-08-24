@@ -44,7 +44,7 @@ public class Logic
         for (var index = 0; index < moonNames.Length; index++)
         {
             var moonName = moonNames[index];
-            Plugin.Instance.LogWarning(moonName);
+            Plugin.Instance.LogDebug(moonName);
             if (moonName == startingMoon.GetName())
             {
                 _moons[index] = startingMoon;
