@@ -1,6 +1,6 @@
 {
   "name": "APLC",
-  "version_number": "0.7.6",
+  "version_number": "0.8.0",
   "website_url": "https://github.com/T0r1nn/APLC",
   "description": "Archipelago integration for Lethal Company.",
   "dependencies": [
