@@ -28,7 +28,7 @@ public class Plugin : BaseUnityPlugin
         Patches.Patch();
         TerminalCommands.Patch();
     
-        LogInfo("Plugin APLC Loaded");
+        LogInfo($"Plugin APLC Loaded - Version {PluginInfo.PLUGIN_VERSION}");
     }
 
     /**

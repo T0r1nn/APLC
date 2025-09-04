@@ -2,9 +2,14 @@
 bin/*
 obj/*
 !obj/Debug
+!obj/Release
 obj/Debug/*
+obj/Release/*
 !obj/Debug/netstandard2.1
+!obj/Release/netstandard2.1
 obj/Debug/netstandard2.1/*
+obj/Release/netstandard2.1/*
 !obj/Debug/netstandard2.1/PluginInfo.cs
+!obj/Release/netstandard2.1/PluginInfo.cs
 .vs/*
 *.sln
