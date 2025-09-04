@@ -231,7 +231,8 @@ public class Logic
 
                 for (var index = 0; index < moonRegion.GetConnections().Count; index++)
                 {
-                    if (moonRegion.GetConnections()[index].GetExit().GetName().Contains("AP Apparatus - Custom"))
+                    if (moonRegion.GetConnections()[index].GetExit() != null && 
+                        moonRegion.GetConnections()[index].GetExit().GetName().Contains("AP Apparatus - Custom"))
                     {
                         moonRegion.GetConnections().Remove(moonRegion.GetConnections()[index]);
                     }
@@ -306,6 +307,11 @@ public class Logic
                 {
                     if (!closedRegions.Contains(connection.GetExit()) && !openRegions.Contains(connection.GetExit()))
                     {
+                        if (connection.GetExit() == null)
+                        {
+                            Plugin.Instance.LogWarning($"A region connected to {closedRegions.Last().GetName()} was null when executing GetAccessibleLocations! Skipping this region.");
+                            continue;
+                        }
                         openRegions.Add(connection.GetExit());
                     }
                 }
@@ -338,6 +344,11 @@ public class Logic
                 {
                     if (!closedRegions.Contains(connection.GetExit()) && !openRegions.Contains(connection.GetExit()))
                     {
+                        if (connection.GetExit() == null)
+                        {
+                            Plugin.Instance.LogWarning($"A region connected to {closedRegions.Last().GetName()} was null when executing GetAccessibleRegions! Skipping this region.");
+                            continue;
+                        }
                         openRegions.Add(connection.GetExit());
                     }
                 }
