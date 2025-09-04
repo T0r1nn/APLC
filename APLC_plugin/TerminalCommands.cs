@@ -346,7 +346,30 @@ Money - {MwState.Instance.GetItemMap<FillerItems>("Money").GetReceived() - MwSta
         SaveManager.SaveConfig();
         return $"Set game name to Lethal Company - {text}";
     }
-    
+
+    [TerminalCommand("aplogic", true), CommandInfo("Generates a logic string for custom content and allows copying to clipboard.\nUsage: " +
+        "\n\taplogic print - Outputs the logic string in the game log." +
+        "\n\taplogic copy - Copies the logic string to the clipboard.")]
+    public string LogicCommand(Terminal caller, [RemainingText] string text)
+    {
+        string logic_string = Plugin.Instance.GetGameLogicString();
+        if (text.ToLower() == "copy")
+        {
+            UnityEngine.GUIUtility.systemCopyBuffer = logic_string; 
+            return "Successfully copied logic string to clipboard!";
+        }
+        else if (text == "print")
+        {
+            Plugin.Instance.LogInfo(logic_string);
+            return "The logic string can now be found in the game log.\nIf you wish to copy the logic string to your clipboard, type 'aplogic copy'.";
+        }
+        else
+        {
+            return "Invalid argument. Type 'aplogic' to see the logic string, or 'aplogic copy' to copy it to your clipboard.";
+        }
+    }
+
+
     private static string GenerateMoonProgressTracker()
     {
         return StartOfRound.Instance.levels.Select(moon => moon.PlanetName).Where(moonName => !moonName.Contains("Gordion") && !moonName.Contains("Liquidation")).Aggregate("", (current, moonName) => current + $"    {moonName} {MwState.Instance.GetLocationMap(moonName).GetTrackerText()}\n");
