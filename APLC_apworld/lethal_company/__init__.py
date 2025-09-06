@@ -13,7 +13,15 @@ from .imported import data
 from Options import OptionGroup
 from . import options
 from .custom_content import custom_content
+from worlds.LauncherComponents import components, Component, launch_subprocess, Type, icon_paths
 
+def launch_client():
+    from .adjuster import launch
+    launch_subprocess(launch, name='LC Adjuster')   # todo: add a launch function for necessary stuff
+    
+components.append(Component("LC Adjuster",
+                            func=launch_client,
+                            component_type=Type.ADJUSTER))
 
 class LethalCompanyWeb(WebWorld):
     option_groups = [
