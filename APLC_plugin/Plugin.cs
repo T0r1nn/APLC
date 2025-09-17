@@ -314,10 +314,29 @@ public class Plugin : BaseUnityPlugin
             if (moon.PlanetName.Contains("Gordion") || moon.PlanetName.Contains("Liquidation")) continue;
 
             var scrap = moon.spawnableScrap;
-            int totalRarity = 0;
+            double totalRarity = 0;
+            var interiors = LethalLevelLoader.DungeonManager.GetValidExtendedDungeonFlows(LethalLevelLoader.LevelManager.GetExtendedLevel(moon), false);
+            int totalInteriorRarity = 0;
+            foreach (var interior in interiors)
+            {
+                totalInteriorRarity += interior.rarity;
+            }
             foreach (var item in scrap)
             {
-                totalRarity += item.rarity;
+                if (item.rarity == 0)   // this seems to work for interior-specific scrap that spawn under normal conditions (apparatuses don't, unfortunately)
+                {
+
+                    var extendedScrap = LethalLevelLoader.PatchedContent.ExtendedItems.Find(extItem => extItem.Item.Equals(item.spawnableItem));
+                    foreach (var interior in interiors)
+                    {
+                        if (extendedScrap != null && extendedScrap.DungeonMatchingProperties.GetDynamicRarity(interior.extendedDungeonFlow) != 0)
+                        {
+                            totalRarity += extendedScrap.DungeonMatchingProperties.GetDynamicRarity(interior.extendedDungeonFlow) * ((double)interior.rarity / totalInteriorRarity);
+                        }
+                    }
+                }
+                else
+                    totalRarity += item.rarity;
             }
             foreach (var item in scrap)
             {
@@ -346,14 +365,28 @@ public class Plugin : BaseUnityPlugin
                 scrapMap.TryAdd(scrapName, new Collection<Tuple<string, double>>());
                 var checkMoons = scrapMap.Get(scrapName);
                 bool existsAlready = false;
-                
+
+                double rarity = item.rarity;
+
+                if (rarity == 0)
+                {
+                    var extendedScrap = LethalLevelLoader.PatchedContent.ExtendedItems.Find(extItem => extItem.Item.Equals(item.spawnableItem));
+                    foreach (var interior in interiors)
+                    {
+                        if (extendedScrap != null && extendedScrap.DungeonMatchingProperties.GetDynamicRarity(interior.extendedDungeonFlow) != 0)
+                        {
+                            rarity += extendedScrap.DungeonMatchingProperties.GetDynamicRarity(interior.extendedDungeonFlow) * ((double)interior.rarity / totalInteriorRarity);
+                        }
+                    }
+                }
+
                 for (var index = 0; index < checkMoons.Count; index++)
                 {
                     var entry = checkMoons[index];
                     if (entry.Item1 == moon.PlanetName)
                     {
                         checkMoons[index] = new Tuple<string, double>(entry.Item1,
-                            entry.Item2 + (double)item.rarity / totalRarity);
+                            entry.Item2 + rarity / totalRarity);
                         existsAlready = true;
                     }
                 }
