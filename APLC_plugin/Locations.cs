@@ -189,7 +189,7 @@ public class ScrapLocations : Locations
             if (scrap.name.Contains("ap_apparatus_custom"))
             {
                 //scrap.itemProperties.itemName = $"AP Apparatus - {MwState.Instance.GetCurrentMoonName().ToLower()}";
-                scrapName = $"AP Apparatus - {MwState.Instance.GetCurrentMoonName().ToLower()}";
+                scrapName = $"AP Apparatus - {MwState.Instance.GetCurrentMoonName()}";
             }
             if (scrap.name.Contains("KiwiBabyItem"))
             {
