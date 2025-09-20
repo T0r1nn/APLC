@@ -136,25 +136,26 @@ public class MoonItems : Items
     private readonly string _name;
     public MoonItems(string name)
     {
-        for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+        Terminal terminal = Plugin.Instance.GetTerminal();
+        for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
         {
-            if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Route")
+            if (terminal.terminalNodes.allKeywords[i].name == "Route")
             {
                 _keywordIndex = i;
             }
         }
         Setup(name, resetAll:true);
-        for (var i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns.Length; i++)
+        for (var i = 0; i < terminal.terminalNodes.allKeywords[_keywordIndex].compatibleNouns.Length; i++)
         {
             if (String.Join("", name.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries))
-                .Contains(Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns[i].noun.word.ToLower(), StringComparison.OrdinalIgnoreCase))
+                .Contains(terminal.terminalNodes.allKeywords[_keywordIndex].compatibleNouns[i].noun.word.ToLower(), StringComparison.OrdinalIgnoreCase))
             {
                 _terminalIndex = i;
             }
         }
-        
-        Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns[_terminalIndex].result.itemCost = 0;
-        Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns[_terminalIndex].result.terminalOptions[1].result
+
+        terminal.terminalNodes.allKeywords[_keywordIndex].compatibleNouns[_terminalIndex].result.itemCost = 0;
+        terminal.terminalNodes.allKeywords[_keywordIndex].compatibleNouns[_terminalIndex].result.terminalOptions[1].result
             .itemCost = 0;
 
         for (int i = 0; i < StartOfRound.Instance.levels.Length; i++)

@@ -27,33 +27,34 @@ ____________________________
     {
         if (!_setIndecies)
         {
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            Terminal terminal = Plugin.Instance.GetTerminal();
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Moons")
+                if (terminal.terminalNodes.allKeywords[i].name == "Moons")
                 {
                     _moonsIndex = i;
                 }
             }
 
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Sigurd")
+                if (terminal.terminalNodes.allKeywords[i].name == "Sigurd")
                 {
                     _logsIndex = i;
                 }
             }
 
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Bestiary")
+                if (terminal.terminalNodes.allKeywords[i].name == "Bestiary")
                 {
                     _bestiaryIndex = i;
                 }
             }
 
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Store")
+                if (terminal.terminalNodes.allKeywords[i].name == "Store")
                 {
                     _storeIndex = i;
                 }
@@ -124,33 +125,34 @@ ____________________________
     {
         if (!_setIndecies)
         {
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            Terminal terminal = Plugin.Instance.GetTerminal();
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Moons")
+                if (terminal.terminalNodes.allKeywords[i].name == "Moons")
                 {
                     _moonsIndex = i;
                 }
             }
 
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Sigurd")
+                if (terminal.terminalNodes.allKeywords[i].name == "Sigurd")
                 {
                     _logsIndex = i;
                 }
             }
 
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Bestiary")
+                if (terminal.terminalNodes.allKeywords[i].name == "Bestiary")
                 {
                     _bestiaryIndex = i;
                 }
             }
 
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Store")
+                if (terminal.terminalNodes.allKeywords[i].name == "Store")
                 {
                     _storeIndex = i;
                 }
@@ -175,33 +177,34 @@ To read a log, use keyword ""VIEW"" before its name.
     {
         if (!_setIndecies)
         {
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            Terminal terminal = Plugin.Instance.GetTerminal();
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Moons")
+                if (terminal.terminalNodes.allKeywords[i].name == "Moons")
                 {
                     _moonsIndex = i;
                 }
             }
 
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Sigurd")
+                if (terminal.terminalNodes.allKeywords[i].name == "Sigurd")
                 {
                     _logsIndex = i;
                 }
             }
 
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Bestiary")
+                if (terminal.terminalNodes.allKeywords[i].name == "Bestiary")
                 {
                     _bestiaryIndex = i;
                 }
             }
 
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Store")
+                if (terminal.terminalNodes.allKeywords[i].name == "Store")
                 {
                     _storeIndex = i;
                 }
@@ -226,33 +229,34 @@ To access a creature file, type ""INFO"" after its name.
     {
         if (!_setIndecies)
         {
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            Terminal terminal = Plugin.Instance.GetTerminal();
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Moons")
+                if (terminal.terminalNodes.allKeywords[i].name == "Moons")
                 {
                     _moonsIndex = i;
                 }
             }
 
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Sigurd")
+                if (terminal.terminalNodes.allKeywords[i].name == "Sigurd")
                 {
                     _logsIndex = i;
                 }
             }
 
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Bestiary")
+                if (terminal.terminalNodes.allKeywords[i].name == "Bestiary")
                 {
                     _bestiaryIndex = i;
                 }
             }
 
-            for (int i = 0; i < Plugin.Instance.GetTerminal().terminalNodes.allKeywords.Length; i++)
+            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
             {
-                if (Plugin.Instance.GetTerminal().terminalNodes.allKeywords[i].name == "Store")
+                if (terminal.terminalNodes.allKeywords[i].name == "Store")
                 {
                     _storeIndex = i;
                 }

@@ -16,6 +16,7 @@ public class Plugin : BaseUnityPlugin
 {
     //Instance of the plugin for other classes to access
     public static Plugin Instance;
+    private Terminal terminal = null;
     
     /**
      * Patches the game on startup, injecting the code into the game.
@@ -36,7 +37,16 @@ public class Plugin : BaseUnityPlugin
      */
     public Terminal GetTerminal()
     {
-        return FindObjectOfType<Terminal>();
+        if (terminal == null)
+        {
+            LogInfo("Terminal is not known. Finding terminal...");
+            terminal = FindAnyObjectByType<Terminal>();
+            if (terminal == null)
+            {
+                LogError("Could not find object of type Terminal! This is very bad.");
+            }
+        }
+        return terminal;
     }
 
     [System.Diagnostics.Conditional("DEBUG")]
@@ -196,7 +206,7 @@ public class Plugin : BaseUnityPlugin
             var moon = scrapData[index];
             str += $@"                {{
                     ""moon_name"": ""{moon.Item1}"",
-                    ""chance"": {moon.Item2}
+                    ""chance"": {moon.Item2.ToString(System.Globalization.CultureInfo.InvariantCulture)}
                 }}";
             if (index < scrapData.Count - 1)
             {

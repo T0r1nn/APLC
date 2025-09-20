@@ -484,14 +484,15 @@ public class Patches
         {
             return true;
         }
+        Terminal terminal = Plugin.Instance.GetTerminal();
         if (node.buyItemIndex != -1)
         {
             if (node.buyItemIndex != -7)
             {
-                Item item = Plugin.Instance.GetTerminal().buyableItemsList[node.buyItemIndex];
+                Item item = terminal.buyableItemsList[node.buyItemIndex];
                 if (MwState.Instance.GetItemMap<StoreItems>(item.itemName).GetTotal() < 1)
                 {
-                    Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
+                    terminal.LoadNewNode(terminal.currentNode);
                     return false;
                 }
             }
@@ -499,10 +500,10 @@ public class Patches
 
         if (node.buyVehicleIndex != -1)
         {
-            BuyableVehicle vehicle = Plugin.Instance.GetTerminal().buyableVehicles[node.buyVehicleIndex];
+            BuyableVehicle vehicle = terminal.buyableVehicles[node.buyVehicleIndex];
             if (MwState.Instance.GetItemMap<StoreItems>(vehicle.vehicleDisplayName).GetTotal() < 1)
             {
-                Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
+                terminal.LoadNewNode(terminal.currentNode);
                 return false;
             }
         }
@@ -516,7 +517,7 @@ public class Patches
                     if (MwState.Instance.GetItemMap<ShipUpgrades>(StartOfRound.Instance.unlockablesList
                             .unlockables[node.shipUnlockableID].unlockableName).GetTotal() < 1)
                     {
-                        Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
+                        terminal.LoadNewNode(terminal.currentNode);
                         return false;
                     }
                 }
@@ -543,7 +544,7 @@ public class Patches
 
                 if (MwState.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
                 {
-                    Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
+                    terminal.LoadNewNode(terminal.currentNode);
                     return false;
                 }
             }
@@ -561,7 +562,7 @@ public class Patches
 
             if (MwState.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
             {
-                Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
+                terminal.LoadNewNode(terminal.currentNode);
                 return false;
             }
         }
