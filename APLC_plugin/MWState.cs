@@ -118,8 +118,8 @@ public class MwState
 
                 for (var j = 0; j < t.terminalNodes.allKeywords[keywordIndex].compatibleNouns.Length; j++)
                 {
-                    if (t.terminalNodes.allKeywords[keywordIndex].compatibleNouns[j].noun.word.ToLower()
-                        .Contains(moonName.ToLower()))
+                    if (String.Join("", moonName.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries))
+                .Contains(t.terminalNodes.allKeywords[keywordIndex].compatibleNouns[j].noun.word.ToLower(), StringComparison.OrdinalIgnoreCase))
                     {
                         terminalIndex = j;
                     }
