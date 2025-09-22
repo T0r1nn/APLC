@@ -467,11 +467,12 @@ public class MwState
 
         if (_trophyModeComplete[^1] is string)
         {
-            Plugin.Instance.LogInfo("Game should be complete. The following moons had their trophies collected:");
+            string trophyList = "Game should be complete. The following moons had their trophies collected:\n";
             foreach (string trophy in _trophyModeComplete)
             {
-                Plugin.Instance.LogInfo(trophy);
+                trophyList += $"{trophy}\n";
             }
+            Plugin.Instance.LogInfo(trophyList);
         }
 
         if (moonNames.Any(m => Array.IndexOf(_trophyModeComplete, m.ToLower()) == -1)) return;
