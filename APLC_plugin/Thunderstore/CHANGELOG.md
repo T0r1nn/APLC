@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.7.6
+**<details><summary>Fixes</summary>**
+* actually made LethalLevelLoader a dependency
+* changed log levels to use better practices and filter what users see
+* fixed 'scrap' and 'tracker' commands not working in some cases
+* fixed instances of monsters showing NaN rarity in the logic string
+* the logic string now includes custom apparatuses for each moon instead of just Ap Apparatus - Custom
+* fixed the logic string outputting incorrectly for in regions that use commas in place of decimal points
+* custom ap apparatuses once again send checks
+* fixed moon difficulty calculation always using a cost of 0
+</details>
+
 ## 0.7.5
 **<details><summary>Fixes</summary>**
 * the log entries on Assurance and Experimentation now have correct names
