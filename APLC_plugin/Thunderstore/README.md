@@ -7,6 +7,8 @@ You also need to install the latest version of the [Archipelago Multiworld Rando
 
 Install the APLC mod from the Thunderstore (you may also install the mod via the R2ModManager, Gale, or other Thunderstore alternatives).
 
+  **Note**: If you have an ongoing multiworld, you should use whatever version of the mod you **started with** unless you are severely impacted by a bug that was fixed in the latest version.
+
 Then, follow the below steps to setup the randomizer:
 
 ### YAML configuration
