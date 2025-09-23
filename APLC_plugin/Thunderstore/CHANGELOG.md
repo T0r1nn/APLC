@@ -10,6 +10,7 @@
 * fixed the logic string outputting incorrectly for in regions that use commas in place of decimal points
 * custom ap apparatuses once again send checks
 * fixed moon difficulty calculation always using a cost of 0
+* fixed cruiser (and other vehicles) not appearing in the shop
 </details>
 
 ## 0.7.5

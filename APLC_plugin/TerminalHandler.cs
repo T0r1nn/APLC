@@ -272,12 +272,13 @@ Order tools in bulk by typing a number.
 ____________________________
 
 [buyableItemsList]
+[buyableVehiclesList]
 
 SHIP UPGRADES:
-* Loud horn    //    {(MwState.Instance.GetItemMap<ShipUpgrades>("Loud horn").GetTotal() >= 1 ? "Price: $100" : "Locked!")}
-* Signal Translator    //    {(MwState.Instance.GetItemMap<ShipUpgrades>("Signal translator").GetTotal() >= 1 ? "Price: $255" : "Locked!")}
-* Teleporter    //    {(MwState.Instance.GetItemMap<ShipUpgrades>("Teleporter").GetTotal() >= 1 ? "Price: $375" : "Locked!")}
-* Inverse Teleporter    //    {(MwState.Instance.GetItemMap<ShipUpgrades>("Inverse Teleporter").GetTotal() >= 1 ? "Price: $425" : "Locked!")}
+* Loud horn    //    {((MultiworldHandler.Instance == null || MwState.Instance.GetItemMap<ShipUpgrades>("Loud horn").GetTotal() >= 1) ? "Price: $100" : "Locked!")}
+* Signal Translator    //    {((MultiworldHandler.Instance == null || MwState.Instance.GetItemMap<ShipUpgrades>("Signal translator").GetTotal() >= 1) ? "Price: $255" : "Locked!")}
+* Teleporter    //    {((MultiworldHandler.Instance == null || MwState.Instance.GetItemMap<ShipUpgrades>("Teleporter").GetTotal() >= 1) ? "Price: $375" : "Locked!")}
+* Inverse Teleporter    //    {((MultiworldHandler.Instance == null || MwState.Instance.GetItemMap<ShipUpgrades>("Inverse Teleporter").GetTotal() >= 1) ? "Price: $425" : "Locked!")}
 
 The selection of ship decor rotates per-quota. Be sure to check back next week:
 ------------------------------
