@@ -53,7 +53,7 @@ def get_default_location_map():
 
     for i in range(len(moons)):
         for j in range(ChecksPerMoon.range_end):
-            location_result.update(check_location(f"{moons[i]} check {j + 1}"))
+            location_result.update(check_location(f"{moons[i]} check {j + 1}")) # maybe change this to Offense Grade check 1...The current name seems to confuse people
     for i in range(NumQuotas.range_end):
         location_result.update(check_location(f"Quota check {i + 1}"))
     for i in range(len(log_names)):
@@ -83,15 +83,25 @@ def generate_locations(world: "LethalCompanyWorld"):
         "Letter of Resignation"
     ]
 
-    world.bestiary_names = [[key for key in monster.keys()][0] for monster in world.imported_data["bestiary"]]
+    world.bestiary_names = [[key for key in monster.keys() if any(moon["chance"] > 0 for moon in monster[key])][0] for monster in world.imported_data["bestiary"]]
 
     moons = [moon for moon in world.imported_data.get("moons")]
 
     world.scrap_names = []
+    removed_scrap = []
 
     for item in world.imported_data["scrap"]:
         key = [key for key in item.keys()][0]
-        world.scrap_names.append(key)
+        # check if the scrap can be found on at least one moon, and add it if so
+        if any(moon["chance"] > 0 for moon in item[key]):
+            world.scrap_names.append(key)
+        else: 
+            removed_scrap.append(key)
+
+    if len(removed_scrap) > 0:
+        import logging
+        logging.warning(f"Warning - The following scrap do not appear to spawn on any moons and have been removed from logic:\n{removed_scrap}")
+
 
     for moon in moons:
         if not f"AP Apparatus - {moon}" in world.scrap_names:
@@ -105,7 +115,7 @@ def generate_locations(world: "LethalCompanyWorld"):
 
     for i in range(len(moons)):
         for j in range(world.options.checks_per_moon.value):
-            location_result.update(check_location(f"{moons[i]} check {j + 1}"))
+            location_result.update(check_location(f"{moons[i]} check {j + 1}")) # maybe change this to Offense Grade check 1...The current name seems to confuse people
     for i in range(world.options.num_quotas.value):
         location_result.update(check_location(f"Quota check {i + 1}"))
     for i in range(len(world.log_names)):
@@ -135,6 +145,8 @@ def generate_bestiary_moons(world: "LethalCompanyWorld", chance: float) -> Dict[
                 if best_moon["chance"] > 0:
                     b_moons.append(best_moon["moon_name"])    # ensures that the location is still 'accessible' as long as it can be found SOMEWHERE
                     b_moons.append("excluded")     # special indicator that this location should be excluded
+                else:
+                    continue            # if the item isn't found ANYWHERE, don't add it
         bestiary_moons[key] = b_moons
 
     return bestiary_moons
@@ -161,21 +173,18 @@ def generate_scrap_moons(world: "LethalCompanyWorld", chance: float) -> Dict[str
     scrap_data = world.imported_data["scrap"]
     for entry in scrap_data:
         key = [key for key in entry.keys()][0]
-        if key.find("AP Apparatus") != -1:
-            for moon in entry[key]:
-                if moon["chance"] > 0:
-                    scrap_moons[f"AP Apparatus - {moon['moon_name']}"] = ([moon['moon_name']] if moon["chance"] > chance else [])
-        else:
-            s_moons = []
-            for moon in entry[key]:
-                if moon["chance"] >= chance:
-                    s_moons.append(moon["moon_name"])
-            if s_moons == []:
-                best_moon = max(entry[key], key=lambda moon_spawns: moon_spawns["chance"])
-                if best_moon["chance"] > 0:
-                    s_moons.append(best_moon["moon_name"])    # ensures that the location is still 'accessible' as long as it can be found SOMEWHERE
-                    s_moons.append("excluded")     # special indicator that this location should be excluded
-            scrap_moons[key] = s_moons
+        s_moons = []
+        for moon in entry[key]:
+            if moon["chance"] >= chance:
+                s_moons.append(moon["moon_name"])
+        if s_moons == []:
+            best_moon = max(entry[key], key=lambda moon_spawns: moon_spawns["chance"])
+            if best_moon["chance"] > 0:
+                s_moons.append(best_moon["moon_name"])    # ensures that the location is still 'accessible' as long as it can be found SOMEWHERE
+                s_moons.append("excluded")     # special indicator that this location should be excluded
+            else:
+                continue            # if the item isn't found ANYWHERE, don't add it
+        scrap_moons[key] = s_moons
 
     return scrap_moons
 

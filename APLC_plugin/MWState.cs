@@ -118,8 +118,8 @@ public class MwState
 
                 for (var j = 0; j < t.terminalNodes.allKeywords[keywordIndex].compatibleNouns.Length; j++)
                 {
-                    if (t.terminalNodes.allKeywords[keywordIndex].compatibleNouns[j].noun.word.ToLower()
-                        .Contains(moonName.ToLower()))
+                    if (String.Join("", moonName.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries))
+                .Contains(t.terminalNodes.allKeywords[keywordIndex].compatibleNouns[j].noun.word.ToLower(), StringComparison.OrdinalIgnoreCase))
                     {
                         terminalIndex = j;
                     }
@@ -131,19 +131,19 @@ public class MwState
                 {
                     _locationMap.Add(moonName,
                         new MoonLocations(moonName, lowGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
-                    Plugin.Instance.LogWarning($"Easy: {moonName}");
+                    Plugin.Instance.LogInfo($"Easy: {moonName}");
                 }
                 else if (cost < 120)
                 {
                     _locationMap.Add(moonName,
                         new MoonLocations(moonName, medGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
-                    Plugin.Instance.LogWarning($"Medium: {moonName}");
+                    Plugin.Instance.LogInfo($"Medium: {moonName}");
                 }
                 else
                 {
                     _locationMap.Add(moonName,
                         new MoonLocations(moonName, highGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
-                    Plugin.Instance.LogWarning($"Hard: {moonName}");
+                    Plugin.Instance.LogInfo($"Hard: {moonName}");
                 }
             }
 
@@ -225,15 +225,15 @@ public class MwState
                                     }
 
                                     //AP Apparatus - Artifice doesn't work
-                                    Plugin.Instance.LogWarning(keyName);
+                                    Plugin.Instance.LogDebug(keyName);
                                     SpawnableItemWithRarity item = scrapNameToScrapMap[keyName];
                                     scrap.Add(item);
                                 }
                                 catch (Exception e)
                                 {
+                                    Plugin.Instance.LogError(e.Message + "\n" + e.StackTrace);
                                     if (scrapName.Contains("AP Apparatus"))
                                     {
-                                        Plugin.Instance.LogWarning(e.Message + "\n" + e.StackTrace);
                                         SpawnableItemWithRarity item = scrapNameToScrapMap["ap_apparatus_custom"];
                                         scrap.Add(item);
                                     }
@@ -467,11 +467,12 @@ public class MwState
 
         if (_trophyModeComplete[^1] is string)
         {
-            Plugin.Instance.LogInfo("Game should be complete. The following moons had their trophies collected:");
+            string trophyList = "Game should be complete. The following moons had their trophies collected:\n";
             foreach (string trophy in _trophyModeComplete)
             {
-                Plugin.Instance.LogInfo(trophy);
+                trophyList += $"{trophy}\n";
             }
+            Plugin.Instance.LogInfo(trophyList);
         }
 
         if (moonNames.Any(m => Array.IndexOf(_trophyModeComplete, m.ToLower()) == -1)) return;
@@ -697,7 +698,7 @@ public class MwState
     
     private static void KillRandom(DeathLink link)
     {
-        Plugin.Instance.LogWarning("Received death link");
+        Plugin.Instance.LogInfo("Received death link");
         try
         {
             //ChatHandler.SendMessage($"AP: {link.Cause}");
@@ -715,7 +716,7 @@ public class MwState
             Array.Sort(steamIds);
             Array.Reverse(steamIds);
 
-            Plugin.Instance.LogWarning("Attempting to kill player with steam id " + steamIds[selected]);
+            Plugin.Instance.LogInfo("Attempting to kill player with steam id " + steamIds[selected]);
 
             if (StartOfRound.Instance.localPlayerController.playerSteamId != steamIds[selected]) return;
             WaitingForDeath = true;

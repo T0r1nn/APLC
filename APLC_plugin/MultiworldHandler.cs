@@ -354,7 +354,7 @@ public class MultiworldHandler
 }";
         }
         
-        Plugin.Instance.LogWarning(input);
+        Plugin.Instance.LogDebug(input);
         
         input = input.Substring(2, input.Length - 6);
         string[] slots = input.Split("],");
@@ -364,7 +364,7 @@ public class MultiworldHandler
             string[] data = slot.Split("[");
             string scrapName = data[0].Trim();
             
-            Plugin.Instance.LogWarning(scrapName);
+            Plugin.Instance.LogDebug(scrapName);
             
             string[] scrapMoons = data[1].Split(",");
             for (int i = 0; i < scrapMoons.Length; i++)
@@ -380,17 +380,17 @@ public class MultiworldHandler
 
             scrapName = Char.IsLetter(scrapName.ToCharArray()[0]) ? scrapName[..^1] : scrapName.Substring(1, scrapName.Length - 3);
             
-            Plugin.Instance.LogWarning(scrapName);
+            Plugin.Instance.LogDebug(scrapName);
 
             result.Add(scrapName, scrapMoons);
         }
 
         foreach (var key in result.Keys)
         {
-            Plugin.Instance.LogWarning(key+":");
+            Plugin.Instance.LogDebug(key+":");
             foreach (var moon in result[key])
             {
-                Plugin.Instance.LogWarning("    "+moon);
+                Plugin.Instance.LogDebug("    "+moon);
             }
         }
 

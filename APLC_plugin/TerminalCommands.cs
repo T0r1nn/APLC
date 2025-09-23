@@ -24,7 +24,7 @@ public class TerminalCommands
     }
 
     [TerminalCommand("Tracker", true), CommandInfo("Shows all logically reachable checks")]
-    public string TestCommand()
+    public string TrackerCommand()
     {
         if (MultiworldHandler.Instance == null) return "Not connected to AP server";
 
@@ -80,7 +80,7 @@ Quota: {((Quota)MwState.Instance.GetLocationMap("Quota")).GetTrackerText()}, {to
     {
         if (text == "")
         {
-            return "";
+            return "Usage: scrap [moon name|scrap name]";
         }
 
         string result = "";
@@ -129,6 +129,11 @@ Quota: {((Quota)MwState.Instance.GetLocationMap("Quota")).GetTrackerText()}, {to
             result += $"Scrap on {moonRegion.GetName()}:\n";
             foreach (Connection connection in moonRegion.GetConnections())
             {
+                if (connection.GetExit() == null)
+                {
+                    Plugin.Instance.LogWarning($"A region connected to {moonRegion.GetName()} was null when running command 'scrap'! Skipping this region.");
+                    continue;
+                }
                 foreach (Location location in connection.GetExit().GetLocations())
                 {
                     if (location.GetLocationString().Contains("Scrap"))

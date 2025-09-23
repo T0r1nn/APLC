@@ -38,9 +38,9 @@ edit the YAML to fit whatever settings you want to play with:
 - min_money: Can be any number between 0 and 5000, default is 100. This is the minimum amount of money that the money checks will reward you with.
 - max_money: Can be any number between 0 and 5000, default is 1000. This is the maximum amount of money that the money checks will reward you with. This can't be less than min_money
 - modify_scrap_spawns: Can be 'true' or 'false'. When true, scrap spawn rates are modified in the following ways: all scrap have the same spawn chance, each moon has five scrap that are exclusive to it, and there are 7 scrap that are common between all the moons. This makes it a lot easier to find every in-logic scrap, which removes those times you are going to the same moon again and again, trying to find a rare item which blocks progression. There are also five special scrap (apparatus, hive, shotgun, kitchen knife, and sapsucker egg) which stay on their normal moons.
-- exclude_killing: Can be 'true' or 'false'. When true, the Double-barrel and Kitchen knife locations are guarenteed to not have progression or useful items behind them
-- exclude_hive: Can be 'true' or 'false'. When true, the Bee Hive location is guarenteed to not have a progression or useful item behind it
-- exclude_egg: Can be 'true' or 'false'. When true, the Sapsucker Egg location is guarenteed to not have a progression or useful item behind it
+- exclude_killing: Can be 'true' or 'false'. When true, the Double-barrel and Kitchen knife locations are guaranteed to not have progression or useful items behind them
+- exclude_hive: Can be 'true' or 'false'. When true, the Bee Hive location is guaranteed to not have a progression or useful item behind it
+- exclude_egg: Can be 'true' or 'false'. When true, the Sapsucker Egg location is guaranteed to not have a progression or useful item behind it
 - The following are filler items, and they fill the empty spots in the item pool according to their weight values, where higher weighted items will appear more than lower weighted items. All have a minimum of 0 and a maximum of 100
   - time_add: Default is 20. Adds one day to quota
   - scrap_clone: Default is 20. Clones one scrap on the ship

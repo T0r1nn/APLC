@@ -66,11 +66,11 @@ class LCItem:
         return names
 
 
-def calculate_credits(world):
+def calculate_credits(world: "LethalCompanyWorld"):
     if not world.options.game_mode.value == 2:
         return 0
 
-    location_count = len(generate_locations(world))
+    location_count = world.location_count
     location_count -= 7
     location_count -= world.options.randomize_company_building.value
     location_count -= world.options.randomize_scanner.value

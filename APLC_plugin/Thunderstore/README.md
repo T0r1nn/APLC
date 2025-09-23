@@ -7,6 +7,8 @@ You also need to install the latest version of the [Archipelago Multiworld Rando
 
 Install the APLC mod from the Thunderstore (you may also install the mod via the R2ModManager, Gale, or other Thunderstore alternatives).
 
+  **Note**: If you have an ongoing multiworld, you should use whatever version of the mod you **started with** unless you are severely impacted by a bug that was fixed in the latest version.
+
 Then, follow the below steps to setup the randomizer:
 
 ### YAML configuration
@@ -38,9 +40,9 @@ edit the YAML to fit whatever settings you want to play with:
 - min_money: Can be any number between 0 and 5000, default is 100. This is the minimum amount of money that the money checks will reward you with.
 - max_money: Can be any number between 0 and 5000, default is 1000. This is the maximum amount of money that the money checks will reward you with. This can't be less than min_money
 - modify_scrap_spawns: Can be 'true' or 'false'. When true, scrap spawn rates are modified in the following ways: all scrap have the same spawn chance, each moon has five scrap that are exclusive to it, and there are 7 scrap that are common between all the moons. This makes it a lot easier to find every in-logic scrap, which removes those times you are going to the same moon again and again, trying to find a rare item which blocks progression. There are also five special scrap (apparatus, hive, shotgun, kitchen knife, and sapsucker egg) which stay on their normal moons.
-- exclude_killing: Can be 'true' or 'false'. When true, the Double-barrel and Kitchen knife locations are guarenteed to not have progression or useful items behind them
-- exclude_hive: Can be 'true' or 'false'. When true, the Bee Hive location is guarenteed to not have a progression or useful item behind it
-- exclude_egg: Can be 'true' or 'false'. When true, the Sapsucker Egg location is guarenteed to not have a progression or useful item behind it
+- exclude_killing: Can be 'true' or 'false'. When true, the Double-barrel and Kitchen knife locations are guaranteed to not have progression or useful items behind them
+- exclude_hive: Can be 'true' or 'false'. When true, the Bee Hive location is guaranteed to not have a progression or useful item behind it
+- exclude_egg: Can be 'true' or 'false'. When true, the Sapsucker Egg location is guaranteed to not have a progression or useful item behind it
 - The following are filler items, and they fill the empty spots in the item pool according to their weight values, where higher weighted items will appear more than lower weighted items. All have a minimum of 0 and a maximum of 100
   - time_add: Default is 20. Adds one day to quota
   - scrap_clone: Default is 20. Clones one scrap on the ship
@@ -132,8 +134,6 @@ To set up a world with custom content, follow these steps:
 6. Inside the lethal_company folder, replace the contents of imported.py with 'data = ', then paste your logic string. 
 7. Right click the lethal_company folder and select 'Send to' > 'Compressed (zipped) folder'. When prompted to name the file, change the '.zip' extension to '.apworld'.
 Now, you can generate a multiworld using this apworld with the custom content.
-If you have trouble using UnityExplorer, refer to the following image:
-![alt text](./APLC_apworld/lethal_company/docs/UnityExplorer.png "UnityExplorer Reference Image")
 
 ### Using custom content in multiworlds with other lethal company games
 Once you have your custom content apworld, to make it compatible with other people you need to do a few more steps.

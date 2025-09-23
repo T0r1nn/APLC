@@ -130,7 +130,7 @@ public class Patches
     [HarmonyPrefix]
     internal static void GameNetworkManagerStart_Prefix(GameNetworkManager __instance)
     {
-        Plugin.Instance.LogWarning("Attempting to create APLC Network Manager");
+        Plugin.Instance.LogInfo("Attempting to create APLC Network Manager");
         
         GameObject networkManagerPrefab = PrefabHelper.CreateNetworkPrefab("APLCNetworkManager");
         networkManagerPrefab.AddComponent<APLCNetworking>();
@@ -268,14 +268,14 @@ public class Patches
             }
             else
             {
-                StringBuilder stringBuilder2 = new StringBuilder();
+                StringBuilder storeItemStringBuilder = new StringBuilder();
                 for (int j = 0; j < __instance.buyableItemsList.Length; j++)
                 {
                     try
                     {
                         if (GameNetworkManager.Instance.isDemo && __instance.buyableItemsList[j].lockedInDemo)
                         {
-                            stringBuilder2.Append("\n* " + __instance.buyableItemsList[j].itemName + " (Locked)");
+                            storeItemStringBuilder.Append("\n* " + __instance.buyableItemsList[j].itemName + " (Locked)");
                         }
                         else
                         {
@@ -283,7 +283,7 @@ public class Patches
                                     .GetItemMap<StoreItems>(__instance.buyableItemsList[j].itemName)
                                     .GetTotal() >= 1)
                             {
-                                stringBuilder2.Append("\n* " + __instance.buyableItemsList[j].itemName +
+                                storeItemStringBuilder.Append("\n* " + __instance.buyableItemsList[j].itemName +
                                                       "  //  Price: $" +
                                                       (__instance.buyableItemsList[j].creditsWorth *
                                                        (__instance.itemSalesPercentages[j] / 100f)));
@@ -291,7 +291,7 @@ public class Patches
                             }
                             else
                             {
-                                stringBuilder2.Append(
+                                storeItemStringBuilder.Append(
                                     "\n* " + __instance.buyableItemsList[j].itemName + "  //  Locked!");
                             }
                         }
@@ -299,24 +299,65 @@ public class Patches
                         if (__instance.itemSalesPercentages[j] != 100 && MwState.Instance
                                 .GetItemMap<StoreItems>(__instance.buyableItemsList[j].itemName).GetTotal() >= 1)
                         {
-                            stringBuilder2.Append(string.Format("   ({0}% OFF!)",
+                            storeItemStringBuilder.Append(string.Format("   ({0}% OFF!)",
                                 100 - __instance.itemSalesPercentages[j]));
                         }
                     }
                     catch (Exception)
                     {
-                        stringBuilder2.Append(string.Format("\n* " + __instance.buyableItemsList[j].itemName +
+                        storeItemStringBuilder.Append(string.Format("\n* " + __instance.buyableItemsList[j].itemName +
                                                             "  //  Price: $" +
                                                             __instance.buyableItemsList[j].creditsWorth *
                                                              (__instance.itemSalesPercentages[j] / 100f)));
                         if (__instance.itemSalesPercentages[j] != 100)
                         {
-                            stringBuilder2.Append(string.Format("   ({0}% OFF!)",
+                            storeItemStringBuilder.Append(string.Format("   ({0}% OFF!)",
                                 100 - __instance.itemSalesPercentages[j]));
                         }
                     }
                 }
-                modifiedDisplayText = modifiedDisplayText.Replace("[buyableItemsList]", stringBuilder2.ToString());
+                modifiedDisplayText = modifiedDisplayText.Replace("[buyableItemsList]", storeItemStringBuilder.ToString());
+            }
+        }
+        if (modifiedDisplayText.Contains("[buyableVehiclesList]"))
+        {
+            if (__instance.buyableVehicles == null || __instance.buyableVehicles.Length == 0)
+            {
+                modifiedDisplayText = modifiedDisplayText.Replace("[buyableVehiclesList]", "[No vehicles in stock!]");
+            }
+            else
+            {
+                StringBuilder storeVehicleStringBuilder = new StringBuilder();
+                for (int j = 0; j < __instance.buyableVehicles.Length; j++)
+                {
+                    try
+                    {
+                        // buyableVehicles don't have a lockedInDemo field
+                        if (MwState.Instance
+                                .GetItemMap<StoreItems>(__instance.buyableVehicles[j].vehicleDisplayName)
+                                .GetTotal() >= 1)
+                        {
+                            storeVehicleStringBuilder.Append("\n* " + __instance.buyableVehicles[j].vehicleDisplayName +
+                                                  "  //  Price: $" +
+                                                  __instance.buyableVehicles[j].creditsWorth);
+
+                        }
+                        else
+                        {
+                            storeVehicleStringBuilder.Append(
+                                "\n* " + __instance.buyableVehicles[j].vehicleDisplayName + "  //  Locked!");
+                        }
+                        // vehicles don't seem to be able to go on sale
+                    }
+                    catch (Exception)
+                    {
+                        storeVehicleStringBuilder.Append(string.Format("\n* " + __instance.buyableVehicles[j].vehicleDisplayName +
+                                                            "  //  Price: $" +
+                                                            __instance.buyableVehicles[j].creditsWorth));
+                        // vehicles don't seem to be able to go on sale
+                    }
+                }
+                modifiedDisplayText = modifiedDisplayText.Replace("[buyableVehiclesList]", storeVehicleStringBuilder.ToString());
             }
         }
     }
@@ -484,14 +525,15 @@ public class Patches
         {
             return true;
         }
+        Terminal terminal = Plugin.Instance.GetTerminal();
         if (node.buyItemIndex != -1)
         {
             if (node.buyItemIndex != -7)
             {
-                Item item = Plugin.Instance.GetTerminal().buyableItemsList[node.buyItemIndex];
+                Item item = terminal.buyableItemsList[node.buyItemIndex];
                 if (MwState.Instance.GetItemMap<StoreItems>(item.itemName).GetTotal() < 1)
                 {
-                    Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
+                    terminal.LoadNewNode(terminal.currentNode);
                     return false;
                 }
             }
@@ -499,10 +541,10 @@ public class Patches
 
         if (node.buyVehicleIndex != -1)
         {
-            BuyableVehicle vehicle = Plugin.Instance.GetTerminal().buyableVehicles[node.buyVehicleIndex];
+            BuyableVehicle vehicle = terminal.buyableVehicles[node.buyVehicleIndex];
             if (MwState.Instance.GetItemMap<StoreItems>(vehicle.vehicleDisplayName).GetTotal() < 1)
             {
-                Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
+                terminal.LoadNewNode(terminal.currentNode);
                 return false;
             }
         }
@@ -516,7 +558,7 @@ public class Patches
                     if (MwState.Instance.GetItemMap<ShipUpgrades>(StartOfRound.Instance.unlockablesList
                             .unlockables[node.shipUnlockableID].unlockableName).GetTotal() < 1)
                     {
-                        Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
+                        terminal.LoadNewNode(terminal.currentNode);
                         return false;
                     }
                 }
@@ -543,7 +585,7 @@ public class Patches
 
                 if (MwState.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
                 {
-                    Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
+                    terminal.LoadNewNode(terminal.currentNode);
                     return false;
                 }
             }
@@ -561,7 +603,7 @@ public class Patches
 
             if (MwState.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
             {
-                Plugin.Instance.GetTerminal().LoadNewNode(Plugin.Instance.GetTerminal().currentNode);
+                terminal.LoadNewNode(terminal.currentNode);
                 return false;
             }
         }
