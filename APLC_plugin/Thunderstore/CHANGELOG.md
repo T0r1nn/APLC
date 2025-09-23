@@ -7,10 +7,10 @@
 * fixed 'scrap' and 'tracker' commands not working in some cases
 * fixed instances of monsters showing NaN rarity in the logic string
 * the logic string now includes custom apparatuses for each moon instead of just Ap Apparatus - Custom
-* fixed the logic string outputting incorrectly for in regions that use commas in place of decimal points
+* fixed incorrect logic string output in regions that use commas in place of decimal points
 * custom ap apparatuses once again send checks
 * fixed moon difficulty calculation always using a cost of 0
-* fixed cruiser (and other vehicles) not appearing in the shop
+* fixed the cruiser (and other vehicles) not appearing in the shop
 </details>
 
 ## 0.7.5
