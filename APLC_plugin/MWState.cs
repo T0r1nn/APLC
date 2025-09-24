@@ -304,7 +304,7 @@ public class MwState
             }
             if (_apConnection.GetSlotSetting("randomizecompany") == 1)
             {
-                _itemMap.Add("Gordion", new MoonItems("Gordion"));
+                _itemMap.Add("71 Gordion", new MoonItems("71 Gordion"));
             }
 
             //Player Upgrades
@@ -606,7 +606,7 @@ public class MwState
             {
                 try
                 {
-                    _itemMap["Gordion"].OnReceived();
+                    _itemMap["71 Gordion"].OnReceived();
                 }
                 catch (Exception)
                 {
