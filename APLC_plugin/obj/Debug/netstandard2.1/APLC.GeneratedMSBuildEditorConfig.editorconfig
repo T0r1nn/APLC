@@ -1,6 +1,6 @@
 is_global = true
 build_property.RootNamespace = APLC
-build_property.ProjectDir = C:\Users\Tyler\Documents\GitHub\APLC\APLC_plugin\
+build_property.ProjectDir = D:\Unity Projects\LC Mods\APLC\APLC_plugin\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.CsWinRTUseWindowsUIXamlProjections = false

@@ -409,9 +409,8 @@ public class Patches
             select obj).ToList();
         foreach (var scrap in list)
         {
-            if (scrap.name == "ap_chest(Clone)" && MwState.Instance.GetGoal() == 1)
+            if (scrap.name == "ap_chest(Clone)" && !scrap.scrapPersistedThroughRounds && MwState.Instance.GetGoal() == 1)
             {
-                Object.Destroy(scrap.gameObject);
                 MwState.Instance.AddCollectathonScrap(1);
             }
             else if (MwState.Instance.GetGoal() == 0)

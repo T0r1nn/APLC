@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     ".NETStandard,Version=v2.1": {
-      "Archipelago.MultiClient.Net/6.6.0": {
+      "Archipelago.MultiClient.Net/6.6.1": {
         "type": "package",
         "compile": {
           "lib/netstandard2.0/Archipelago.MultiClient.Net.dll": {
@@ -640,15 +640,15 @@
     }
   },
   "libraries": {
-    "Archipelago.MultiClient.Net/6.6.0": {
-      "sha512": "ZUNmgZg1zsMwoRaTFz0rqm9UwpUcqCkAsW6GAgLwE749dRmonPLimhYU/AryA4BagTGblL5ce9euwWU4Oj1YSw==",
+    "Archipelago.MultiClient.Net/6.6.1": {
+      "sha512": "CvojDLce6/ZkDTa/JNeCX4fM7X0gDdVAI5oIOKOtZjsOk4xJ9kTBix6ajnV2tIABEgpKzmMQm21Oz93Bu0m7IA==",
       "type": "package",
-      "path": "archipelago.multiclient.net/6.6.0",
+      "path": "archipelago.multiclient.net/6.6.1",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "README.md",
-        "archipelago.multiclient.net.6.6.0.nupkg.sha512",
+        "archipelago.multiclient.net.6.6.1.nupkg.sha512",
         "archipelago.multiclient.net.nuspec",
         "blue-icon.png",
         "lib/net35/Archipelago.MultiClient.Net.dll",
@@ -2727,7 +2727,7 @@
   },
   "projectFileDependencyGroups": {
     ".NETStandard,Version=v2.1": [
-      "Archipelago.MultiClient.Net >= 6.6.0",
+      "Archipelago.MultiClient.Net >= 6.6.1",
       "BepInEx.Analyzers >= 1.*",
       "BepInEx.Core >= 5.*",
       "BepInEx.PluginInfoProps >= 1.*",
@@ -2735,25 +2735,27 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Tyler\\.nuget\\packages\\": {}
+    "C:\\Users\\Cody\\.nuget\\packages\\": {}
   },
   "project": {
-    "version": "0.7.3",
+    "version": "0.7.6",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Tyler\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
+      "projectUniqueName": "D:\\Unity Projects\\LC Mods\\APLC\\APLC_plugin\\APLC.csproj",
       "projectName": "APLC",
-      "projectPath": "C:\\Users\\Tyler\\Documents\\GitHub\\APLC\\APLC_plugin\\APLC.csproj",
-      "packagesPath": "C:\\Users\\Tyler\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Tyler\\Documents\\GitHub\\APLC\\APLC_plugin\\obj\\",
+      "projectPath": "D:\\Unity Projects\\LC Mods\\APLC\\APLC_plugin\\APLC.csproj",
+      "packagesPath": "C:\\Users\\Cody\\.nuget\\packages\\",
+      "outputPath": "D:\\Unity Projects\\LC Mods\\APLC\\APLC_plugin\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Tyler\\Documents\\GitHub\\APLC\\APLC_plugin\\NuGet.Config",
-        "C:\\Users\\Tyler\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "D:\\Unity Projects\\LC Mods\\APLC\\APLC_plugin\\NuGet.Config",
+        "C:\\Users\\Cody\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netstandard2.1"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {},
         "https://nuget.bepinex.dev/v3/index.json": {}
       },
@@ -2771,9 +2773,9 @@
       "restoreAuditProperties": {
         "enableAudit": "true",
         "auditLevel": "low",
-        "auditMode": "all"
+        "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.200"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "netstandard2.1": {
@@ -2781,7 +2783,8 @@
         "dependencies": {
           "Archipelago.MultiClient.Net": {
             "target": "Package",
-            "version": "[6.6.0, )"
+            "version": "[6.6.1, )",
+            "generatePathProperty": true
           },
           "BepInEx.Analyzers": {
             "suppressParent": "All",
@@ -2813,18 +2816,12 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.Net.Sdk.Compilers.Toolset",
-            "version": "[9.0.200, 9.0.200]"
-          }
-        ],
         "frameworkReferences": {
           "NETStandard.Library": {
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304\\RuntimeIdentifierGraph.json"
       }
     }
   }
