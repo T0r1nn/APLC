@@ -4,7 +4,7 @@ from Options import Toggle, DeathLink, Range, Choice, PerGameCommonOptions, Free
 
 class Goal(Choice):
     """
-    Trophy Mode: Each moon has a rare trophy scrap, the goal is to get all eight
+    Trophy Mode: Each moon has a rare trophy scrap, the goal is to get all of them (11 with no custom moons)
 
     Collectathon: A new rare scrap is added, you need to collect at least ten of it to win
 

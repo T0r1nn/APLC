@@ -424,20 +424,20 @@ public class Patches
             }
         }
     }
-    
+
     //Misc
     /**
      * Fixes the double message bug 
      */
-    [HarmonyPrefix]
+    /*[HarmonyPrefix]
     [HarmonyPatch(typeof(HUDManager), "AddChatMessage")]
-    private static bool CheckConnections(ref string chatMessage)
+    private static bool CheckConnections(ref string chatMessage)    // it seems like v70 added this fix, commenting out for now
     {
         var fail = ChatHandler.PreventMultisendBug(chatMessage);
 
         return fail;
-    }
-    
+    }*/
+
     /**
      * Handles the sending of commands and archipelago chat(including commands like !hint and !help)
      */
