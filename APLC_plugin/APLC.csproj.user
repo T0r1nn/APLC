@@ -2,9 +2,9 @@
    <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
       <PropertyGroup>
          <!-- Edit these to the actual location -->
-         <GameDirectory>D:\Games\SteamLibrary\steamapps\common\Lethal Company\</GameDirectory>
-         <LethalAPITerminalDirectory>D:\Software\com.kesomannen.gale\cache\LethalAPI-LethalAPI_Terminal\1.0.1\BepInEx\plugins\LethalAPI-LethalAPI_Terminal\</LethalAPITerminalDirectory>
-         <LethalLevelLoaderDirectory>D:\Software\com.kesomannen.gale\cache\IAmBatby-LethalLevelLoader\1.4.11\BepInEx\plugins\IAmBatby-LethalLevelLoader\</LethalLevelLoaderDirectory>
+         <GameDirectory>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\</GameDirectory>
+         <LethalAPITerminalDirectory>C:\Users\tyler\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\AP\BepInEx\plugins\LethalAPI-LethalAPI_Terminal\</LethalAPITerminalDirectory>
+         <LethalLevelLoaderDirectory>C:\Users\tyler\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\AP\BepInEx\plugins\IAmBatby-LethalLevelLoader\</LethalLevelLoaderDirectory>
       </PropertyGroup>
 
       <!-- Do Not Modify -->
