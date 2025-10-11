@@ -568,7 +568,7 @@ public class Patches
             }
         }
 
-        if (node.buyRerouteToMoon != -1 && node.buyRerouteToMoon != -2)
+        if (node.buyRerouteToMoon != -1 && node.buyRerouteToMoon != -2)     // for Gordion, this will only trigger for the reroute confirmation node, but by then the player has already been routed
         {
             SelectableLevel level = StartOfRound.Instance.levels[node.buyRerouteToMoon];
             
@@ -576,16 +576,14 @@ public class Patches
             if (moonName != null)
             {
                 if (moonName.Contains("Liquidation")) return true;
-
-                if (moonName.Contains("Gordion"))
+                if (moonName != "71 Gordion" || MultiworldHandler.Instance.GetSlotSetting("randomizecompany") == 1)
                 {
-                    //TODO: check if company is rando'd, if yes block if not unlocked, if no then return true;
-                }
-
-                if (MwState.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
-                {
-                    terminal.LoadNewNode(terminal.currentNode);
-                    return false;
+                    if (MwState.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
+                    {
+                        Plugin.Instance.LogInfo($"{level.PlanetName} is locked. Blocking reroute.");
+                        terminal.LoadNewNode(terminal.currentNode);
+                        return false;
+                    }
                 }
             }
         }
@@ -595,15 +593,28 @@ public class Patches
             string moonName = level.PlanetName;
             if (moonName.Contains("Liquidation")) return true;
 
-            if (moonName.Contains("Gordion"))
+            if (moonName != "71 Gordion" || MultiworldHandler.Instance.GetSlotSetting("randomizecompany") == 1) // this condition will always be true because buyRerouteToMoon is -1 or 3 for gordion
             {
-                //TODO: check if company is rando'd, if yes block if not unlocked, if no then return true;
+                if (MwState.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
+                {
+                    Plugin.Instance.LogInfo($"{level.PlanetName} is locked. Blocking reroute.");
+                    terminal.LoadNewNode(terminal.currentNode);
+                    return false;
+                }
             }
-
-            if (MwState.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
+        }
+        else if (node.buyRerouteToMoon == -1 && node.terminalOptions.Length > 1 && node.terminalOptions[1] != null && node.terminalOptions[1].result != null)
+        {
+            int nextNodeMoonIndex = node.terminalOptions[1].result.buyRerouteToMoon;
+            if (nextNodeMoonIndex > -1)
             {
-                terminal.LoadNewNode(terminal.currentNode);
-                return false;
+                string moonName = StartOfRound.Instance.levels[nextNodeMoonIndex].PlanetName;
+                if (moonName == "71 Gordion" && MultiworldHandler.Instance.GetSlotSetting("randomizecompany") == 1 && MwState.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
+                {
+                    Plugin.Instance.LogInfo("Company building is locked. Blocking reroute.");
+                    terminal.LoadNewNode(terminal.currentNode);
+                    return false;
+                }
             }
         }
 
