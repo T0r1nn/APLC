@@ -211,6 +211,16 @@ public class Patches
     }
 
     [HarmonyPostfix]
+    [HarmonyPatch(typeof(StartOfRound), "Start")]
+    public static void FindEnemiesForTraps(StartOfRound __instance)
+    {
+        if (__instance.IsServer)
+        {
+            EnemyTrapHandler.SetupEnemyTrapHandler();
+        }
+    }
+
+    [HarmonyPostfix]
     [HarmonyPatch(typeof(MenuManager), "Update")]
     public static void DisconnectIfInMenu()
     {

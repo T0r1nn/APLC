@@ -24,11 +24,11 @@ public static class EnemyTrapHandler
         {
             foreach (var enemy in moon.Enemies)
             {
-                if (enemy.enemyType.enemyName.ToLower().Contains("dress"))
+                if (enemy.enemyType.enemyName.ToLower().Contains("girl"))
                 {
                     ghostGirl = enemy;
                 }
-                else if (enemy.enemyType.enemyName.ToLower().Contains("flower"))
+                else if (enemy.enemyType.enemyName.ToLower().Contains("flowerman"))
                 {
                     bracken = enemy;
                 }
@@ -44,14 +44,12 @@ public static class EnemyTrapHandler
     /**
      * Attempts to spawn an enemy, return true if the spawn succeeds
      */
-    private static bool SpawnEnemy(SpawnableEnemyWithRarity enemy, bool inside, PlayerControllerB player)
+    private static bool SpawnEnemy(SpawnableEnemyWithRarity enemy, bool inside, Vector3 spawnPos)
     {
         try
         {
-            if (inside ^ player.isInsideFactory) return false;
-
             var gameObject = Object.Instantiate(enemy.enemyType.enemyPrefab,
-                player.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
+                spawnPos + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
             gameObject.GetComponentInChildren<NetworkObject>().Spawn(true);
             //gameObject.gameObject.GetComponentInChildren<EnemyAI>().stunNormalizedTimer = 1f;
             return true;
@@ -72,30 +70,15 @@ public static class EnemyTrapHandler
             return false;
         }
 
-        var allPlayers = StartOfRound.Instance.allPlayerScripts;
-        var i = UnityEngine.Random.RandomRangeInt(0, allPlayers.Length);
-        var startI = i;
-
-        var spawnPlayer = allPlayers[i];
-        while (spawnPlayer.isPlayerDead ||
-               spawnPlayer.playerUsername == "Player #0" || spawnPlayer.playerUsername == "Player #1" ||
-               spawnPlayer.playerUsername == "Player #2" || spawnPlayer.playerUsername == "Player #3" ||
-               spawnPlayer.playerUsername == "Player #4" || spawnPlayer.playerUsername == "Player #5" ||
-               spawnPlayer.playerUsername == "Player #6" || spawnPlayer.playerUsername == "Player #7")
-        {
-            i++;
-            i %= allPlayers.Length;
-            spawnPlayer = allPlayers[i];
-            if (i == startI)
-            {
-                return false;
-            }
-        }
+        GameObject[] nodes = RoundManager.Instance.insideAINodes;
+        var randNode = UnityEngine.Random.RandomRangeInt(0, nodes.Length);
+        var nodePos = nodes[randNode].transform.position;
+        if (StartOfRound.Instance.allPlayersDead) return false;
 
         return enemyType switch
         {
-            EnemyType.Bracken => SpawnEnemy(bracken, true, spawnPlayer),
-            EnemyType.GhostGirl => SpawnEnemy(ghostGirl, true, spawnPlayer),
+            EnemyType.Bracken => SpawnEnemy(bracken, true, nodePos),
+            EnemyType.GhostGirl => SpawnEnemy(ghostGirl, true, nodePos),
             _ => false
         };
     }
