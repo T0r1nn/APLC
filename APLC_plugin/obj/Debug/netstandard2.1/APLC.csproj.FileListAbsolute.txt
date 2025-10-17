@@ -145,3 +145,53 @@ C:\Users\Tyler\Documents\GitHub\APLC\APLC_plugin\obj\Debug\netstandard2.1\APLC.s
 C:\Users\Tyler\Documents\GitHub\APLC\APLC_plugin\obj\Debug\netstandard2.1\APLC.csproj.Up2Date
 C:\Users\Tyler\Documents\GitHub\APLC\APLC_plugin\obj\Debug\netstandard2.1\APLC.dll
 C:\Users\Tyler\Documents\GitHub\APLC\APLC_plugin\obj\Debug\netstandard2.1\APLC.pdb
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\APLC.deps.json
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\APLC.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\APLC.pdb
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Assembly-CSharp-firstpass.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Assembly-CSharp.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Facepunch.Steamworks.Win64.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\LethalAPI.Terminal.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\LethalLevelLoader.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.InputSystem.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Netcode.Runtime.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.TextMeshPro.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\UnityEngine.UI.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Animation.Rigging.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.RenderPipelines.Core.Runtime.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.RenderPipelines.HighDefinition.Runtime.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\DissonanceVoip.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Facepunch Transport for Netcode for GameObjects.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Netcode.Components.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.AI.Navigation.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Collections.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\ClientNetworkTransform.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Multiplayer.Tools.NetStats.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Multiplayer.Tools.MetricTypes.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Multiplayer.Tools.NetworkSolutionInterface.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Networking.Transport.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Burst.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Multiplayer.Tools.NetStatsReporting.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Mathematics.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.VisualEffectGraph.Runtime.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\UnityEngine.NVIDIAModule.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.RenderPipelines.HighDefinition.Config.Runtime.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Collections.LowLevel.ILSupport.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Multiplayer.Tools.Common.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Services.Relay.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Burst.Unsafe.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Multiplayer.Tools.NetworkProfiler.Runtime.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Timeline.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Services.Core.Internal.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Services.Core.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\bin\Debug\netstandard2.1\Unity.Profiling.Core.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\obj\Debug\netstandard2.1\APLC.csproj.AssemblyReference.cache
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\obj\Debug\netstandard2.1\PluginInfo.cs
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\obj\Debug\netstandard2.1\APLC.GeneratedMSBuildEditorConfig.editorconfig
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\obj\Debug\netstandard2.1\APLC.AssemblyInfoInputs.cache
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\obj\Debug\netstandard2.1\APLC.AssemblyInfo.cs
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\obj\Debug\netstandard2.1\APLC.csproj.CoreCompileInputs.cache
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\obj\Debug\netstandard2.1\APLC.sourcelink.json
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\obj\Debug\netstandard2.1\APLC.csproj.Up2Date
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\obj\Debug\netstandard2.1\APLC.dll
+D:\Unity Projects\LC Mods\APLC\APLC_plugin\obj\Debug\netstandard2.1\APLC.pdb

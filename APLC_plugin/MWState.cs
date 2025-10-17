@@ -246,6 +246,18 @@ public class MwState
                                 scrap.Add(item);
                             }
                         }
+                        // Adjust scrap amounts on Dine back to v72 values
+                        if (moon.PlanetName.Contains("Dine"))
+                        {
+                            if (moon.minScrap == 200)
+                            {
+                                moon.minScrap = 22;
+                            }
+                            if (moon.maxScrap == 250 && moon.minScrap <= 26)
+                            {
+                                moon.maxScrap = 26;
+                            }
+                        }
                     }
                     catch (Exception)
                     {

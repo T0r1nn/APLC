@@ -13,3 +13,4 @@ obj/Release/netstandard2.1/*
 !obj/Release/netstandard2.1/PluginInfo.cs
 .vs/*
 *.sln
+*.user

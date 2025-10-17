@@ -102,14 +102,14 @@ def generate_locations(world: "LethalCompanyWorld"):
         import logging
         logging.warning(f"Warning - The following scrap do not appear to spawn on any moons and have been removed from logic:\n{removed_scrap}")
 
+    # the mod now handles this part before generating the logic string, so we don't need it here
+    #for moon in moons:
+    #    if not f"AP Apparatus - {moon}" in world.scrap_names:
+    #        world.scrap_names.append(f"AP Apparatus - {moon}")
+    #        print(f"AP Apparatus - {moon}")
 
-    for moon in moons:
-        if not f"AP Apparatus - {moon}" in world.scrap_names:
-            world.scrap_names.append(f"AP Apparatus - {moon}")
-            print(f"AP Apparatus - {moon}")
-
-    if "AP Apparatus - Custom" in world.scrap_names:
-        world.scrap_names.remove("AP Apparatus - Custom")
+    #if "AP Apparatus - Custom" in world.scrap_names:
+    #    world.scrap_names.remove("AP Apparatus - Custom")
 
     location_result = {}
 
