@@ -1,12 +1,13 @@
 {
   "name": "APLC",
-  "version_number": "0.7.6",
+  "version_number": "0.7.7",
   "website_url": "https://github.com/T0r1nn/APLC",
   "description": "Archipelago integration for Lethal Company.",
   "dependencies": [
     "BepInEx-BepInExPack-5.4.2100",
     "IAmBatby-LethalLevelLoader-1.4.11",
     "Caigan-Archipelago_Scrap-4.0.3",
-    "LethalAPI-LethalAPI_Terminal-1.0.1"
+    "LethalAPI-LethalAPI_Terminal-1.0.1",
+    "pacoito-LethalLevelLoaderUpdated-1.5.0"
   ]
 }
