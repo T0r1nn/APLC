@@ -4,7 +4,6 @@
 **<details><summary>Fixes</summary>**
 * removed unnecessary chat dupe fix
 * configured to use NetcodePatcher v4.4.2 for Unity 2022.3.62
-* removed unnecessary apparatus logic that was causing issues
 * routing to Gordion is now correctly blocked when the company building is randomized and not yet received
 * enemy traps work again
 * added LethalLevelLoaderUpdated as a dependency until LLL gets an update for v73
@@ -12,7 +11,7 @@
 
 **<details><summary>Changes</summary>**
 * apchests no longer get deleted when they count toward the collectathon goal
-* adjusted scrap chances to match v73 and reduced Dine scrap when using modify_scrap_spawns
+* reduced Dine scrap when using modify_scrap_spawns
 * enemy traps (bracken and haunt) now spawn the enemy at a random node
 </details>
 
