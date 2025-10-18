@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.8
+**<details><summary>Fixes</summary>**
+* fixed an issue causing NREs when using some terminal commands
+* fixed an issue preventing some terminal commands from working when modify_scrap_spawns is true
+* updated LLLU version
+</details>
+
 ## 0.7.7
 **<details><summary>Fixes</summary>**
 * removed unnecessary chat dupe fix
