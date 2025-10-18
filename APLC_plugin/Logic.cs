@@ -19,7 +19,7 @@ public class Logic
         
         Rule canBuy = state =>
             (MultiworldHandler.Instance.GetSlotSetting("randomizeterminal") == 0 || state.Has("Terminal")) &&
-            (MultiworldHandler.Instance.GetSlotSetting("randomizecompany") == 0 || state.Has("Company"));
+            (MultiworldHandler.Instance.GetSlotSetting("randomizecompany") == 0 || state.Has("71 Gordion"));    // change back to "Company" if we ever support custom company moons
         _state = new State(MwState.Instance);
         Region startingMoon = new Region(MwState.Instance.GetStartingMoon());
         _menu.AddConnection(startingMoon, state => true);
@@ -29,7 +29,7 @@ public class Logic
         _moons = new Region[importedLogic.Item3.Length];
         _scrap = new Region[importedLogic.Item5.Count];
         
-        terminal.AddConnection(companyBuilding, state => MultiworldHandler.Instance.GetSlotSetting("randomizecompany")==0 || state.Has("Company"));
+        terminal.AddConnection(companyBuilding, state => MultiworldHandler.Instance.GetSlotSetting("randomizecompany")==0 || state.Has("71 Gordion"));  // change back to "Company" if we ever support custom company moons
 
         for (var i = 0; i < MultiworldHandler.Instance.GetSlotSetting("numQuota"); i++)
         {

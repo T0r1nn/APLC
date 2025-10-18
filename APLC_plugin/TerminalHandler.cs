@@ -106,7 +106,7 @@ ____________________________
     {
         try
         {
-            if (MwState.Instance.GetItemMap<MoonItems>("Company").GetTotal() > 0)
+            if (MwState.Instance.GetItemMap<MoonItems>("71 Gordion").GetTotal() > 0)    // change back to "Company" if we ever support custom company moons
             {
                 return "Buying at [companyBuyingPercent]";
             }

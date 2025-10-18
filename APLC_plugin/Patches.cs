@@ -613,7 +613,7 @@ public class Patches
                 }
             }
         }
-        else if (node.buyRerouteToMoon == -1 && node.terminalOptions.Length > 1 && node.terminalOptions[1] != null && node.terminalOptions[1].result != null)
+        else if (node.buyRerouteToMoon == -1 && node.terminalOptions != null && node.terminalOptions.Length > 1 && node.terminalOptions[1] != null && node.terminalOptions[1].result != null)
         {
             int nextNodeMoonIndex = node.terminalOptions[1].result.buyRerouteToMoon;
             if (nextNodeMoonIndex > -1)
