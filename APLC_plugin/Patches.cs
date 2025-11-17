@@ -417,11 +417,12 @@ public class Patches
         var list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()
             where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
             select obj).ToList();
+        int apchestCount = 0;
         foreach (var scrap in list)
         {
             if (scrap.name == "ap_chest(Clone)" && !scrap.scrapPersistedThroughRounds && MwState.Instance.GetGoal() == 1)
             {
-                MwState.Instance.AddCollectathonScrap(1);
+                apchestCount++;
             }
             else if (MwState.Instance.GetGoal() == 0)
             {
@@ -432,6 +433,11 @@ public class Patches
                     MwState.Instance.CompleteTrophy(String.Join(" ", landing).Split("(Clone)")[0].ToLower(), scrap);
                 }
             }
+        }
+        if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && apchestCount > 0)
+        {
+            Plugin.Instance.LogDebug($"Attempting to increment total apchests by {apchestCount}");
+            MwState.Instance.AddCollectathonScrap(apchestCount);
         }
     }
 
