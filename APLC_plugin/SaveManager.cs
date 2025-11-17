@@ -57,6 +57,7 @@ public class SaveManager
         Config.ShowAPMessagesInChat = GetData<bool>("Config showapchat", true);
         Config.MaxCharactersPerChatMessage = GetData<int>("Config maxchat", 50);
         Config.FillerTriggersInstantly = GetData<bool>("Config fillertrigger", true);
+        Config.DeathLink = GetData<bool>("Config deathlink", MultiworldHandler.Instance.GetSlotSetting("deathLink") == 1);
 
         HUDManager.Instance.chatTextField.characterLimit = Config.MaxCharactersPerChatMessage;
     }
@@ -67,5 +68,6 @@ public class SaveManager
         SaveData("Config showapchat", Config.ShowAPMessagesInChat);
         SaveData("Config maxchat", Config.MaxCharactersPerChatMessage);
         SaveData("Config fillertrigger", Config.FillerTriggersInstantly);
+        SaveData("Config deathlink", Config.DeathLink);
     }
 }

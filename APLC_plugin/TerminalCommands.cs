@@ -203,6 +203,10 @@ Filler items trigger on reception(recfiller): {Config.FillerTriggersInstantly}
 Max characters per chat message(maxchat): {Config.MaxCharactersPerChatMessage}
     - range from 20-1000: maximum amount of 
         characters per chat message(default is 50)
+DeathLink status(deathlink): {Config.DeathLink}
+    - false: you will not send or receive
+        DeathLink effects
+    - true: you will send and receive DeathLink
 
 To set a config value, type config followed by the name of the setting, then the value.
     Example: config recfiller true
@@ -216,8 +220,8 @@ To set a config value, type config followed by the name of the setting, then the
         {
             return "No setting specified";
         }
-        string[] tokens = text.Split(' ');
-        if (tokens.Length < 2)
+        string[] tokens = text.ToLower().Split(' ');
+        if (tokens.Length < 2 && !tokens[0].Equals("toggledeathlink"))
         {
             return "No value set";
         }
@@ -283,6 +287,29 @@ To set a config value, type config followed by the name of the setting, then the
                 catch (Exception)
                 {
                     return "Invalid value for maxchat, valid range is 20-1000";
+                }
+            case "toggledeathlink":
+                if (tokens.Length == 1)
+                {
+                    MultiworldHandler.Instance?.ToggleDeathLink(true);
+                    Config.DeathLink = true;
+                    SaveManager.SaveConfig();
+                    return "Toggled DeathLink";
+                }
+                switch (tokens[1])
+                {
+                    case "true":
+                        MultiworldHandler.Instance?.ToggleDeathLink(false, true);
+                        Config.DeathLink = true;
+                        SaveManager.SaveConfig();
+                        return "DeathLink is now enabled";
+                    case "false":
+                        MultiworldHandler.Instance?.ToggleDeathLink(false, false);
+                        Config.DeathLink = false;
+                        SaveManager.SaveConfig();
+                        return "DeathLink is now disabled";
+                    default:
+                        return "Invalid value for toggledeathlink, valid values are 'false' or 'true'";
                 }
             default:
                 return $"Invalid config setting, name {tokens[0]} does not exist";
