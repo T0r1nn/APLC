@@ -28,7 +28,7 @@ public class MultiworldHandler
     public static MultiworldHandler Instance;
 
     //true if death link is enabled
-    private readonly bool _deathLink;
+    private bool deathLink;             // can't be readonly if we allow players to toggle it in-game
 
     //Stores all received hints
     private readonly Collection<string> _hints = new();
@@ -79,8 +79,8 @@ public class MultiworldHandler
 
         _slotInfo = (LoginSuccessful)result;
         _dlService = _session.CreateDeathLinkService();
-        _deathLink = GetSlotSetting("deathLink") == 1;
-        if (_deathLink)
+        deathLink = SaveManager.GetData<bool>("Config deathlink", GetSlotSetting("deathLink") == 1);
+        if (deathLink)
         {
             _dlService.EnableDeathLink();
         }
@@ -91,6 +91,27 @@ public class MultiworldHandler
     public DeathLinkService GetDLService()
     {
         return _dlService;
+    }
+
+    public void ToggleDeathLink(bool toggle, bool value = false)
+    {
+        bool shouldEnable;
+
+        if (toggle)
+            shouldEnable = !deathLink;
+        else
+            shouldEnable = value;
+
+        if (shouldEnable)
+        {
+            _dlService.EnableDeathLink();
+            deathLink = true;
+        }
+        else
+        {
+            _dlService.DisableDeathLink();
+            deathLink = false;
+        }
     }
 
     public void Disconnect()
@@ -459,7 +480,7 @@ public class MultiworldHandler
 
     public void HandleDeathLink()
     {
-        if (_deathLink)
+        if (deathLink)
             _dlService.SendDeathLink(new DeathLink(_session.Players.GetPlayerName(_slotInfo.Slot),
                 "failed the company."));
     }
