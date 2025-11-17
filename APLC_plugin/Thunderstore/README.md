@@ -165,3 +165,5 @@ Thanks to Faxium for rewriting the setup portion of this guide, making it easier
 Thanks to StevieSP for helping troubleshoot problems in the discord.
 
 Thanks to ThisGuyHere for his feedback on bugs in the custom content system.
+
+This project uses the Archipelago.MultiClient.Net library by Hussein Farran, Zach Parks, licensed under MIT.
