@@ -12,7 +12,7 @@ using Random = UnityEngine.Random;
 
 namespace APLC;
 
-public class MwState
+public class MwState : NetworkBehaviour
 {
     public static MwState Instance;
     private Dictionary<String, Items> _itemMap = new();
@@ -496,7 +496,8 @@ public class MwState
         return StartOfRound.Instance.currentLevel.PlanetName;
     }
 
-    public void AddCollectathonScrap(int amount)
+    public void AddCollectathonScrap(int amount)    // this only gets called on the host because clients can't see the scrapPersistedThroughRounds property of scrap,
+                                                    // so they would count the same chest multiple times
     {
         _scrapCollected += amount;
         _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-scrapCollected"] = _scrapCollected;
@@ -504,8 +505,28 @@ public class MwState
         {
             _apConnection.Victory();
         }
+        AddCollectathonScrapClientRpc(amount);  // we do this to sync _scrapCollected with the host
     }
-    
+
+    /*[Rpc(SendTo.Server)]
+    public void AddCollectathonScrapServerRpc(int amount)
+    {
+        _scrapCollected += amount;
+        Plugin.Instance.LogDebug($"Adding {amount} scrap on server");
+        AddCollectathonScrapClientRpc(amount);
+        _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-scrapCollected"] = _scrapCollected;
+        if (_scrapCollected >= _scrapGoal)
+        {
+            _apConnection.Victory();
+        }
+    }*/
+
+    [Rpc(SendTo.NotServer)] // note that this won't be sent to clients on the same machine as the host (so testing with multiple instances won't display the correct total on clients)
+    public void AddCollectathonScrapClientRpc(int amount)
+    {
+        _scrapCollected += amount;
+    }
+
     public string GetCollectathonTracker()
     {
         return $"{_scrapCollected}/{_scrapGoal}";
