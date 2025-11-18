@@ -35,6 +35,7 @@ public class Logic
         {
             companyBuilding.AddLocation(new Location($"Quota check {i+1}", state=>state.Has("Stamina Bar") && state.Has("Inventory Slot", 2)));
         }
+        companyBuilding.AddLocation("Log - Sound Behind the Wall");
 
         string[] moonNames = new string[importedLogic.Item3.Length];
         for (int i = 0; i < importedLogic.Item3.Length; i++)
@@ -68,35 +69,35 @@ public class Logic
             var moonName = moon.GetName();
             switch (moonName)
             {
-                case "Experimentation":
+                case "41 Experimentation":
                     moon.AddLocation("Log - Swing of Things");
-                    moon.AddLocation(new Location("Log - Autopilot", state=>state.Has("Stamina Bar", 2)));  // this might have been renamed to Log - Autopilot
+                    moon.AddLocation(new Location("Log - Autopilot", state=>state.Has("Stamina Bar", 2)));
                     break;
-                case "Assurance":
-                    moon.AddLocation("Log - Mummy");     // this might have been renamed to Log - Mummy
+                case "220 Assurance":
+                    moon.AddLocation("Log - Mummy");
                     break;
-                case "Vow":
+                case "56 Vow":
                     moon.AddLocation("Log - Screams");
                     break;
-                case "March":
+                case "61 March":
                     moon.AddLocation("Log - Goodbye");
                     break;
-                case "Adamance":
+                case "20 Adamance":
                     moon.AddLocation("Log - Team Synergy");
                     break;
-                case "Rend":
+                case "85 Rend":
                     moon.AddLocation("Log - Golden Planet");
                     moon.AddLocation("Log - Idea");
                     moon.AddLocation("Log - Nonsense");
                     break;
-                case "Dine":
+                case "7 Dine":
                     moon.AddLocation("Log - Hiding");
                     break;
-                case "Titan":
+                case "8 Titan":
                     moon.AddLocation(new Location("Log - Real job", state => state.HasAny("Jetpack", "Extension ladder") && canBuy(state)));
                     moon.AddLocation(new Location("Log - Desmond", state => state.Has("Jetpack") && canBuy(state)));
                     break;
-                case "Artifice":
+                case "68 Artifice":
                     moon.AddLocation("Log - Letter of Resignation");
                     break;
             }
