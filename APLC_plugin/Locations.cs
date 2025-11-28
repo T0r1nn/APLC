@@ -33,6 +33,10 @@ public class Quota: Locations
         return $"({Math.Min(TotalQuota/MoneyPerQuotaCheck, _numQuotas)}/{_numQuotas})";
     }
 
+    /** 
+     * Checks if the quota has been met and increments the total money earned towards quotas.
+     * If the total money earned meets the threshold for a quota check, marks the corresponding location as complete.
+     */
     public override void CheckComplete()
     {
         if (!GameNetworkManager.Instance.localPlayerController.IsHost) return;
@@ -60,6 +64,9 @@ public class Quota: Locations
     }
 }
 
+/**
+ * Handles moon grade locations
+ */
 public class MoonLocations : Locations
 {
     private int _timesChecked;
@@ -77,6 +84,10 @@ public class MoonLocations : Locations
         _maxChecks = maxChecks;
     }
 
+    /** 
+     * When the ship takes off, this checks if the grade meets the requirement to mark the location as complete.
+     * If it does, this marks the corresponding location as complete and increments the number of times checked.
+     */
     public void OnFinishMoon(string moonName, string grade)
     {
         if (_timesChecked >= _maxChecks) return;
@@ -105,6 +116,9 @@ public class MoonLocations : Locations
     }
 }
 
+/**
+ * Handles locations for story logs
+ */
 public class LogLocations : Locations
 {
     private readonly int _logID;
@@ -131,6 +145,9 @@ public class LogLocations : Locations
     }
 }
 
+/**
+ * Handles locations for bestiary entries
+ */
 public class BestiaryLocations : Locations
 {
     private readonly int _bestiaryID;
@@ -157,6 +174,9 @@ public class BestiaryLocations : Locations
     }
 }
 
+/**
+ * Handles locations for scrap collection if scrapsanity is enabled
+ */
 public class ScrapLocations : Locations
 {
     private int _checkedScrap;
@@ -178,6 +198,10 @@ public class ScrapLocations : Locations
             .GetSession().Locations.GetLocationIdFromName(MultiworldHandler.Instance.Game, $"Scrap - {scrapName}"));
     }
 
+    /*** 
+     * Checks all scrap objects in the ship and marks their corresponding locations as complete.
+     * Increments the count of checked scrap for the tracker.
+     */
     public override void CheckComplete()
     {
         var list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()

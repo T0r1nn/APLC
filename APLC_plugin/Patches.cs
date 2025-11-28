@@ -106,6 +106,9 @@ public class Patches
         }
     }
 
+    /**
+     * Adjusts carry weight based on strength training upgrades
+     */
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PlayerControllerB), "Update")]
     private static void FixCarryWeight(PlayerControllerB __instance)
@@ -123,7 +126,10 @@ public class Patches
 
         __instance.carryWeight = Mathf.Max(1f, newWeight);
     }
-    
+
+    /**
+     * Creates and adds the APLC Network Manager prefab to the game
+     */
     // Token: 0x060001F4 RID: 500 RVA: 0x00007030 File Offset: 0x00005230
     [HarmonyPriority(200)]
     [HarmonyPatch(typeof(GameNetworkManager), "Start")]
@@ -143,6 +149,9 @@ public class Patches
         
     }
 
+    /**
+     * Spawns the APLC Network Manager on the server
+     */
     [HarmonyPriority(200)]
     [HarmonyPatch(typeof(StartOfRound), "Awake")]
     [HarmonyPrefix]
@@ -230,9 +239,9 @@ public class Patches
         }
     }
 
-/**
- * Handles log and bestiary scanning and sends the check to the server
- */
+    /**
+     * Handles log and bestiary scanning and sends the check to the server
+     */
     [HarmonyPrefix]
     [HarmonyPatch(typeof(HUDManager), "DisplayGlobalNotification")]
     public static bool CheckIfLogOrBestiary(string displayText)
@@ -473,6 +482,9 @@ public class Patches
         MultiworldHandler.Instance.GetSession().Socket.SendPacket(packet);
     }
 
+    /**
+     * Overrides the chat length limit when sending messages
+     */
     [HarmonyPrefix]
     [HarmonyPatch(typeof(HUDManager), "SubmitChat_performed")]
     private static bool SubmitChat_preformed_override(ref InputAction.CallbackContext context, HUDManager __instance)
@@ -514,6 +526,9 @@ public class Patches
         return false;
     }
 
+    /**
+     * Overrides the chat length limit when receiving messages on the server
+     */
     [HarmonyPrefix]
     [HarmonyPatch(typeof(HUDManager), "AddPlayerChatMessageServerRpc")]
     private static bool ChatLengthOverridePart2(ref string chatMessage, ref int playerId, HUDManager __instance)
@@ -532,7 +547,11 @@ public class Patches
         
         return false;
     }
-    
+
+    /**
+     * Prevents buying locked items from the terminal. This includes store items, vehicles, ship upgrades, and moon reroutes.
+     * Routing to the company building is a special case because node.buyRerouteToMoon is -1 for the initial node and 3 for the confirmation node, so we have to perform extra checks.
+     */
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Terminal), "LoadNewNode")]
     private static bool PreventBuyingLockedItems(TerminalNode node){

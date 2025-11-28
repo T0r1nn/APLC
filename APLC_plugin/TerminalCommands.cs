@@ -7,7 +7,9 @@ using System.Linq;
 using Archipelago.MultiClient.Net.Models;
 
 namespace APLC;
-
+/**
+ * Handles custom terminal commands to view Archipelago information and change mod settings
+ */
 public class TerminalCommands
 {
     public static Logic LcLogic;

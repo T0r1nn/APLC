@@ -31,6 +31,10 @@ public abstract class Items
         _resetAll = resetAll;
     }
 
+    /** 
+     * Handles when an item is received from Archipelago.
+     * This increments _waiting if the item is filler (excluding Strength Training) and _total if it is anything else (moon, store item, ship upgrade, or player upgrade).
+     */
     public void OnReceived()
     {
         _received++;
@@ -99,6 +103,10 @@ public abstract class Items
     }
 }
 
+/**
+ * Filler items are items that are not required to beat the game and do not help the player substantially.
+ * These include Money, More time, Birthday gifts, Scrap clone, and traps. Strength Training is instead considered a player upgrade.
+ */
 public class FillerItems : Items
 {
     private readonly Func<bool> _receivedFunc;
@@ -129,6 +137,9 @@ public class FillerItems : Items
     }
 }
 
+/**
+ * Moon items unlock routes to new moons in the terminal.
+ */
 public class MoonItems : Items
 {
     private readonly int _terminalIndex;
@@ -186,6 +197,9 @@ public class MoonItems : Items
     }
 }
 
+/**
+ * Store items are items that can be purchased in the terminal store.
+ */
 public class StoreItems : Items
 {
     private readonly int _itemsIndex;
@@ -206,6 +220,9 @@ public class StoreItems : Items
     }
 }
 
+/**
+ * Ship upgrades are items that modify or can be placed on the player's ship.
+ */
 public class ShipUpgrades : Items
 {
     private readonly TerminalNode _upgradeNode;
@@ -222,6 +239,9 @@ public class ShipUpgrades : Items
     }
 }
 
+/**
+ * Player upgrades are items that modify the player's abilities.
+ */
 public class PlayerUpgrades : Items
 {
     private readonly int _startingAmount;

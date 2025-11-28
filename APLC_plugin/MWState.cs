@@ -12,6 +12,10 @@ using Random = UnityEngine.Random;
 
 namespace APLC;
 
+/** 
+ * Singleton class that manages the state of Archipelago items and locations within Lethal Company.
+ * It handles item creation, location creation, item processing, and interaction with the multiworld through the MultiworldHandler.
+ */
 public class MwState : NetworkBehaviour
 {
     public static MwState Instance;
@@ -82,6 +86,7 @@ public class MwState : NetworkBehaviour
         SaveManager.Startup();
     }
     
+
     private void CreateLocations()
     {
         try
@@ -284,7 +289,10 @@ public class MwState : NetworkBehaviour
             _apConnection.Disconnect();
         }
     }
-    
+
+    /** 
+     * Creates all AP items and adds them to the item map
+     */
     private void CreateItems()
     {
         try
@@ -445,6 +453,11 @@ public class MwState : NetworkBehaviour
         return Array.IndexOf(_trophyModeComplete, moon.ToLower()) != -1;
     }
 
+    /** 
+     * Marks the trophy for the given moon as complete by adding it's name to an array of collected trophies. If all trophies are complete, triggers victory.
+     * It needs the scrap object to check if it came from a previous round, in which case it won't count towards trophy completion. This is important for custom moons because
+     * they all share the same "AP Apparatus - Custom" scrap object.
+     */
     public void CompleteTrophy(string moon, GrabbableObject scrap)
     {
         if (moon.ToLower().Contains("custom"))
@@ -496,8 +509,12 @@ public class MwState : NetworkBehaviour
         return StartOfRound.Instance.currentLevel.PlanetName;
     }
 
-    public void AddCollectathonScrap(int amount)    // this only gets called on the host because clients can't see the scrapPersistedThroughRounds property of scrap,
-                                                    // so they would count the same chest multiple times
+    /** 
+     * Adds the given amount of scrap to the collectathon total. If the total meets or exceeds the goal, triggers victory.
+     * Storing the total and checking the victory condition only happens on the host, but the total is synced to clients via a ClientRpc.
+     * This is because clients can't see the scrapPersistedThroughRounds property of scrap, so they would count the same chest multiple times.
+     */
+    public void AddCollectathonScrap(int amount)
     {
         _scrapCollected += amount;
         _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-scrapCollected"] = _scrapCollected;
@@ -521,7 +538,11 @@ public class MwState : NetworkBehaviour
         }
     }*/
 
-    [Rpc(SendTo.NotServer)] // note that this won't be sent to clients on the same machine as the host (so testing with multiple instances won't display the correct total on clients)
+    /**
+     * ClientRpc to sync the scrap total to clients.
+     * Note that this won't be sent to clients on the same machine as the host (so testing with multiple instances won't display the correct total on clients).
+     */
+    [Rpc(SendTo.NotServer)]
     public void AddCollectathonScrapClientRpc(int amount)
     {
         _scrapCollected += amount;
@@ -550,6 +571,9 @@ public class MwState : NetworkBehaviour
         }
     }
 
+    /**
+     * Called every tick (usually every few seconds) to update item states, check for connection issues, handle death link, and redirect the ship away from locked moons.
+     */
     public void TickItems(object source, AplcEventArgs args)
     {
         if (!_apConnection.GetSession().Socket.Connected)
@@ -692,7 +716,7 @@ public class MwState : NetworkBehaviour
             }
         }
     }
-    
+
     private static bool GoToMoon()
     {
         if (!StartOfRound.Instance.localPlayerController.IsHost) return true;
@@ -728,7 +752,11 @@ public class MwState : NetworkBehaviour
 
         return null;
     }
-    
+
+    /** 
+     * Handles incoming DeathLink events by randomly selecting a player to kill based on the timestamp of the death event.
+     * If the local player is selected, sets a flag to trigger the death on the next tick.
+     */
     private static void KillRandom(DeathLink link)
     {
         Plugin.Instance.LogInfo("Received death link");

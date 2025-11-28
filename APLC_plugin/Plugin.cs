@@ -33,7 +33,8 @@ public class Plugin : BaseUnityPlugin
     }
 
     /**
-     * Gets the terminal object for editing(needs to be here because only monobehaviors can findobjectoftype)
+     * Gets the terminal object for editing(needs to be here because only monobehaviors can findobjectoftype).
+     * The terminal is cached after the first time it is found to avoid repeated calls to findobjectoftype.
      */
     public Terminal GetTerminal()
     {
@@ -49,6 +50,9 @@ public class Plugin : BaseUnityPlugin
         return terminal;
     }
 
+    /**
+     * Logs a warning to the console, but only in debug builds
+     */
     [System.Diagnostics.Conditional("DEBUG")]
     public void LogIfDebugBuild(string text)
     {
@@ -87,6 +91,9 @@ public class Plugin : BaseUnityPlugin
         Logger.LogError(message);
     }
 
+    /**
+     * Formats the game logic as a JSON string in the order of moons, store, vehicles, scrap, bestiary
+     */
     public string GetGameLogicString()
     {
         var logic = GetGameLogic();
@@ -218,7 +225,11 @@ public class Plugin : BaseUnityPlugin
 
         return str;
     }
-    
+
+    /**
+     * Gets the game logic as a tuple of store items, vehicles, moons, enemy spawn chances, and scrap spawn chances
+     * The spawn chance for a piece of scrap or an enemy on a moon is actually the chance of the enemy/scrap being picked for each spawn roll, not the chance of it spawning overall
+     */
     public Tuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<Tuple<string, double>>>, Dictionary<string, Collection<Tuple<string, double>>>> GetGameLogic()
     {
         Terminal t = GetTerminal();

@@ -2,6 +2,9 @@
 
 namespace APLC;
 
+/**
+ * Handles the terminal modifications for the moon tracker, log tracker, bestiary, store, and money display
+ */
 public static class TerminalHandler
 {
     private static int _moonsIndex = 21;
@@ -10,7 +13,7 @@ public static class TerminalHandler
     private static int _storeIndex = 7;
     private static bool _setIndecies = false;
 
-    public static string MoonTrackerText()
+    public static string MoonTrackerText()  // this needs to be reformatted so that optional information like weather still displays
     {
         return $@"Welcome to the exomoons catalogue.
 To route the autopilot to a moon, use the word ROUTE.
@@ -22,7 +25,11 @@ ____________________________
 {GetMoonList()}
 ";
     }
-    
+
+    /** 
+     * Displays the moon tracker information in the terminal
+     * @param t The terminal to display the information in
+     */
     public static void DisplayMoonTracker(Terminal t)
     {
         if (!_setIndecies)
@@ -63,7 +70,7 @@ ____________________________
             _setIndecies = true;
         }
 
-        var moons = t.terminalNodes.allKeywords[_moonsIndex].specialKeywordResult;
+        var moons = t.terminalNodes.allKeywords[_moonsIndex].specialKeywordResult;  // this needs to be reformatted so that optional information like weather still displays
         moons.displayText = $@"Welcome to the exomoons catalogue.
 To route the autopilot to a moon, use the word ROUTE.
 To learn about any moon, use the word INFO.{(MwState.Instance.GetGoal() == 1 ? $"\nCollectathon progress: {MwState.Instance.GetCollectathonTracker()}" : "")}{(MwState.Instance.GetGoal() == 2 ? $"\nCredit progress: {MwState.Instance.GetCreditTracker()}" : "")}
@@ -184,26 +191,14 @@ To read a log, use keyword ""VIEW"" before its name.
                 {
                     _moonsIndex = i;
                 }
-            }
-
-            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
-            {
                 if (terminal.terminalNodes.allKeywords[i].name == "Sigurd")
                 {
                     _logsIndex = i;
                 }
-            }
-
-            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
-            {
                 if (terminal.terminalNodes.allKeywords[i].name == "Bestiary")
                 {
                     _bestiaryIndex = i;
                 }
-            }
-
-            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
-            {
                 if (terminal.terminalNodes.allKeywords[i].name == "Store")
                 {
                     _storeIndex = i;

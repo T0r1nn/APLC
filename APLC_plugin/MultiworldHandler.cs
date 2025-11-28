@@ -15,6 +15,11 @@ using Object = UnityEngine.Object;
 
 namespace APLC;
 
+/**
+ * Handles the connection and communication with an Archipelago multiworld session. 
+ * This is typically created by the MwState class when loading a save file.
+ * Implemented as a singleton, accessible via MultiworldHandler.Instance.
+ */
 public class MultiworldHandler
 {
     //A list of the names of every received AP item
@@ -93,6 +98,10 @@ public class MultiworldHandler
         return _dlService;
     }
 
+    /** Toggles DeathLink on or off.
+     * If 'toggle' is true, it will invert the current state.
+     * If 'toggle' is false, it will set the state to 'value'.
+     */
     public void ToggleDeathLink(bool toggle, bool value = false)
     {
         bool shouldEnable;
@@ -168,6 +177,10 @@ public class MultiworldHandler
         }
     }
 
+    /** 
+     * Gets the mapping of scrap items to moons.
+     * If the mapping is not found in the slot data, it returns a default mapping after processing.
+     */
     public Dictionary<string, string[]> GetScrapToMoonMap()
     {
         string input;

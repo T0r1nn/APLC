@@ -9,6 +9,9 @@ using UnityEngine.Events;
 
 namespace APLC;
 
+/**
+ * Unused class for a case to display trophies in Trophy Mode
+ */
 public class TrophyCase : MonoBehaviour
 {
     public InteractTrigger trigger;

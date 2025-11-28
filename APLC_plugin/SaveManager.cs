@@ -1,7 +1,13 @@
 ﻿namespace APLC;
 
+/**
+ * Manages saving and loading connection info and slot progress to/from the save file. 
+ */
 public class SaveManager
 {
+    /**
+     * Marks a location as completed either by adding it to a queue in the save file (if MultiworldHandler is not initialized) or sending it to the MultiworldHandler
+     */
     public static void CompleteLocation(string location)
     {
         if (MultiworldHandler.Instance == null)
