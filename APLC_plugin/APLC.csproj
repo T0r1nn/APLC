@@ -14,6 +14,7 @@
     </Target>
  
     <ItemGroup>
+        <PackageReference Include="Archipelago.Gifting.Net" Version="0.4.3" />
         <PackageReference Include="Archipelago.MultiClient.Net" Version="6.6.1">
           <GeneratePathProperty>True</GeneratePathProperty>
         </PackageReference>

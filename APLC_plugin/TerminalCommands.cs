@@ -346,7 +346,53 @@ Money - {MwState.Instance.GetItemMap<FillerItems>("Money").GetReceived() - MwSta
         SaveManager.SaveConfig();
         return $"Set game name to Lethal Company - {text}";
     }
-    
+
+    [TerminalCommand("apgift", true), CommandInfo("Send a gift to another player", "\"[slot name]\" \"[item name]\"")]
+    public string GiftCommand(Terminal caller, [RemainingText] string text)
+    {
+        if (MultiworldHandler.Instance == null)
+        {
+            return "Not connected to the multiworld.";
+        }
+        string[] tokens = text[0] == '\"' ? text.Split("\" ", 2) : text.Split(" ", 2);
+        if (tokens.Length < 2)
+        {
+            return "Missing required parameter(s)";
+        }
+
+        string slotName = tokens[0].Trim('"');
+        string itemName = tokens[1].Trim('"');
+
+        /*var store = Plugin.Instance.GetTerminal().buyableItemsList;
+        var vehicles = Plugin.Instance.GetTerminal().buyableVehicles;
+
+        CanGiftResult canGiftResult = MultiworldHandler.Instance.GetGiftingService().CanGiftToPlayer(slotName);
+        if (!canGiftResult.CanGift)
+        {
+            return $"Cannot send gift to {slotName}: {canGiftResult.Message}";
+        }
+
+        if (store.Any(buyableItem => buyableItem.itemName.ToLower().Contains(itemName.ToLower())))
+        {
+            var buyableItem = store.First(buyableItem => buyableItem.itemName.ToLower().Contains(itemName.ToLower()));
+            GiftItem gift = new GiftItem(buyableItem.itemName, 1, 0);   // just for testing with LC only
+            var giftingResult = MultiworldHandler.Instance.GetGiftingService().SendGift(gift, slotName);
+            if (giftingResult.Success)
+            {
+                return $"Sent gift of {buyableItem.itemName} to {slotName}";
+            }
+            else
+            {
+                return $"Failed to send gift of {buyableItem.itemName} to {slotName}.";
+            }
+        }*/
+        Plugin.Instance.LogInfo($"Attempting to send gift of {itemName} to {slotName}");
+        GiftHandler.GetInstance(MultiworldHandler.Instance.GetGiftingService())
+            .SendGift(slotName, String.Join("", itemName.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries)).ToLower(), out string message);
+
+        return message;
+    }
+
     private static string GenerateMoonProgressTracker()
     {
         return StartOfRound.Instance.levels.Select(moon => moon.PlanetName).Where(moonName => !moonName.Contains("Gordion") && !moonName.Contains("Liquidation")).Aggregate("", (current, moonName) => current + $"    {moonName} {MwState.Instance.GetLocationMap(moonName).GetTrackerText()}\n");

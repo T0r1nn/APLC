@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using Archipelago.Gifting.Net.Service;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
@@ -30,12 +31,18 @@ public class MultiworldHandler
     //true if death link is enabled
     private readonly bool _deathLink;
 
+    //true if gifting is enabled. NOT IMPLEMENTED YET
+    private readonly bool _gifting = true;
+
     //Stores all received hints
     private readonly Collection<string> _hints = new();
 
     //Handles the deathlink
     private readonly DeathLinkService _dlService;
-    
+
+    private readonly GiftingService _giftingService;
+    private GiftHandler _giftHandler;
+
     //Events for item handling
     public event AplcEventHandler TickItems;
     public event AplcEventHandler ProcessItems;
@@ -50,6 +57,7 @@ public class MultiworldHandler
 
     public MultiworldHandler(ConnectionInfo info)
     {
+        Plugin.Instance.LogIfDebugBuild("Creating new MultiworldHandler");
         if (Config.GameName != "")
         {
             Game += " - " + Config.GameName;
@@ -76,13 +84,32 @@ public class MultiworldHandler
             _session = null;
             return;
         }
-
+        
         _slotInfo = (LoginSuccessful)result;
         _dlService = _session.CreateDeathLinkService();
         _deathLink = GetSlotSetting("deathLink") == 1;
         if (_deathLink)
         {
             _dlService.EnableDeathLink();
+        }
+
+        _giftingService = new GiftingService(_session);
+        //_gifting = GetSlotSetting("gifting") == 1;    // todo: add gifting yaml option
+        if (_gifting)
+        {
+            _giftingService.OpenGiftBox(false, ["Heal", "Speed", "Tool", "Weapon", "Bomb", "Light", "Instrument", 
+                "Transportation", "Key", "Communicative", "MeleeWeapon", "RangedWeapon", "Chemicals", "Bag", "Container"]);    // heal will grant health to all players based on the gift strength,
+                                                                                                                               // speed will send a drop pod with TzP,
+                                                                                                                               // Life will raise every player's max health based on the gift strength until the start
+                                                                                                                               // of the next quota (not possible without invasive patching),
+                                                                                                                               // Weapon spawns a drop pod with a shovel,
+                                                                                                                               // Tool spawns a drop pod with a flashlight, Bomb sends a flash grenade,
+                                                                                                                               // Trap spawns a random enemy trap?
+
+            _giftHandler = GiftHandler.GetInstance(_giftingService);    // I do this here instead of in MwState because MultiworldHandler cleans up after itself and destroys
+                                                                        // the instance when the lobby closes. GiftHandler must also be cleaned up on disconnection to prevent gifts from
+                                                                        // being sent while the player is not in a lobby, which is why I call GiftHandler.Disconnect() in MultiworldHandler.Disconnect()
+            _giftHandler.DeliverAllGiftsSinceLastSession(); // it might be better to let players claim gifts with a terminal command instead of auto-claiming
         }
 
         Instance = this;
@@ -93,8 +120,14 @@ public class MultiworldHandler
         return _dlService;
     }
 
+    public GiftingService GetGiftingService()
+    {
+        return _giftingService;
+    }
+
     public void Disconnect()
     {
+        _giftHandler.Disconnect();
         _session.Socket.DisconnectAsync();
         _receivedItemNames.Clear();
         _session = null;

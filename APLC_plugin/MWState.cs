@@ -30,11 +30,13 @@ public class MwState
     private int _scrapCollected;
     private bool _sentToMoon = true;
     public static bool WaitingForDeath;
+    public static int RemainingHealthToGrant;
     public static string DLMessage;
     public bool IgnoreDL;
     
     public MwState(ConnectionInfo connectionInfo)
     {
+        Plugin.Instance.LogIfDebugBuild("Creating new MultiworldState");
         _apConnection = new MultiworldHandler(connectionInfo);
         if (MultiworldHandler.Instance == null) return;
         _apConnection.ProcessItems += ProcessItems;
@@ -567,6 +569,22 @@ public class MwState
             }
         }
 
+        // this is to be used by the Heal gift in the future
+        if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && RemainingHealthToGrant > 0)
+        {
+            foreach (var player in StartOfRound.Instance.allPlayerScripts.Where(person => person.isPlayerControlled && !person.isPlayerDead))
+            {
+                if (RemainingHealthToGrant <= 0) break; 
+                if (player.health < 100)
+                {
+                    if (player.IsLocalPlayer) player.DamagePlayer(-1, false, true);
+                    else
+                        HealPlayerClientRPC(player, -1, false, (int)CauseOfDeath.Unknown, 0, false, default);
+                    RemainingHealthToGrant--;
+                }
+            }
+        }
+
         if (GetGoal() == 2)
         {
             if(GetItemMap("Company Credit").GetTotal() >= _apConnection.GetSlotSetting("companycreditsgoal"))
@@ -581,6 +599,12 @@ public class MwState
         }
 
         //RefreshItems();
+    }
+
+    [Rpc(SendTo.NotServer)]
+    public void HealPlayerClientRPC(PlayerControllerB playerControllerB, int damageAmount, bool hasDamageSFX, int causeOfDeathInt, int deathAnimationInt, bool fallDamage, Vector3 force)
+    {
+        playerControllerB.DamagePlayer(damageAmount, hasDamageSFX, true, (CauseOfDeath)causeOfDeathInt, deathAnimationInt, fallDamage, force);
     }
 
     public void RefreshItems(object source, AplcEventArgs args)
