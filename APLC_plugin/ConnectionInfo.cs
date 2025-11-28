@@ -2,6 +2,9 @@
 
 namespace APLC;
 
+/**
+ * Holds connection information for an Archipelago slot
+ */
 public struct ConnectionInfo : INetworkSerializable
 {
     public string URL;

@@ -1,5 +1,8 @@
 ﻿namespace APLC;
 
+/**
+ * Handles the processing of chat messages for Archipelago commands.
+ */
 public static class ChatHandler
 {
     //Archipelago connection
@@ -29,7 +32,9 @@ public static class ChatHandler
     //True if waiting for user to enter password
     private static bool _waitingForPassword;
 
-    //Handles the entering of /connect, /disconnect, and the slot and password
+    /**
+     * Handles the entering of /connect, /disconnect, and the slot and password
+     */
     public static bool HandleCommands(string message, string user)
     {
         if (_lastChatMessage == message)

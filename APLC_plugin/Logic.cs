@@ -6,6 +6,10 @@ using Rule = System.Func<APLC.State, bool>;
 
 namespace APLC;
 
+/** 
+ * Constructs the game logic by importing data from the multiworld and setting up regions, locations, and connections based on the game's rules and settings.
+ * The information is also displayed by the scrap and tracker commands.
+ */
 public class Logic
 {
     private readonly Region _menu = new("Menu");
@@ -279,6 +283,10 @@ public class Logic
         return null;
     }
 
+    /** 
+     * Returns all locations that are currently accessible given what the player has obtained so far.
+     * It uses a queue-based flood fill algorithm (I verified that the terminology is correct) to traverse through regions and connections.
+     */
     public Collection<Location> GetAccessibleLocations()
     {
         Collection<Location> locations = new Collection<Location>();
@@ -321,7 +329,11 @@ public class Logic
         
         return locations;
     }
-    
+
+    /** 
+     * Returns all regions that are currently accessible given what the player has obtained so far.
+     * It uses the same algorithm as GetAccessibleLocations to traverse through regions and connections.
+     */
     public Collection<Region> GetAccessibleRegions()
     {
         Collection<Region> openRegions = new Collection<Region>();
@@ -360,6 +372,9 @@ public class Logic
     }
 }
 
+/** 
+ * Represents a region in the game world, which can contain locations and connections to other regions.
+ */
 public class Region
 {
     private string _name;
@@ -402,6 +417,9 @@ public class Region
     }
 }
 
+/** 
+ * Represents a specific location within a region that can be accessed based on certain rules.
+ */
 public class Location
 {
     private readonly string _name;
@@ -436,6 +454,9 @@ public class Location
     }
 }
 
+/** 
+ * Represents a connection between two regions, which can be traversed based on certain rules and has an accessibility state.
+ */
 public class Connection
 {
     private readonly Region _a;
@@ -470,6 +491,9 @@ public class Connection
     }
 }
 
+/** 
+ * Represents the current state of the player's inventory and upgrades, providing methods to check for item possession.
+ */
 public class State
 {
     private readonly MwState _mwState;

@@ -13,6 +13,9 @@ public enum EnemyType
     Bracken
 }
 
+/**
+ * Handles spawning enemies for enemy traps
+ */
 public static class EnemyTrapHandler
 {
     private static SpawnableEnemyWithRarity ghostGirl;
@@ -61,7 +64,7 @@ public static class EnemyTrapHandler
     }
 
     /**
-     * Attempts to spawn an enemy given the in code name of the enemy, returns true if spawn succeeds.
+     * Attempts to spawn an enemy given the internal name of the enemy, returns true if spawn succeeds.
      */
     public static bool SpawnEnemyByName(EnemyType enemyType)
     {
