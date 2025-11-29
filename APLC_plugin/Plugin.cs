@@ -17,14 +17,16 @@ public class Plugin : BaseUnityPlugin
     //Instance of the plugin for other classes to access
     public static Plugin Instance;
     private Terminal terminal = null;
-    
+    internal static PluginConfig BoundConfig { get; private set; } = null!;
+
     /**
      * Patches the game on startup, injecting the code into the game.
      */
     private void Awake()
     {
         if (Instance == null) Instance = this;
-        
+
+        BoundConfig = new PluginConfig(base.Config);
         NetcodePatch();
         Patches.Patch();
         TerminalCommands.Patch();
