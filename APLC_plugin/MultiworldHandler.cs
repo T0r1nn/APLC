@@ -435,7 +435,7 @@ public class MultiworldHandler
 
     private void OnMessageReceived(LogMessage message)
     {
-        if (!Config.ShowAPMessagesInChat) return;
+        if (!Plugin.BoundConfig.ShowAPMessagesInChat.Value) return;
         var chat = "AP: ";
         foreach (var part in message.Parts)
         {

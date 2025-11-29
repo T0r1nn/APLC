@@ -187,22 +187,22 @@ Quota: {((Quota)MwState.Instance.GetLocationMap("Quota")).GetTrackerText()}, {to
     {
         return $@"APLC Config Settings:
 
-Send chat messages to Archipelago(sendapchat): {Config.SendChatMessagesAsAPChat}
+Send chat messages to Archipelago(sendapchat): {Plugin.BoundConfig.SendChatMessagesAsAPChat.Value}
     - false: in game chat messages will not be sent
         to Archipelago
     - true: in game chat messages will be sent to
         Archipelago
-Show AP messages in the chat(recapchat): {Config.ShowAPMessagesInChat}
+Show AP messages in the chat(recapchat): {Plugin.BoundConfig.ShowAPMessagesInChat.Value}
     - false: archipelago will not send messages
         into the LC Chat
     - true: archipelago will send messages into the 
         LC Chat
-Filler items trigger on reception(recfiller): {Config.FillerTriggersInstantly}
+Filler items trigger on reception(recfiller): {Plugin.BoundConfig.FillerTriggersInstantly.Value}
     - false: filler items can be triggered by the
         player whenever they want after receiving
         them
     - true: filler items are triggered on reception
-Max characters per chat message(maxchat): {Config.MaxCharactersPerChatMessage}
+Max characters per chat message(maxchat): {Plugin.BoundConfig.MaxCharactersPerChatMessage.Value}
     - range from 20-1000: maximum amount of 
         characters per chat message(default is 50)
 DeathLink status(deathlink): {Config.DeathLink}
@@ -233,12 +233,10 @@ To set a config value, type config followed by the name of the setting, then the
                 switch (tokens[1])
                 {
                     case "true":
-                        Config.ShowAPMessagesInChat = true;
-                        SaveManager.SaveConfig();
+                        Plugin.BoundConfig.ShowAPMessagesInChat.Value = true;
                         return "Set recapchat to true";
                     case "false":
-                        Config.ShowAPMessagesInChat = false;
-                        SaveManager.SaveConfig();
+                        Plugin.BoundConfig.ShowAPMessagesInChat.Value = false;
                         return "Set recapchat to false";
                     default:
                         return "Invalid value for recapchat, valid values are 'false' or 'true'";
@@ -247,12 +245,10 @@ To set a config value, type config followed by the name of the setting, then the
                 switch (tokens[1])
                 {
                     case "true":
-                        Config.SendChatMessagesAsAPChat = true;
-                        SaveManager.SaveConfig();
+                        Plugin.BoundConfig.SendChatMessagesAsAPChat.Value = true;
                         return "Set sendapchat to true";
                     case "false":
-                        Config.SendChatMessagesAsAPChat = false;
-                        SaveManager.SaveConfig();
+                        Plugin.BoundConfig.SendChatMessagesAsAPChat.Value = false;
                         return "Set sendapchat to false";
                     default:
                         return "Invalid value for sendapchat, valid values are 'false' or 'true'";
@@ -261,12 +257,10 @@ To set a config value, type config followed by the name of the setting, then the
                 switch (tokens[1])
                 {
                     case "true":
-                        Config.FillerTriggersInstantly = true;
-                        SaveManager.SaveConfig();
+                        Plugin.BoundConfig.FillerTriggersInstantly.Value = true;
                         return "Set recfiller to true";
                     case "false":
-                        Config.FillerTriggersInstantly = false;
-                        SaveManager.SaveConfig();
+                        Plugin.BoundConfig.FillerTriggersInstantly.Value = false;
                         return "Set recfiller to false";
                     default:
                         return "Invalid value for recfiller, valid values are 'false' or 'true'";
@@ -280,9 +274,8 @@ To set a config value, type config followed by the name of the setting, then the
                     }
                     else
                     {
-                        Config.MaxCharactersPerChatMessage = Int32.Parse(tokens[1]);
-                        SaveManager.SaveConfig();
-                        HUDManager.Instance.chatTextField.characterLimit = Config.MaxCharactersPerChatMessage;
+                        Plugin.BoundConfig.MaxCharactersPerChatMessage.Value = Int32.Parse(tokens[1]);
+                        HUDManager.Instance.chatTextField.characterLimit = Plugin.BoundConfig.MaxCharactersPerChatMessage.Value;
                         return $"Set maxchat to {tokens[1]}";
                     }
                 }

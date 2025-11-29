@@ -120,7 +120,7 @@ public class FillerItems : Items
 
     protected override bool HandleReceived(bool isTick=false)
     {
-        return isTick && (Config.FillerTriggersInstantly || _trap) && _receivedFunc();
+        return isTick && (Plugin.BoundConfig.FillerTriggersInstantly.Value || _trap) && _receivedFunc();
     }
 
     public bool Use()

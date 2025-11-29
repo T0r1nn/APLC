@@ -59,21 +59,21 @@ public class SaveManager
 
     public static void Startup()
     {
-        Config.SendChatMessagesAsAPChat = GetData<bool>("Config sendapchat", true);
-        Config.ShowAPMessagesInChat = GetData<bool>("Config showapchat", true);
-        Config.MaxCharactersPerChatMessage = GetData<int>("Config maxchat", 50);
-        Config.FillerTriggersInstantly = GetData<bool>("Config fillertrigger", true);
+        //Config.SendChatMessagesAsAPChat = GetData<bool>("Config sendapchat", true);
+        //Config.ShowAPMessagesInChat = GetData<bool>("Config showapchat", true);
+        //Config.MaxCharactersPerChatMessage = GetData<int>("Config maxchat", 50);
+        //Config.FillerTriggersInstantly = GetData<bool>("Config fillertrigger", true);
         Config.DeathLink = GetData<bool>("Config deathlink", MultiworldHandler.Instance.GetSlotSetting("deathLink") == 1);
 
-        HUDManager.Instance.chatTextField.characterLimit = Config.MaxCharactersPerChatMessage;
+        HUDManager.Instance.chatTextField.characterLimit = Plugin.BoundConfig.MaxCharactersPerChatMessage.Value;
     }
 
     public static void SaveConfig()
     {
-        SaveData("Config sendapchat", Config.SendChatMessagesAsAPChat);
-        SaveData("Config showapchat", Config.ShowAPMessagesInChat);
-        SaveData("Config maxchat", Config.MaxCharactersPerChatMessage);
-        SaveData("Config fillertrigger", Config.FillerTriggersInstantly);
+        //SaveData("Config sendapchat", Config.SendChatMessagesAsAPChat);
+        //SaveData("Config showapchat", Config.ShowAPMessagesInChat);
+        //SaveData("Config maxchat", Config.MaxCharactersPerChatMessage);
+        //SaveData("Config fillertrigger", Config.FillerTriggersInstantly);
         SaveData("Config deathlink", Config.DeathLink);
     }
 }
