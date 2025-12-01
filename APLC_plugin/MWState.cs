@@ -543,7 +543,7 @@ public class MwState : NetworkBehaviour
      * Note that this won't be sent to clients on the same machine as the host (so testing with multiple instances won't display the correct total on clients).
      */
     [Rpc(SendTo.NotServer)]
-    public void AddCollectathonScrapClientRpc(int amount)
+    public void AddCollectathonScrapClientRpc(int amount)   // this needs to be in APLCNetworking since MwState will never have a spawned network object
     {
         _scrapCollected += amount;
     }
@@ -600,9 +600,27 @@ public class MwState : NetworkBehaviour
             }
         }
 
-        if (WaitingForDeath)
+        if (WaitingForDeath && (GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer))
         {
-            GameNetworkManager.Instance.localPlayerController.KillPlayer(Vector3.forward, true, CauseOfDeath.Blast);
+
+            int selected = Random.Range(0, StartOfRound.Instance.livingPlayers);   // player controllers without a connected player are considered dead, so this works
+            PlayerControllerB[] players = [.. StartOfRound.Instance.allPlayerScripts.Where(player => !player.isPlayerDead)];
+            var steamIds = new ulong[players.Length];
+            for (int i = 0; i < players.Length; i++)
+            {
+                steamIds[i] = players[i].playerSteamId;
+            }
+            Plugin.Instance.LogInfo($"Attempting to kill player \"{players[selected].playerUsername}\"");
+
+            if (GameNetworkManager.Instance.localPlayerController == players[selected])
+                GameNetworkManager.Instance.localPlayerController.KillPlayer(Vector3.forward, true, CauseOfDeath.Blast);
+            else
+            {
+                if (GameNetworkManager.Instance.disableSteam)   // all players have steamID 0 in LAN mode, so we have to use the index instead
+                    APLCNetworking.Instance.KillPlayerClientRpc((ulong)selected);
+                else
+                    APLCNetworking.Instance.KillPlayerClientRpc(steamIds[selected]);
+            }
             ChatHandler.SendMessage($"AP: {DLMessage}");
             WaitingForDeath = false;
             DLMessage = "";
@@ -759,34 +777,13 @@ public class MwState : NetworkBehaviour
      */
     private static void KillRandom(DeathLink link)
     {
+        if (!(GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer)) return;
         Plugin.Instance.LogInfo("Received death link");
-        try
-        {
-            //ChatHandler.SendMessage($"AP: {link.Cause}");
 
-            Random.InitState(link.Timestamp.Millisecond);
+        Random.InitState(link.Timestamp.Millisecond);
 
-            var selected = Random.Range(0, GameNetworkManager.Instance.connectedPlayers);
-            var players = StartOfRound.Instance.allPlayerScripts;
-            var steamIds = new ulong[players.Length];
-            for (var i = 0; i < players.Length; i++)
-            {
-                steamIds[i] = players[i].playerSteamId;
-            }
-
-            Array.Sort(steamIds);
-            Array.Reverse(steamIds);
-
-            Plugin.Instance.LogInfo("Attempting to kill player with steam id " + steamIds[selected]);
-
-            if (StartOfRound.Instance.localPlayerController.playerSteamId != steamIds[selected]) return;
-            WaitingForDeath = true;
-            DLMessage = link.Cause;
-        }
-        catch (Exception e)
-        {
-            Plugin.Instance.LogError(e.Message+"\n"+e.StackTrace);
-        }
+        WaitingForDeath = true;
+        DLMessage = link.Cause;
     }
 
     public Dictionary<string,Collection<Tuple<string,double>>> GetScrapData()

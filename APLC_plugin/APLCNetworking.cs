@@ -1,4 +1,5 @@
-﻿using Unity.Netcode;
+﻿using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace APLC;
@@ -81,5 +82,22 @@ public class APLCNetworking : NetworkBehaviour
     private void Start()
     {
         Plugin.Instance.LogInfo("APLC Networking Started");
+    }
+
+    [Rpc(SendTo.NotMe)]
+    public void KillPlayerClientRpc(ulong id)//ulong steamID)
+    {
+        Plugin.Instance.LogInfo($"Killing player with ID {id}. It might be me?");
+        bool markedForDeath = GameNetworkManager.Instance.disableSteam ?
+            (GameNetworkManager.Instance.localPlayerController == StartOfRound.Instance.allPlayerScripts.Where(player => !player.isPlayerDead).ToArray()[id]) :
+            (GameNetworkManager.Instance.localPlayerController.playerSteamId == id);    // all players have steamID 0 in LAN mode, so we have to use the index instead
+        if (!markedForDeath) return;
+        GameNetworkManager.Instance.localPlayerController.KillPlayer(Vector3.forward, true, CauseOfDeath.Blast);
+        MwState.WaitingForDeath = false;
+        MwState.DLMessage = "";
+        if (StartOfRound.Instance.allPlayersDead)
+        {
+            MwState.Instance.IgnoreDL = true;
+        }
     }
 }
