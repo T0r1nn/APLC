@@ -84,8 +84,11 @@ public class APLCNetworking : NetworkBehaviour
         Plugin.Instance.LogInfo("APLC Networking Started");
     }
 
+    /**
+     * ClientRpc to kill a player if their steam ID matches the one chosen by the host.
+     */
     [Rpc(SendTo.NotMe)]
-    public void KillPlayerClientRpc(ulong id)//ulong steamID)
+    public void KillPlayerClientRpc(ulong id)
     {
         Plugin.Instance.LogInfo($"Killing player with ID {id}. It might be me?");
         bool markedForDeath = GameNetworkManager.Instance.disableSteam ?
@@ -99,5 +102,14 @@ public class APLCNetworking : NetworkBehaviour
         {
             MwState.Instance.IgnoreDL = true;
         }
+    }
+
+    /**
+     * ClientRpc to sync the scrap total to clients.
+     */
+    [Rpc(SendTo.NotMe)]
+    public void AddCollectathonScrapClientRpc(int amount)
+    {
+        MwState.Instance.IncrementScrapCollected(amount);
     }
 }

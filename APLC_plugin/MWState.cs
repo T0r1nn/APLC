@@ -522,28 +522,10 @@ public class MwState : NetworkBehaviour
         {
             _apConnection.Victory();
         }
-        AddCollectathonScrapClientRpc(amount);  // we do this to sync _scrapCollected with the host
+        APLCNetworking.Instance.AddCollectathonScrapClientRpc(amount);  // we do this to sync _scrapCollected with the host
     }
-
-    /*[Rpc(SendTo.Server)]
-    public void AddCollectathonScrapServerRpc(int amount)
-    {
-        _scrapCollected += amount;
-        Plugin.Instance.LogDebug($"Adding {amount} scrap on server");
-        AddCollectathonScrapClientRpc(amount);
-        _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-scrapCollected"] = _scrapCollected;
-        if (_scrapCollected >= _scrapGoal)
-        {
-            _apConnection.Victory();
-        }
-    }*/
-
-    /**
-     * ClientRpc to sync the scrap total to clients.
-     * Note that this won't be sent to clients on the same machine as the host (so testing with multiple instances won't display the correct total on clients).
-     */
-    [Rpc(SendTo.NotServer)]
-    public void AddCollectathonScrapClientRpc(int amount)   // this needs to be in APLCNetworking since MwState will never have a spawned network object
+    
+    public void IncrementScrapCollected(int amount)
     {
         _scrapCollected += amount;
     }
