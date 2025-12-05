@@ -65,7 +65,7 @@ public class SaveManager
         //Config.FillerTriggersInstantly = GetData<bool>("Config fillertrigger", true);
         Config.DeathLink = GetData<bool>("Config deathlink", MultiworldHandler.Instance.GetSlotSetting("deathLink") == 1);
 
-        HUDManager.Instance.chatTextField.characterLimit = Plugin.BoundConfig.MaxCharactersPerChatMessage.Value;
+        HUDManager.Instance.chatTextField.characterLimit = Config.MaxCharactersPerChatMessage;
     }
 
     public static void SaveConfig()

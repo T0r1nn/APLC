@@ -5,6 +5,7 @@ using LethalAPI.LibTerminal.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Archipelago.MultiClient.Net.Models;
+using Unity.Netcode;
 
 namespace APLC;
 /**
@@ -187,25 +188,25 @@ Quota: {((Quota)MwState.Instance.GetLocationMap("Quota")).GetTrackerText()}, {to
     {
         return $@"APLC Config Settings:
 
-Send chat messages to Archipelago(sendapchat): {Plugin.BoundConfig.SendChatMessagesAsAPChat.Value}
+Send chat messages to Archipelago(sendapchat): {Config.SendChatMessagesAsAPChat}
     - false: in game chat messages will not be sent
         to Archipelago
     - true: in game chat messages will be sent to
         Archipelago
-Show AP messages in the chat(recapchat): {Plugin.BoundConfig.ShowAPMessagesInChat.Value}
+Show AP messages in the chat(recapchat): {Config.ShowAPMessagesInChat}
     - false: archipelago will not send messages
         into the LC Chat
     - true: archipelago will send messages into the 
         LC Chat
-Filler items trigger on reception(recfiller): {Plugin.BoundConfig.FillerTriggersInstantly.Value}
+Filler items trigger on reception(recfiller): {Config.FillerTriggersInstantly}
     - false: filler items can be triggered by the
         player whenever they want after receiving
         them
     - true: filler items are triggered on reception
-Max characters per chat message(maxchat): {Plugin.BoundConfig.MaxCharactersPerChatMessage.Value}
+Max characters per chat message(maxchat): {Config.MaxCharactersPerChatMessage}
     - range from 20-1000: maximum amount of 
         characters per chat message(default is 50)
-DeathLink status(deathlink): {Config.DeathLink}
+DeathLink status(toggledeathlink): {Config.DeathLink}
     - false: you will not send or receive
         DeathLink effects
     - true: you will send and receive DeathLink
@@ -234,9 +235,11 @@ To set a config value, type config followed by the name of the setting, then the
                 {
                     case "true":
                         Plugin.BoundConfig.ShowAPMessagesInChat.Value = true;
+                        Config.ShowAPMessagesInChat = true;
                         return "Set recapchat to true";
                     case "false":
                         Plugin.BoundConfig.ShowAPMessagesInChat.Value = false;
+                        Config.ShowAPMessagesInChat = false;
                         return "Set recapchat to false";
                     default:
                         return "Invalid value for recapchat, valid values are 'false' or 'true'";
@@ -246,26 +249,36 @@ To set a config value, type config followed by the name of the setting, then the
                 {
                     case "true":
                         Plugin.BoundConfig.SendChatMessagesAsAPChat.Value = true;
+                        Config.SendChatMessagesAsAPChat = true;
                         return "Set sendapchat to true";
                     case "false":
                         Plugin.BoundConfig.SendChatMessagesAsAPChat.Value = false;
+                        Config.SendChatMessagesAsAPChat = false;
                         return "Set sendapchat to false";
                     default:
                         return "Invalid value for sendapchat, valid values are 'false' or 'true'";
                 }
-            case "recfiller":
+            case "recfiller":   // We get the config values whenever the round starts and store them in the Config fields.
+                                // The config fields are then synched with the host's settings if they need to be. We still don't need to save these settings to the save file (except death link).
+                                // The config fields are only used because I don't want to overwrite client configs with the host's settings.
+                if (!(GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer)) return "Only the host can change filler reception settings";
                 switch (tokens[1])
                 {
                     case "true":
                         Plugin.BoundConfig.FillerTriggersInstantly.Value = true;
+                        Config.FillerTriggersInstantly = true;
+                        APLCNetworking.Instance.SyncConfigClientRpc(Config.MaxCharactersPerChatMessage, Config.FillerTriggersInstantly, Config.DeathLink);
                         return "Set recfiller to true";
                     case "false":
                         Plugin.BoundConfig.FillerTriggersInstantly.Value = false;
+                        Config.FillerTriggersInstantly = true;
+                        APLCNetworking.Instance.SyncConfigClientRpc(Config.MaxCharactersPerChatMessage, Config.FillerTriggersInstantly, Config.DeathLink);
                         return "Set recfiller to false";
                     default:
                         return "Invalid value for recfiller, valid values are 'false' or 'true'";
                 }
             case "maxchat":
+                if (!(GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer)) return "Only the host can change the max message length";
                 try
                 {
                     if (Int32.Parse(tokens[1]) < 20 || Int32.Parse(tokens[1]) > 1000)
@@ -275,7 +288,9 @@ To set a config value, type config followed by the name of the setting, then the
                     else
                     {
                         Plugin.BoundConfig.MaxCharactersPerChatMessage.Value = Int32.Parse(tokens[1]);
-                        HUDManager.Instance.chatTextField.characterLimit = Plugin.BoundConfig.MaxCharactersPerChatMessage.Value;
+                        Config.MaxCharactersPerChatMessage = Plugin.BoundConfig.MaxCharactersPerChatMessage.Value;
+                        HUDManager.Instance.chatTextField.characterLimit = Config.MaxCharactersPerChatMessage;
+                        APLCNetworking.Instance.SyncConfigClientRpc(Config.MaxCharactersPerChatMessage, Config.FillerTriggersInstantly, Config.DeathLink);
                         return $"Set maxchat to {tokens[1]}";
                     }
                 }
@@ -284,11 +299,14 @@ To set a config value, type config followed by the name of the setting, then the
                     return "Invalid value for maxchat, valid range is 20-1000";
                 }
             case "toggledeathlink":
+                if (!(GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer)) return "Only the host can change DeathLink settings";
+
                 if (tokens.Length == 1)
                 {
                     MultiworldHandler.Instance?.ToggleDeathLink(true);
                     Config.DeathLink = true;
                     SaveManager.SaveConfig();
+                    APLCNetworking.Instance.SyncConfigClientRpc(Config.MaxCharactersPerChatMessage, Config.FillerTriggersInstantly, Config.DeathLink);
                     return "Toggled DeathLink";
                 }
                 switch (tokens[1])
@@ -297,11 +315,13 @@ To set a config value, type config followed by the name of the setting, then the
                         MultiworldHandler.Instance?.ToggleDeathLink(false, true);
                         Config.DeathLink = true;
                         SaveManager.SaveConfig();
+                        APLCNetworking.Instance.SyncConfigClientRpc(Config.MaxCharactersPerChatMessage, Config.FillerTriggersInstantly, Config.DeathLink);
                         return "DeathLink is now enabled";
                     case "false":
                         MultiworldHandler.Instance?.ToggleDeathLink(false, false);
                         Config.DeathLink = false;
                         SaveManager.SaveConfig();
+                        APLCNetworking.Instance.SyncConfigClientRpc(Config.MaxCharactersPerChatMessage, Config.FillerTriggersInstantly, Config.DeathLink);
                         return "DeathLink is now disabled";
                     default:
                         return "Invalid value for toggledeathlink, valid values are 'false' or 'true'";

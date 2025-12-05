@@ -112,4 +112,22 @@ public class APLCNetworking : NetworkBehaviour
     {
         MwState.Instance.IncrementScrapCollected(amount);
     }
+
+    [Rpc(SendTo.Server)]
+    public void SyncConfigServerRpc()
+    {
+        SyncConfigClientRpc(
+            Config.MaxCharactersPerChatMessage,
+            Config.FillerTriggersInstantly,
+            Config.DeathLink);
+    }
+
+    [Rpc(SendTo.NotMe)]
+    public void SyncConfigClientRpc(int maxChars, bool fillerInstant, bool deathLink)
+    {
+        Config.MaxCharactersPerChatMessage = maxChars;
+        Config.FillerTriggersInstantly = fillerInstant;
+        Config.DeathLink = deathLink;
+        HUDManager.Instance.chatTextField.characterLimit = Config.MaxCharactersPerChatMessage;
+    }
 }
