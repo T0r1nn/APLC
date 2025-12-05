@@ -474,7 +474,7 @@ public class Patches
             return;
         var used = ChatHandler.HandleCommands(chatMessage, nameOfUserWhoTyped);
         if (!ChatHandler.IsChatMessage(chatMessage) || used) return;
-        if (!Plugin.BoundConfig.SendChatMessagesAsAPChat.Value) return;
+        if (!Config.SendChatMessagesAsAPChat) return;
         var packet = new SayPacket()
         {
             Text = chatMessage
@@ -506,7 +506,7 @@ public class Patches
         {
             return false;
         }
-        if (!string.IsNullOrEmpty(__instance.chatTextField.text) && __instance.chatTextField.text.Length <= Plugin.BoundConfig.MaxCharactersPerChatMessage.Value)
+        if (!string.IsNullOrEmpty(__instance.chatTextField.text) && __instance.chatTextField.text.Length <= Config.MaxCharactersPerChatMessage)
         {
             __instance.AddTextToChatOnServer(__instance.chatTextField.text, (int)__instance.localPlayer.playerClientId);
         }
@@ -536,7 +536,7 @@ public class Patches
         NetworkManager networkManager = __instance.NetworkManager;
         if (networkManager == null || !networkManager.IsListening)
             return false;
-        if (!networkManager.IsServer && !networkManager.IsHost || chatMessage.Length > Plugin.BoundConfig.MaxCharactersPerChatMessage.Value)
+        if (!networkManager.IsServer && !networkManager.IsHost || chatMessage.Length > Config.MaxCharactersPerChatMessage)
             return false;
         
         MethodInfo methodInfo = typeof(HUDManager).GetMethod("AddPlayerChatMessageClientRpc", BindingFlags.Instance | BindingFlags.NonPublic);

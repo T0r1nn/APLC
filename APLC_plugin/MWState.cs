@@ -16,7 +16,7 @@ namespace APLC;
  * Singleton class that manages the state of Archipelago items and locations within Lethal Company.
  * It handles item creation, location creation, item processing, and interaction with the multiworld through the MultiworldHandler.
  */
-public class MwState : NetworkBehaviour
+public class MwState
 {
     public static MwState Instance;
     private Dictionary<String, Items> _itemMap = new();
@@ -83,9 +83,22 @@ public class MwState : NetworkBehaviour
         ES3.Save("ArchipelagoPort", _connectionInfo.Port, GameNetworkManager.Instance.currentSaveFileName);
         ES3.Save("ArchipelagoSlot", _connectionInfo.Slot, GameNetworkManager.Instance.currentSaveFileName);
         ES3.Save("ArchipelagoPassword", _connectionInfo.Password, GameNetworkManager.Instance.currentSaveFileName);
-        SaveManager.Startup();
+
+        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+        {
+            Config.SendChatMessagesAsAPChat = Plugin.BoundConfig.SendChatMessagesAsAPChat.Value;
+            Config.ShowAPMessagesInChat = Plugin.BoundConfig.ShowAPMessagesInChat.Value;
+            Config.MaxCharactersPerChatMessage = Plugin.BoundConfig.MaxCharactersPerChatMessage.Value;
+            Config.FillerTriggersInstantly = Plugin.BoundConfig.FillerTriggersInstantly.Value;
+            SaveManager.Startup();
+        }
+        else
+        {
+            APLCNetworking.Instance.SyncConfigServerRpc();
+        }
+
     }
-    
+
 
     private void CreateLocations()
     {
