@@ -7,7 +7,6 @@ using Archipelago.MultiClient.Net.Packets;
 using BepInEx.Bootstrap;
 using GameNetcodeStuff;
 using HarmonyLib;
-using LethalLevelLoader;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Unity.Netcode;
@@ -59,18 +58,18 @@ public class Patches
      */
     [HarmonyPrefix]
     [HarmonyPatch(typeof(PlayerControllerB), "Update")]
-    private static bool Sprint(PlayerControllerB __instance)
+    private static void Sprint(PlayerControllerB __instance)
     {
-        if (MultiworldHandler.Instance == null) return true;
+        if (MultiworldHandler.Instance == null) return;
         int staminaChecks = ((PlayerUpgrades)MwState.Instance.GetItemMap("Stamina Bar")).GetNum();
         if (staminaChecks == 1)
         {
             __instance.sprintMeter = Mathf.Min(__instance.sprintMeter, 0.35f);
-            return true;
+            return;
         }
 
         __instance.sprintMeter = Mathf.Min(__instance.sprintMeter, staminaChecks * 0.25f);
-        return true;
+        return;
     }
 
     /**
@@ -138,7 +137,13 @@ public class Patches
     {
         Plugin.Instance.LogInfo("Attempting to create APLC Network Manager");
 
-        GameObject networkManagerPrefab = PrefabHelper.CreateNetworkPrefab("APLCNetworkManager");
+        // Doing this instead of using PrefabHelper removes our need to use LethalLevelLoader as a dependency
+        GameObject networkManagerPrefab = new GameObject("APLCNetworkManager");
+        var networkObject = networkManagerPrefab.AddComponent<NetworkObject>();
+        var fieldInfo = typeof(NetworkObject).GetField("GlobalObjectIdHash", BindingFlags.Instance | BindingFlags.NonPublic);
+        fieldInfo!.SetValue(networkObject, PluginInfo.PLUGIN_GUID?.Aggregate(17u, (current, c) => unchecked((current * 31) ^ c)) ?? 0u);
+
+        //GameObject networkManagerPrefab = PrefabHelper.CreateNetworkPrefab("APLCNetworkManager");
         networkManagerPrefab.AddComponent<APLCNetworking>();
         networkManagerPrefab.GetComponent<NetworkObject>().SceneMigrationSynchronization = true;
         networkManagerPrefab.GetComponent<NetworkObject>().DestroyWithScene = false;
@@ -244,13 +249,13 @@ public class Patches
      */
     [HarmonyPrefix]
     [HarmonyPatch(typeof(HUDManager), "DisplayGlobalNotification")]
-    public static bool CheckIfLogOrBestiary(string displayText)
+    public static void CheckIfLogOrBestiary(string displayText)
     {
-        if (MultiworldHandler.Instance == null) return true;
+        if (MultiworldHandler.Instance == null) return;
         if (displayText == "New creature data sent to terminal!" ||
             displayText.Substring(0, 19) == "Found journal entry") MwState.Instance.CheckLogs();
 
-        return true;
+        return;
     }
     
     /**

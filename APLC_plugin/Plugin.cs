@@ -55,12 +55,12 @@ public class Plugin : BaseUnityPlugin
     }
 
     /**
-     * Logs a warning to the console, but only in debug builds
+     * Logs a message to the console, but only in debug builds
      */
     [System.Diagnostics.Conditional("DEBUG")]
-    public void LogIfDebugBuild(string text)
+    public void LogIfDebugBuild(string message)
     {
-        Plugin.Instance.LogWarning(text);
+        Logger.LogFatal(message);   // using Fatal so we can clearly see these when testing
     }
 
     /**
