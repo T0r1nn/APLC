@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using LethalLevelLoader;
 
 namespace APLC;
 
@@ -174,7 +173,9 @@ public class MoonItems : Items
             var moon = StartOfRound.Instance.levels[i];
             if (moon.PlanetName.Contains(name))
             {
-                LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteHidden = true;
+                LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteLocked = true;
+                if (!moon.PlanetName.Contains("71 Gordion"))
+                    LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteHidden = false;
             }
         }
 
@@ -190,7 +191,9 @@ public class MoonItems : Items
             var moon = StartOfRound.Instance.levels[i];
             if (moon.PlanetName.Contains(_name))
             {
-                LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteHidden = false;
+                LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteLocked = false;
+                if (!moon.PlanetName.Contains("71 Gordion"))
+                    LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteHidden = false;
             }
         }
         return true;

@@ -137,7 +137,7 @@ public class Patches
     internal static void GameNetworkManagerStart_Prefix(GameNetworkManager __instance)
     {
         Plugin.Instance.LogInfo("Attempting to create APLC Network Manager");
-        
+
         GameObject networkManagerPrefab = PrefabHelper.CreateNetworkPrefab("APLCNetworkManager");
         networkManagerPrefab.AddComponent<APLCNetworking>();
         networkManagerPrefab.GetComponent<NetworkObject>().SceneMigrationSynchronization = true;
@@ -261,7 +261,7 @@ public class Patches
     private static void TerminalStartPrefix(Terminal __instance)
     {
         if (MultiworldHandler.Instance == null) return;
-        TerminalHandler.DisplayMoonTracker(__instance);
+        //TerminalHandler.DisplayMoonTracker(__instance);
         TerminalHandler.DisplayLogTracker(__instance);
         TerminalHandler.DisplayBestiaryTracker(__instance);
         TerminalHandler.DisplayModifiedShop(__instance);
@@ -603,7 +603,7 @@ public class Patches
             }
         }
 
-        if (node.buyRerouteToMoon != -1 && node.buyRerouteToMoon != -2)     // for Gordion, this will only trigger for the reroute confirmation node, but by then the player has already been routed
+        /*if (node.buyRerouteToMoon != -1 && node.buyRerouteToMoon != -2)     // for Gordion, this will only trigger for the reroute confirmation node, but by then the player has already been routed
         {
             SelectableLevel level = StartOfRound.Instance.levels[node.buyRerouteToMoon];
             
@@ -651,7 +651,7 @@ public class Patches
                     return false;
                 }
             }
-        }
+        }*/
 
         return true;
     }
