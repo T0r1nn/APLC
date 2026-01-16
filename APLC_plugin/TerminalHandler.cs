@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Linq;
+using Archipelago.MultiClient.Net.Models;
+using Dawn;
+using UnityEngine;
 
 namespace APLC;
 
@@ -250,5 +254,34 @@ The selection of ship decor rotates per-quota. Be sure to check back next week:
     {
         t.topRightText.text =
             $"${t.groupCredits}  {((Quota)MwState.Instance.GetLocationMap("Quota")).GetTrackerText()}";
+    }
+}
+
+public class APLCPurchasePredicate(DawnMoonInfo moonInfo, ITerminalPurchasePredicate priorPredicate) : ITerminalPurchasePredicate
+{
+    DawnMoonInfo moonInfo = moonInfo;
+    ITerminalPurchasePredicate priorPredicate = priorPredicate;
+    private TerminalNode _failNode = null;
+
+    TerminalPurchaseResult ITerminalPurchasePredicate.CanPurchase()
+    {
+        // if the multiworldhandler is null, check the predicate. otherwise, check if the moon item has been received
+        // if the predicate is also null, set the location to always accesible. otherwise, just use that predicate
+        if (MultiworldHandler.Instance == null)
+        {
+            if (priorPredicate == null) return TerminalPurchaseResult.Success();
+            return priorPredicate.CanPurchase();
+        }
+        if (MultiworldHandler.Instance.GetReceivedItems().Contains(moonInfo.Level.PlanetName) || (moonInfo.Level.PlanetName == "71 Gordion" && MultiworldHandler.Instance.GetReceivedItems().Contains("Company Building")))
+        {
+            return TerminalPurchaseResult.Success();
+        }
+        if (_failNode == null)
+        {
+            _failNode = ScriptableObject.CreateInstance<TerminalNode>();
+            _failNode.name = $"{moonInfo.Level.PlanetName.Replace(" ", "").SkipWhile(x => !char.IsLetter(x)).ToArray()}APLCTerminalPredicateFail";
+            _failNode.displayText = "This moon is not unlocked yet! Find it in the multiworld to travel there.";
+        }
+        return TerminalPurchaseResult.Fail(_failNode).SetOverrideName($"{(moonInfo.Level.PlanetName == "71 Gordion" ? "The Company building" : moonInfo.GetNumberlessPlanetName())} (Locked)");
     }
 }

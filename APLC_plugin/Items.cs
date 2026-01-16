@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Dawn;
 
 namespace APLC;
 
@@ -173,9 +174,19 @@ public class MoonItems : Items
             var moon = StartOfRound.Instance.levels[i];
             if (moon.PlanetName.Contains(name))
             {
-                LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteLocked = true;
-                if (!moon.PlanetName.Contains("71 Gordion"))
-                    LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteHidden = false;
+                // this and the counterpart in HandleReceived are a much better way to block routing and make clear which moons can be routed to
+                if (Plugin.IsDawnLibInstalled)
+                {
+                    DawnMoonInfo moonInfo = moon.GetDawnInfo();
+                    if (moonInfo.DawnPurchaseInfo.PurchasePredicate is not APLCPurchasePredicate)
+                        moonInfo.DawnPurchaseInfo.PurchasePredicate = new APLCPurchasePredicate(moonInfo, moonInfo.DawnPurchaseInfo.PurchasePredicate);
+                }
+                else
+                {
+                    LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteLocked = true;
+                    if (!moon.PlanetName.Contains("71 Gordion"))
+                        LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteHidden = false;
+                }
             }
         }
 
@@ -189,7 +200,7 @@ public class MoonItems : Items
         for (int i = 0; i < StartOfRound.Instance.levels.Length; i++)
         {
             var moon = StartOfRound.Instance.levels[i];
-            if (moon.PlanetName.Contains(_name))
+            if (!Plugin.IsDawnLibInstalled && moon.PlanetName.Contains(_name)) 
             {
                 LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteLocked = false;
                 if (!moon.PlanetName.Contains("71 Gordion"))
