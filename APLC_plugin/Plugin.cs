@@ -11,6 +11,8 @@ using UnityEngine.UIElements.Collections;
 namespace APLC;
 
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+[BepInDependency(LethalLevelLoader.Plugin.ModGUID, Flags: BepInDependency.DependencyFlags.HardDependency)]
+[BepInDependency(LethalAPI.LibTerminal.PluginInfo.PLUGIN_GUID, Flags: BepInDependency.DependencyFlags.HardDependency)]
 [BepInProcess("Lethal Company.exe")]
 public class Plugin : BaseUnityPlugin
 {
@@ -30,7 +32,7 @@ public class Plugin : BaseUnityPlugin
         NetcodePatch();
         Patches.Patch();
         TerminalCommands.Patch();
-    
+
         LogInfo($"Plugin APLC Loaded - Version {PluginInfo.PLUGIN_VERSION}");
     }
 
@@ -330,7 +332,7 @@ public class Plugin : BaseUnityPlugin
             int totalRarity = 0;
             foreach (var item in scrap)
             {
-                totalRarity += item.rarity;
+                    totalRarity += item.rarity;
             }
             foreach (var item in scrap)
             {

@@ -13,7 +13,7 @@ public static class TerminalHandler
     private static int _storeIndex = 7;
     private static bool _setIndecies = false;
 
-    public static string MoonTrackerText()  // this needs to be reformatted so that optional information like weather still displays
+    public static string MoonTrackerText()  // This never gets called. I don't know why it's here
     {
         return $@"Welcome to the exomoons catalogue.
 To route the autopilot to a moon, use the word ROUTE.
@@ -30,7 +30,7 @@ ____________________________
      * Displays the moon tracker information in the terminal
      * @param t The terminal to display the information in
      */
-    public static void DisplayMoonTracker(Terminal t)
+    public static void DisplayMoonTracker(Terminal t)   // this was breaking the moon display, was not actually modifying the catalog text, and is incompatible with other mods that modify the moon catalog
     {
         if (!_setIndecies)
         {
@@ -41,26 +41,14 @@ ____________________________
                 {
                     _moonsIndex = i;
                 }
-            }
-
-            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
-            {
                 if (terminal.terminalNodes.allKeywords[i].name == "Sigurd")
                 {
                     _logsIndex = i;
                 }
-            }
-
-            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
-            {
                 if (terminal.terminalNodes.allKeywords[i].name == "Bestiary")
                 {
                     _bestiaryIndex = i;
                 }
-            }
-
-            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
-            {
                 if (terminal.terminalNodes.allKeywords[i].name == "Store")
                 {
                     _storeIndex = i;
@@ -70,7 +58,7 @@ ____________________________
             _setIndecies = true;
         }
 
-        var moons = t.terminalNodes.allKeywords[_moonsIndex].specialKeywordResult;  // this needs to be reformatted so that optional information like weather still displays
+        var moons = t.terminalNodes.allKeywords[_moonsIndex].specialKeywordResult;  // none of this is currently applying
         moons.displayText = $@"Welcome to the exomoons catalogue.
 To route the autopilot to a moon, use the word ROUTE.
 To learn about any moon, use the word INFO.{(MwState.Instance.GetGoal() == 1 ? $"\nCollectathon progress: {MwState.Instance.GetCollectathonTracker()}" : "")}{(MwState.Instance.GetGoal() == 2 ? $"\nCredit progress: {MwState.Instance.GetCreditTracker()}" : "")}
@@ -139,26 +127,14 @@ ____________________________
                 {
                     _moonsIndex = i;
                 }
-            }
-
-            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
-            {
                 if (terminal.terminalNodes.allKeywords[i].name == "Sigurd")
                 {
                     _logsIndex = i;
                 }
-            }
-
-            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
-            {
                 if (terminal.terminalNodes.allKeywords[i].name == "Bestiary")
                 {
                     _bestiaryIndex = i;
                 }
-            }
-
-            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
-            {
                 if (terminal.terminalNodes.allKeywords[i].name == "Store")
                 {
                     _storeIndex = i;
@@ -231,26 +207,14 @@ To access a creature file, type ""INFO"" after its name.
                 {
                     _moonsIndex = i;
                 }
-            }
-
-            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
-            {
                 if (terminal.terminalNodes.allKeywords[i].name == "Sigurd")
                 {
                     _logsIndex = i;
                 }
-            }
-
-            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
-            {
                 if (terminal.terminalNodes.allKeywords[i].name == "Bestiary")
                 {
                     _bestiaryIndex = i;
                 }
-            }
-
-            for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
-            {
                 if (terminal.terminalNodes.allKeywords[i].name == "Store")
                 {
                     _storeIndex = i;
