@@ -177,9 +177,7 @@ public class MoonItems : Items
                 // this and the counterpart in HandleReceived are a much better way to block routing and make clear which moons can be routed to
                 if (Plugin.IsDawnLibInstalled)
                 {
-                    DawnMoonInfo moonInfo = moon.GetDawnInfo();
-                    if (moonInfo.DawnPurchaseInfo.PurchasePredicate is not APLCPurchasePredicate)
-                        moonInfo.DawnPurchaseInfo.PurchasePredicate = new APLCPurchasePredicate(moonInfo, moonInfo.DawnPurchaseInfo.PurchasePredicate);
+                    DawnCompat.AssignPurchasePredicate(moon);
                 }
                 else
                 {
@@ -222,10 +220,13 @@ public class StoreItems : Items
 
     public StoreItems(string name, int itemsIndex, bool isVehicle = false, Item item = null)
     {
+        //Terminal terminal = Plugin.Instance.GetTerminal();
         Setup(name, resetAll:true);
         _itemsIndex = itemsIndex;
         _item = item;
         _isVehicle = isVehicle;
+        if (!Plugin.IsDawnLibInstalled || item == null) return;
+        DawnCompat.AssignPurchasePredicate(_item);
     }
 
     protected override bool HandleReceived(bool isTick=false)
@@ -245,6 +246,8 @@ public class ShipUpgrades : Items
     {
         Setup(name, resetAll:true);
         _upgradeNode = Plugin.Instance.GetTerminal().terminalNodes.allKeywords[0].compatibleNouns[upgradeIndex].result;
+        if (!Plugin.IsDawnLibInstalled) return;
+        DawnCompat.AssignPurchasePredicate(_upgradeNode);
     }
 
     protected override bool HandleReceived(bool isTick=false)

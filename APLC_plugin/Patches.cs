@@ -10,8 +10,10 @@ using HarmonyLib;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using Object = UnityEngine.Object;
 
 namespace APLC;
 
@@ -143,7 +145,7 @@ public class Patches
         var fieldInfo = typeof(NetworkObject).GetField("GlobalObjectIdHash", BindingFlags.Instance | BindingFlags.NonPublic);
         fieldInfo!.SetValue(networkObject, PluginInfo.PLUGIN_GUID?.Aggregate(17u, (current, c) => unchecked((current * 31) ^ c)) ?? 0u);
 
-        //GameObject networkManagerPrefab = PrefabHelper.CreateNetworkPrefab("APLCNetworkManager");
+        //GameObject networkManagerPrefab = LethalLevelLoader.PrefabHelper.CreateNetworkPrefab("APLCNetworkManager");
         networkManagerPrefab.AddComponent<APLCNetworking>();
         networkManagerPrefab.GetComponent<NetworkObject>().SceneMigrationSynchronization = true;
         networkManagerPrefab.GetComponent<NetworkObject>().DestroyWithScene = false;
@@ -266,10 +268,8 @@ public class Patches
     private static void TerminalStartPrefix(Terminal __instance)
     {
         if (MultiworldHandler.Instance == null) return;
-        //TerminalHandler.DisplayMoonTracker(__instance);
         TerminalHandler.DisplayLogTracker(__instance);
         TerminalHandler.DisplayBestiaryTracker(__instance);
-        TerminalHandler.DisplayModifiedShop(__instance);
         if (MultiworldHandler.Instance.GetSlotSetting("randomizeterminal") == 1)
         {
             if (MwState.Instance.GetItemMap<PlayerUpgrades>("Terminal").GetNum() == 0)
@@ -284,7 +284,7 @@ public class Patches
     private static void ModifyItemPricesToShowAsLocked(ref string modifiedDisplayText, TerminalNode node, Terminal __instance)
     {
         if (MultiworldHandler.Instance == null) return;
-        if (modifiedDisplayText.Contains("[buyableItemsList]"))
+        if (!Plugin.IsDawnLibInstalled && modifiedDisplayText.Contains("[buyableItemsList]"))   // remove this if we decide to completely switch to DawnLib
         {
             if (__instance.buyableItemsList == null || __instance.buyableItemsList.Length == 0)
             {
@@ -315,8 +315,10 @@ public class Patches
                             }
                             else
                             {
-                                storeItemStringBuilder.Append(
-                                    "\n* " + __instance.buyableItemsList[j].itemName + "  //  Locked!");
+                                storeItemStringBuilder.Append("\n* " + __instance.buyableItemsList[j].itemName +
+                                                      " (Locked)  //  Price: $" +
+                                                      (__instance.buyableItemsList[j].creditsWorth *
+                                                       (__instance.itemSalesPercentages[j] / 100f)));
                             }
                         }
 
@@ -368,8 +370,9 @@ public class Patches
                         }
                         else
                         {
-                            storeVehicleStringBuilder.Append(
-                                "\n* " + __instance.buyableVehicles[j].vehicleDisplayName + "  //  Locked!");
+                            storeVehicleStringBuilder.Append("\n* " + __instance.buyableVehicles[j].vehicleDisplayName +
+                                                  " (Locked)  //  Price: $" +
+                                                  __instance.buyableVehicles[j].creditsWorth);
                         }
                         // vehicles don't seem to be able to go on sale
                     }
@@ -384,6 +387,18 @@ public class Patches
                 modifiedDisplayText = modifiedDisplayText.Replace("[buyableVehiclesList]", storeVehicleStringBuilder.ToString());
             }
         }
+        // this won't be needed if DawnLib makes the name overrides work for vanilla upgrades
+        if (modifiedDisplayText.Contains("SHIP UPGRADES"))
+        {
+            if (MwState.Instance.GetItemMap<ShipUpgrades>("Loud horn").GetTotal() < 1)
+                modifiedDisplayText = modifiedDisplayText.Insert(modifiedDisplayText.IndexOf("Loud horn") + "Loud horn".Length, " (Locked)");
+            if (MwState.Instance.GetItemMap<ShipUpgrades>("Signal translator").GetTotal() < 1)
+                modifiedDisplayText = modifiedDisplayText.Insert(modifiedDisplayText.IndexOf("Signal Translator") + "Signal Translator".Length, " (Locked)");
+            if (MwState.Instance.GetItemMap<ShipUpgrades>("Teleporter").GetTotal() < 1)
+                modifiedDisplayText = modifiedDisplayText.Insert(modifiedDisplayText.IndexOf("Teleporter") + "Teleporter".Length, " (Locked)");
+            if (MwState.Instance.GetItemMap<ShipUpgrades>("Inverse Teleporter").GetTotal() < 1)
+                modifiedDisplayText = modifiedDisplayText.Insert(modifiedDisplayText.IndexOf("Inverse Teleporter") + "Inverse Teleporter".Length, " (Locked)");
+    }
     }
     
     /**
@@ -553,42 +568,48 @@ public class Patches
         return false;
     }
 
+    private static TerminalNode _failNode;
+
     /**
      * Prevents buying locked items from the terminal. This includes store items, vehicles, ship upgrades, and moon reroutes.
      * Routing to the company building is a special case because node.buyRerouteToMoon is -1 for the initial node and 3 for the confirmation node, so we have to perform extra checks.
      */
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Terminal), "LoadNewNode")]
-    private static bool PreventBuyingLockedItems(TerminalNode node){
+    private static bool PreventBuyingLockedItems(ref TerminalNode node){
         if (MultiworldHandler.Instance == null || !MultiworldHandler.Instance.IsConnected())
         {
             return true;
         }
         Terminal terminal = Plugin.Instance.GetTerminal();
-        if (node.buyItemIndex != -1)
+        if (_failNode == null)
+        {
+            _failNode = ScriptableObject.CreateInstance<TerminalNode>();
+            _failNode.name = "APLCGenericPurchaseFail";
+            _failNode.displayText = $"This item is not unlocked yet! Find it in the multiworld to unlock it in the store.\n\n";
+        }
+        if (!Plugin.IsDawnLibInstalled && node.buyItemIndex != -1)  // remove this if we decide to completely switch to DawnLib
         {
             if (node.buyItemIndex != -7)
             {
                 Item item = terminal.buyableItemsList[node.buyItemIndex];
                 if (MwState.Instance.GetItemMap<StoreItems>(item.itemName).GetTotal() < 1)
                 {
-                    terminal.LoadNewNode(terminal.currentNode);
-                    return false;
+                    node = _failNode;
                 }
             }
         }
-
+        // we won't need this if vanilla vehicle support comes to DawnLib
         if (node.buyVehicleIndex != -1)
         {
             BuyableVehicle vehicle = terminal.buyableVehicles[node.buyVehicleIndex];
             if (MwState.Instance.GetItemMap<StoreItems>(vehicle.vehicleDisplayName).GetTotal() < 1)
             {
-                terminal.LoadNewNode(terminal.currentNode);
-                return false;
+                node = _failNode;
             }
         }
 
-        if (node.shipUnlockableID != -1)
+        if (!Plugin.IsDawnLibInstalled && node.shipUnlockableID != -1)  // remove this if we decide to completely switch to DawnLib
         {
             if (node.shipUnlockableID < StartOfRound.Instance.unlockablesList.unlockables.Count)
             {
@@ -597,66 +618,15 @@ public class Patches
                     if (MwState.Instance.GetItemMap<ShipUpgrades>(StartOfRound.Instance.unlockablesList
                             .unlockables[node.shipUnlockableID].unlockableName).GetTotal() < 1)
                     {
-                        terminal.LoadNewNode(terminal.currentNode);
-                        return false;
+                        node = _failNode;
                     }
                 }
                 catch (Exception)
                 {
                     //Ignore, means that we collided with a cosmetic item which we don't randomize(yet)
                 }
-            }
-        }
-
-        /*if (node.buyRerouteToMoon != -1 && node.buyRerouteToMoon != -2)     // for Gordion, this will only trigger for the reroute confirmation node, but by then the player has already been routed
-        {
-            SelectableLevel level = StartOfRound.Instance.levels[node.buyRerouteToMoon];
-            
-            string moonName = level.PlanetName;
-            if (moonName != null)
-            {
-                if (moonName.Contains("Liquidation")) return true;
-                if (moonName != "71 Gordion" || MultiworldHandler.Instance.GetSlotSetting("randomizecompany") == 1)
-                {
-                    if (MwState.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
-                    {
-                        Plugin.Instance.LogInfo($"{level.PlanetName} is locked. Blocking reroute.");
-                        terminal.LoadNewNode(terminal.currentNode);
-                        return false;
                     }
                 }
-            }
-        }
-        else if (node.buyRerouteToMoon == -2)
-        {
-            SelectableLevel level = StartOfRound.Instance.levels[node.terminalOptions[1].result.buyRerouteToMoon];
-            string moonName = level.PlanetName;
-            if (moonName.Contains("Liquidation")) return true;
-
-            if (moonName != "71 Gordion" || MultiworldHandler.Instance.GetSlotSetting("randomizecompany") == 1) // this condition will always be true because buyRerouteToMoon is -1 or 3 for gordion
-            {
-                if (MwState.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
-                {
-                    Plugin.Instance.LogInfo($"{level.PlanetName} is locked. Blocking reroute.");
-                    terminal.LoadNewNode(terminal.currentNode);
-                    return false;
-                }
-            }
-        }
-        else if (node.buyRerouteToMoon == -1 && node.terminalOptions != null && node.terminalOptions.Length > 1 && node.terminalOptions[1] != null && node.terminalOptions[1].result != null)
-        {
-            int nextNodeMoonIndex = node.terminalOptions[1].result.buyRerouteToMoon;
-            if (nextNodeMoonIndex > -1)
-            {
-                string moonName = StartOfRound.Instance.levels[nextNodeMoonIndex].PlanetName;
-                if (moonName == "71 Gordion" && MultiworldHandler.Instance.GetSlotSetting("randomizecompany") == 1 && MwState.Instance.GetItemMap<MoonItems>(moonName).GetTotal() < 1)
-                {
-                    Plugin.Instance.LogInfo("Company building is locked. Blocking reroute.");
-                    terminal.LoadNewNode(terminal.currentNode);
-                    return false;
-                }
-            }
-        }*/
 
         return true;
     }
