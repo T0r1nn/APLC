@@ -570,9 +570,17 @@ public class Plugin : BaseUnityPlugin
     
     private void NetcodePatch()
     {
+        Type[] types = null!;
         try
         {
-            var types = Assembly.GetExecutingAssembly().GetTypes();
+            types = Assembly.GetExecutingAssembly().GetTypes();
+        }
+        catch (ReflectionTypeLoadException ex)
+        {
+            types = [.. ex.Types.Where(type => type is not null)!];
+        }
+        try
+        {
             foreach (var type in types)
             {
                 var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
@@ -586,9 +594,9 @@ public class Plugin : BaseUnityPlugin
                 }
             }
         }
-        catch
+        catch (Exception ex) 
         {
-            LogError("NetcodePatcher Failed! This Is Very Bad.");
+            LogError($"NetcodePatcher Failed! This Is Very Bad. \n{ex}");
         }
     }
 }
