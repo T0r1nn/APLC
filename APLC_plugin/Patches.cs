@@ -141,6 +141,7 @@ public class Patches
 
         // Doing this instead of using PrefabHelper removes our need to use LethalLevelLoader as a dependency
         GameObject networkManagerPrefab = new GameObject("APLCNetworkManager");
+        networkManagerPrefab.hideFlags = HideFlags.HideAndDontSave;
         var networkObject = networkManagerPrefab.AddComponent<NetworkObject>();
         var fieldInfo = typeof(NetworkObject).GetField("GlobalObjectIdHash", BindingFlags.Instance | BindingFlags.NonPublic);
         fieldInfo!.SetValue(networkObject, PluginInfo.PLUGIN_GUID?.Aggregate(17u, (current, c) => unchecked((current * 31) ^ c)) ?? 0u);
