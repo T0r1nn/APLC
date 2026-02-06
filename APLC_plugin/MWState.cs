@@ -234,8 +234,6 @@ public class MwState
                         {
                             if (scrapToMoonMap[scrapName].Any(moonName => moon.PlanetName.Contains(moonName)))
                             {
-                                try
-                                {
                                     string keyName = scrapName;
                                     if (scrapName.Contains("AP Apparatus"))
                                     {
@@ -244,12 +242,14 @@ public class MwState
 
                                     //AP Apparatus - Artifice doesn't work
                                     Plugin.Instance.LogDebug(keyName);
+                                try
+                                {
                                     SpawnableItemWithRarity item = scrapNameToScrapMap[keyName];
                                     scrap.Add(item);
                                 }
-                                catch (Exception e)
+                                catch (KeyNotFoundException)
                                 {
-                                    Plugin.Instance.LogError(e.Message + "\n" + e.StackTrace);
+                                    Plugin.Instance.LogWarning($"The given key '{keyName}' was not present in scrapNameToScrapMap when modifying scrap spawns for {moon.PlanetName}. Unless this is an AP Apparatus, it will not be added to the indoor scrap pool.");
                                     if (scrapName.Contains("AP Apparatus"))
                                     {
                                         SpawnableItemWithRarity item = scrapNameToScrapMap["ap_apparatus_custom"];
