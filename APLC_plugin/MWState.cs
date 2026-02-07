@@ -242,17 +242,16 @@ public class MwState
 
                                     //AP Apparatus - Artifice doesn't work
                                     Plugin.Instance.LogDebug(keyName);
-                                try
+                                if (scrapNameToScrapMap.TryGetValue(keyName, out SpawnableItemWithRarity item))
                                 {
-                                    SpawnableItemWithRarity item = scrapNameToScrapMap[keyName];
                                     scrap.Add(item);
                                 }
-                                catch (KeyNotFoundException)
+                                else
                                 {
                                     Plugin.Instance.LogWarning($"The given key '{keyName}' was not present in scrapNameToScrapMap when modifying scrap spawns for {moon.PlanetName}. Unless this is an AP Apparatus, it will not be added to the indoor scrap pool.");
                                     if (scrapName.Contains("AP Apparatus"))
                                     {
-                                        SpawnableItemWithRarity item = scrapNameToScrapMap["ap_apparatus_custom"];
+                                        item = scrapNameToScrapMap["ap_apparatus_custom"];
                                         scrap.Add(item);
                                     }
                                 }
