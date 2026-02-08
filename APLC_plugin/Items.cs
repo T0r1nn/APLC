@@ -179,12 +179,12 @@ public class MoonItems : Items
                 {
                     DawnCompat.AssignPurchasePredicate(moon);
                 }
-                else
-                {
+                //else
+                //{
                     LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteLocked = true;
                     if (!moon.PlanetName.Contains("71 Gordion"))
                         LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteHidden = false;
-                }
+                //}
             }
         }
 
@@ -198,7 +198,7 @@ public class MoonItems : Items
         for (int i = 0; i < StartOfRound.Instance.levels.Length; i++)
         {
             var moon = StartOfRound.Instance.levels[i];
-            if (!Plugin.IsDawnLibInstalled && moon.PlanetName.Contains(_name)) 
+            if (/*!Plugin.IsDawnLibInstalled && */moon.PlanetName.Contains(_name)) 
             {
                 LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteLocked = false;
                 if (!moon.PlanetName.Contains("71 Gordion"))
