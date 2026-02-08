@@ -277,7 +277,7 @@ public class MwState
                     }
                     catch (Exception)
                     {
-                        //ignore and move on
+                        Plugin.Instance.LogError($"Error modifying scrap spawns for moon '{moon.PlanetName}'. This is not likely to cause issues but we are logging it just in case.");
                     }
                 }
             }
@@ -668,7 +668,7 @@ public class MwState
                 }
                 catch (Exception)
                 {
-                    //Ignore exception
+                    Plugin.Instance.LogWarning("Error processing Progressive Flashlight. This is not likely to cause issues but we are logging it just in case.");
                 }
             }
             else if (name == "Company Building")
@@ -679,7 +679,7 @@ public class MwState
                 }
                 catch (Exception)
                 {
-                    //Ignore
+                    Plugin.Instance.LogWarning("Error processing Company Building. This is not likely to cause issues but we are logging it just in case.");
                 }
             }
             else if (name == "LoudHorn")
@@ -690,7 +690,7 @@ public class MwState
                 }
                 catch (Exception)
                 {
-                    //Ignore exception
+                    Plugin.Instance.LogWarning("Error processing Loud Horn. This is not likely to cause issues but we are logging it just in case.");
                 }
             }
             else if (name == "SignalTranslator")
@@ -701,7 +701,7 @@ public class MwState
                 }
                 catch (Exception)
                 {
-                    //Ignore exception
+                    Plugin.Instance.LogWarning("Error processing Signal translator. This is not likely to cause issues but we are logging it just in case.");
                 }
             }
             else if (name == "InverseTeleporter")
@@ -712,7 +712,7 @@ public class MwState
                 }
                 catch (Exception)
                 {
-                    //Ignore exception
+                    Plugin.Instance.LogWarning("Error processing Inverse Teleporter. This is not likely to cause issues but we are logging it just in case.");
                 }
             }
             else
@@ -723,7 +723,7 @@ public class MwState
                 }
                 catch (Exception)
                 { 
-                    //Ignore exception
+                    Plugin.Instance.LogWarning($"Error processing {name}. This is not likely to cause issues but we are logging it just in case.");
                 }
             }
         }

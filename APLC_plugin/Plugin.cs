@@ -463,7 +463,7 @@ public class Plugin : BaseUnityPlugin
                     }
                     catch (Exception)
                     {
-                        // Ignore exception
+                        Plugin.Instance.LogWarning($"Encountered an issue when processing daytime enemy {item.enemyType.enemyName} on moon {moon.PlanetName} for bestiary. This enemy will be skipped.");
                     }
 
                     if (item.enemyType.enemyName.Contains("Red Locust"))
@@ -510,7 +510,7 @@ public class Plugin : BaseUnityPlugin
                     }
                     catch (Exception)
                     {
-                        // Ignore exception
+                        Plugin.Instance.LogWarning($"Encounteed an issue when processing outside enemy {item.enemyType.enemyName} on moon {moon.PlanetName} for bestiary. This enemy will be skipped.");
                     }
                 }
             if (totalRarity[2] > 0)
@@ -550,7 +550,7 @@ public class Plugin : BaseUnityPlugin
                         }
                         catch (Exception)
                         {
-                            // Ignore exception
+                            Plugin.Instance.LogWarning($"Encounteed an issue when processing indoor enemy {item.enemyType.enemyName} on moon {moon.PlanetName} for bestiary. This enemy will be skipped.");
                         }
 
                         if (item.enemyType.enemyName.Contains("Nutcracker"))

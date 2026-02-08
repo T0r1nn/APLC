@@ -625,6 +625,7 @@ public class Patches
                 catch (Exception)
                 {
                     //Ignore, means that we collided with a cosmetic item which we don't randomize(yet)
+                    Plugin.Instance.LogInfo("Collided with a cosmetic item in PreventBuyingLockedItems");
                 }
                     }
                 }
