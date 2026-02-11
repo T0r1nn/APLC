@@ -232,7 +232,7 @@ public class MwState
                         scrap.Clear();
                         foreach (string scrapName in scrapToMoonMap.Keys)
                         {
-                            if (scrapToMoonMap[scrapName].Any(moonName => moon.PlanetName.Contains(moonName)))
+                            if (scrapToMoonMap[scrapName].Any(moonName => moon.PlanetName.Contains(moonName)))  // this might throw exceptions?
                             {
                                     string keyName = scrapName;
                                     if (scrapName.Contains("AP Apparatus"))
@@ -783,5 +783,14 @@ public class MwState
     public Dictionary<string,Collection<Tuple<string,double>>> GetScrapData()
     {
         return _scrapData;
+    }
+
+    internal void ResetTrophyList()
+    {
+        _trophyModeComplete = new object[_moons.Length];
+    }
+    internal object[] GetTrophyList()
+    {
+        return _trophyModeComplete;
     }
 }
