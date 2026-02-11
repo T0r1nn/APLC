@@ -186,7 +186,7 @@ Quota: {((Quota)MwState.Instance.GetLocationMap("Quota")).GetTrackerText()}, {to
     [TerminalCommand("config", true), CommandInfo("Shows possible values for all config options")]
     public string ConfigCommand()
     {
-        return $@"APLC Config Settings:
+            return $@"APLC Config Settings:
 
 Send chat messages to Archipelago(sendapchat): {Config.SendChatMessagesAsAPChat}
     - false: in game chat messages will not be sent
@@ -214,7 +214,7 @@ DeathLink status(toggledeathlink): {Config.DeathLink}
 To set a config value, type config followed by the name of the setting, then the value.
     Example: config recfiller true
 ";
-    }
+        }
 
     [TerminalCommand("config", true), CommandInfo("Sets the value of config settings for APLC", "[config name] [config value]")]
     public string ConfigSetCommand(Terminal caller, [RemainingText] string text)
@@ -279,24 +279,17 @@ To set a config value, type config followed by the name of the setting, then the
                 }
             case "maxchat":
                 if (!(GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer)) return "Only the host can change the max message length";
-                try
-                {
-                    if (Int32.Parse(tokens[1]) < 20 || Int32.Parse(tokens[1]) > 1000)
-                    {
-                        return "Invalid value for maxchat, valid range is 20-1000";
-                    }
-                    else
-                    {
-                        Plugin.BoundConfig.MaxCharactersPerChatMessage.Value = Int32.Parse(tokens[1]);
-                        Config.MaxCharactersPerChatMessage = Plugin.BoundConfig.MaxCharactersPerChatMessage.Value;
-                        HUDManager.Instance.chatTextField.characterLimit = Config.MaxCharactersPerChatMessage;
-                        APLCNetworking.Instance.SyncConfigClientRpc(Config.MaxCharactersPerChatMessage, Config.FillerTriggersInstantly, Config.DeathLink);
-                        return $"Set maxchat to {tokens[1]}";
-                    }
-                }
-                catch (Exception)
+                if (!Int32.TryParse(tokens[1], out int enteredValue) || enteredValue < 20 || enteredValue > 1000)
                 {
                     return "Invalid value for maxchat, valid range is 20-1000";
+                }
+                else
+                {
+                    Plugin.BoundConfig.MaxCharactersPerChatMessage.Value = enteredValue;
+                    Config.MaxCharactersPerChatMessage = Plugin.BoundConfig.MaxCharactersPerChatMessage.Value;
+                    HUDManager.Instance.chatTextField.characterLimit = Config.MaxCharactersPerChatMessage;
+                    APLCNetworking.Instance.SyncConfigClientRpc(Config.MaxCharactersPerChatMessage, Config.FillerTriggersInstantly, Config.DeathLink);
+                    return $"Set maxchat to {enteredValue}";
                 }
             case "toggledeathlink":
                 if (!(GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer)) return "Only the host can change DeathLink settings";
@@ -304,7 +297,7 @@ To set a config value, type config followed by the name of the setting, then the
                 if (tokens.Length == 1)
                 {
                     MultiworldHandler.Instance?.ToggleDeathLink(true);
-                    Config.DeathLink = true;
+                    Config.DeathLink = !Config.DeathLink;
                     SaveManager.SaveConfig();
                     APLCNetworking.Instance.SyncConfigClientRpc(Config.MaxCharactersPerChatMessage, Config.FillerTriggersInstantly, Config.DeathLink);
                     return "Toggled DeathLink";
@@ -338,8 +331,8 @@ To set a config value, type config followed by the name of the setting, then the
         {
             return "Not connected to the multiworld.";
         }
-        
-        return @$"Currently available filler items:
+
+            return @$"Currently available filler items:
 More Time - {MwState.Instance.GetItemMap<FillerItems>("More Time").GetReceived() - MwState.Instance.GetItemMap<FillerItems>("More Time").GetUsed()} avail
     {MwState.Instance.GetItemMap<FillerItems>("More Time").GetReceived()} received
 Clone Scrap - {MwState.Instance.GetItemMap<FillerItems>("Clone Scrap").GetReceived() - MwState.Instance.GetItemMap<FillerItems>("Clone Scrap").GetUsed()} avail
@@ -348,8 +341,8 @@ Birthday Gift - {MwState.Instance.GetItemMap<FillerItems>("Birthday Gift").GetRe
     {MwState.Instance.GetItemMap<FillerItems>("Birthday Gift").GetReceived()} received
 Money - {MwState.Instance.GetItemMap<FillerItems>("Money").GetReceived() - MwState.Instance.GetItemMap<FillerItems>("Money").GetUsed()} avail
     {MwState.Instance.GetItemMap<FillerItems>("Money").GetReceived()} received";
-    }
-    
+        }
+
     [TerminalCommand("apfiller", true), CommandInfo("Use available filler items", "[item name]")]
     public string FillerCommand(Terminal caller, [RemainingText] string text)
     {
@@ -358,7 +351,7 @@ Money - {MwState.Instance.GetItemMap<FillerItems>("Money").GetReceived() - MwSta
             return "Not connected to the multiworld.";
         }
 
-        string[] fillerNames = ["More Time", "Clone Scrap", "Birthday Gift", "Money"];
+            string[] fillerNames = ["More Time", "Clone Scrap", "Birthday Gift", "Money"];
         foreach (var fillerName in fillerNames)
         {
             if (fillerName.ToLower().Contains(text.ToLower()) && MwState.Instance.GetItemMap<FillerItems>(fillerName).GetReceived() > MwState.Instance.GetItemMap<FillerItems>(fillerName).GetUsed())

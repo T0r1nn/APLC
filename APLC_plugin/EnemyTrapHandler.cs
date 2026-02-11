@@ -68,15 +68,15 @@ public static class EnemyTrapHandler
      */
     public static bool SpawnEnemyByName(EnemyType enemyType)
     {
-        if (!StartOfRound.Instance.shipHasLanded || !StartOfRound.Instance.localPlayerController.IsHost)
+        if (!StartOfRound.Instance.shipHasLanded || !StartOfRound.Instance.localPlayerController.IsHost || StartOfRound.Instance.allPlayersDead)
         {
             return false;
         }
 
         GameObject[] nodes = RoundManager.Instance.insideAINodes;
+        if (nodes.Length == 0) return false;
         var randNode = UnityEngine.Random.RandomRangeInt(0, nodes.Length);
         var nodePos = nodes[randNode].transform.position;
-        if (StartOfRound.Instance.allPlayersDead) return false;
 
         return enemyType switch
         {
