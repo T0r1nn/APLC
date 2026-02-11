@@ -220,7 +220,7 @@ public class MwState
                                 ? item.spawnableItem.name
                                 : item.spawnableItem.itemName, item);
 
-                        item.rarity = item.spawnableItem.itemName == "Archipelago Chest" ? 45 : 30;
+                        item.rarity = item.spawnableItem.itemName == "Archipelago Chest" && _goal == 1 ? 45 : 30;
                     }
                 }
 

@@ -125,6 +125,7 @@ public class MultiworldHandler
 
     public void Disconnect()
     {
+        Plugin.Instance.LogInfo("Disconnecting from the multiworld.");
         _session.Socket.DisconnectAsync();
         _receivedItemNames.Clear();
         _session = null;
@@ -153,28 +154,16 @@ public class MultiworldHandler
     {
         if (_slotInfo == null) return def;
 
-        try
-        {
-            return int.Parse(_slotInfo.SlotData[settingName].ToString());
-        }
-        catch (Exception)
-        {
-            return def;
-        }
+        if (int.TryParse(_slotInfo.SlotData[settingName].ToString(), out int result)) return result;
+        return def;
     }
     
     public double GetSlotSettingDouble(string settingName, double def = 0.0)
     {
         if (_slotInfo == null) return def;
 
-        try
-        {
-            return double.Parse(_slotInfo.SlotData[settingName].ToString());
-        }
-        catch (Exception)
-        {
-            return def;
-        }
+        if (double.TryParse(_slotInfo.SlotData[settingName].ToString(), out double result)) return result;
+        return def;
     }
 
     /** 
