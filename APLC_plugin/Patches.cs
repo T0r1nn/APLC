@@ -389,7 +389,7 @@ public class Patches
             }
         }
         // this won't be needed if DawnLib makes the name overrides work for vanilla upgrades
-        if (modifiedDisplayText.Contains("SHIP UPGRADES"))
+        if (!Plugin.IsDawnLibInstalled && modifiedDisplayText.Contains("SHIP UPGRADES"))
         {
             if (MwState.Instance.GetItemMap<ShipUpgrades>("Loud horn").GetTotal() < 1)
                 modifiedDisplayText = modifiedDisplayText.Insert(modifiedDisplayText.IndexOf("Loud horn") + "Loud horn".Length, " (Locked)");

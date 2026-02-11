@@ -7,8 +7,6 @@ namespace APLC
 {
     public class APLCMoonPurchasePredicate(DawnMoonInfo moonInfo, ITerminalPurchasePredicate priorPredicate) : ITerminalPurchasePredicate
     {
-        DawnMoonInfo moonInfo = moonInfo;
-        ITerminalPurchasePredicate priorPredicate = priorPredicate;
         private TerminalNode _failNode = null;
 
         TerminalPurchaseResult ITerminalPurchasePredicate.CanPurchase()
@@ -35,8 +33,6 @@ namespace APLC
     }
     public class APLCStorePurchasePredicate(DawnShopItemInfo itemInfo, ITerminalPurchasePredicate priorPredicate) : ITerminalPurchasePredicate
     {
-        DawnShopItemInfo itemInfo = itemInfo;
-        ITerminalPurchasePredicate priorPredicate = priorPredicate;
         private TerminalNode _failNode = null;
 
         TerminalPurchaseResult ITerminalPurchasePredicate.CanPurchase()
@@ -62,8 +58,6 @@ namespace APLC
     // we can't use this yet but it may be useable in the future
     public class APLCVehiclePredicate(DawnVehicleInfo vehicleInfo, ITerminalPurchasePredicate priorPredicate) : ITerminalPurchasePredicate
     {
-        DawnVehicleInfo vehicleInfo = vehicleInfo;
-        ITerminalPurchasePredicate priorPredicate = priorPredicate;
         private TerminalNode _failNode = null;
 
         TerminalPurchaseResult ITerminalPurchasePredicate.CanPurchase()
@@ -88,8 +82,6 @@ namespace APLC
     }
     public class APLCUnlockablePurchasePredicate(DawnUnlockableItemInfo itemInfo, ITerminalPurchasePredicate priorPredicate) : ITerminalPurchasePredicate
     {
-        DawnUnlockableItemInfo itemInfo = itemInfo;
-        ITerminalPurchasePredicate priorPredicate = priorPredicate;
         private TerminalNode _failNode = null;
 
         TerminalPurchaseResult ITerminalPurchasePredicate.CanPurchase()
