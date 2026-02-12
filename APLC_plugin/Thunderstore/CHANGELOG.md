@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.7.9
+**<details><summary>Fixes</summary>**
+* removed LLLU as it is no longer needed
+* logic now consistently referrs to "Company" as "71 Gordion"
+* fixed an issue where ap chests were counted multiple times in multiplayer
+* fixed log entries not showing up in the tracker
+* speculative fix for deathlink sometimes not killing a player (it is also controlled by the host now)
+* Replaced some unnecessary try-catch blocks with more appropriate error checking. This is only phase 1.
+</details>
+
+**<details><summary>Changes</summary>**
+* added a few unit tests for easier development
+* added a license for the Archipelago library to the Thunderstore package
+* added comments to document the function of classes and some methods for future contributors
+* Moved most config options to a config file so they will carry across saves, and added some new config options. Some of these will sync with the host config.
+* the moon page in the terminal always shows all moons, but indicates which ones are locked
+* added compatability with DawnLib and set up for it to potentially replace LLL
+* WE now have a license, too!
+* Failing quota now instantly starts you on your starting moon rather than routing to experimentation first
+* 'Filler triggers instantly' config option is now off by default
+* Players are now notified of unspent filler items when landing at the company building
+</details>
+
 ## 0.7.8
 **<details><summary>Fixes</summary>**
 * fixed an issue causing NREs when using some terminal commands

@@ -12,8 +12,10 @@ Install the APLC mod from the Thunderstore (you may also install the mod via the
 Then, follow the below steps to setup the randomizer:
 
 ### YAML configuration
+<details>
 The first thing you need to do is configure the lethal_company.yaml file. For that, open and
 edit the YAML to fit whatever settings you want to play with:
+
 - name: Enter your desired slot name here, could be almost anything. {player} or {PLAYER} are replaced with the slot number, while {number} or {NUMBER} will increment once for each duplicate YAML name
 - death_link: Can be 'true' or 'false', when true turns on death link. When a party wipe occurs, a death link is sent, and when a death link is received, a random player dies.
 - game_mode: Can be collectathon, trophy, or credit hunt. In trophy mode, you need to collect one trophy apparatus from each moon. In collectathon mode, you need to collect a certain amount of AP chest scraps. In credit hunt, you need to receive a certain amount of company credit items.
@@ -52,8 +54,10 @@ edit the YAML to fit whatever settings you want to play with:
   - haunt_trap: Default is 4 Spawns a ghost girl in the next facility that can spawn a ghost girl
   - time_trap: Default is 30. Removes one day from quota. If quota already has one day left, it'll wait until the next quota to remove a day
   - money: Default is 80. Adds a random amount of money (between min_money and max_money) to your total
+</details>
 
 ### Multiworld generation
+<details>
 Once your YAML is configured, navigate to your Archipelago installation folder (will vary
 depending on where you installed Archipielago, but an example path would be
 C:\ProgramData\Archipelago). In the 'Players' folder, paste your YAML file as well as the
@@ -68,15 +72,19 @@ website, click on get started, then click Host Game, then "Upload File", and sel
 folder in the 'output' subfolder of your Archipelago folder. The game will generate along with
 the Spoiler log. Click on 'Create New Room', and you're done! The Archipelago server is now
 running!
+</details>
 
 ### Setting up the mod
 Run the game through your chosen mod installer (as you would usually start a modded LC game),
 and boot up a save. Once you are ready, you can type /connect archipelago.gg:port in the
-chat, then follow the instructions as they appear. Everyone in the lobby should connect when the host performs a /connect, but if anyone joins late, they can type /connect with no arguments in the chat to connect themselves to the multiworld.
+chat, then follow the instructions as they appear. Everyone in the lobby should connect when 
+the host performs a /connect, but if anyone joins late and doesn't sutomatically connect, 
+they can type /connect with no arguments in the chat to connect themselves to the multiworld.
 
 ## Locations and items
-In multiworld games setups, locations are the places you need to go to unlock new things.
+<details>In multiworld games setups, locations are the places you need to go to unlock new things.
 The locations in Lethal Company are as follows:
+
 - Log Entries(Excluding first log).
 - Bestiary Entries.
 - Completing moons on a set grade or higher as specified in the yaml.
@@ -84,6 +92,7 @@ The locations in Lethal Company are as follows:
 - Gathering each type of scrap for the first time if scrapsanity is enabled.
 
 The items are:
+
 - Moons
 - Shop items
 - Ship upgrades
@@ -100,8 +109,10 @@ The items are:
   - Bracken spawns
   - Ghost girl spawns
   - Quota time decreases
+</details>
 
 ## Useful Terminal Commands
+<details>
 `hints` - Shows all hints in your world that you haven't completed yet, where the item is, and whether the item is logically accessible.
 
 `progress` - Shows your current progress in the multiworld
@@ -121,8 +132,10 @@ The items are:
 `tracker` - Shows all logically accessible checks
 
 `world [world name]` - Used only for advanced custom content, will allow you to connect to custom apworlds
+</details>
 
 ## Adding custom scrap, monsters, and moons to the randomizer
+<details>
 EXPERIMENTAL FEATURE - WILL CHANGE OVER TIME, MAY BE BUGGY AND BROKEN
 As of 0.6.0, APLC now supports adding custom scrap, monsters, moons, and store items to the randomizer.
 To set up a world with custom content, follow these steps: 
@@ -154,6 +167,7 @@ Multiworlds might be unbeatable with custom content. If this happens, let me kno
 Custom content might be bugged, as testing with every possible modded moon/scrap/monster combo is not feasible for me.
 If you run into any bugs, however, don't hesitate to either create a github issue or message me in the archipelago discord
 so I can work on fixing that bug.
+</details>
 
 ## Credits
 Thanks to my friends for helping me test this and fix a few annoying crashes. 
