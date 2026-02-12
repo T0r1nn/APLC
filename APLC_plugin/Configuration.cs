@@ -9,8 +9,9 @@ namespace APLC {
         // For more info on custom configs, see https://lethal.wiki/dev/intermediate/custom-configs
         public ConfigEntry<bool> SendChatMessagesAsAPChat;
         public ConfigEntry<bool> ShowAPMessagesInChat;
-        public ConfigEntry<bool> FillerTriggersInstantly;
         public ConfigEntry<int> MaxCharactersPerChatMessage;
+        public ConfigEntry<bool> FillerTriggersInstantly;
+        public ConfigEntry<bool> DisplayFillerNotification;
         //public ConfigEntry<bool> DeathLink;   // toggling death link will remain per-save for now
         public PluginConfig(ConfigFile cfg)
         {
@@ -18,10 +19,12 @@ namespace APLC {
                 "If true, in game chat messages will be sent to Archipelago for other players to see.");
             ShowAPMessagesInChat = cfg.Bind("General", "Show AP messages in chat", true,
                 "If true, Archipelago will send messages into the LC chat.");
-            FillerTriggersInstantly = cfg.Bind("General", "Filler triggers instantly", true,
-                "If true, filler items will instantly trigger their effects upon receipt.");
             MaxCharactersPerChatMessage = cfg.Bind("General", "Max characters per chat message", 50,
                 "The max number of characters per chat message. Can be between 20 and 1000");
+            FillerTriggersInstantly = cfg.Bind("General", "Filler triggers instantly", false,
+                "If true, filler items will instantly trigger their effects upon receipt.");
+            DisplayFillerNotification = cfg.Bind("General", "Display filler notifications", true,
+                "If true, a notification will pop up when you land on the company building if you have any unspent filler items.");
 
 
             ClearUnusedEntries(cfg);
