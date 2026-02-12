@@ -271,7 +271,7 @@ To set a config value, type config followed by the name of the setting, then the
                         return "Set recfiller to true";
                     case "false":
                         Plugin.BoundConfig.FillerTriggersInstantly.Value = false;
-                        Config.FillerTriggersInstantly = true;
+                        Config.FillerTriggersInstantly = false;
                         APLCNetworking.Instance.SyncConfigClientRpc(Config.MaxCharactersPerChatMessage, Config.FillerTriggersInstantly, Config.DeathLink);
                         return "Set recfiller to false";
                     default:

@@ -83,6 +83,9 @@ public class MwState
         ES3.Save("ArchipelagoPort", _connectionInfo.Port, GameNetworkManager.Instance.currentSaveFileName);
         ES3.Save("ArchipelagoSlot", _connectionInfo.Slot, GameNetworkManager.Instance.currentSaveFileName);
         ES3.Save("ArchipelagoPassword", _connectionInfo.Password, GameNetworkManager.Instance.currentSaveFileName);
+        
+        if (GetStartingMoon() != null) ES3.Save("APStartingMoon", GetStartingMoon(), GameNetworkManager.Instance.currentSaveFileName);
+        StartOfRound.Instance.defaultPlanet = StartOfRound.Instance.levels.FirstOrDefault(l => l.PlanetName.ToLower().Contains(GetStartingMoon().ToLower()))?.levelID ?? 0;
 
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
         {
@@ -234,14 +237,14 @@ public class MwState
                         {
                             if (scrapToMoonMap[scrapName].Any(moonName => moon.PlanetName.Contains(moonName)))  // this might throw exceptions?
                             {
-                                    string keyName = scrapName;
-                                    if (scrapName.Contains("AP Apparatus"))
-                                    {
-                                        keyName = $"ap_apparatus_{moon.PlanetName.Split(' ')[1].ToLower()}";
-                                    }
+                                string keyName = scrapName;
+                                if (scrapName.Contains("AP Apparatus"))
+                                {
+                                    keyName = $"ap_apparatus_{moon.PlanetName.Split(' ')[1].ToLower()}";
+                                }
 
-                                    //AP Apparatus - Artifice doesn't work
-                                    Plugin.Instance.LogDebug(keyName);
+                                //AP Apparatus - Artifice doesn't work
+                                Plugin.Instance.LogDebug(keyName);
                                 if (scrapNameToScrapMap.TryGetValue(keyName, out SpawnableItemWithRarity item))
                                 {
                                     scrap.Add(item);
@@ -314,7 +317,7 @@ public class MwState
             {
                 _itemMap.Add(_store[i].itemName, new StoreItems(_store[i].itemName, i, false, _store[i]));
             }
-            
+
             
             for (int i = 0; i < _vehicles.Length; i++)
             {
@@ -722,7 +725,7 @@ public class MwState
                     _itemMap[name].OnReceived();
                 }
                 catch (Exception)
-                { 
+                {
                     Plugin.Instance.LogWarning($"Error processing {name}. This is not likely to cause issues but we are logging it just in case.");
                 }
             }

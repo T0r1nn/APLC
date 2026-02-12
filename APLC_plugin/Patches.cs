@@ -7,8 +7,6 @@ using Archipelago.MultiClient.Net.Packets;
 using BepInEx.Bootstrap;
 using GameNetcodeStuff;
 using HarmonyLib;
-using UnityEngine;
-using Object = UnityEngine.Object;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -151,10 +149,10 @@ public class Patches
         networkManagerPrefab.GetComponent<NetworkObject>().SceneMigrationSynchronization = true;
         networkManagerPrefab.GetComponent<NetworkObject>().DestroyWithScene = false;
         Object.DontDestroyOnLoad(networkManagerPrefab);
-        
+
         APLCNetworking.NetworkingManagerPrefab = networkManagerPrefab;
         __instance.GetComponent<NetworkManager>().AddNetworkPrefab(networkManagerPrefab);
-        
+
     }
 
     /**
@@ -170,7 +168,7 @@ public class Patches
             Object.Instantiate(APLCNetworking.NetworkingManagerPrefab).GetComponent<NetworkObject>().Spawn(destroyWithScene: false);
         }
     }
-    
+
     //Archipelago connection
     /**
      * Ticks all waiting items and refreshes the unlocked items
@@ -238,6 +236,18 @@ public class Patches
     }
 
     [HarmonyPostfix]
+    [HarmonyPatch(typeof(StartOfRound), "Start")]
+    public static void SetStartingMoon(StartOfRound __instance)
+    {
+        if (MultiworldHandler.Instance == null || !ES3.KeyExists("APStartingMoon", GameNetworkManager.Instance.currentSaveFileName)) return;
+        SelectableLevel startingMoon = StartOfRound.Instance.levels.FirstOrDefault(l => l.PlanetName.ToLower().Contains(ES3.Load<string>("APStartingMoon", GameNetworkManager.Instance.currentSaveFileName).ToLower()));
+        if (startingMoon != null)
+        {
+            StartOfRound.Instance.defaultPlanet = startingMoon.levelID;
+        }
+    }
+
+    [HarmonyPostfix]
     [HarmonyPatch(typeof(MenuManager), "Update")]
     public static void DisconnectIfInMenu()
     {
@@ -260,7 +270,7 @@ public class Patches
 
         return;
     }
-    
+
     /**
      * Handles the trackers displaying on the terminal
      */
@@ -399,9 +409,9 @@ public class Patches
                 modifiedDisplayText = modifiedDisplayText.Insert(modifiedDisplayText.IndexOf("Teleporter") + "Teleporter".Length, " (Locked)");
             if (MwState.Instance.GetItemMap<ShipUpgrades>("Inverse Teleporter").GetTotal() < 1)
                 modifiedDisplayText = modifiedDisplayText.Insert(modifiedDisplayText.IndexOf("Inverse Teleporter") + "Inverse Teleporter".Length, " (Locked)");
+        }
     }
-    }
-    
+
     /**
      * Handles the money tracker(has to update every frame since the money display itself is updated every frame)
      */
@@ -412,7 +422,7 @@ public class Patches
         if (MultiworldHandler.Instance == null) return;
         TerminalHandler.DisplayMoneyTracker(__instance);
     }
-    
+
     /**
      * Handles the getting of quota checks
      */
@@ -423,7 +433,7 @@ public class Patches
         if (MultiworldHandler.Instance == null) return;
         MwState.Instance.GetLocationMap("Quota").CheckComplete();
     }
-    
+
     /**
      * Checks deathlink, checks for moon checks, and checks for victory
      */
@@ -436,7 +446,7 @@ public class Patches
         var dead = StartOfRound.Instance.allPlayersDead;
         if (dead && !MwState.Instance.IgnoreDL) MultiworldHandler.Instance.HandleDeathLink();
         if (dead) MwState.Instance.IgnoreDL = false;
-        
+
         ((MoonLocations)MwState.Instance.GetLocationMap(StartOfRound.Instance.currentLevel.PlanetName)).OnFinishMoon(StartOfRound.Instance.currentLevel.PlanetName, grade);
 
         if (MultiworldHandler.Instance.GetSlotSetting("scrapsanity") == 1)
@@ -445,8 +455,8 @@ public class Patches
         }
 
         var list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()
-            where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
-            select obj).ToList();
+                    where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
+                    select obj).ToList();
         int apchestCount = 0;
         foreach (var scrap in list)
         {
@@ -491,7 +501,7 @@ public class Patches
     [HarmonyPatch(typeof(HUDManager), "AddChatMessage")]
     private static void OnMessageSent(ref string chatMessage, string nameOfUserWhoTyped)
     {
-        if (nameOfUserWhoTyped != GameNetworkManager.Instance.localPlayerController.playerUsername) 
+        if (nameOfUserWhoTyped != GameNetworkManager.Instance.localPlayerController.playerUsername)
             return;
         var used = ChatHandler.HandleCommands(chatMessage, nameOfUserWhoTyped);
         if (!ChatHandler.IsChatMessage(chatMessage) || used) return;
@@ -559,13 +569,13 @@ public class Patches
             return false;
         if (!networkManager.IsServer && !networkManager.IsHost || chatMessage.Length > Config.MaxCharactersPerChatMessage)
             return false;
-        
+
         MethodInfo methodInfo = typeof(HUDManager).GetMethod("AddPlayerChatMessageClientRpc", BindingFlags.Instance | BindingFlags.NonPublic);
 
         var parameters = new object[] { chatMessage, playerId };
-        
+
         methodInfo?.Invoke(__instance, parameters);
-        
+
         return false;
     }
 
@@ -577,7 +587,8 @@ public class Patches
      */
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Terminal), "LoadNewNode")]
-    private static bool PreventBuyingLockedItems(ref TerminalNode node){
+    private static bool PreventBuyingLockedItems(ref TerminalNode node)
+    {
         if (MultiworldHandler.Instance == null || !MultiworldHandler.Instance.IsConnected())
         {
             return true;
@@ -627,8 +638,8 @@ public class Patches
                     //Ignore, means that we collided with a cosmetic item which we don't randomize(yet)
                     Plugin.Instance.LogInfo("Collided with a cosmetic item in PreventBuyingLockedItems");
                 }
-                    }
-                }
+            }
+        }
 
         return true;
     }
@@ -637,11 +648,27 @@ public class Patches
     [HarmonyPatch(typeof(GrabbableObject), nameof(GrabbableObject.Start))]
     private static void ChangeNamesOfCustomTrophies(GrabbableObject __instance)
     {
-        
+
         if (!__instance.isInShipRoom && __instance.name.Contains("ap_apparatus_custom"))
         {
             string planetName = StartOfRound.Instance.currentLevel.PlanetName;
-            __instance.GetComponentInChildren<ScanNodeProperties>().headerText = $"AP Apparatus - {(int.TryParse(planetName.Split(" ", 2)[0],out _) ? planetName.Split(" ", 2)[1] : planetName)}";
+            __instance.GetComponentInChildren<ScanNodeProperties>().headerText = $"AP Apparatus - {(int.TryParse(planetName.Split(" ", 2)[0], out _) ? planetName.Split(" ", 2)[1] : planetName)}";
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(RoundManager), nameof(RoundManager.FinishGeneratingNewLevelClientRpc))]
+    private static void RemindPlayersOfAvailableFiller()
+    {
+        if (MultiworldHandler.Instance == null || !StartOfRound.Instance.currentLevel.PlanetName.Contains("Gordion") || !Plugin.BoundConfig.DisplayFillerNotification.Value) return;
+        string[] fillerNames = ["More Time", "Clone Scrap", "Birthday Gift", "Money"];
+        foreach (string fillerName in fillerNames)
+        {
+            if (MwState.Instance.GetItemMap<FillerItems>(fillerName).GetReceived() > MwState.Instance.GetItemMap<FillerItems>(fillerName).GetUsed())
+            {
+                HUDManager.Instance.DisplayTip("Archipelago", "You have unspent filler items! Use the 'apfiller' command in the terminal for details.");
+                break;
+            }
         }
     }
 }
