@@ -8,6 +8,7 @@
 * fixed log entries not showing up in the tracker
 * speculative fix for deathlink sometimes not killing a player (it is also controlled by the host now)
 * Replaced some unnecessary try-catch blocks with more appropriate error checking. This is only phase 1.
+* scrap inside the company cruiser now gets checked off properly
 </details>
 
 **<details><summary>Changes</summary>**

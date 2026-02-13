@@ -454,9 +454,14 @@ public class Patches
             MwState.Instance.GetLocationMap("Scrap").CheckComplete();
         }
 
+        GameObject cruiser = GameObject.FindObjectsByType<VehicleController>(sortMode: FindObjectsSortMode.None).FirstOrDefault(vehicle => vehicle.magnetedToShip)?.gameObject;
+        bool hasCruiser = cruiser != null;
+
         var list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()
                     where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
-                    select obj).ToList();
+                    select obj).Union(hasCruiser ? (from obj in cruiser.GetComponentsInChildren<GrabbableObject>()
+                                                    where obj.name != "CompanyCruiserManual(Clone)"
+                                                    select obj) : []).ToList();
         int apchestCount = 0;
         foreach (var scrap in list)
         {
