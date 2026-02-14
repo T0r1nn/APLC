@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using BepInEx;
 using BepInEx.Configuration;
 
@@ -12,19 +13,24 @@ namespace APLC {
         public ConfigEntry<int> MaxCharactersPerChatMessage;
         public ConfigEntry<bool> FillerTriggersInstantly;
         public ConfigEntry<bool> DisplayFillerNotification;
-        //public ConfigEntry<bool> DeathLink;   // toggling death link will remain per-save for now
+        public ConfigEntry<bool> DeathLink;
+        public ConfigEntry<bool> OverrideMWDeathlink;
         public PluginConfig(ConfigFile cfg)
         {
-            SendChatMessagesAsAPChat = cfg.Bind("General", "Send chat messages to Archipelago", true,
+            SendChatMessagesAsAPChat = cfg.Bind("Chat", "Send chat messages to Archipelago", true,
                 "If true, in game chat messages will be sent to Archipelago for other players to see.");
-            ShowAPMessagesInChat = cfg.Bind("General", "Show AP messages in chat", true,
+            ShowAPMessagesInChat = cfg.Bind("Chat", "Show AP messages in chat", true,
                 "If true, Archipelago will send messages into the LC chat.");
-            MaxCharactersPerChatMessage = cfg.Bind("General", "Max characters per chat message", 50,
+            MaxCharactersPerChatMessage = cfg.Bind("Chat", "Max characters per chat message", 50,
                 "The max number of characters per chat message. Can be between 20 and 1000");
-            FillerTriggersInstantly = cfg.Bind("General", "Filler triggers instantly", false,
-                "If true, filler items will instantly trigger their effects upon receipt.");
-            DisplayFillerNotification = cfg.Bind("General", "Display filler notifications", true,
+            FillerTriggersInstantly = cfg.Bind("Filler", "Filler triggers instantly", false,
+                "If true, filler items will instantly trigger their effects upon receipt. Otherwise, filler items will need to be manually accepted from the terminal.");
+            DisplayFillerNotification = cfg.Bind("Filler", "Display filler notifications", true,
                 "If true, a notification will pop up when you land on the company building if you have any unspent filler items.");
+            OverrideMWDeathlink = cfg.Bind("Death link", "Override yaml death link option", false,
+                "If true, the mod config will be used to turn death link on/off instead of the yaml option.");
+            DeathLink = cfg.Bind("Death link", "Enable death link", false,
+                "When you die, everyone who enabled death link dies. Of course, the reverse is true too. This option does nothing if 'Override yaml death link option' is false.");
 
 
             ClearUnusedEntries(cfg);

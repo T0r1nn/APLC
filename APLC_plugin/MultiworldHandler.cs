@@ -84,7 +84,7 @@ public class MultiworldHandler
 
         _slotInfo = (LoginSuccessful)result;
         _dlService = _session.CreateDeathLinkService();
-        deathLink = SaveManager.GetData<bool>("Config deathlink", GetSlotSetting("deathLink") == 1);
+        deathLink = Plugin.BoundConfig.OverrideMWDeathlink.Value ? Plugin.BoundConfig.DeathLink.Value : GetSlotSetting("deathLink") == 1;
         if (deathLink)
         {
             _dlService.EnableDeathLink();
@@ -115,11 +115,16 @@ public class MultiworldHandler
         {
             _dlService.EnableDeathLink();
             deathLink = true;
+            Plugin.BoundConfig.DeathLink.Value = deathLink;
+            Config.DeathLink = deathLink;
+
         }
         else
         {
             _dlService.DisableDeathLink();
             deathLink = false;
+            Plugin.BoundConfig.DeathLink.Value = deathLink;
+            Config.DeathLink = deathLink;
         }
     }
 
