@@ -293,11 +293,13 @@ To set a config value, type config followed by the name of the setting, then the
                 }
             case "toggledeathlink":
                 if (!(GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer)) return "Only the host can change DeathLink settings";
+                if (!Plugin.BoundConfig.OverrideMWDeathlink.Value) return "Unable to change this setting. 'Override yaml death link option' is not enabled in the mod config.";
+                if (MultiworldHandler.Instance == null) return "You must be connected to a multiworld to change this option from the terminal";
 
                 if (tokens.Length == 1)
                 {
                     MultiworldHandler.Instance?.ToggleDeathLink(true);
-                    Config.DeathLink = !Config.DeathLink;
+                    //Config.DeathLink = !Config.DeathLink;
                     SaveManager.SaveConfig();
                     APLCNetworking.Instance.SyncConfigClientRpc(Config.MaxCharactersPerChatMessage, Config.FillerTriggersInstantly, Config.DeathLink);
                     return "Toggled DeathLink";
@@ -306,18 +308,18 @@ To set a config value, type config followed by the name of the setting, then the
                 {
                     case "true":
                         MultiworldHandler.Instance?.ToggleDeathLink(false, true);
-                        Config.DeathLink = true;
+                        //Config.DeathLink = true;
                         SaveManager.SaveConfig();
                         APLCNetworking.Instance.SyncConfigClientRpc(Config.MaxCharactersPerChatMessage, Config.FillerTriggersInstantly, Config.DeathLink);
                         return "DeathLink is now enabled";
                     case "false":
                         MultiworldHandler.Instance?.ToggleDeathLink(false, false);
-                        Config.DeathLink = false;
+                        //Config.DeathLink = false;
                         SaveManager.SaveConfig();
                         APLCNetworking.Instance.SyncConfigClientRpc(Config.MaxCharactersPerChatMessage, Config.FillerTriggersInstantly, Config.DeathLink);
                         return "DeathLink is now disabled";
                     default:
-                        return "Invalid value for toggledeathlink, valid values are 'false' or 'true'";
+                        return "Invalid value for toggledeathlink. Accepted values are 'false' or 'true'.";
                 }
             default:
                 return $"Invalid config setting, name {tokens[0]} does not exist";

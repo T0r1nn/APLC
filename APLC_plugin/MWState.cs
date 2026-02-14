@@ -93,6 +93,7 @@ public class MwState
             Config.ShowAPMessagesInChat = Plugin.BoundConfig.ShowAPMessagesInChat.Value;
             Config.MaxCharactersPerChatMessage = Plugin.BoundConfig.MaxCharactersPerChatMessage.Value;
             Config.FillerTriggersInstantly = Plugin.BoundConfig.FillerTriggersInstantly.Value;
+            Config.DeathLink = Plugin.BoundConfig.DeathLink.Value;
             SaveManager.Startup();
         }
         else
