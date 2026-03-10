@@ -41,6 +41,21 @@ public class MwState
     {
         _apConnection = new MultiworldHandler(connectionInfo);
         if (MultiworldHandler.Instance == null) return;
+
+        var logic = Plugin.Instance.GetGameLogic();
+
+        _store = logic.Item1;
+        _vehicles = logic.Item2;
+        _moons = logic.Item3;
+        _bestiaryData = logic.Item4;
+        _scrapData = logic.Item5;
+
+        _trophyModeComplete = new object[_moons.Length];
+
+        CreateLocations();  // this and CreateItems() need to run before any of the handlers are set up, otherwise we can have a scenario where an item comes in before the item map is set up
+        CreateItems();
+        if (MultiworldHandler.Instance == null) return;
+
         _apConnection.ProcessItems += ProcessItems;
         _apConnection.RefreshItems += RefreshItems;
         _apConnection.ResetItems += ResetItems;
@@ -51,19 +66,6 @@ public class MwState
         Instance = this;
         
         _goal = _apConnection.GetSlotSetting("goal");
-
-        var logic = Plugin.Instance.GetGameLogic();
-        
-        _store = logic.Item1;
-        _vehicles = logic.Item2;
-        _moons = logic.Item3;
-        _bestiaryData = logic.Item4;
-        _scrapData = logic.Item5;
-        
-        _trophyModeComplete = new object[_moons.Length];
-        
-        CreateLocations();
-        CreateItems();
 
         // foreach (var item in _apConnection.GetSession().Items.AllItemsReceived)
         // {
@@ -311,118 +313,134 @@ public class MwState
      */
     private void CreateItems()
     {
+        bool randomizeCompany = false;
+        int inventorySlots = 4;
+        int staminaBars = 4;
+        int scanner = 1;
+        bool randomizeTerminal = false;
+        int minMoney = 100;
+        int maxMoney = 101;
         try
         {
-            //Shop items
-            for (int i = 0; i < _store.Length; i++)
-            {
-                _itemMap.Add(_store[i].itemName, new StoreItems(_store[i].itemName, i, false, _store[i]));
-            }
-
-            
-            for (int i = 0; i < _vehicles.Length; i++)
-            {
-                _itemMap.Add(_vehicles[i].vehicleDisplayName, new StoreItems(_vehicles[i].vehicleDisplayName, i, true));
-            }
-
-            //Ship upgrades
-            _itemMap.Add("Loud horn", new ShipUpgrades("Loud horn", 26));
-            _itemMap.Add("Signal translator", new ShipUpgrades("Signal translator", 34));
-            _itemMap.Add("Teleporter", new ShipUpgrades("Teleporter", 16));
-            _itemMap.Add("Inverse Teleporter", new ShipUpgrades("Inverse Teleporter", 28));
-
-            //Moons
-            foreach (var moon in _moons)
-            {
-                string moonName = moon.PlanetName;
-                if (moonName.Contains("Gordion") || moonName.Contains("Liquidation")) continue;
-                _itemMap.Add(moonName, new MoonItems(moonName));
-            }
-            if (_apConnection.GetSlotSetting("randomizecompany") == 1)
-            {
-                _itemMap.Add("71 Gordion", new MoonItems("71 Gordion"));
-            }
-
-            //Player Upgrades
-            _itemMap.Add("Inventory Slot", new PlayerUpgrades("Inventory Slot", _apConnection.GetSlotSetting("inventorySlots", 4)));
-            _itemMap.Add("Stamina Bar", new PlayerUpgrades("Stamina Bar", _apConnection.GetSlotSetting("staminaBars", 4)));
-            _itemMap.Add("Scanner", new PlayerUpgrades("Scanner", 1 - _apConnection.GetSlotSetting("scanner")));
-            _itemMap.Add("Strength Training", new PlayerUpgrades("Strength Training", 0));
-            if (_apConnection.GetSlotSetting("randomizeterminal") == 1)
-            {
-                _itemMap.Add("Terminal", new PlayerUpgrades("Terminal", 0));
-            }
-            _itemMap.Add("Company Credit", new PlayerUpgrades("Company Credit", 0));
-            
-            //Filler
-            _itemMap.Add("Money", new FillerItems("Money", () =>
-            {
-                Plugin.Instance.GetTerminal().groupCredits += Random.RandomRangeInt(_apConnection.GetSlotSetting("minMoney", 100), _apConnection.GetSlotSetting("maxMoney", 100) + 1);
-                return true;
-            }, false));
-            _itemMap.Add("HauntTrap", new FillerItems("HauntTrap", () => EnemyTrapHandler.SpawnEnemyByName(EnemyType.GhostGirl), true));
-            _itemMap.Add("BrackenTrap",
-                new FillerItems("BrackenTrap", () => EnemyTrapHandler.SpawnEnemyByName(EnemyType.Bracken), true));
-            _itemMap.Add("More Time", new FillerItems("More Time", () =>
-            {
-                TimeOfDay.Instance.timeUntilDeadline += TimeOfDay.Instance.totalTime;
-                TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
-                APLCNetworking.Instance.SetTimeUntilDeadlineServerRpc(TimeOfDay.Instance.timeUntilDeadline);
-                return true;
-            }, false));
-            _itemMap.Add("Less Time", new FillerItems("Less Time", () =>
-            {
-                TimeOfDay.Instance.timeUntilDeadline -= TimeOfDay.Instance.totalTime;
-                if (TimeOfDay.Instance.timeUntilDeadline < TimeOfDay.Instance.totalTime)
-                {
-                    TimeOfDay.Instance.timeUntilDeadline += TimeOfDay.Instance.totalTime;
-                }
-
-                TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
-                APLCNetworking.Instance.SetTimeUntilDeadlineServerRpc(TimeOfDay.Instance.timeUntilDeadline);
-                return true;
-            }, true));
-            _itemMap.Add("Clone Scrap", new FillerItems("Clone Scrap", () =>
-            {
-                var list = (from obj in GameObject.Find("/Environment/HangarShip")
-                        .GetComponentsInChildren<GrabbableObject>()
-                    where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
-                    select obj).ToList();
-                Collection<GrabbableObject> objects = new();
-                foreach (var scrap in list)
-                {
-                    if (scrap.scrapValue > 0 && scrap.itemProperties.isScrap)
-                    {
-                        objects.Add(scrap);
-                    }
-                }
-
-                if (objects.Count == 0)
-                {
-                    return false;
-                }
-
-                int i = Random.RandomRangeInt(0, objects.Count);
-
-                var gameObject = UnityEngine.Object.Instantiate(objects[i].itemProperties.spawnPrefab,
-                    objects[i].transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
-                gameObject.GetComponent<GrabbableObject>().SetScrapValue(objects[i].scrapValue);
-                gameObject.GetComponentInChildren<NetworkObject>().Spawn();
-                return true;
-            }, false));
-            _itemMap.Add("Birthday Gift", new FillerItems("Birthday Gift", () =>
-            {
-                Item[] items = Plugin.Instance.GetTerminal().buyableItemsList;
-                int i = Random.RandomRangeInt(0, items.Length);
-                Plugin.Instance.GetTerminal().orderedItemsFromTerminal.Add(i);
-                return true;
-            }, false));
+            randomizeCompany = _apConnection.GetSlotSetting("randomizecompany") == 1;
+            inventorySlots = _apConnection.GetSlotSetting("inventorySlots", 4);
+            staminaBars = _apConnection.GetSlotSetting("staminaBars", 4);
+            scanner = 1 - _apConnection.GetSlotSetting("scanner");
+            randomizeTerminal = _apConnection.GetSlotSetting("randomizeterminal") == 1;
+            minMoney = _apConnection.GetSlotSetting("minMoney", 100);
+            maxMoney = _apConnection.GetSlotSetting("maxMoney", 100);
         }
         catch (Exception e)
         {
             Plugin.Instance.LogError($"{e.Message}\n{e.StackTrace}");
             _apConnection.Disconnect();
+            return;
         }
+        //Shop items
+        for (int i = 0; i < _store.Length; i++)
+        {
+            _itemMap.Add(_store[i].itemName, new StoreItems(_store[i].itemName, i, false, _store[i]));
+        }
+
+
+        for (int i = 0; i < _vehicles.Length; i++)
+        {
+            _itemMap.Add(_vehicles[i].vehicleDisplayName, new StoreItems(_vehicles[i].vehicleDisplayName, i, true));
+        }
+
+        //Ship upgrades
+        _itemMap.Add("Loud horn", new ShipUpgrades("Loud horn", 26));
+        _itemMap.Add("Signal translator", new ShipUpgrades("Signal translator", 34));
+        _itemMap.Add("Teleporter", new ShipUpgrades("Teleporter", 16));
+        _itemMap.Add("Inverse Teleporter", new ShipUpgrades("Inverse Teleporter", 28));
+
+        //Moons
+        foreach (var moon in _moons)
+        {
+            string moonName = moon.PlanetName;
+            if (moonName.Contains("Gordion") || moonName.Contains("Liquidation")) continue;
+            _itemMap.Add(moonName, new MoonItems(moonName));
+        }
+        if (randomizeCompany)
+        {
+            _itemMap.Add("71 Gordion", new MoonItems("71 Gordion"));
+        }
+
+        //Player Upgrades
+        _itemMap.Add("Inventory Slot", new PlayerUpgrades("Inventory Slot", inventorySlots));
+        _itemMap.Add("Stamina Bar", new PlayerUpgrades("Stamina Bar", staminaBars));
+        _itemMap.Add("Scanner", new PlayerUpgrades("Scanner", scanner));
+        _itemMap.Add("Strength Training", new PlayerUpgrades("Strength Training", 0));
+        if (randomizeTerminal)
+        {
+            _itemMap.Add("Terminal", new PlayerUpgrades("Terminal", 0));
+        }
+        _itemMap.Add("Company Credit", new PlayerUpgrades("Company Credit", 0));
+
+        //Filler
+        _itemMap.Add("Money", new FillerItems("Money", () =>
+        {
+            Plugin.Instance.GetTerminal().groupCredits += Random.RandomRangeInt(minMoney, maxMoney);
+            return true;
+        }, false));
+        _itemMap.Add("HauntTrap", new FillerItems("HauntTrap", () => EnemyTrapHandler.SpawnEnemyByName(EnemyType.GhostGirl), true));
+        _itemMap.Add("BrackenTrap",
+            new FillerItems("BrackenTrap", () => EnemyTrapHandler.SpawnEnemyByName(EnemyType.Bracken), true));
+        _itemMap.Add("More Time", new FillerItems("More Time", () =>
+        {
+            TimeOfDay.Instance.timeUntilDeadline += TimeOfDay.Instance.totalTime;
+            TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
+            APLCNetworking.Instance.SetTimeUntilDeadlineServerRpc(TimeOfDay.Instance.timeUntilDeadline);
+            return true;
+        }, false));
+        _itemMap.Add("Less Time", new FillerItems("Less Time", () =>
+        {
+            TimeOfDay.Instance.timeUntilDeadline -= TimeOfDay.Instance.totalTime;
+            if (TimeOfDay.Instance.timeUntilDeadline < TimeOfDay.Instance.totalTime)
+            {
+                TimeOfDay.Instance.timeUntilDeadline += TimeOfDay.Instance.totalTime;
+            }
+
+            TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
+            APLCNetworking.Instance.SetTimeUntilDeadlineServerRpc(TimeOfDay.Instance.timeUntilDeadline);
+            return true;
+        }, true));
+        _itemMap.Add("Clone Scrap", new FillerItems("Clone Scrap", () =>
+        {
+            var list = (from obj in GameObject.Find("/Environment/HangarShip")
+                    .GetComponentsInChildren<GrabbableObject>()
+                        where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
+                        select obj).ToList();
+            Collection<GrabbableObject> objects = new();
+            foreach (var scrap in list)
+            {
+                if (scrap.scrapValue > 0 && scrap.itemProperties.isScrap)
+                {
+                    objects.Add(scrap);
+                }
+            }
+
+            if (objects.Count == 0)
+            {
+                return false;
+            }
+
+            int i = Random.RandomRangeInt(0, objects.Count);
+
+            var gameObject = UnityEngine.Object.Instantiate(objects[i].itemProperties.spawnPrefab,
+                objects[i].transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
+            gameObject.GetComponent<GrabbableObject>().SetScrapValue(objects[i].scrapValue);
+            gameObject.GetComponentInChildren<NetworkObject>().Spawn();
+            return true;
+        }, false));
+        _itemMap.Add("Birthday Gift", new FillerItems("Birthday Gift", () =>
+        {
+            Item[] items = Plugin.Instance.GetTerminal().buyableItemsList;
+            int i = Random.RandomRangeInt(0, items.Length);
+            Plugin.Instance.GetTerminal().orderedItemsFromTerminal.Add(i);
+            return true;
+        }, false));
+
     }
     
     public void CheckLogs()
@@ -670,9 +688,9 @@ public class MwState
                     _itemMap[flashlightNames[flashlights]].OnReceived();
                     flashlights++;
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Plugin.Instance.LogWarning("Error processing Progressive Flashlight. This is not likely to cause issues but we are logging it just in case.");
+                    Plugin.Instance.LogWarning($"Error processing Progressive Flashlight. This is not likely to cause issues but we are logging it just in case. {e}");
                 }
             }
             else if (name == "Company Building")
@@ -681,9 +699,9 @@ public class MwState
                 {
                     _itemMap["71 Gordion"].OnReceived();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Plugin.Instance.LogWarning("Error processing Company Building. This is not likely to cause issues but we are logging it just in case.");
+                    Plugin.Instance.LogWarning($"Error processing Company Building. This is not likely to cause issues but we are logging it just in case. {e}");
                 }
             }
             else if (name == "LoudHorn")
@@ -692,9 +710,9 @@ public class MwState
                 {
                     _itemMap["Loud horn"].OnReceived();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Plugin.Instance.LogWarning("Error processing Loud Horn. This is not likely to cause issues but we are logging it just in case.");
+                    Plugin.Instance.LogWarning($"Error processing Loud Horn. This is not likely to cause issues but we are logging it just in case. {e}");
                 }
             }
             else if (name == "SignalTranslator")
@@ -703,9 +721,9 @@ public class MwState
                 {
                     _itemMap["Signal translator"].OnReceived();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Plugin.Instance.LogWarning("Error processing Signal translator. This is not likely to cause issues but we are logging it just in case.");
+                    Plugin.Instance.LogWarning($"Error processing Signal translator. This is not likely to cause issues but we are logging it just in case. {e}");
                 }
             }
             else if (name == "InverseTeleporter")
@@ -714,9 +732,9 @@ public class MwState
                 {
                     _itemMap["Inverse Teleporter"].OnReceived();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Plugin.Instance.LogWarning("Error processing Inverse Teleporter. This is not likely to cause issues but we are logging it just in case.");
+                    Plugin.Instance.LogWarning($"Error processing Inverse Teleporter. This is not likely to cause issues but we are logging it just in case. {e}");
                 }
             }
             else
@@ -725,9 +743,9 @@ public class MwState
                 {
                     _itemMap[name].OnReceived();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Plugin.Instance.LogWarning($"Error processing {name}. This is not likely to cause issues but we are logging it just in case.");
+                    Plugin.Instance.LogError($"Error processing {name}. {e}");
                 }
             }
         }
