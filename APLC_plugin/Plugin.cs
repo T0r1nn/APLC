@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Bootstrap;
-using Dawn;
 using UnityEngine;
 using UnityEngine.UIElements.Collections;
 
@@ -15,13 +14,13 @@ namespace APLC;
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 [BepInDependency(LethalLevelLoader.Plugin.ModGUID, Flags: BepInDependency.DependencyFlags.HardDependency)]
 [BepInDependency(LethalAPI.LibTerminal.PluginInfo.PLUGIN_GUID, Flags: BepInDependency.DependencyFlags.HardDependency)]
-[BepInDependency(DawnLib.PLUGIN_GUID, Flags: BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency(Dawn.DawnLib.PLUGIN_GUID, Flags: BepInDependency.DependencyFlags.SoftDependency)]
 [BepInProcess("Lethal Company.exe")]
 public class Plugin : BaseUnityPlugin
 {
     //Instance of the plugin for other classes to access
     public static Plugin Instance;
-    public static bool IsDawnLibInstalled => Chainloader.PluginInfos.ContainsKey(DawnLib.PLUGIN_GUID);
+    public static bool IsDawnLibInstalled => Chainloader.PluginInfos.ContainsKey(Dawn.DawnLib.PLUGIN_GUID);
     public static bool IsLethalExpansionInstalled => Chainloader.PluginInfos.ContainsKey("LethalExpansion") || Chainloader.PluginInfos.ContainsKey("LethalExpansionCore");
     private Terminal terminal = null;
     internal static PluginConfig BoundConfig { get; private set; } = null!;
@@ -39,6 +38,10 @@ public class Plugin : BaseUnityPlugin
         TerminalCommands.Patch();
 
         LogInfo($"Plugin APLC Loaded - Version {PluginInfo.PLUGIN_VERSION}");
+        if (IsLethalExpansionInstalled)
+        {
+            LogError("Lethal Expansion detected. Lethal Expansion is not designed to work with modern versions of Lethal Company and it is not compatible with APLC's dependencies. Use it at your own risk!");
+        }
     }
 
     /**
