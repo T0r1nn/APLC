@@ -76,9 +76,9 @@ running!
 
 ### Setting up the mod
 Run the game through your chosen mod installer (as you would usually start a modded LC game),
-and boot up a save. Once you are ready, you can type /connect archipelago.gg:port in the
+and boot up a save. Once you are ready, you can type /connect archipelago.gg:*port* in the
 chat, then follow the instructions as they appear. Everyone in the lobby should connect when 
-the host performs a /connect, but if anyone joins late and doesn't sutomatically connect, 
+the host performs a /connect, but if anyone joins late and doesn't automatically connect, 
 they can type /connect with no arguments in the chat to connect themselves to the multiworld.
 
 ## Locations and items
