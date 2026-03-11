@@ -52,7 +52,7 @@ public class MwState
 
         _trophyModeComplete = new object[_moons.Length];
 
-        CreateLocations();  // this and CreateItems() need to run before any of the handlers are set up, otherwise we can have a scenario where an item comes in before the item map is set up
+        CreateLocations();  // this and CreateItems() need to run before any of the handlers are set up, otherwise we can have a scenario where an item comes in before the item map knows what it is
         CreateItems();
         if (MultiworldHandler.Instance == null) return;
 
