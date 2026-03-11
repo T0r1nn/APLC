@@ -13,9 +13,8 @@ using UnityEngine.UIElements.Collections;
 namespace APLC;
 
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-[BepInDependency(LethalLevelLoader.Plugin.ModGUID, Flags: BepInDependency.DependencyFlags.HardDependency)]
 [BepInDependency(LethalAPI.LibTerminal.PluginInfo.PLUGIN_GUID, Flags: BepInDependency.DependencyFlags.HardDependency)]
-[BepInDependency(Dawn.DawnLib.PLUGIN_GUID, Flags: BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency(Dawn.DawnLib.PLUGIN_GUID, Flags: BepInDependency.DependencyFlags.HardDependency)]
 [BepInProcess("Lethal Company.exe")]
 public class Plugin : BaseUnityPlugin
 {
