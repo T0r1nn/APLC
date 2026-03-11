@@ -75,7 +75,7 @@ public class Logic
             {
                 case "41 Experimentation":
                     moon.AddLocation("Log - Swing of Things");
-                    moon.AddLocation(new Location("Log - Autopilot", state=>state.Has("Stamina Bar", 2)));
+                    moon.AddLocation(new Location("Log - Autopilot", state=>state.Has("Stamina Bar", 1)));
                     break;
                 case "220 Assurance":
                     moon.AddLocation("Log - Mummy");
@@ -98,7 +98,7 @@ public class Logic
                     moon.AddLocation("Log - Hiding");
                     break;
                 case "8 Titan":
-                    moon.AddLocation(new Location("Log - Real job", state => state.HasAny("Jetpack", "Extension ladder") && canBuy(state)));
+                    moon.AddLocation(new Location("Log - Real Job", state => state.Has("Stamina Bar", 1) && canBuy(state)));
                     moon.AddLocation(new Location("Log - Desmond", state => state.Has("Jetpack") && canBuy(state)));
                     break;
                 case "68 Artifice":
