@@ -82,6 +82,5 @@
 			<HintPath>$(ManagedDirectory)DunGen.dll</HintPath>
 		</Reference>
         <PackageReference Include="LethalAPI-LethalAPI_Terminal" Version="1.*"/>
-        <PackageReference Include="IAmBatby-LethalLevelLoader" Version="1.7.*"/>
     </ItemGroup>
 </Project>

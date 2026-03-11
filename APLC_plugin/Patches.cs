@@ -144,7 +144,6 @@ public class Patches
         var fieldInfo = typeof(NetworkObject).GetField("GlobalObjectIdHash", BindingFlags.Instance | BindingFlags.NonPublic);
         fieldInfo!.SetValue(networkObject, PluginInfo.PLUGIN_GUID?.Aggregate(17u, (current, c) => unchecked((current * 31) ^ c)) ?? 0u);
 
-        //GameObject networkManagerPrefab = LethalLevelLoader.PrefabHelper.CreateNetworkPrefab("APLCNetworkManager");
         networkManagerPrefab.AddComponent<APLCNetworking>();
         networkManagerPrefab.GetComponent<NetworkObject>().SceneMigrationSynchronization = true;
         networkManagerPrefab.GetComponent<NetworkObject>().DestroyWithScene = false;
