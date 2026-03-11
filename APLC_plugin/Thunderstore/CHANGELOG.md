@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.10
+**<details><summary>Fixes</summary>**
+* fixed a rare issue with item processing where an item could be processed before the item map is set up and cause cascading errors
+* the log now warns users if Lethal Expansion is installed
+* corrected logic for "Log - Autopilot" and "Log - Real Job"
+* the death link message now correctly includes the slot name
+</details>
+Mod version 0.7.10 works with apworld versions 0.7.7 - 0.7.10.
+
 ## 0.7.9
 **<details><summary>Fixes</summary>**
 * removed LLLU as it is no longer needed
