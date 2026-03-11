@@ -175,17 +175,7 @@ public class MoonItems : Items
             var moon = StartOfRound.Instance.levels[i];
             if (moon.PlanetName.Contains(name))
             {
-                // this and the counterpart in HandleReceived are a much better way to block routing and make clear which moons can be routed to
-                if (Plugin.IsDawnLibInstalled)
-                {
-                    DawnCompat.AssignPurchasePredicate(moon);
-                }
-                else
-                {
-                    LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteLocked = true;
-                    if (!moon.PlanetName.Contains("71 Gordion"))
-                        LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteHidden = false;
-                }
+                DawnCompat.AssignPurchasePredicate(moon);
             }
         }
 
@@ -196,16 +186,7 @@ public class MoonItems : Items
     {
         Plugin.Logger.LogInfo($"Unlocking moon {Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns[_terminalIndex].noun.word}");
 
-        for (int i = 0; i < StartOfRound.Instance.levels.Length; i++)
-        {
-            var moon = StartOfRound.Instance.levels[i];
-            if (!Plugin.IsDawnLibInstalled && moon.PlanetName.Contains(_name)) 
-            {
-                LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteLocked = false;
-                if (!moon.PlanetName.Contains("71 Gordion"))
-                    LethalLevelLoader.LevelManager.GetExtendedLevel(moon).IsRouteHidden = false;
-            }
-        }
+        // We don't need to do anything here because Dawn handles the unlocking for us
         return true;
     }
 }

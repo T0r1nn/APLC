@@ -66,8 +66,5 @@
         <Reference Include="LethalAPI.Terminal.dll">
             <HintPath>$(LethalAPITerminalDirectory)LethalAPI.Terminal.dll</HintPath>
         </Reference>
-        <Reference Include="LethalLevelLoader.dll">
-            <HintPath>$(LethalLevelLoaderDirectory)LethalLevelLoader.dll</HintPath>
-        </Reference>
     </ItemGroup>
 </Project>

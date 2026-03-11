@@ -5,7 +5,7 @@
   "description": "Archipelago integration for Lethal Company.",
   "dependencies": [
     "BepInEx-BepInExPack-5.4.2100",
-    "IAmBatby-LethalLevelLoader-1.6.9",
+    "TeamXiaolan-DawnLib-0.8.9",
     "Caigan-Archipelago_Scrap-4.0.3",
     "LethalAPI-LethalAPI_Terminal-1.0.1"
   ]
