@@ -37,7 +37,7 @@ public class Plugin : BaseUnityPlugin
         BoundConfig = new PluginConfig(base.Config);
         NetcodePatch();
         Patches.Patch();
-        TerminalCommands.Patch();
+        //TerminalCommands.Patch();
 
         Logger.LogInfo($"Plugin APLC Loaded - Version {PluginInfo.PLUGIN_VERSION}");
         if (IsLethalExpansionInstalled)
