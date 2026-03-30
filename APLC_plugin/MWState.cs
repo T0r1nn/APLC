@@ -470,6 +470,17 @@ public class MwState
         return (T)_itemMap[key];
     }
 
+    public bool TryGetItemMap<T>(string key, out T itemMap) where T : Items
+    {
+        if (_itemMap.TryGetValue(key, out Items map))
+        {
+            itemMap = (T)map;
+            return true;
+        }
+        itemMap = default;
+        return false;
+    }
+
     public Locations GetLocationMap(string key)
     {
         return _locationMap[key];
@@ -478,6 +489,17 @@ public class MwState
     public T GetLocationMap<T>(string key) where T : Locations
     {
         return (T)_locationMap[key];
+    }
+
+    public bool TryGetLocationMap<T>(string key, out T locationMap) where T : Locations
+    {
+        if (_locationMap.TryGetValue(key, out Locations map))
+        {
+            locationMap = (T)map;
+            return true;
+        }
+        locationMap = default;
+        return false;
     }
 
     public bool CheckTrophy(string moon)
