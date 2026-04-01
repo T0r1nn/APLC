@@ -195,7 +195,7 @@ public class MwState
             _locationMap.Add("Mummy", new LogLocations(1, "Mummy"));
             _locationMap.Add("Swing of Things", new LogLocations(2, "Swing of Things"));
             _locationMap.Add("Autopilot", new LogLocations(3, "Autopilot"));
-            _locationMap.Add("Sound Behind the Wall", new LogLocations(4, "Sound Behind the Wall"));
+            _locationMap.Add("Behind the Wall", new LogLocations(4, "Behind the Wall"));
             _locationMap.Add("Goodbye", new LogLocations(5, "Goodbye"));
             _locationMap.Add("Screams", new LogLocations(6, "Screams"));
             _locationMap.Add("Golden Planet", new LogLocations(7, "Golden Planet"));
@@ -206,6 +206,7 @@ public class MwState
             _locationMap.Add("Desmond", new LogLocations(12, "Desmond"));
             _locationMap.Add("Team Synergy", new LogLocations(13, "Team Synergy"));
             _locationMap.Add("Letter of Resignation", new LogLocations(14, "Letter of Resignation"));
+            _locationMap.Add("Work", new LogLocations(15, "Work"));
 
             //Scrap
             if (_apConnection.GetSlotSetting("fixscrapsanity") == 1)
