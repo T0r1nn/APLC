@@ -127,19 +127,19 @@ public class MwState
 #endif
         try
         {
-            int lowGrade;
-            int medGrade;
-            int highGrade;
+            int easyGrade;
+            int mediumGrade;
+            int hardGrade;
             Terminal t = Plugin.Instance.GetTerminal();
             if (_apConnection.GetSlotSetting("splitgrades") == 1)
             {
-                lowGrade = _apConnection.GetSlotSetting("lowMoon", 2);
-                medGrade = _apConnection.GetSlotSetting("medMoon", 2);
-                highGrade = _apConnection.GetSlotSetting("highMoon", 2);
+                easyGrade = _apConnection.GetSlotSetting("easyMoonRequiredGrade", 2);
+                mediumGrade = _apConnection.GetSlotSetting("mediumMoonRequiredGrade", 2);
+                hardGrade = _apConnection.GetSlotSetting("hardMoonRequiredGrade", 2);
             }
             else
             {
-                lowGrade = medGrade = highGrade = _apConnection.GetSlotSetting("moonRank", 2);
+                easyGrade = mediumGrade = hardGrade = _apConnection.GetSlotSetting("allMoonRequiredGrade", 2);
             }
 
             List<Task> locationsToCreate = new();
@@ -171,17 +171,17 @@ public class MwState
 
                 if (cost < 100 && moon.factorySizeMultiplier <= 1.15)
                 {
-                    locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, lowGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
+                    locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, easyGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
                     Plugin.Logger.LogInfo($"Easy: {moonName}");
                 }
                 else if (cost < 120)
                 {
-                    locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, medGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
+                    locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, mediumGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
                     Plugin.Logger.LogInfo($"Medium: {moonName}");
                 }
                 else
                 {
-                    locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, highGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
+                    locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, hardGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
                     Plugin.Logger.LogInfo($"Hard: {moonName}");
                 }
             }

@@ -20,16 +20,16 @@ class Goal(Choice):
     slot_name = "goal"
 
 
-class ChecksPerMoon(Range):
+class GradeChecksPerMoon(Range):
     """
-    The total number of checks you can get at one moon
+    The total number of checks you can get at one moon for reaching the required grade
     """
-    display_name = "Checks Per Moon"
+    display_name = "Grade Checks Per Moon"
     range_start = 1
     range_end = 10
     default = 3
     slot = True
-    slot_name = "checksPerMoon"
+    slot_name = "gradeChecksPerMoon"
 
 
 class MoneyPerQuotaCheck(Range):
@@ -201,11 +201,11 @@ class StartingMoon(FreeText):
     slot = False
 
 
-class MoonCheckGrade(Choice):
+class GradeCheckRequiredGrade(Choice):
     """
-    The grade you need to get to get a check on a moon
+    The end-of-day grade required to obtain a grade check on a moon. This option will be overridden if split_moon_grades is true.
     """
-    display_name = "Moon Check Grade"
+    display_name = "Grade Check Required Grade"
     option_S = 0
     option_A = 1
     option_B = 2
@@ -214,7 +214,7 @@ class MoonCheckGrade(Choice):
     option_F = 5
     default = 2
     slot = True
-    slot_name = "moonRank"
+    slot_name = "allMoonRequiredGrade"
 
 
 """
@@ -351,7 +351,7 @@ class SplitMoonGrades(Toggle):
 
 class EasyMoonCheckGrade(Choice):
     """
-    The grade you need to get to get a check on an easy moon
+    The end-of-day grade required to obtain a grade check on an easy difficulty moon
     """
     display_name = "Easy Moon Check Grade"
     option_S = 0
@@ -362,12 +362,12 @@ class EasyMoonCheckGrade(Choice):
     option_F = 5
     default = 2
     slot = True
-    slot_name = "lowMoon"
+    slot_name = "easyMoonRequiredGrade"
 
 
 class MedMoonCheckGrade(Choice):
     """
-    The grade you need to get to get a check on a medium difficulty moon
+    The end-of-day grade required to obtain a grade check on a medium difficulty moon
     """
     display_name = "Medium Moon Check Grade"
     option_S = 0
@@ -378,12 +378,12 @@ class MedMoonCheckGrade(Choice):
     option_F = 5
     default = 2
     slot = True
-    slot_name = "medMoon"
+    slot_name = "mediumMoonRequiredGrade"
 
 
-class HighMoonCheckGrade(Choice):
+class HardMoonCheckGrade(Choice):
     """
-    The grade you need to get to get a check on a hard moon
+    The end-of-day grade required to obtain a grade check on a hard difficulty moon
     """
     display_name = "Hard Moon Check Grade"
     option_S = 0
@@ -394,7 +394,7 @@ class HighMoonCheckGrade(Choice):
     option_F = 5
     default = 2
     slot = True
-    slot_name = "highMoon"
+    slot_name = "hardMoonRequiredGrade"
 
 
 class RandomizeCompanyBuilding(Toggle):
@@ -500,7 +500,7 @@ class LCOptions(PerGameCommonOptions):
     collectathon_scrap_goal: CollectathonScrapGoal #done
     credit_replacement: CreditReplacement #done
     required_credits: RequiredCredits #done
-    checks_per_moon: ChecksPerMoon #done
+    grade_checks_per_moon: GradeChecksPerMoon #done
     money_per_quota_check: MoneyPerQuotaCheck #done
     num_quotas: NumQuotas #done
     quota_checkpoint_every: QuotaCheckpointEvery #done
@@ -520,10 +520,10 @@ class LCOptions(PerGameCommonOptions):
     max_money: MaxMoneyCheck #done
     starting_moon: StartingMoon #done
     split_moon_grades: SplitMoonGrades #done
-    moon_grade: MoonCheckGrade #done
-    low_moon_grade: EasyMoonCheckGrade #done
-    medium_moon_grade: MedMoonCheckGrade #done
-    high_moon_grade: HighMoonCheckGrade #done
+    all_moon_required_grade: GradeCheckRequiredGrade #done
+    easy_moon_required_grade: EasyMoonCheckGrade #done
+    medium_moon_required_grade: MedMoonCheckGrade #done
+    hard_moon_required_grade: HardMoonCheckGrade #done
     time_add: DayIncreaseWeight #done
     scrap_clone: ScrapDupeWeight #done
     birthday: BirthdayGiftWeight #done

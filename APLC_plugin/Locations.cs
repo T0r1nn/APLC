@@ -110,13 +110,13 @@ public class MoonLocations : Locations
     {
         _name = name;
         _grade = grade;
-        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} checks"].Initialize(0);
+        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} Grade Checks"].Initialize(0);
         _maxChecks = maxChecks;
     }
 
     internal async Task Setup()
     {
-        _timesChecked = await MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} checks"].GetAsync<int>();
+        _timesChecked = await MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} Grade Checks"].GetAsync<int>();
     }
 
     /** 
@@ -128,18 +128,18 @@ public class MoonLocations : Locations
         if (_timesChecked >= _maxChecks) return;
         var gradeNum = Array.IndexOf(new[] { "S", "A", "B", "C", "D", "F" }, grade);
         if (gradeNum > _grade) return;
-        SaveManager.CompleteLocation($"{_name} check {_timesChecked+1}");
+        SaveManager.CompleteLocation($"{_name} Grade Check {_timesChecked+1}");
         for (int i = 1; i < _timesChecked + 1; i++)
         {
             long id = MultiworldHandler.Instance.GetSession().Locations
-                .GetLocationIdFromName(MultiworldHandler.Instance.Game, $"{_name} check {_timesChecked + 1}");
+                .GetLocationIdFromName(MultiworldHandler.Instance.Game, $"{_name} Grade Check {_timesChecked + 1}");
             if (!MultiworldHandler.Instance.GetSession().Locations.AllLocationsChecked.Contains(id))
             {
-                SaveManager.CompleteLocation($"{_name} check {_timesChecked+1}");
+                SaveManager.CompleteLocation($"{_name} Grade Check {_timesChecked+1}");
             }
         }
         _timesChecked++;
-        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} checks"] = _timesChecked;
+        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} Grade Checks"] = _timesChecked;
     }
     
     public override void CheckComplete(){}
