@@ -18,7 +18,7 @@ edit the YAML to fit whatever settings you want to play with:
 - collectathon_scrap_goal: Can be any number from 3 to 30, default is 10. This is the number of AP chests you have to collect to beat collectathon mode. This does nothing in other modes.
 - credit_replacement: Can be any number from 5 to 80, represents the percent of filler items that are replaced with company credits for the credit hunt game mode. This does nothing in other modes.
 - required_credits: Can be any number from 10 to 100, represents the percent of company credit items that are required to beat the game. This does nothing in other modes.
-- checks_per_moon: Can be any number between 1 and 10, default is 3. This is the amount of checks per moon that can be gotten from completing that moon
+- grade_checks_per_moon: Can be any number between 1 and 10, default is 3. This is the amount of checks per moon that can be gotten from completing that moon
 - num_quotas: Can be any number from 10 to 50, default is 20. This is the number of quota checks you can get.
 - money_per_quota_check: Can be any number between 100 and 10000, default is 500. This is the amount of total quota you must complete to get the check. Be aware that each quota only contributes the required scrap towards this goal, not the sold scrap. If you sell 500 scrap but the quota is only 130, you will only contribute 130 towards the check.
 - scrapsanity: Can be 'true' or 'false', when true 50 new checks are added to the game for collecting at least one of each type of scrap.
@@ -28,11 +28,11 @@ edit the YAML to fit whatever settings you want to play with:
 - starting_moon: Can be any of the following: experimentation, assurance, vow, offense, march, rend, dine, titan, or randomize. This sets the moon you start the run on.
 - starting_stamina_bars: Can be any number from 0 to 4, default is 4. This is the number of stamina bars you start with. The rest have to be unlocked.
 - starting_inventory_slots: Can be any number from 1 to 4, default is 4. This is the number of inventory slots you start the game with, the rest have to be unlocked.
-- moon_grade: Can be any of the following: s, a, b, c, d, or f. Any moons completed on this grade or above will complete a moon check.
-- split_moon_grades: Can be 'true' or 'false', when 'true' the moon_grade option is ignored and the low, medium, and high_moon_grade options are used instead. When 'false', the inverse happens.
-- low_moon_grade: Same options as moon_grade, only affects Experimentation, Assurance, and Vow.
-- medium_moon_grade: Same options as moon_grade, only affects Offense and March.
-- high_moon_grade: Same options as moon_grade, only affects Rend, Dine, and Titan.
+- all_moon_required_grade: Can be any of the following: s, a, b, c, d, or f. Any moons completed on this grade or above will complete a grade check.
+- split_moon_grades: Can be 'true' or 'false', when 'true' the moon_grade option is ignored and the next three options are used instead. When 'false', the next three options do nothing.
+- easy_moon_required_grade: Same options as moon_grade, only affects Experimentation, Assurance, and Vow.
+- medium_moon_required_grade: Same options as moon_grade, only affects Offense and March.
+- hard_moon_required_grade: Same options as moon_grade, only affects Rend, Dine, and Titan.
 - min_scrap_chance: Can be any number between 0 and 20, default is 3. Scrap will be in logic if their spawn chance on an in-logic moon is greater than or equal to this percentage. A value of less than 3% can significantly slow down your game. This does nothing when scrapsanity is disabled.
 - min_monster_chance: Can be any number between 0 and 20, default is 5. monsters will be in logic if their spawn chance on an in-logic moon is greater than or equal to this percentage. A value of less than 3% can significantly slow down your game.
 - min_money: Can be any number between 0 and 5000, default is 100. This is the minimum amount of money that the money checks will reward you with.

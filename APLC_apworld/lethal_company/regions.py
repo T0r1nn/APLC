@@ -160,9 +160,15 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
     multiworld.get_region("68 Artifice", player).connect(logs[14])
 
     # Generate locations
-    for i in range(options.checks_per_moon.value):
+    for i in range(options.grade_checks_per_moon.value):
         for moon in world.slot_item_data.moons:
-            add_location(player, f"{moon} check {i+1}", multiworld.get_region(moon, player))
+            
+            add_location(player, f"{moon} Grade Check {i+1}", multiworld.get_region(moon, player))
+            multiworld.get_location(f"{moon} Grade Check {i+1}", player).access_rule = (lambda state:
+                                                                                        (state.has("Stamina Bar", player)
+                                                                                            or options.starting_stamina_bars > 0)
+                                                                                        and (state.has("Inventory Slot", player, 2)
+                                                                                            or options.starting_inventory_slots > 1))
 
     for i in range(options.num_quotas.value):
         add_location(player, f"Quota check {i+1}", quotas)

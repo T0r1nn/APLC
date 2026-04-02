@@ -13,11 +13,11 @@ if TYPE_CHECKING:
 def has_location_access_rule(multiworld: MultiWorld, moon: str, player: int, item_number: int,
                              options: LCOptions) -> None:
     if item_number == 1:
-        multiworld.get_location(f"{moon} check {item_number}", player).access_rule = \
+        multiworld.get_location(f"{moon} Grade Check {item_number}", player).access_rule = \
             lambda state: ((state.has("Inventory Slot", player) or options.starting_inventory_slots.value >= 2) and
                            (state.has("Stamina Bar", player) or options.starting_stamina_bars.value >= 1))
     else:
-        multiworld.get_location(f"{moon} check {item_number}", player).access_rule = \
+        multiworld.get_location(f"{moon} Grade Check {item_number}", player).access_rule = \
             lambda state: check_location(moon=moon, player=player, state=state, item_number=item_number)
 
 
@@ -39,7 +39,7 @@ def has_quota_access_rule(multiworld: MultiWorld, player: int, item_number: int,
 
 
 def check_location(state, moon: str, player: int, item_number: int) -> None:
-    return state.can_reach(f"{moon} check {item_number - 1}", "Location", player)
+    return state.can_reach(f"{moon} Grade Check {item_number - 1}", "Location", player)
 
 
 def check_quota(state, player: int, item_number: int) -> None:
@@ -51,7 +51,7 @@ def set_rules(lc_world: 'LethalCompanyWorld') -> None:
     multiworld = lc_world.multiworld
     options: LCOptions = lc_world.options
     for moon in lc_world.slot_item_data.moons:
-        for i in range(options.checks_per_moon.value):
+        for i in range(options.grade_checks_per_moon.value):
             has_location_access_rule(multiworld, moon, player, i + 1, options)
     
     for i in range(options.num_quotas.value):

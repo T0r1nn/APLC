@@ -2,7 +2,7 @@ import math
 from typing import Dict, List, TYPE_CHECKING
 from BaseClasses import Location
 from .imported import data
-from .options import ChecksPerMoon, NumQuotas
+from .options import GradeChecksPerMoon, NumQuotas
 from .custom_content import custom_content
 
 if TYPE_CHECKING:
@@ -52,8 +52,8 @@ def get_default_location_map():
     location_result = {}
 
     for i in range(len(moons)):
-        for j in range(ChecksPerMoon.range_end):
-            location_result.update(check_location(f"{moons[i]} check {j + 1}")) # maybe change this to Offense Grade check 1...The current name seems to confuse people
+        for j in range(GradeChecksPerMoon.range_end):
+            location_result.update(check_location(f"{moons[i]} Grade Check {j + 1}"))
     for i in range(NumQuotas.range_end):
         location_result.update(check_location(f"Quota check {i + 1}"))
     for i in range(len(log_names)):
@@ -118,8 +118,8 @@ def generate_locations(world: "LethalCompanyWorld"):
     location_result = {}
 
     for i in range(len(moons)):
-        for j in range(world.options.checks_per_moon.value):
-            location_result.update(check_location(f"{moons[i]} check {j + 1}")) # maybe change this to Offense Grade check 1...The current name seems to confuse people
+        for j in range(world.options.grade_checks_per_moon.value):
+            location_result.update(check_location(f"{moons[i]} Grade Check {j + 1}")) 
     for i in range(world.options.num_quotas.value):
         location_result.update(check_location(f"Quota check {i + 1}"))
     for i in range(len(world.log_names)):

@@ -60,9 +60,9 @@ public class Logic
                 terminal.AddConnection(_moons[index], state => state.Has(moonName));
             }
 
-            for (var i = 0; i < MultiworldHandler.Instance.GetSlotSetting("checksPerMoon"); i++)
+            for (var i = 0; i < MultiworldHandler.Instance.GetSlotSetting("gradeChecksPerMoon"); i++)
             {
-                _moons[index].AddLocation(new Location($"{moonName} check {i + 1}",
+                _moons[index].AddLocation(new Location($"{moonName} Grade Check {i + 1}",
                     state => state.Has("Inventory Slot", 2) && state.Has("Stamina Bar", 1)));
             }
         }

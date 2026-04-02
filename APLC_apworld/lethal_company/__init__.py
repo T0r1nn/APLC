@@ -24,7 +24,7 @@ class LethalCompanyWeb(WebWorld):
             options.RequiredCredits
         ]),
         OptionGroup("Checks", [
-            options.ChecksPerMoon,
+            options.GradeChecksPerMoon,
             options.NumQuotas,
             options.QuotaCheckpointEvery,
             options.MoneyPerQuotaCheck,
@@ -39,11 +39,11 @@ class LethalCompanyWeb(WebWorld):
             options.StartingInventorySlots
         ], True),
         OptionGroup("Logic Config", [
-            options.MoonCheckGrade,
+            options.GradeCheckRequiredGrade,
             options.SplitMoonGrades,
             options.EasyMoonCheckGrade,
             options.MedMoonCheckGrade,
-            options.HighMoonCheckGrade,
+            options.HardMoonCheckGrade,
             options.ScrapSpawnChance,
             options.MonsterSpawnChance,
             options.MinMoneyCheck,
