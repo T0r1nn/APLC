@@ -165,4 +165,10 @@ public class APLCNetworking : NetworkBehaviour
         else 
             HUDManager.Instance.DisplayTip("APLC", $"Could not use '{itemName}'.");
     }
+
+    [Rpc(SendTo.Everyone)]
+    public void DisplayTipToAllRPC(string headerText, string bodyText, bool isWarning = false, bool useSave = false, string prefsKey = "LC_Tip1")
+    {
+        HUDManager.Instance.DisplayTip(headerText, bodyText, isWarning, useSave, prefsKey);
+    }
 }

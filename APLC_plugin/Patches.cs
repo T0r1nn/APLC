@@ -589,7 +589,7 @@ public class Patches
         {
             if (MwState.Instance.GetItemMap<FillerItems>(fillerName).GetReceived() > MwState.Instance.GetItemMap<FillerItems>(fillerName).GetUsed())
             {
-                HUDManager.Instance.DisplayTip("Archipelago", "You have unspent filler items! Use the 'apfiller' command in the terminal for details.");
+                APLCNetworking.Instance.DisplayTipToAllRPC("Archipelago", "You have unspent filler items! Use the 'apfiller' command in the terminal for details.");
                 break;
             }
         }

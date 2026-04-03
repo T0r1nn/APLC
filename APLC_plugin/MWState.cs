@@ -651,6 +651,7 @@ public class MwState
             if (_trophyModeComplete[i] is string) continue;
             _trophyModeComplete[i] = moon;
             _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-trophies"] = new JArray(_trophyModeComplete);
+            APLCNetworking.Instance.DisplayTipToAllRPC("Archipelago", $"Trophy collected for '{moon}'. Progress: {i+1}/{_trophyModeComplete.Length}");
             break;
         }
 
@@ -688,6 +689,7 @@ public class MwState
     {
         _scrapCollected += amount;
         _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-scrapCollected"] = _scrapCollected;
+        HUDManager.Instance.DisplayTip("Archipelago", $"Collected {amount} apchests. Progress: {_scrapCollected}/{_scrapGoal}");
         if (_scrapCollected >= _scrapGoal)
         {
             _apConnection.Victory();
@@ -698,6 +700,7 @@ public class MwState
     public void IncrementScrapCollected(int amount)
     {
         _scrapCollected += amount;
+        HUDManager.Instance.DisplayTip("Archipelago", $"Collected {amount} apchests. Progress: {_scrapCollected}/{_scrapGoal}");
     }
 
     public string GetCollectathonTracker()
