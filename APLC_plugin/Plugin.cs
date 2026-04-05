@@ -393,7 +393,7 @@ public class Plugin : BaseUnityPlugin
             foreach (var interior in moon.dungeonFlowTypes)
             {
                 totalIntRarity += interior.rarity;
-                if (interior.id == 0)
+                if (interior.id == 0 || interior.id == 3)
                 {
                     facilityRarity = interior.rarity;
                 }
@@ -409,10 +409,18 @@ public class Plugin : BaseUnityPlugin
         
         var bestiaryMap = new Dictionary<string, Collection<Tuple<string, double>>> { };
 
+        bestiaryMap.Add("Kidnapper Fox", new Collection<Tuple<string, double>>());
+        bestiaryMap.Add("Vain Shroud", new Collection<Tuple<string, double>>());
+
         foreach (SelectableLevel moon in moons)
         {
             if (moon.PlanetName.Contains("Gordion") || moon.PlanetName.Contains("Liquidation")) continue;
-            
+
+            if (moon.canSpawnMold)
+            {
+                bestiaryMap.Get("Kidnapper Fox").Add(new Tuple<string, double>(moon.PlanetName, 1));
+                bestiaryMap.Get("Vain Shroud").Add(new Tuple<string, double>(moon.PlanetName, 1));
+            }
 
             var daytime = moon.DaytimeEnemies;
             var outside = moon.OutsideEnemies;
@@ -432,11 +440,13 @@ public class Plugin : BaseUnityPlugin
             }
 
             if (totalRarity[0] > 0)
-                foreach (var item in daytime)
+                foreach (SpawnableEnemyWithRarity item in daytime)
                 {
                     try
                     {
-                        string creatureName = t.enemyFiles[
+                        string creatureName = "";
+                        if (item.enemyType.enemyPrefab.name == "CadaverGrowthMasterAI") creatureName = "Cadaver Blooms";
+                        else creatureName = t.enemyFiles[
                                 item.enemyType.enemyPrefab.GetComponentInChildren<ScanNodeProperties>()
                                     .creatureScanID]
                             .creatureName;
@@ -479,11 +489,13 @@ public class Plugin : BaseUnityPlugin
                     }
                 }
             if (totalRarity[1] > 0)
-                foreach (var item in outside)
+                foreach (SpawnableEnemyWithRarity item in outside)
                 {
                     try
                     {
-                        string creatureName = t.enemyFiles[
+                        string creatureName = "";
+                        if (item.enemyType.enemyPrefab.name == "CadaverGrowthMasterAI") creatureName = "Cadaver Blooms";
+                        else creatureName = t.enemyFiles[
                                 item.enemyType.enemyPrefab.GetComponentInChildren<ScanNodeProperties>()
                                     .creatureScanID]
                             .creatureName;
@@ -517,13 +529,15 @@ public class Plugin : BaseUnityPlugin
                     }
                 }
             if (totalRarity[2] > 0)
-                foreach (var item in inside)
+                foreach (SpawnableEnemyWithRarity item in inside)
                 {
                     if (!item.enemyType.enemyName.Contains("Lasso"))
                     {
                         try
                         {
-                            string creatureName = t.enemyFiles[
+                            string creatureName = "";
+                            if (item.enemyType.enemyPrefab.name == "CadaverGrowthMasterAI") creatureName = "Cadaver Blooms";
+                            else creatureName = t.enemyFiles[
                                     item.enemyType.enemyPrefab.GetComponentInChildren<ScanNodeProperties>()
                                         .creatureScanID]
                                 .creatureName;
