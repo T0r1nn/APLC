@@ -39,6 +39,7 @@ public class MwState
     public static bool WaitingForDeath;
     public static string DLMessage;
     public bool IgnoreDL;
+    public static Dictionary<string, int> NormalMoonPrices {  get; private set; }
     
     private static readonly ProfilerMarker s_CreateLocations = new("APLC.MwState.CreateLocations");
     private static readonly ProfilerMarker s_CreateItems = new("APLC.MwState.CreateItems");
@@ -58,6 +59,19 @@ public class MwState
         _scrapData = logic.Item5;
 
         _trophyModeComplete = new object[_moons.Length];
+
+        NormalMoonPrices = new Dictionary<string, int>();
+        if (ES3.KeyExists("APNormalMoonPrices", GameNetworkManager.Instance.currentSaveFileName))
+        {
+            NormalMoonPrices = ES3.Load<Dictionary<string, int>>("APNormalMoonPrices", GameNetworkManager.Instance.currentSaveFileName);
+        }
+        foreach (SelectableLevel level in StartOfRound.Instance.levels)
+        {
+            if (!NormalMoonPrices.TryGetValue(level.PlanetName, out _))
+                NormalMoonPrices[level.PlanetName] = LethalLevelLoader.LevelManager.GetExtendedLevel(level).RoutePrice;
+            //NormalMoonPrices[level.PlanetName] = level.GetDawnInfo().DawnPurchaseInfo.Cost.Provide();
+        }
+        ES3.Save("APNormalMoonPrices", NormalMoonPrices, GameNetworkManager.Instance.currentSaveFileName);
 
         _ = PrepareMwState(connectionInfo);
 
@@ -167,14 +181,19 @@ public class MwState
                     }
                 }
 
-                double cost = t.terminalNodes.allKeywords[keywordIndex].compatibleNouns[terminalIndex].result.itemCost;
+                // data to use: difficulty = (routePrice + maxTotalScrapValue + sum((item.maxValue - item.minValue)*10/item.rarity) + 30(maxEnemyPowerCount + maxOutsideEnemyPowerCount + maxDaytimeEnemyPowerCount)
+                // + sum(enemy.enemyType.powerLevel * 1000 / enemy.rarity)) * factorySizeMultiplier * 0.5
+
+                //int difficulty = CalculateMoonDifficultyRating(moon);
+
+                double cost = NormalMoonPrices[moon.PlanetName];
 
                 if (cost < 100 && moon.factorySizeMultiplier <= 1.15)
                 {
                     locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, easyGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
                     Plugin.Logger.LogInfo($"Easy: {moonName}");
                 }
-                else if (cost < 120)
+                else if (cost < 400)
                 {
                     locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, mediumGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
                     Plugin.Logger.LogInfo($"Medium: {moonName}");
@@ -959,5 +978,65 @@ public class MwState
     internal object[] GetTrophyList()
     {
         return _trophyModeComplete;
+    }
+    public static int CalculateMoonDifficultyRating(SelectableLevel level, bool debugResults = false)
+    {
+        int calculatedDifficulty = 0;
+        string debugtext = "Calculated Difficulty Rating For Level: " + level.PlanetName + "(" + level.riskLevel + ") ----- ";
+        int routePrice = NormalMoonPrices[level.PlanetName];
+        //int scrapValue = level.maxTotalScrapValue;
+        calculatedDifficulty += routePrice;
+        debugtext = debugtext + "Baseline Route Price: " + routePrice + ", ";
+        float num2 = 0;
+        int totalScrapWeight = level.spawnableScrap.Sum(item => item.rarity);
+        foreach (SpawnableItemWithRarity item in level.spawnableScrap)
+        {
+            if (item.spawnableItem != null && item.rarity != 0 && (item.spawnableItem.maxValue - item.spawnableItem.minValue > 0))
+            {
+                float spawnChance = item.rarity / (float)totalScrapWeight;
+                float average = (item.spawnableItem.minValue + item.spawnableItem.maxValue) / 2.0f;
+                num2 += 3000 / (average * (spawnChance < 1 ? (float)Math.Pow(1 - spawnChance, 2) : 1)); // favors low worth high weight scrap
+            }
+        }
+        num2 *= 0.03125f * (float)Math.Sqrt(Math.Abs(35 - (level.maxScrap + level.minScrap) / 2.0f)) + 1;  // favors moons with very low or absurdly high scrap amount
+        calculatedDifficulty += Mathf.RoundToInt(num2);
+        debugtext = debugtext + "Scrap Value: " + num2 + ", ";
+
+        float totalEnemyValue = 30 * CalculateEnemyGroupDifficulty(level.Enemies, level.maxEnemyPowerCount) +
+            30 * CalculateEnemyGroupDifficulty(level.OutsideEnemies, level.maxOutsideEnemyPowerCount) +
+            (level.DaytimeEnemies.Any(enemy => !enemy.enemyType.isDaytimeEnemy) ? 15 : 5) * CalculateEnemyGroupDifficulty(level.DaytimeEnemies, level.maxDaytimeEnemyPowerCount);
+
+        calculatedDifficulty += Mathf.RoundToInt(totalEnemyValue);
+        debugtext = debugtext + "Enemy Value: " + totalEnemyValue + ", ";
+        debugtext = debugtext + "Calculated Difficulty Value: " + calculatedDifficulty + ", ";
+        calculatedDifficulty += Mathf.RoundToInt((float)calculatedDifficulty * (level.factorySizeMultiplier * 0.5f));
+        debugtext = debugtext + "Factory Size Multiplier: " + level.factorySizeMultiplier + ", ";
+        debugtext = debugtext + "Multiplied Calculated Difficulty Value: " + calculatedDifficulty;
+        if (debugResults)
+        {
+            Plugin.Logger.LogDebug(debugtext);
+        }
+
+        return calculatedDifficulty;
+    }
+
+    public static int CalculateEnemyGroupDifficulty(List<SpawnableEnemyWithRarity> enemyGroup, int maxEnemyGroupPower)
+    {
+        if (enemyGroup.Any(enemy => enemy.rarity > 0))
+        {
+            int totalEnemyRarity = 0;
+            float totalEnemyValue = 0f;
+            foreach (SpawnableEnemyWithRarity enemy in enemyGroup)
+            {
+                if (enemy.rarity != 0 && enemy.enemyType != null)
+                {
+                    totalEnemyValue += enemy.enemyType.PowerLevel * enemy.rarity;
+                    totalEnemyRarity += enemy.rarity;
+                }
+            }
+            totalEnemyValue = maxEnemyGroupPower * totalEnemyValue / totalEnemyRarity;
+            return Mathf.RoundToInt(totalEnemyValue);
+        }
+        return 0;
     }
 }
