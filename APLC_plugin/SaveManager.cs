@@ -33,16 +33,23 @@ public class SaveManager
 
     public static void SaveData<T>(string name, T data)
     {
+        if (GameNetworkManager.Instance == null)
+        {
+            Plugin.Logger.LogError($"Unable to save key {name} to save file. GameNetworkManager is null!");
+            return;
+        }
         ES3.Save(name, data, GameNetworkManager.Instance.currentSaveFileName);
     }
 
     public static T GetData<T>(string name)
     {
+        if (GameNetworkManager.Instance == null) Plugin.Logger.LogError($"Unable to load key {name} from save file. GameNetworkManager is null!");
         return ES3.Load<T>(name, GameNetworkManager.Instance.currentSaveFileName);
     }
 
     public static T GetData<T>(string name, T defaultValue)
     {
+        if (GameNetworkManager.Instance == null) Plugin.Logger.LogError($"Unable to load key {name} from save file. GameNetworkManager is null!");
         return ES3.Load<T>(name, GameNetworkManager.Instance.currentSaveFileName, defaultValue);
     }
 

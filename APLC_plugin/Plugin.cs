@@ -13,7 +13,6 @@ using UnityEngine.UIElements.Collections;
 namespace APLC;
 
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-[BepInDependency(LethalAPI.LibTerminal.PluginInfo.PLUGIN_GUID, Flags: BepInDependency.DependencyFlags.HardDependency)]
 [BepInDependency(Dawn.DawnLib.PLUGIN_GUID, Flags: BepInDependency.DependencyFlags.HardDependency)]
 [BepInProcess("Lethal Company.exe")]
 public class Plugin : BaseUnityPlugin
@@ -37,7 +36,7 @@ public class Plugin : BaseUnityPlugin
         BoundConfig = new PluginConfig(base.Config);
         NetcodePatch();
         Patches.Patch();
-        //TerminalCommands.Patch();
+        TerminalCommands.SetUpTerminalCommands();
 
         Logger.LogInfo($"Plugin APLC Loaded - Version {PluginInfo.PLUGIN_VERSION}");
         if (IsLethalExpansionInstalled)
