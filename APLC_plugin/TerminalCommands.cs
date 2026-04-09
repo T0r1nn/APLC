@@ -141,7 +141,7 @@ public class TerminalCommands
             });
         });
 
-        TerminalTextModifier commandInfoModifier = new TerminalTextModifier("storage.*\\S", new SimpleProvider<string>($"$&\n\n>APHELP\n{archipelagoHelpCommandInfo.Description}"))
+        TerminalTextModifier commandInfoModifier = new TerminalTextModifier("storage.*\\S", new SimpleProvider<string>($"$&\n\n>{archipelagoHelpCommandInfo.CommandName.ToUpper()}\n{archipelagoHelpCommandInfo.Description}"))
             .UseRegexPattern(true).SetNodeFromKeyword("help");
     }
 
@@ -501,5 +501,15 @@ To use a filler item, re-enter this command followed by the item's name.
     private static string GenerateMoonProgressTracker()
     {
         return StartOfRound.Instance.levels.Select(moon => moon.PlanetName).Where(moonName => !moonName.Contains("Gordion") && !moonName.Contains("Liquidation")).Aggregate("", (current, moonName) => current + $"    {moonName} {MwState.Instance.GetLocationMap(moonName).GetTrackerText()}\n");
+    }
+
+    public static void ModifyTerminalPages(Terminal t)
+    {
+        TerminalTextModifier logInfoModifier = new TerminalTextModifier("SIGURD'S LOG ENTRIES*\\S", new SimpleProvider<string>($"$& ({t.unlockedStoryLogs.Count - 1}/{t.logEntryFiles.Count - 1} found)"))
+            .UseRegexPattern(true).SetNodeFromKeyword("sigurd");
+
+        TerminalTextModifier bestiaryInfoModifier = new TerminalTextModifier("BESTIARY*\\S", new SimpleProvider<string>($"$& ({t.scannedEnemyIDs.Count}/{t.enemyFiles.Count - 1} scanned)"))
+            .UseRegexPattern(true).SetNodeFromKeyword("bestiary");      // the -1 is because of Lasso man
+
     }
 }
