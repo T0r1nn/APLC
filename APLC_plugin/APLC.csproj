@@ -54,6 +54,9 @@
         <Reference Include="Assembly-CSharp">
             <HintPath>$(ManagedDirectory)Assembly-CSharp.dll</HintPath>
         </Reference>
+		<Reference Include="DunGen">
+			<HintPath>$(ManagedDirectory)DunGen.dll</HintPath>
+		</Reference>
         <Reference Include="Unity.InputSystem">
             <HintPath>$(ManagedDirectory)Unity.InputSystem.dll</HintPath>
         </Reference>
@@ -78,9 +81,5 @@
         <Reference Include="Facepunch.Steamworks.Win64">
             <HintPath>$(ManagedDirectory)Facepunch.Steamworks.Win64.dll</HintPath>
         </Reference>
-		<Reference Include="DunGen">
-			<HintPath>$(ManagedDirectory)DunGen.dll</HintPath>
-		</Reference>
-        <PackageReference Include="LethalAPI-LethalAPI_Terminal" Version="1.*"/>
     </ItemGroup>
 </Project>

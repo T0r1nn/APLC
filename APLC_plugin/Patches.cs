@@ -166,7 +166,6 @@ public class Patches
         {
             Object.Instantiate(APLCNetworking.NetworkingManagerPrefab).GetComponent<NetworkObject>().Spawn(destroyWithScene: false);
         }
-        TerminalCommands.SetUpTerminalCommands();   // we need to make sure this is done exactly once
     }
 
     //Archipelago connection
