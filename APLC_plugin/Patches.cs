@@ -278,8 +278,6 @@ public class Patches
     private static void TerminalStartPrefix(Terminal __instance)
     {
         if (MultiworldHandler.Instance == null) return;
-        TerminalHandler.DisplayLogTracker(__instance);
-        TerminalHandler.DisplayBestiaryTracker(__instance);
         if (MultiworldHandler.Instance.GetSlotSetting("randomizeterminal") == 1)
         {
             if (MwState.Instance.GetItemMap<PlayerUpgrades>("Terminal").GetNum() == 0)
@@ -414,12 +412,11 @@ public class Patches
     /**
      * Handles the money tracker(has to update every frame since the money display itself is updated every frame)
      */
-    [HarmonyPatch(typeof(Terminal), "Update")]
+    [HarmonyPatch(typeof(Terminal), "Start")]
     [HarmonyPostfix]
     public static void SetCreditCheckUI(Terminal __instance)
     {
-        if (MultiworldHandler.Instance == null) return;
-        TerminalHandler.DisplayMoneyTracker(__instance);
+        TerminalCommands.ModifyTerminalPages(__instance);
     }
 
     /**
