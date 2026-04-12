@@ -80,7 +80,7 @@ public class Patches
     private static void LimitGrabbing(PlayerControllerB __instance, ref int __result)
     {
         if (MultiworldHandler.Instance == null) return;
-        if (__result >= ((PlayerUpgrades)MwState.Instance.GetItemMap("Inventory Slot")).GetNum())
+        if (__result >= ((PlayerUpgrades)MwState.Instance.GetItemMap("Inventory Slot")).GetNum() && __result != 50)
         {
             __result = -1;
         }
