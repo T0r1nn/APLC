@@ -247,7 +247,7 @@ public class ScrapLocations : Locations
             }
             catch (IndexOutOfRangeException e)
             {
-                Plugin.Instance.LogError($"Extra logging info: scrapName: {scrapName}, checkedScrap: {_checkedScrap}\n\n" + e.Message + "\n" + e.StackTrace);
+                Plugin.Logger.LogError($"Extra logging info: scrapName: {scrapName}, checkedScrap: {_checkedScrap}\n\n" + e.Message + "\n" + e.StackTrace);
             }
         }
     }

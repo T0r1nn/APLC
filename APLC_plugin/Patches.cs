@@ -135,7 +135,7 @@ public class Patches
     [HarmonyPrefix]
     internal static void GameNetworkManagerStart_Prefix(GameNetworkManager __instance)
     {
-        Plugin.Instance.LogInfo("Attempting to create APLC Network Manager");
+        Plugin.Logger.LogInfo("Attempting to create APLC Network Manager");
 
         // Doing this instead of using PrefabHelper removes our need to use LethalLevelLoader as a dependency
         GameObject networkManagerPrefab = new GameObject("APLCNetworkManager");
@@ -481,7 +481,7 @@ public class Patches
         }
         if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && apchestCount > 0)
         {
-            Plugin.Instance.LogDebug($"Attempting to increment total apchests by {apchestCount}");
+            Plugin.Logger.LogDebug($"Attempting to increment total apchests by {apchestCount}");
             MwState.Instance.AddCollectathonScrap(apchestCount);
         }
     }
@@ -641,7 +641,7 @@ public class Patches
                 catch (Exception)
                 {
                     //Ignore, means that we collided with a cosmetic item which we don't randomize(yet)
-                    Plugin.Instance.LogInfo("Collided with a cosmetic item in PreventBuyingLockedItems");
+                    Plugin.Logger.LogInfo("Collided with a cosmetic item in PreventBuyingLockedItems");
                 }
             }
         }

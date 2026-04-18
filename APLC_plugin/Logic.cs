@@ -49,7 +49,7 @@ public class Logic
         for (var index = 0; index < moonNames.Length; index++)
         {
             var moonName = moonNames[index];
-            Plugin.Instance.LogDebug(moonName);
+            Plugin.Logger.LogDebug(moonName);
             if (moonName == startingMoon.GetName())
             {
                 _moons[index] = startingMoon;
@@ -222,7 +222,7 @@ public class Logic
             var moonRegion = GetMoonRegion(moonName);
             if (moonRegion == null)
             {
-                Plugin.Instance.LogError($"Region for moon {moonName} was null");
+                Plugin.Logger.LogError($"Region for moon {moonName} was null");
                 continue;
             }
 
@@ -245,9 +245,9 @@ public class Logic
             }
             catch (Exception ex)
             {
-                Plugin.Instance.LogError(ex.Message);
-                Plugin.Instance.LogError(ex.StackTrace);
-                Plugin.Instance.LogError($"The above error happened as a result of the moon {moonName}");
+                Plugin.Logger.LogError(ex.Message);
+                Plugin.Logger.LogError(ex.StackTrace);
+                Plugin.Logger.LogError($"The above error happened as a result of the moon {moonName}");
             }
         }
     }
@@ -318,7 +318,7 @@ public class Logic
                     {
                         if (connection.GetExit() == null)
                         {
-                            Plugin.Instance.LogWarning($"A region connected to {closedRegions.Last().GetName()} was null when executing GetAccessibleLocations! Skipping this region.");
+                            Plugin.Logger.LogWarning($"A region connected to {closedRegions.Last().GetName()} was null when executing GetAccessibleLocations! Skipping this region.");
                             continue;
                         }
                         openRegions.Add(connection.GetExit());
@@ -359,7 +359,7 @@ public class Logic
                     {
                         if (connection.GetExit() == null)
                         {
-                            Plugin.Instance.LogWarning($"A region connected to {closedRegions.Last().GetName()} was null when executing GetAccessibleRegions! Skipping this region.");
+                            Plugin.Logger.LogWarning($"A region connected to {closedRegions.Last().GetName()} was null when executing GetAccessibleRegions! Skipping this region.");
                             continue;
                         }
                         openRegions.Add(connection.GetExit());

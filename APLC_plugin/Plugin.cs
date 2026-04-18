@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Bootstrap;
+using BepInEx.Logging;
 using UnityEngine;
 using UnityEngine.UIElements.Collections;
 
@@ -24,6 +25,7 @@ public class Plugin : BaseUnityPlugin
     public static bool IsLethalExpansionInstalled => Chainloader.PluginInfos.ContainsKey("LethalExpansion") || Chainloader.PluginInfos.ContainsKey("LethalExpansionCore");
     private Terminal terminal = null;
     internal static PluginConfig BoundConfig { get; private set; } = null!;
+    internal new static ManualLogSource Logger { get; private set; } = null!;
 
     /**
      * Patches the game on startup, injecting the code into the game.
@@ -31,16 +33,17 @@ public class Plugin : BaseUnityPlugin
     private void Awake()
     {
         if (Instance == null) Instance = this;
+        Logger = base.Logger;
 
         BoundConfig = new PluginConfig(base.Config);
         NetcodePatch();
         Patches.Patch();
         TerminalCommands.Patch();
 
-        LogInfo($"Plugin APLC Loaded - Version {PluginInfo.PLUGIN_VERSION}");
+        Logger.LogInfo($"Plugin APLC Loaded - Version {PluginInfo.PLUGIN_VERSION}");
         if (IsLethalExpansionInstalled)
         {
-            LogError("Lethal Expansion detected. Lethal Expansion is not designed to work with modern versions of Lethal Company and it is not compatible with APLC's dependencies. Use it at your own risk!");
+            Logger.LogError("Lethal Expansion detected. Lethal Expansion is not designed to work with modern versions of Lethal Company and it is not compatible with APLC's dependencies. Use it at your own risk!");
         }
     }
 
@@ -52,55 +55,14 @@ public class Plugin : BaseUnityPlugin
     {
         if (terminal == null)
         {
-            LogInfo("Terminal is not known. Finding terminal...");
+            Logger.LogInfo("Terminal is not known. Finding terminal...");
             terminal = FindAnyObjectByType<Terminal>();
             if (terminal == null)
             {
-                LogError("Could not find object of type Terminal! This is very bad.");
+                Logger.LogError("Could not find object of type Terminal! This is very bad.");
             }
         }
         return terminal;
-    }
-
-    /**
-     * Logs a message to the console, but only in debug builds
-     */
-    [System.Diagnostics.Conditional("DEBUG")]
-    public void LogIfDebugBuild(string message)
-    {
-        Logger.LogFatal(message);   // using Fatal so we can clearly see these when testing
-    }
-
-    /**
-     * Logs a warning to the console
-     */
-    public void LogWarning(string message)
-    {
-        Logger.LogWarning(message);
-    }
-    
-    /**
-     * Logs info to the console
-     */
-    public void LogInfo(string message)
-    {
-        Logger.LogInfo(message);
-    }
-
-    /**
-     * Logs info to the output file but not the console
-     */
-    public void LogDebug(string message)
-    {
-        Logger.LogDebug(message);
-    }
-
-    /**
-     * Logs an error to the console
-     */
-    public void LogError(string message)
-    {
-        Logger.LogError(message);
     }
 
     /**
@@ -466,7 +428,7 @@ public class Plugin : BaseUnityPlugin
                     }
                     catch (Exception)
                     {
-                        Plugin.Instance.LogWarning($"Encountered an issue when processing daytime enemy {item.enemyType.enemyName} on moon {moon.PlanetName} for bestiary. This enemy will be skipped.");
+                        Logger.LogWarning($"Encountered an issue when processing daytime enemy {item.enemyType.enemyName} on moon {moon.PlanetName} for bestiary. This enemy will be skipped.");
                     }
 
                     if (item.enemyType.enemyName.Contains("Red Locust"))
@@ -513,7 +475,7 @@ public class Plugin : BaseUnityPlugin
                     }
                     catch (Exception)
                     {
-                        Plugin.Instance.LogWarning($"Encounteed an issue when processing outside enemy {item.enemyType.enemyName} on moon {moon.PlanetName} for bestiary. This enemy will be skipped.");
+                        Logger.LogWarning($"Encounteed an issue when processing outside enemy {item.enemyType.enemyName} on moon {moon.PlanetName} for bestiary. This enemy will be skipped.");
                     }
                 }
             if (totalRarity[2] > 0)
@@ -553,7 +515,7 @@ public class Plugin : BaseUnityPlugin
                         }
                         catch (Exception)
                         {
-                            Plugin.Instance.LogWarning($"Encounteed an issue when processing indoor enemy {item.enemyType.enemyName} on moon {moon.PlanetName} for bestiary. This enemy will be skipped.");
+                            Logger.LogWarning($"Encounteed an issue when processing indoor enemy {item.enemyType.enemyName} on moon {moon.PlanetName} for bestiary. This enemy will be skipped.");
                         }
 
                         if (item.enemyType.enemyName.Contains("Nutcracker"))
@@ -599,7 +561,7 @@ public class Plugin : BaseUnityPlugin
         }
         catch (Exception ex) 
         {
-            LogError($"NetcodePatcher Failed! This Is Very Bad. \n{ex}");
+            Logger.LogError($"NetcodePatcher Failed! This Is Very Bad. \n{ex}");
         }
     }
 }

@@ -77,7 +77,7 @@ public class MultiworldHandler
             errorMessage = failure.ErrorCodes.Aggregate(errorMessage, (current, error) => current + $"\n    {error}");
 
             HUDManager.Instance.AddTextToChatOnServer($"AP: <color=red>{errorMessage}</color>");
-            Plugin.Instance.LogError(errorMessage);
+            Plugin.Logger.LogError(errorMessage);
             _session = null;
             return;
         }
@@ -130,7 +130,7 @@ public class MultiworldHandler
 
     public void Disconnect()
     {
-        Plugin.Instance.LogInfo("Disconnecting from the multiworld.");
+        Plugin.Logger.LogInfo("Disconnecting from the multiworld.");
         _session.Socket.DisconnectAsync();
         _receivedItemNames.Clear();
         _session = null;
@@ -382,7 +382,7 @@ public class MultiworldHandler
 }";
         }
         
-        Plugin.Instance.LogDebug(input);
+        Plugin.Logger.LogDebug(input);
         
         input = input.Substring(2, input.Length - 6);
         string[] slots = input.Split("],");
@@ -392,7 +392,7 @@ public class MultiworldHandler
             string[] data = slot.Split("[");
             string scrapName = data[0].Trim();
             
-            Plugin.Instance.LogDebug(scrapName);
+            Plugin.Logger.LogDebug(scrapName);
             
             string[] scrapMoons = data[1].Split(",");
             for (int i = 0; i < scrapMoons.Length; i++)
@@ -408,17 +408,17 @@ public class MultiworldHandler
 
             scrapName = Char.IsLetter(scrapName.ToCharArray()[0]) ? scrapName[..^1] : scrapName.Substring(1, scrapName.Length - 3);
             
-            Plugin.Instance.LogDebug(scrapName);
+            Plugin.Logger.LogDebug(scrapName);
 
             result.Add(scrapName, scrapMoons);
         }
 
         foreach (var key in result.Keys)
         {
-            Plugin.Instance.LogDebug(key+":");
+            Plugin.Logger.LogDebug(key+":");
             foreach (var moon in result[key])
             {
-                Plugin.Instance.LogDebug("    "+moon);
+                Plugin.Logger.LogDebug("    "+moon);
             }
         }
 

@@ -39,7 +39,7 @@ namespace APLC
             RunTest("Logic String Tests", TestLogicString);
             RunTest("Trophy Goal Tests", TestTrophyGoal);
             results.AppendLine($"Total Tests: {passed + failed}, Passed: {passed}, Failed: {failed}");
-            Plugin.Instance.LogInfo(results.ToString());
+            Plugin.Logger.LogInfo(results.ToString());
         }
         private static bool TestTerminalCommands()
         {
@@ -65,7 +65,7 @@ namespace APLC
                 {
                     if (double.IsNaN(tuple.Item2) || tuple.Item2 < 0)
                     {
-                        Plugin.Instance.LogError($"TestLogicString failed: Scrap item '{scrap}' has invalid weight {tuple.Item2} for '{tuple.Item1}'");
+                        Plugin.Logger.LogError($"TestLogicString failed: Scrap item '{scrap}' has invalid weight {tuple.Item2} for '{tuple.Item1}'");
                         return false;
                     }
                 }
@@ -78,7 +78,7 @@ namespace APLC
                 {
                     if (double.IsNaN(tuple.Item2) || tuple.Item2 < 0)
                     {
-                        Plugin.Instance.LogError($"TestLogicString failed: Bestiary entity '{monster}' has invalid weight {tuple.Item2} for '{tuple.Item1}'");
+                        Plugin.Logger.LogError($"TestLogicString failed: Bestiary entity '{monster}' has invalid weight {tuple.Item2} for '{tuple.Item1}'");
                         return false;
                     }
                 }
@@ -101,7 +101,7 @@ namespace APLC
             trophies = MwState.Instance.GetTrophyList();
             foreach (var moon in validLevels){
                 if (!trophies.Contains(moon)) {
-                    Plugin.Instance.LogError($"TrophyGoalTest1 failed: Missing trophy for moon '{moon}'");
+                    Plugin.Logger.LogError($"TrophyGoalTest1 failed: Missing trophy for moon '{moon}'");
                     return false;
                 }
             }
@@ -123,7 +123,7 @@ namespace APLC
             {
                 if (!trophies.Contains(moon))
                 {
-                    Plugin.Instance.LogError($"TrophyGoalTest2 failed: Missing trophy for moon '{moon}'");
+                    Plugin.Logger.LogError($"TrophyGoalTest2 failed: Missing trophy for moon '{moon}'");
                     return false;
                 }
             }
@@ -145,7 +145,7 @@ namespace APLC
             {
                 if (!trophies.Contains(moon))
                 {
-                    Plugin.Instance.LogError($"TrophyGoalTest3 failed: Missing trophy for moon '{moon}'");
+                    Plugin.Logger.LogError($"TrophyGoalTest3 failed: Missing trophy for moon '{moon}'");
                     return false;
                 }
             }

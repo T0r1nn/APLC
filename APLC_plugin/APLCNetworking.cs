@@ -81,7 +81,7 @@ public class APLCNetworking : NetworkBehaviour
 
     private void Start()
     {
-        Plugin.Instance.LogInfo("APLC Networking Started");
+        Plugin.Logger.LogInfo("APLC Networking Started");
     }
 
     /**
@@ -90,7 +90,7 @@ public class APLCNetworking : NetworkBehaviour
     [Rpc(SendTo.NotMe)]
     public void KillPlayerClientRpc(ulong id)
     {
-        Plugin.Instance.LogInfo($"Killing player with ID {id}. It might be me?");
+        Plugin.Logger.LogInfo($"Killing player with ID {id}. It might be me?");
         bool markedForDeath = GameNetworkManager.Instance.disableSteam ?
             (GameNetworkManager.Instance.localPlayerController == StartOfRound.Instance.allPlayerScripts.Where(player => !player.isPlayerDead).ToArray()[id]) :
             (GameNetworkManager.Instance.localPlayerController.playerSteamId == id);    // all players have steamID 0 in LAN mode, so we have to use the index instead

@@ -26,7 +26,7 @@ public abstract class Items
         catch (Exception e)
         {
             _total = 0;
-            Plugin.Instance.LogError(e.Message+"\n"+e.StackTrace);
+            Plugin.Logger.LogError(e.Message+"\n"+e.StackTrace);
         }
 
         _resetAll = resetAll;
@@ -194,7 +194,7 @@ public class MoonItems : Items
 
     protected override bool HandleReceived(bool isTick=false)
     {
-        Plugin.Instance.LogInfo($"Unlocking moon {Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns[_terminalIndex].noun.word}");
+        Plugin.Logger.LogInfo($"Unlocking moon {Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns[_terminalIndex].noun.word}");
 
         for (int i = 0; i < StartOfRound.Instance.levels.Length; i++)
         {

@@ -134,7 +134,7 @@ Quota: {((Quota)MwState.Instance.GetLocationMap("Quota")).GetTrackerText()}, {to
             {
                 if (connection.GetExit() == null)
                 {
-                    Plugin.Instance.LogWarning($"A region connected to {moonRegion.GetName()} was null when running command 'scrap'! Skipping this region.");
+                    Plugin.Logger.LogWarning($"A region connected to {moonRegion.GetName()} was null when running command 'scrap'! Skipping this region.");
                     continue;
                 }
                 foreach (Location location in connection.GetExit().GetLocations())

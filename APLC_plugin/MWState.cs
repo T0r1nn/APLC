@@ -155,19 +155,19 @@ public class MwState
                 {
                     _locationMap.Add(moonName,
                         new MoonLocations(moonName, lowGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
-                    Plugin.Instance.LogInfo($"Easy: {moonName}");
+                    Plugin.Logger.LogInfo($"Easy: {moonName}");
                 }
                 else if (cost < 120)
                 {
                     _locationMap.Add(moonName,
                         new MoonLocations(moonName, medGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
-                    Plugin.Instance.LogInfo($"Medium: {moonName}");
+                    Plugin.Logger.LogInfo($"Medium: {moonName}");
                 }
                 else
                 {
                     _locationMap.Add(moonName,
                         new MoonLocations(moonName, highGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
-                    Plugin.Instance.LogInfo($"Hard: {moonName}");
+                    Plugin.Logger.LogInfo($"Hard: {moonName}");
                 }
             }
 
@@ -247,14 +247,14 @@ public class MwState
                                 }
 
                                 //AP Apparatus - Artifice doesn't work
-                                Plugin.Instance.LogDebug(keyName);
+                                Plugin.Logger.LogDebug(keyName);
                                 if (scrapNameToScrapMap.TryGetValue(keyName, out SpawnableItemWithRarity item))
                                 {
                                     scrap.Add(item);
                                 }
                                 else
                                 {
-                                    Plugin.Instance.LogWarning($"The given key '{keyName}' was not present in scrapNameToScrapMap when modifying scrap spawns for {moon.PlanetName}. Unless this is an AP Apparatus, it will not be added to the indoor scrap pool.");
+                                    Plugin.Logger.LogWarning($"The given key '{keyName}' was not present in scrapNameToScrapMap when modifying scrap spawns for {moon.PlanetName}. Unless this is an AP Apparatus, it will not be added to the indoor scrap pool.");
                                     if (scrapName.Contains("AP Apparatus"))
                                     {
                                         item = scrapNameToScrapMap["ap_apparatus_custom"];
@@ -283,7 +283,7 @@ public class MwState
                     }
                     catch (Exception)
                     {
-                        Plugin.Instance.LogError($"Error modifying scrap spawns for moon '{moon.PlanetName}'. This is not likely to cause issues but we are logging it just in case.");
+                        Plugin.Logger.LogError($"Error modifying scrap spawns for moon '{moon.PlanetName}'. This is not likely to cause issues but we are logging it just in case.");
                     }
                 }
             }
@@ -303,7 +303,7 @@ public class MwState
         }
         catch (Exception e)
         {
-            Plugin.Instance.LogError($"{e.Message}\n{e.StackTrace}");
+            Plugin.Logger.LogError($"{e.Message}\n{e.StackTrace}");
             _apConnection.Disconnect();
         }
     }
@@ -332,7 +332,7 @@ public class MwState
         }
         catch (Exception e)
         {
-            Plugin.Instance.LogError($"{e.Message}\n{e.StackTrace}");
+            Plugin.Logger.LogError($"{e.Message}\n{e.StackTrace}");
             _apConnection.Disconnect();
             return;
         }
@@ -531,7 +531,7 @@ public class MwState
             {
                 trophyList += $"{trophy}\n";
             }
-            Plugin.Instance.LogInfo(trophyList);
+            Plugin.Logger.LogInfo(trophyList);
         }
 
         if (moonNames.Any(m => Array.IndexOf(_trophyModeComplete, m.ToLower()) == -1)) return;
@@ -626,7 +626,7 @@ public class MwState
             {
                 steamIds[i] = players[i].playerSteamId;
             }
-            Plugin.Instance.LogInfo($"Attempting to kill player \"{players[selected].playerUsername}\"");
+            Plugin.Logger.LogInfo($"Attempting to kill player \"{players[selected].playerUsername}\"");
 
             if (GameNetworkManager.Instance.localPlayerController == players[selected])
                 GameNetworkManager.Instance.localPlayerController.KillPlayer(Vector3.forward, true, CauseOfDeath.Blast);
@@ -690,7 +690,7 @@ public class MwState
                 }
                 catch (Exception e)
                 {
-                    Plugin.Instance.LogWarning($"Error processing Progressive Flashlight. This is not likely to cause issues but we are logging it just in case. {e}");
+                    Plugin.Logger.LogWarning($"Error processing Progressive Flashlight. This is not likely to cause issues but we are logging it just in case. {e}");
                 }
             }
             else if (name == "Company Building")
@@ -701,7 +701,7 @@ public class MwState
                 }
                 catch (Exception e)
                 {
-                    Plugin.Instance.LogWarning($"Error processing Company Building. This is not likely to cause issues but we are logging it just in case. {e}");
+                    Plugin.Logger.LogWarning($"Error processing Company Building. This is not likely to cause issues but we are logging it just in case. {e}");
                 }
             }
             else if (name == "LoudHorn")
@@ -712,7 +712,7 @@ public class MwState
                 }
                 catch (Exception e)
                 {
-                    Plugin.Instance.LogWarning($"Error processing Loud Horn. This is not likely to cause issues but we are logging it just in case. {e}");
+                    Plugin.Logger.LogWarning($"Error processing Loud Horn. This is not likely to cause issues but we are logging it just in case. {e}");
                 }
             }
             else if (name == "SignalTranslator")
@@ -723,7 +723,7 @@ public class MwState
                 }
                 catch (Exception e)
                 {
-                    Plugin.Instance.LogWarning($"Error processing Signal translator. This is not likely to cause issues but we are logging it just in case. {e}");
+                    Plugin.Logger.LogWarning($"Error processing Signal translator. This is not likely to cause issues but we are logging it just in case. {e}");
                 }
             }
             else if (name == "InverseTeleporter")
@@ -734,7 +734,7 @@ public class MwState
                 }
                 catch (Exception e)
                 {
-                    Plugin.Instance.LogWarning($"Error processing Inverse Teleporter. This is not likely to cause issues but we are logging it just in case. {e}");
+                    Plugin.Logger.LogWarning($"Error processing Inverse Teleporter. This is not likely to cause issues but we are logging it just in case. {e}");
                 }
             }
             else
@@ -745,7 +745,7 @@ public class MwState
                 }
                 catch (Exception e)
                 {
-                    Plugin.Instance.LogError($"Error processing {name}. {e}");
+                    Plugin.Logger.LogError($"Error processing {name}. {e}");
                 }
             }
         }
@@ -776,8 +776,10 @@ public class MwState
         foreach (var itemName in _apConnection.GetReceivedItems())
         {
             Items item = GetItemMap(itemName);
-            Plugin.Instance.LogIfDebugBuild(itemName);   
-            Plugin.Instance.LogIfDebugBuild(item.GetType().FullName);
+#if DEBUG
+            Plugin.Logger.LogDebug(itemName);   
+            Plugin.Logger.LogDebug(item.GetType().FullName);
+# endif
             if (item.GetType() == typeof(MoonItems))
             {
                 return itemName;
@@ -794,7 +796,7 @@ public class MwState
     private static void KillRandom(DeathLink link)
     {
         if (!(GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer)) return;
-        Plugin.Instance.LogInfo("Received death link");
+        Plugin.Logger.LogInfo("Received death link");
 
         Random.InitState(link.Timestamp.Millisecond);
 
