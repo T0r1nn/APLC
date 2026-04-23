@@ -19,7 +19,6 @@ public class Plugin : BaseUnityPlugin
 {
     //Instance of the plugin for other classes to access
     public static Plugin Instance;
-    public static bool IsDawnLibInstalled => Chainloader.PluginInfos.ContainsKey(Dawn.DawnLib.PLUGIN_GUID);
     public static bool IsLethalExpansionInstalled => Chainloader.PluginInfos.ContainsKey("LethalExpansion") || Chainloader.PluginInfos.ContainsKey("LethalExpansionCore");
     private Terminal terminal = null;
     internal static PluginConfig BoundConfig { get; private set; } = null!;

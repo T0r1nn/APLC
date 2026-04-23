@@ -159,49 +159,21 @@ public class FillerItems : Items
  */
 public class MoonItems : Items
 {
-    private readonly int _terminalIndex;
-    private readonly int _keywordIndex = 26;
-    private readonly string _name;
-    public MoonItems(string name)
+    private readonly SelectableLevel _level;
+    public MoonItems(SelectableLevel level)   // todo: pass the SelectableLevel as a parameter instead of the moon name
     {
-        Terminal terminal = Plugin.Instance.GetTerminal();
-        for (int i = 0; i < terminal.terminalNodes.allKeywords.Length; i++)
-        {
-            if (terminal.terminalNodes.allKeywords[i].name == "Route")
-            {
-                _keywordIndex = i;
-            }
-        }
-        Setup(name, resetAll:true);
-        for (var i = 0; i < terminal.terminalNodes.allKeywords[_keywordIndex].compatibleNouns.Length; i++)
-        {
-            if (String.Join("", name.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries))
-                .Contains(terminal.terminalNodes.allKeywords[_keywordIndex].compatibleNouns[i].noun.word.ToLower(), StringComparison.OrdinalIgnoreCase))
-            {
-                _terminalIndex = i;
-            }
-        }
+        Setup(level.PlanetName, resetAll:true);
 
-        terminal.terminalNodes.allKeywords[_keywordIndex].compatibleNouns[_terminalIndex].result.itemCost = 0;
-        terminal.terminalNodes.allKeywords[_keywordIndex].compatibleNouns[_terminalIndex].result.terminalOptions[1].result
-            .itemCost = 0;
+        DawnCompat.AssignPurchasePredicate(level);
+        if (level.GetDawnInfo().RouteNode?.itemCost > 0) level.GetDawnInfo().RouteNode.itemCost = 0;
+        if (level.GetDawnInfo().ReceiptNode?.itemCost > 0) level.GetDawnInfo().ReceiptNode.itemCost = 0;
 
-        for (int i = 0; i < StartOfRound.Instance.levels.Length; i++)
-        {
-            var moon = StartOfRound.Instance.levels[i];
-            if (moon.PlanetName.Contains(name))
-            {
-                DawnCompat.AssignPurchasePredicate(moon);
-            }
-        }
-
-        _name = name;
+        _level = level;
     }
 
     protected override bool HandleReceived(bool isTick=false)
     {
-        Plugin.Logger.LogInfo($"Unlocking moon {Plugin.Instance.GetTerminal().terminalNodes.allKeywords[_keywordIndex].compatibleNouns[_terminalIndex].noun.word}");
-
+        Plugin.Logger.LogInfo($"Unlocking moon {_level.PlanetName}");
         // We don't need to do anything here because Dawn handles the unlocking for us
         return true;
     }
@@ -212,18 +184,13 @@ public class MoonItems : Items
  */
 public class StoreItems : Items
 {
-    private readonly int _itemsIndex;
-    private readonly bool _isVehicle;
     private readonly Item _item;
 
-    public StoreItems(string name, int itemsIndex, bool isVehicle = false, Item item = null)
+    public StoreItems(Item item)
     {
         //Terminal terminal = Plugin.Instance.GetTerminal();
-        Setup(name, resetAll:true);
-        _itemsIndex = itemsIndex;
+        Setup(item.itemName, resetAll:true);
         _item = item;
-        _isVehicle = isVehicle;
-        if (!Plugin.IsDawnLibInstalled || item == null) return;
         DawnCompat.AssignPurchasePredicate(_item);
     }
 
@@ -234,18 +201,37 @@ public class StoreItems : Items
 }
 
 /**
+ * Store items are items that can be purchased in the terminal store.
+ */
+public class StoreVehicleItems : Items
+{
+    private readonly BuyableVehicle _vehicle;
+
+    public StoreVehicleItems(BuyableVehicle vehicle)
+    {
+        //Terminal terminal = Plugin.Instance.GetTerminal();
+        Setup(vehicle.vehicleDisplayName, resetAll: true);
+        _vehicle = vehicle;
+    }
+
+    protected override bool HandleReceived(bool isTick = false)
+    {
+        return true;
+    }
+}
+
+/**
  * Ship upgrades are items that modify or can be placed on the player's ship.
  */
 public class ShipUpgrades : Items
 {
-    private readonly TerminalNode _upgradeNode;
+    private readonly UnlockableItem _upgrade;
 
-    public ShipUpgrades(string name, int upgradeIndex)
+    public ShipUpgrades(UnlockableItem item)
     {
-        Setup(name, resetAll:true);
-        _upgradeNode = Plugin.Instance.GetTerminal().terminalNodes.allKeywords[0].compatibleNouns[upgradeIndex].result;
-        if (!Plugin.IsDawnLibInstalled) return;
-        DawnCompat.AssignPurchasePredicate(_upgradeNode);
+        Setup(item.unlockableName, resetAll:true);
+        _upgrade = item;
+        DawnCompat.AssignPurchasePredicate(_upgrade);
     }
 
     protected override bool HandleReceived(bool isTick=false)

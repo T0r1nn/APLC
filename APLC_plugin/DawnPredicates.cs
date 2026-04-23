@@ -18,7 +18,7 @@ namespace APLC
                 if (priorPredicate == null) return TerminalPurchaseResult.Success();
                 return priorPredicate.CanPurchase();
             }
-            if (MultiworldHandler.Instance.GetReceivedItems().Contains(moonInfo.Level.PlanetName) || (moonInfo.Level.PlanetName == "71 Gordion" && MultiworldHandler.Instance.GetReceivedItems().Contains("Company Building")))
+            if (MultiworldHandler.Instance.GetReceivedItems().Contains(moonInfo.Level.PlanetName) || (moonInfo.Level.PlanetName == "71 Gordion"/*.HasTag(Tags.Company)*/ && MultiworldHandler.Instance.GetReceivedItems().Contains("Company Building")))
             {
                 return TerminalPurchaseResult.Success();
             }
@@ -67,7 +67,7 @@ namespace APLC
                 if (priorPredicate == null) return TerminalPurchaseResult.Success();
                 return priorPredicate.CanPurchase();
             }
-            if (MwState.Instance.GetItemMap<StoreItems>(vehicleInfo.VehiclePrefab.name).GetTotal() >= 1)
+            if (MwState.Instance.GetItemMap<StoreVehicleItems>(vehicleInfo.VehiclePrefab.name).GetTotal() >= 1)
             {
                 return TerminalPurchaseResult.Success();
             }
@@ -130,9 +130,9 @@ namespace APLC
                 storeIteminfo.ShopInfo.DawnPurchaseInfo.PurchasePredicate = new APLCStorePurchasePredicate(storeIteminfo.ShopInfo, storeIteminfo.ShopInfo.DawnPurchaseInfo.PurchasePredicate);
             //}
         }
-        public static void AssignPurchasePredicate(TerminalNode upgradeNode)
+        public static void AssignPurchasePredicate(UnlockableItem item)
         {
-            DawnUnlockableItemInfo unlockable = StartOfRound.Instance.unlockablesList.unlockables[upgradeNode.shipUnlockableID].GetDawnInfo();
+            DawnUnlockableItemInfo unlockable = item.GetDawnInfo();
             if (unlockable.DawnPurchaseInfo.PurchasePredicate is not APLCUnlockablePurchasePredicate)
                 unlockable.DawnPurchaseInfo.PurchasePredicate = new APLCUnlockablePurchasePredicate(unlockable, unlockable.DawnPurchaseInfo.PurchasePredicate);
         }
