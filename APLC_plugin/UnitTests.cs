@@ -90,7 +90,7 @@ namespace APLC
         {
             if (MultiworldHandler.Instance == null) return false;
             object[] trophies;
-            string[] validLevels = [.. StartOfRound.Instance.levels.Where(level => !level.PlanetName.Contains("Gordion") && !level.PlanetName.Contains("Liquidation")).Select(
+            string[] validLevels = [.. StartOfRound.Instance.levels.Where(level => level.spawnEnemiesAndScrap && !level.PlanetName.Contains("Liquidation")).Select(
                 level => level.PlanetName.ToLower())];
             MwState.Instance.ResetTrophyList();
             // test 1: every vanilla moon gets its trophy completed

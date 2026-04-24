@@ -169,7 +169,7 @@ public class Logic
 
         foreach (var moon in StartOfRound.Instance.levels)
         {
-            if (moon.PlanetName.Contains("Gordion") || moon.PlanetName.Contains("Liquidation")) continue;
+            if (!moon.spawnEnemiesAndScrap || moon.PlanetName.Contains("Liquidation")) continue;
             var vanilla = vanillaMoons.Any(vanillaMoon => moon.PlanetName.ToLower().Contains(vanillaMoon));
             if (vanilla) continue;
             var scrapName = $"AP Apparatus - {moon}";
@@ -221,7 +221,7 @@ public class Logic
         foreach (var moon in StartOfRound.Instance.levels)
         {
             var moonName = moon.PlanetName;
-            if (moonName.Contains("Gordion") || moonName.Contains("Liquidation")) continue;
+            if (!moon.spawnEnemiesAndScrap || moonName.Contains("Liquidation")) continue;
             var moonRegion = GetMoonRegion(moonName);
             if (moonRegion == null)
             {
