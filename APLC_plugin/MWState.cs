@@ -129,7 +129,6 @@ public class MwState
             //Moons
             foreach (var moon in _moons)
             {
-                if (moon.PlanetName.Contains("Gordion") || moon.PlanetName.Contains("Liquidation")) continue;
                 string moonName = moon.PlanetName;
                 int keywordIndex = 0;
                 int terminalIndex = 0;
@@ -366,7 +365,6 @@ public class MwState
         foreach (var moon in _moons)
         {
             string moonName = moon.PlanetName;
-            if (moonName.Contains("Gordion") || moonName.Contains("Liquidation")) continue;
             _itemMap.Add(moonName, new MoonItems(moon));
         }
         if (randomizeCompany)
@@ -376,9 +374,8 @@ public class MwState
                 if (moon.PlanetName.Contains("Gordion"))
                 {
                     _itemMap.Add(moon.PlanetName, new MoonItems(moon));
-                    break;
                 }
-                //else if (moon.GetDawnInfo().HasTag(Tags.Company)) DawnCompat.AssignPurchasePredicate(moon);
+                else if (!moon.spawnEnemiesAndScrap) DawnCompat.AssignPurchasePredicate(moon);
             }
         }
 
@@ -652,9 +649,16 @@ public class MwState
         
         string planetName = StartOfRound.Instance.currentLevel.PlanetName;
 
-        if (planetName != "71 Gordion" || _apConnection.GetSlotSetting("randomizecompany") == 1)
+        if (StartOfRound.Instance.currentLevel.spawnEnemiesAndScrap) 
         {
-            if (GetItemMap<MoonItems>(planetName).GetTotal() < 1 || (GetStartingMoon() != planetName && _apConnection.GetSlotSetting("randomizeterminal")==1 && GetItemMap<PlayerUpgrades>("Terminal").GetNum() < 1))
+            if (GetItemMap<MoonItems>(planetName).GetTotal() < 1 || (GetStartingMoon() != planetName && _apConnection.GetSlotSetting("randomizeterminal") == 1 && GetItemMap<PlayerUpgrades>("Terminal").GetNum() < 1))
+            {
+                _sentToMoon = false;
+            }
+        }
+        else 
+        {
+            if (_apConnection.GetSlotSetting("randomizecompany") == 1 && GetItemMap<MoonItems>("71 Gordion").GetTotal() < 1)
             {
                 _sentToMoon = false;
             }

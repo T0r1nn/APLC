@@ -18,7 +18,7 @@ namespace APLC
                 if (priorPredicate == null) return TerminalPurchaseResult.Success();
                 return priorPredicate.CanPurchase();
             }
-            if (MultiworldHandler.Instance.GetReceivedItems().Contains(moonInfo.Level.PlanetName) || (moonInfo.Level.PlanetName == "71 Gordion"/*.HasTag(Tags.Company)*/ && MultiworldHandler.Instance.GetReceivedItems().Contains("Company Building")))
+            if (MultiworldHandler.Instance.GetReceivedItems().Contains(moonInfo.Level.PlanetName) || (!moonInfo.Level.spawnEnemiesAndScrap && MultiworldHandler.Instance.GetReceivedItems().Contains("Company Building")))
             {
                 return TerminalPurchaseResult.Success();
             }

@@ -65,7 +65,7 @@ public class Plugin : BaseUnityPlugin
     /**
      * Formats the game logic as a JSON string in the order of moons, store, vehicles, scrap, bestiary
      */
-    public string GetGameLogicString()
+    public string GetGameLogicString()  // todo: simplify formatting
     {
         var logic = GetGameLogic();
         
@@ -117,7 +117,6 @@ public class Plugin : BaseUnityPlugin
         
         foreach (SelectableLevel moon in moons)
         {
-            if (moon.PlanetName.Contains("Gordion") || moon.PlanetName.Contains("Liquidation")) continue;
             json += "        \"" + moon.PlanetName + "\",\n";
         }
         
@@ -269,12 +268,14 @@ public class Plugin : BaseUnityPlugin
         
         var allMoons = StartOfRound.Instance.levels;
 
-        var moons = new SelectableLevel[allMoons.Length - 2];   // todo: change this to use ExtendedLevels instead of SelectableLevels
+        int companyMoonsAmount = StartOfRound.Instance.levels.Count(moon => !moon.spawnEnemiesAndScrap);
+
+        var moons = new SelectableLevel[allMoons.Length - companyMoonsAmount - 1];
 
         int skipped = 0;
         for (int i = 0; i < allMoons.Length; i++)
         {
-            if (allMoons[i].PlanetName.Contains("Liquidation") || allMoons[i].PlanetName.Contains("Gordion"))
+            if (allMoons[i].PlanetName.Contains("Liquidation") || !allMoons[i].spawnEnemiesAndScrap)
             {
                 skipped++;
                 continue;
@@ -293,7 +294,7 @@ public class Plugin : BaseUnityPlugin
 
         foreach (SelectableLevel moon in moons)
         {
-            if (moon.PlanetName.Contains("Gordion") || moon.PlanetName.Contains("Liquidation")) continue;
+            if (!moon.spawnEnemiesAndScrap || moon.PlanetName.Contains("Liquidation")) continue;
 
             var scrap = moon.spawnableScrap;
             int totalRarity = 0;
@@ -361,7 +362,7 @@ public class Plugin : BaseUnityPlugin
 
         foreach (SelectableLevel moon in moons)
         {
-            if (moon.PlanetName.Contains("Gordion") || moon.PlanetName.Contains("Liquidation")) continue;
+            if (!moon.spawnEnemiesAndScrap || moon.PlanetName.Contains("Liquidation")) continue;
 
             if (moon.canSpawnMold)
             {

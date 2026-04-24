@@ -500,7 +500,7 @@ To use a filler item, re-enter this command followed by the item's name.
     
     private static string GenerateMoonProgressTracker()
     {
-        return StartOfRound.Instance.levels.Select(moon => moon.PlanetName).Where(moonName => !moonName.Contains("Gordion") && !moonName.Contains("Liquidation")).Aggregate("", (current, moonName) => current + $"    {moonName} {MwState.Instance.GetLocationMap(moonName).GetTrackerText()}\n");
+        return StartOfRound.Instance.levels.Where(moon => moon.spawnEnemiesAndScrap && !moon.PlanetName.Contains("Liquidation")).Aggregate("", (current, moon) => current + $"    {moon.PlanetName} {MwState.Instance.GetLocationMap(moon.PlanetName).GetTrackerText()}\n");
     }
 
     public static void ModifyTerminalPages(Terminal t)

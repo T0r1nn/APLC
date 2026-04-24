@@ -583,7 +583,7 @@ public class Patches
     [HarmonyPatch(typeof(RoundManager), nameof(RoundManager.FinishGeneratingNewLevelClientRpc))]
     private static void RemindPlayersOfAvailableFiller()
     {
-        if (MultiworldHandler.Instance == null || !StartOfRound.Instance.currentLevel.PlanetName.Contains("Gordion") || !Plugin.BoundConfig.DisplayFillerNotification.Value) return;
+        if (MultiworldHandler.Instance == null || StartOfRound.Instance.currentLevel.spawnEnemiesAndScrap || !Plugin.BoundConfig.DisplayFillerNotification.Value) return;
         string[] fillerNames = ["More Time", "Clone Scrap", "Birthday Gift", "Money"];
         foreach (string fillerName in fillerNames)
         {
