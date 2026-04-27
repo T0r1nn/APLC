@@ -371,8 +371,8 @@ public class Plugin : BaseUnityPlugin
         
         var bestiaryMap = new Dictionary<string, Collection<Tuple<string, double>>> { };
 
-        bestiaryMap.Add("Kidnapper Fox", new Collection<Tuple<string, double>>());
-        bestiaryMap.Add("Vain Shroud", new Collection<Tuple<string, double>>());
+        bestiaryMap.Add("Kidnapper fox", new Collection<Tuple<string, double>>());
+        bestiaryMap.Add("Vain shroud", new Collection<Tuple<string, double>>());
 
         foreach (SelectableLevel moon in moons)
         {
@@ -380,8 +380,8 @@ public class Plugin : BaseUnityPlugin
 
             if (moon.canSpawnMold)
             {
-                bestiaryMap.Get("Kidnapper Fox").Add(new Tuple<string, double>(moon.PlanetName, 1));
-                bestiaryMap.Get("Vain Shroud").Add(new Tuple<string, double>(moon.PlanetName, 1));
+                bestiaryMap.Get("Kidnapper fox").Add(new Tuple<string, double>(moon.PlanetName, 1));
+                bestiaryMap.Get("Vain shroud").Add(new Tuple<string, double>(moon.PlanetName, 1));
             }
 
             var daytime = moon.DaytimeEnemies;

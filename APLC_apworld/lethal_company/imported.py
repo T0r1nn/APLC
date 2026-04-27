@@ -2093,7 +2093,7 @@ data = {
     ],
     "bestiary": [
         {
-            "Kidnapper Fox": [
+            "Kidnapper fox": [
                 {
                     "moon_name": "41 Experimentation",
                     "chance": 1
@@ -2138,7 +2138,7 @@ data = {
             ]
         },
         {
-            "Vain Shroud": [
+            "Vain shroud": [
                 {
                     "moon_name": "41 Experimentation",
                     "chance": 1
