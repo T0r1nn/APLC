@@ -34,7 +34,6 @@ public class Plugin : BaseUnityPlugin
         Logger = base.Logger;
 
         BoundConfig = new PluginConfig(base.Config);
-        NetcodePatch();
         Patches.Patch();
         TerminalCommands.SetUpTerminalCommands();
 
@@ -543,37 +542,5 @@ public class Plugin : BaseUnityPlugin
         }
 
         return new Tuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<Tuple<string, double>>>, Dictionary<string, Collection<Tuple<string, double>>>>(store, vehicles, moons, bestiaryMap, scrapMap);
-    }
-    
-    private void NetcodePatch()
-    {
-        Type[] types = null!;
-        try
-        {
-            types = Assembly.GetExecutingAssembly().GetTypes();
-        }
-        catch (ReflectionTypeLoadException ex)
-        {
-            types = [.. ex.Types.Where(type => type is not null)!];
-        }
-        try
-        {
-            foreach (var type in types)
-            {
-                var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-                foreach (var method in methods)
-                {
-                    var attributes = method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false);
-                    if (attributes.Length > 0)
-                    {
-                        method.Invoke(null, null);
-                    }
-                }
-            }
-        }
-        catch (Exception ex) 
-        {
-            Logger.LogError($"NetcodePatcher Failed! This Is Very Bad. \n{ex}");
-        }
     }
 }
