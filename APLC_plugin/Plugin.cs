@@ -279,7 +279,7 @@ public class Plugin : BaseUnityPlugin
         {
             if (!moon.spawnEnemiesAndScrap || moon.PlanetName.Contains("Liquidation")) continue;
 
-            DawnMoonInfo moonInfo = moon.GetDawnInfo();
+            DawnMoonInfo moonInfo = moon.GetDawnInfo(); // can use Item.spawnPrefab.GetComponent<GrabbableObject>().GetType() to check if the item is a LungProp
 
             Dictionary<string, double> scrapRarityDict = [];
 
@@ -308,7 +308,11 @@ public class Plugin : BaseUnityPlugin
                     rarity += scrapWeight?? 0 * (int)interiorInfo.Weights.GetFor(moonInfo, ctx: blankContext) / (float)totalInteriorRarity;
                 }
                 totalRarity += rarity;
-                scrapRarityDict.Add(item.spawnableItem.itemName, rarity);
+                if (!scrapRarityDict.TryAdd(item.spawnableItem.itemName, rarity)) 
+                {
+                    scrapRarityDict[item.spawnableItem.itemName] += rarity;
+                    Plugin.Logger.LogInfo($"scrapRarityDict already has key for Dawn scrap {item.spawnableItem.itemName}. Rarities will be combined.");
+                }
             }
 
             if (LLLCompat.IsLethalLevelLoaderInstalled)
@@ -319,7 +323,11 @@ public class Plugin : BaseUnityPlugin
                     if (rarity > 0)
                     {
                         totalRarity += rarity;
-                        scrapRarityDict.Add(item.itemName, rarity);
+                        if (!scrapRarityDict.TryAdd(item.itemName, rarity))
+                        {
+                            scrapRarityDict[item.itemName] += rarity;
+                            Plugin.Logger.LogInfo($"scrapRarityDict already has key for LLL scrap {item.itemName}. Rarities will be combined.");
+                        }
                     }
                 }
             }
@@ -454,7 +462,7 @@ public class Plugin : BaseUnityPlugin
                     }
                     catch (Exception)
                     {
-                        Logger.LogWarning($"Encountered an issue when processing daytime enemy {item.enemyType.enemyName} on moon {moon.PlanetName} for bestiary. This enemy will be skipped.");
+                        Logger.LogWarning($"Daytime enemy {item.enemyType.enemyName} has no scan node. This enemy will not have logic.");
                     }
 
                     if (item.enemyType.enemyName.Contains("Red Locust"))
@@ -503,7 +511,7 @@ public class Plugin : BaseUnityPlugin
                     }
                     catch (Exception)
                     {
-                        Logger.LogWarning($"Encounteed an issue when processing outside enemy {item.enemyType.enemyName} on moon {moon.PlanetName} for bestiary. This enemy will be skipped.");
+                        Logger.LogWarning($"Outside enemy {item.enemyType.enemyName} has no scan node. This enemy will not have logic.");
                     }
                 }
             if (totalRarity[2] > 0)
@@ -545,7 +553,7 @@ public class Plugin : BaseUnityPlugin
                         }
                         catch (Exception)
                         {
-                            Logger.LogWarning($"Encounteed an issue when processing indoor enemy {item.enemyType.enemyName} on moon {moon.PlanetName} for bestiary. This enemy will be skipped.");
+                            Logger.LogWarning($"Indoor enemy {item.enemyType.enemyName} has no scan node. This enemy will not have logic.");
                         }
 
                         if (item.enemyType.enemyName.Contains("Nutcracker"))

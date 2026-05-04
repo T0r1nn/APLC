@@ -217,19 +217,33 @@ public class MwState
                 Dictionary<string, SpawnableItemWithRarity> scrapNameToScrapMap =
                     new Dictionary<string, SpawnableItemWithRarity>();
 
-                foreach (var moon in _moons)
+                foreach (DawnItemInfo itemInfo in LethalContent.Items.Values)
                 {
-                    List<SpawnableItemWithRarity> scrap = moon.spawnableScrap;
-                    foreach (SpawnableItemWithRarity item in scrap)
+                    string itemName = null;
+                    if (itemInfo.ScrapInfo != null)
                     {
-                        scrapNameToScrapMap.TryAdd(
-                            item.spawnableItem.name.Contains("ap_apparatus_")
-                                ? item.spawnableItem.name
-                                : item.spawnableItem.itemName, item);
-
-                        item.rarity = item.spawnableItem.itemName == "Archipelago Chest" && _goal == 1 ? 45 : 30;
+                        itemName = itemInfo.Item.name.Contains("ap_apparatus_")
+                                ? itemInfo.Item.name
+                                : itemInfo.Item.itemName;
+                        scrapNameToScrapMap.TryAdd(itemName, new SpawnableItemWithRarity(itemInfo.Item, 30));
                     }
                 }
+                if (LLLCompat.IsLethalLevelLoaderInstalled)
+                {
+                    foreach (Item item in LethalContent.Items.Values.Where(item => item.ShopInfo == null && item.ScrapInfo == null).Select(itemInfo => itemInfo.Item))
+                    {
+                        foreach (var moon in _moons)
+                        {
+                            double rarity = LLLCompat.GetDynamicRarityForAllDungeons(item, moon, 1);
+                            if (rarity > 0)
+                            {
+                                scrapNameToScrapMap.TryAdd(item.itemName, new SpawnableItemWithRarity(item, 30));
+                            }
+                        }
+                    }
+                }
+
+                Dictionary<SpawnableItemWithRarity, List<string>> commonScrapToMoonMap = [];
 
                 foreach (var moon in _moons)
                 {
@@ -239,19 +253,31 @@ public class MwState
                         scrap.Clear();
                         foreach (string scrapName in scrapToMoonMap.Keys)
                         {
-                            if (scrapToMoonMap[scrapName].Any(moonName => moon.PlanetName.Contains(moonName)))  // this might throw exceptions?
+                            if (scrapToMoonMap[scrapName].Any(moonName => moon.PlanetName.Contains(moonName)))
                             {
                                 string keyName = scrapName;
                                 if (scrapName.Contains("AP Apparatus"))
                                 {
-                                    keyName = $"ap_apparatus_{moon.PlanetName.Split(' ')[1].ToLower()}";
+                                    keyName = $"ap_apparatus_{moon.GetDawnInfo().GetNumberlessPlanetName().ToLower()}";
                                 }
 
                                 //AP Apparatus - Artifice doesn't work
                                 Plugin.Logger.LogDebug(keyName);
                                 if (scrapNameToScrapMap.TryGetValue(keyName, out SpawnableItemWithRarity item))
                                 {
+                                    DawnItemInfo itemInfo = item.spawnableItem.GetDawnInfo();
                                     scrap.Add(item);
+                                    if (itemInfo.ScrapInfo != null) 
+                                        itemInfo.ScrapInfo.Weights = new ProviderTable<int?, DawnMoonInfo, SpawnWeightContext>([new MatchingKeyWeightContextualProvider<DawnMoonInfo, SpawnWeightContext>(moon.GetDawnInfo().Key.AsTyped<DawnMoonInfo>(), new SimpleWeighted(30))]);
+                                    else
+                                    {
+                                        LethalLevelLoader.ExtendedItem ext = LethalLevelLoader.PatchedContent.ExtendedItems.FirstOrDefault(extItem => extItem.Item.Equals(item.spawnableItem));
+                                        if (ext == null) continue;
+                                        LethalLevelLoader.LevelMatchingProperties newProperties = LethalLevelLoader.LevelMatchingProperties.Create(ext);
+                                        newProperties.ApplyValues(newPlanetNames: new List<LethalLevelLoader.StringWithRarity>([new LethalLevelLoader.StringWithRarity(moon.PlanetName, 30)]));
+                                        ext.SetLevelMatchingProperties(newProperties);
+                                        ext.DungeonMatchingProperties = LethalLevelLoader.DungeonMatchingProperties.Create(ext);
+                                    }
                                 }
                                 else
                                 {
@@ -260,12 +286,19 @@ public class MwState
                                     {
                                         item = scrapNameToScrapMap["ap_apparatus_custom"];
                                         scrap.Add(item);
+
                                     }
                                 }
                             }
                             else if (scrapToMoonMap[scrapName].Any(moonName => "Common".Contains(moonName)))
                             {
-                                SpawnableItemWithRarity item = scrapNameToScrapMap[scrapName];
+                                if (!scrapNameToScrapMap.TryGetValue(scrapName, out SpawnableItemWithRarity item))
+                                {
+                                    Plugin.Logger.LogWarning($"The given key '{scrapName}' was not present in scrapNameToScrapMap when modifying scrap spawns for {moon.PlanetName}. It will not be added to the indoor scrap pool.");
+                                    continue;
+                                }
+                                if (!commonScrapToMoonMap.ContainsKey(item)) commonScrapToMoonMap[item] = [];
+                                commonScrapToMoonMap[item].Add(moon.PlanetName);
                                 scrap.Add(item);
                             }
                         }
@@ -282,9 +315,26 @@ public class MwState
                             }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        Plugin.Logger.LogError($"Error modifying scrap spawns for moon '{moon.PlanetName}'. This is not likely to cause issues but we are logging it just in case.");
+                        Plugin.Logger.LogError($"Error modifying scrap spawns for moon '{moon.PlanetName}'. Its scrap has not been modified.\n{ex}");
+                    }
+                }
+
+                // for Dawn and LLL compat
+                foreach (KeyValuePair<SpawnableItemWithRarity, List<string>> kvp in commonScrapToMoonMap)
+                {
+                    DawnItemInfo itemInfo = kvp.Key.spawnableItem.GetDawnInfo();
+                    if (itemInfo.ScrapInfo != null)
+                        itemInfo.ScrapInfo.Weights = new ProviderTable<int?, DawnMoonInfo, SpawnWeightContext>([new HasTagWeightContextualProvider<DawnMoonInfo, SpawnWeightContext>(Tags.All, new SimpleWeighted(30))]);
+                    else
+                    {
+                        LethalLevelLoader.ExtendedItem ext = LethalLevelLoader.PatchedContent.ExtendedItems.FirstOrDefault(extItem => extItem.Item.Equals(kvp.Key.spawnableItem));
+                        if (ext == null) continue;
+                        LethalLevelLoader.LevelMatchingProperties newProperties = LethalLevelLoader.LevelMatchingProperties.Create(ext);
+                        newProperties.ApplyValues(newPlanetNames: [.. kvp.Value.Select(moonName => new LethalLevelLoader.StringWithRarity(moonName, 30))]);
+                        ext.SetLevelMatchingProperties(newProperties);
+                        ext.DungeonMatchingProperties = LethalLevelLoader.DungeonMatchingProperties.Create(ext);
                     }
                 }
             }
@@ -302,7 +352,7 @@ public class MwState
                 _locationMap.Add("Scrap", new ScrapLocations(scrapNames));
             }
         }
-        catch (Exception e)
+        catch (Exception e)     // this is kind of justified but I hope there's a better way to do it than nested try-catch blocks
         {
             Plugin.Logger.LogError($"{e.Message}\n{e.StackTrace}");
             _apConnection.Disconnect();
