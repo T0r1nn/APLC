@@ -18,7 +18,7 @@ namespace APLC
             foreach (var interior in LethalLevelLoader.DungeonManager.GetValidExtendedDungeonFlows(LethalLevelLoader.LevelManager.GetExtendedLevel(moon), false))
             {
                 int scrapWeight = extItem.DungeonMatchingProperties.GetDynamicRarity(interior.extendedDungeonFlow);
-                if (scrapWeight > 0) rarity += scrapWeight * ((double)interior.rarity / totalInteriorRarity);
+                if (scrapWeight > 0) rarity += scrapWeight * ((double)interior.rarity / Math.Max(totalInteriorRarity, interior.rarity));
             }
             return rarity;
         }
