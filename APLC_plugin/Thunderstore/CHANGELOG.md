@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.11
+**<details><summary>Fixes</summary>**
+* updated logic for v81
+* fixed item grabbing and utility slot access
+* fixed a mistake that could spam errors when auto-connecting to a multiworld
+* corrected requirements for sapsucker egg and company building
+</details>
+
 ## 0.7.10
 **<details><summary>Fixes</summary>**
 * fixed a rare issue with item processing where an item could be processed before the item map is set up and cause cascading errors
