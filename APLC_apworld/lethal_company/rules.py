@@ -2,6 +2,7 @@ import math
 import string
 
 from BaseClasses import MultiWorld, CollectionState, ItemClassification, LocationProgressType
+from worlds.generic.Rules import add_rule
 from .options import LCOptions
 from typing import TYPE_CHECKING
 
@@ -60,6 +61,9 @@ def set_rules(lc_world: 'LethalCompanyWorld') -> None:
         lambda state: state.has("Completed 25% Quota", player)
     multiworld.get_location("Quota 75%", player).access_rule = \
         lambda state: state.has("Completed 50% Quota", player)
+    
+    add_rule(multiworld.get_location("Bestiary Entry - Kidnapper fox", player), lambda state: can_buy(state, player, options))
+    add_rule(multiworld.get_location("Bestiary Entry - Vain shroud", player), lambda state: can_buy(state, player, options))
 
     if options.scrapsanity.value == 1:
         for scrap_index in range(len(lc_world.scrap_names)):
