@@ -68,8 +68,7 @@ public class MwState
         foreach (SelectableLevel level in StartOfRound.Instance.levels)
         {
             if (!NormalMoonPrices.TryGetValue(level.PlanetName, out _))
-                NormalMoonPrices[level.PlanetName] = LethalLevelLoader.LevelManager.GetExtendedLevel(level).RoutePrice;
-            //NormalMoonPrices[level.PlanetName] = level.GetDawnInfo().DawnPurchaseInfo.Cost.Provide();
+                NormalMoonPrices[level.PlanetName] = level.GetDawnInfo().DawnPurchaseInfo.Cost.Provide();
         }
         ES3.Save("APNormalMoonPrices", NormalMoonPrices, GameNetworkManager.Instance.currentSaveFileName);
 
@@ -156,6 +155,9 @@ public class MwState
                 easyGrade = mediumGrade = hardGrade = _apConnection.GetSlotSetting("allMoonRequiredGrade", 2);
             }
 
+            string[] vanillaMoonNames = ["experimentation", "assurance", "vow", "adamance", "offense", "march", "rend", "dine", "titan", "artifice", "embrion"];
+            Dictionary<string, int> moonDifficulties = [];
+            List<int> vanillaMoonDifficulties = [];
             List<Task> locationsToCreate = new();
 
             //Moons
@@ -186,22 +188,55 @@ public class MwState
 
                 //int difficulty = CalculateMoonDifficultyRating(moon);
 
-                double cost = NormalMoonPrices[moon.PlanetName];
+                if (Plugin.BoundConfig.DifficultyCalculation.Value == PluginConfig.DifficultyCalculationMethod.CostBased)
+                {
+                    double cost = NormalMoonPrices[moon.PlanetName];
 
-                if (cost < 100 && moon.factorySizeMultiplier <= 1.15)
-                {
-                    locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, easyGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
-                    Plugin.Logger.LogInfo($"Easy: {moonName}");
-                }
-                else if (cost < 400)
-                {
-                    locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, mediumGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
-                    Plugin.Logger.LogInfo($"Medium: {moonName}");
+                    if (cost < 100 && moon.factorySizeMultiplier <= 1.15)
+                    {
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, easyGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
+                        Plugin.Logger.LogInfo($"Easy: {moonName}");
+                    }
+                    else if (cost < 400)
+                    {
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, mediumGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
+                        Plugin.Logger.LogInfo($"Medium: {moonName}");
+                    }
+                    else
+                    {
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, hardGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
+                        Plugin.Logger.LogInfo($"Hard: {moonName}");
+                    }
                 }
                 else
                 {
-                    locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, hardGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
-                    Plugin.Logger.LogInfo($"Hard: {moonName}");
+                    moonDifficulties[moonName] = CalculateMoonDifficultyRating(moon);
+                    if (vanillaMoonNames.Contains(moon.GetDawnInfo().GetNumberlessPlanetName().ToLower()))
+                    {
+                        vanillaMoonDifficulties.Add(moonDifficulties[moonName]);
+                    }
+                }
+            }
+            if (Plugin.BoundConfig.DifficultyCalculation.Value == PluginConfig.DifficultyCalculationMethod.Complex)
+            {
+                vanillaMoonDifficulties.Sort();
+                foreach (var kvp in moonDifficulties)
+                {
+                    if (kvp.Value <= vanillaMoonDifficulties[vanillaMoonDifficulties.Count / 3])            // should be vanillaMoonDifficulties[3], or Vow
+                    {
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, easyGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
+                        Plugin.Logger.LogInfo($"Easy: {kvp.Key}");
+                    }
+                    else if (kvp.Value < vanillaMoonDifficulties[vanillaMoonDifficulties.Count * 2 / 3])    // should be vanillaMoonDifficulties[7], or Dine
+                    {
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, mediumGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
+                        Plugin.Logger.LogInfo($"Medium: {kvp.Key}");
+                    }
+                    else
+                    {
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, hardGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
+                        Plugin.Logger.LogInfo($"Hard: {kvp.Key}");
+                    }
                 }
             }
 
@@ -979,6 +1014,8 @@ public class MwState
     {
         return _trophyModeComplete;
     }
+
+    // This is a modified version of LLL's difficulty calculation
     public static int CalculateMoonDifficultyRating(SelectableLevel level, bool debugResults = false)
     {
         int calculatedDifficulty = 0;

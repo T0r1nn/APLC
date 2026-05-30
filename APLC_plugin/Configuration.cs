@@ -15,6 +15,14 @@ namespace APLC {
         public ConfigEntry<bool> DisplayFillerNotification;
         public ConfigEntry<bool> DeathLink;
         public ConfigEntry<bool> OverrideMWDeathlink;
+        public ConfigEntry<DifficultyCalculationMethod> DifficultyCalculation;
+
+        public enum DifficultyCalculationMethod
+        {
+            CostBased,
+            Complex
+        }
+
         public PluginConfig(ConfigFile cfg)
         {
             SendChatMessagesAsAPChat = cfg.Bind("Chat", "Send chat messages to Archipelago", true,
@@ -31,7 +39,9 @@ namespace APLC {
                 "If true, the mod config will be used to turn death link on/off instead of the yaml option.");
             DeathLink = cfg.Bind("Death link", "Enable death link", false,
                 "When you die, everyone who enabled death link dies. Of course, the reverse is true too. This option does nothing if 'Override yaml death link option' is false.");
-
+            DifficultyCalculation = cfg.Bind("Logic", "Moon difficulty calculation method", DifficultyCalculationMethod.CostBased,
+                "The method used to calculate moon difficulty (easy/medium/hard) for grade locations. 'CostBased' uses the cost of the moon. 'Complex' uses a custom algorithm that considers " +
+                "moon cost, max enemy power, enemy weights, scrap weights, and other factors, where moons less than or equal to Vow's difficulty are 'easy' and moons between Vow and Dine are 'medium'.");
 
             ClearUnusedEntries(cfg);
         }
