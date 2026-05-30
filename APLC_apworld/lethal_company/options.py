@@ -40,7 +40,7 @@ class MoneyPerQuotaCheck(Range):
     display_name = "Money Per Quota Check"
     range_start = 100
     range_end = 10000
-    default = 500
+    default = 400
     slot = True
     slot_name = "moneyPerQuotaCheck"
 
@@ -56,9 +56,9 @@ class NumQuotas(Range):
         total of 4 quota locations are complete.
     """
     display_name = "Num Quotas"
-    range_start = 10
+    range_start = 0
     range_end = 50
-    default = 20
+    default = 15
     slot = True
     slot_name = "numQuota"
 
@@ -174,8 +174,8 @@ class MinMoneyCheck(Range):
     """
     display_name = "Min Money Check Amount"
     range_start = 0
-    range_end = 5000
-    default = 100
+    range_end = 1000
+    default = 50
     slot = True
     slot_name = "minMoney"
 
@@ -186,8 +186,8 @@ class MaxMoneyCheck(Range):
     """
     display_name = "Max Money Check Amount"
     range_start = 0
-    range_end = 10000
-    default = 1000
+    range_end = 1000
+    default = 300
     slot = True
     slot_name = "maxMoney"
 
@@ -225,7 +225,7 @@ Scanner - done
 Jumping
 Movement keys
 Holding your breath
-Sprinting
+Sprinting - done (0 stamina is the same as no sprinting)
 Random items spawning in the ship - done
 Items added to dropship - done
 Extra quota days - done
@@ -496,41 +496,41 @@ class CustomContent(FreeText):
 
 @dataclass
 class LCOptions(PerGameCommonOptions):
-    game_mode: Goal #done
-    collectathon_scrap_goal: CollectathonScrapGoal #done
-    credit_replacement: CreditReplacement #done
-    required_credits: RequiredCredits #done
-    grade_checks_per_moon: GradeChecksPerMoon #done
-    money_per_quota_check: MoneyPerQuotaCheck #done
-    num_quotas: NumQuotas #done
-    quota_checkpoint_every: QuotaCheckpointEvery #done
-    starting_inventory_slots: StartingInventorySlots #done
-    starting_stamina_bars: StartingStaminaBars #done
-    randomize_scanner: RandomizeScanner #done
-    min_monster_chance: MonsterSpawnChance #done
-    randomize_terminal: RandomizeTerminal #done
-    randomize_company_building: RandomizeCompanyBuilding #done
-    scrapsanity: Scrapsanity #done
-    min_scrap_chance: ScrapSpawnChance #done
+    game_mode: Goal
+    collectathon_scrap_goal: CollectathonScrapGoal
+    credit_replacement: CreditReplacement
+    required_credits: RequiredCredits
+    grade_checks_per_moon: GradeChecksPerMoon
+    money_per_quota_check: MoneyPerQuotaCheck
+    num_quotas: NumQuotas
+    quota_checkpoint_every: QuotaCheckpointEvery
+    starting_inventory_slots: StartingInventorySlots
+    starting_stamina_bars: StartingStaminaBars
+    randomize_scanner: RandomizeScanner
+    min_monster_chance: MonsterSpawnChance
+    randomize_terminal: RandomizeTerminal
+    randomize_company_building: RandomizeCompanyBuilding
+    scrapsanity: Scrapsanity
+    min_scrap_chance: ScrapSpawnChance
     exclude_killing: ExcludeShotguns
     exclude_hive: ExcludeHive
     exclude_egg: ExcludeEgg
     modify_scrap_spawns: ModifyScrapSpawns
-    min_money: MinMoneyCheck #done
-    max_money: MaxMoneyCheck #done
-    starting_moon: StartingMoon #done
-    split_moon_grades: SplitMoonGrades #done
-    all_moon_required_grade: GradeCheckRequiredGrade #done
-    easy_moon_required_grade: EasyMoonCheckGrade #done
-    medium_moon_required_grade: MedMoonCheckGrade #done
-    hard_moon_required_grade: HardMoonCheckGrade #done
-    time_add: DayIncreaseWeight #done
-    scrap_clone: ScrapDupeWeight #done
-    birthday: BirthdayGiftWeight #done
-    weight_reducers: WeightReducers #done
-    bracken_trap: BrackenTrapWeight #done
-    haunt_trap: HauntTrapWeight #done
-    time_trap: DayDecreaseWeight #done
-    money: MoneyWeight #done
+    min_money: MinMoneyCheck
+    max_money: MaxMoneyCheck
+    starting_moon: StartingMoon
+    split_moon_grades: SplitMoonGrades
+    all_moon_required_grade: GradeCheckRequiredGrade
+    easy_moon_required_grade: EasyMoonCheckGrade
+    medium_moon_required_grade: MedMoonCheckGrade
+    hard_moon_required_grade: HardMoonCheckGrade
+    time_add: DayIncreaseWeight
+    scrap_clone: ScrapDupeWeight
+    birthday: BirthdayGiftWeight
+    weight_reducers: WeightReducers
+    bracken_trap: BrackenTrapWeight
+    haunt_trap: HauntTrapWeight
+    time_trap: DayDecreaseWeight
+    money: MoneyWeight
     death_link: DeathLink
     death_link_percent_scrap_lost: DeathLinkScrapLoss
