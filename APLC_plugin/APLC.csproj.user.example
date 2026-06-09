@@ -1,13 +1,9 @@
-<!-- COPY THIS FILE AS 'APLC.csproj.user' AND EDIT THESE SETTINGS -->
 <?xml version="1.0" encoding="utf-8"?>
    <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+      <!-- COPY THIS FILE AS 'APLC.csproj.user' AND EDIT THESE SETTINGS -->
       <PropertyGroup>
          <!-- Set this to the folder that contains 'Lethal Company.exe' -->
          <GameDirectory>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\</GameDirectory>
-
-         <!-- Set these to the folders that contain dlls for LethalAPITerminal and LethalLevelLoader -->
-         <LethalAPITerminalDirectory></LethalAPITerminalDirectory>
-         <LethalLevelLoaderDirectory></LethalLevelLoaderDirectory>
 
          <!-- Set this to the location you want the mod files copied to for testing (usually a profile in a mod manager) -->
          <ModTestDirectory></ModTestDirectory>

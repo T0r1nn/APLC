@@ -7,6 +7,12 @@
         <Version>0.7.11</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
+		<RestoreAdditionalProjectSources>
+			https://api.nuget.org/v3/index.json;
+			https://nuget.bepinex.dev/v3/index.json;
+			https://nuget.samboy.dev/v3/index.json;
+			https://nuget.windows10ce.com/nuget/v3/index.json
+		</RestoreAdditionalProjectSources>
     </PropertyGroup>
     
     <Target Name="NetcodePatch" AfterTargets="PostBuildEvent">
@@ -63,11 +69,7 @@
 		<Reference Include="DunGen">
 			<HintPath>$(ManagedDirectory)DunGen.dll</HintPath>
 		</Reference>
-        <Reference Include="LethalAPI.Terminal.dll">
-            <HintPath>$(LethalAPITerminalDirectory)LethalAPI.Terminal.dll</HintPath>
-        </Reference>
-        <Reference Include="LethalLevelLoader.dll">
-            <HintPath>$(LethalLevelLoaderDirectory)LethalLevelLoader.dll</HintPath>
-        </Reference>
+        <PackageReference Include="LethalAPI-LethalAPI_Terminal" Version="1.*"/>
+        <PackageReference Include="IAmBatby-LethalLevelLoader" Version="1.7.*"/>
     </ItemGroup>
 </Project>
