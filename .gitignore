@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+docs/
+dist/
+APLC_plugin/Thunderstore/*.dll
+*.csproj.user
