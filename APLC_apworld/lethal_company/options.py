@@ -38,7 +38,7 @@ class MoneyPerQuotaCheck(Range):
     For example, if money per quota check is 1000, you need to reach 1000 total quota for each quota check
     """
     display_name = "Money Per Quota Check"
-    range_start = 100
+    range_start = 10
     range_end = 10000
     default = 500
     slot = True
@@ -56,6 +56,20 @@ class NumQuotas(Range):
     default = 20
     slot = True
     slot_name = "numQuota"
+
+
+class QuotaCheckpointEvery(Range):
+    """
+    How many quotas must be completed between each checkpoint unlock event.
+    For example, with num_quotas=20 and quota_checkpoint_every=5, checkpoints
+    fire at quota 5, 10, and 15. Set higher than num_quotas to disable checkpoints entirely.
+    """
+    display_name = "Quota Checkpoint Every"
+    range_start = 1
+    range_end = 50
+    default = 5
+    slot = True
+    slot_name = "quotaCheckpointEvery"
 
 
 class BrackenTrapWeight(Range):
@@ -471,6 +485,7 @@ class LCOptions(PerGameCommonOptions):
     checks_per_moon: ChecksPerMoon #done
     money_per_quota_check: MoneyPerQuotaCheck #done
     num_quotas: NumQuotas #done
+    quota_checkpoint_every: QuotaCheckpointEvery #done
     starting_inventory_slots: StartingInventorySlots #done
     starting_stamina_bars: StartingStaminaBars #done
     randomize_scanner: RandomizeScanner #done
