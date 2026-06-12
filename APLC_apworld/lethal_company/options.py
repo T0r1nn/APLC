@@ -47,6 +47,13 @@ class MoneyPerQuotaCheck(Range):
 
 class NumQuotas(Range):
     """
+    The number of "quota checks". A "quota check" is completed whenever money_per_quota_check-worth
+    of quota is fulfilled. Accumulative over quotas and party wipes.
+
+    Ex: If money_per_quota_check = 70 and first quota is 120, then 1 quota check will be completed when first quota is fulfilled.
+        If second quota is 200, then 3 quota checks will be completed when second quota is fulfilled. 320 total quota has been fulfilled,
+        so a total of 4 quota checks have been completed.
+
     Will not give checks for quotas past this number. For example, if maximum quotas is 10, the 11th quota check will
     not count as a check
     """
@@ -60,9 +67,11 @@ class NumQuotas(Range):
 
 class QuotaCheckpointEvery(Range):
     """
-    How many quotas must be completed between each checkpoint unlock event.
-    For example, with num_quotas=20 and quota_checkpoint_every=5, checkpoints
-    fire at quota 5, 10, and 15. Set higher than num_quotas to disable checkpoints entirely.
+    How many quota checks must be completed between each checkpoint unlock event.
+    With the default of num_quotas=20 and quota_checkpoint_every=5, checkpoints
+    fire at quota 5, 10, and 15. This is useful for ensuring that important early checks are not
+    stuck behind late quota checks. Lower this value if you find yourself too blocked by quota checks
+    before accessing key locations or items. Set higher than num_quotas to disable checkpoints entirely.
     """
     display_name = "Quota Checkpoint Every"
     range_start = 1
