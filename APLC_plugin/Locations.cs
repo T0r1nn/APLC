@@ -18,12 +18,14 @@ public class Quota: Locations
 {
     public readonly int MoneyPerQuotaCheck;
     private readonly int _numQuotas;
+    private readonly int _checkpointEvery;
     public int TotalQuota;
-    public Quota(int moneyPerQuotaCheck, int numQuotas)
+    public Quota(int moneyPerQuotaCheck, int numQuotas, int checkpointEvery)
     {
         Type = "Quota";
         MoneyPerQuotaCheck = moneyPerQuotaCheck;
         _numQuotas = numQuotas;
+        _checkpointEvery = Math.Max(1, checkpointEvery);
         MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"].Initialize(0);
         TotalQuota = MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"];
     }
@@ -47,17 +49,9 @@ public class Quota: Locations
         while ((quotaChecksMet + 1) * MoneyPerQuotaCheck <= TotalQuota && quotaChecksMet < _numQuotas)
         {
             quotaChecksMet++;
-            if (quotaChecksMet == (int)Math.Ceiling(_numQuotas / 4.0) - 1)
+            if (quotaChecksMet % _checkpointEvery == 0 && quotaChecksMet < _numQuotas)
             {
-                SaveManager.CompleteLocation("Quota 25%");
-            }
-            if (quotaChecksMet == (int)Math.Ceiling(_numQuotas / 2.0) - 1)
-            {
-                SaveManager.CompleteLocation("Quota 50%");
-            }
-            if (quotaChecksMet == (int)Math.Ceiling(3.0 * _numQuotas / 4.0) - 1)
-            {
-                SaveManager.CompleteLocation("Quota 75%");
+                SaveManager.CompleteLocation($"Quota checkpoint {quotaChecksMet / _checkpointEvery}");
             }
             SaveManager.CompleteLocation($"Quota check {quotaChecksMet}");
         }
