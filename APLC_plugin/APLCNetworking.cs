@@ -67,16 +67,11 @@ public class APLCNetworking : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void SetTimeUntilDeadlineServerRpc(float time)
-    {
-        SetTimeUntilDeadlineClientRpc(time);
-    }
-
-    [ClientRpc]
-    public void SetTimeUntilDeadlineClientRpc(float time)
+    [Rpc(SendTo.ClientsAndHost)]
+    public void SetTimeUntilDeadlineRpc(float time)
     {
         TimeOfDay.Instance.timeUntilDeadline = time;
+        TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
     }
 
     private void Start()
@@ -129,5 +124,35 @@ public class APLCNetworking : NetworkBehaviour
         Config.FillerTriggersInstantly = fillerInstant;
         Config.DeathLink = deathLink;
         HUDManager.Instance.chatTextField.characterLimit = Config.MaxCharactersPerChatMessage;
+    }
+
+    [Rpc(SendTo.Server)]
+    public void UseFillerServerRpc(string itemName, ulong clientId)
+    {
+        FillerItems fillerToUse = MwState.Instance.GetItemMap<FillerItems>(itemName);
+        if (fillerToUse.GetReceived() > fillerToUse.GetUsed() && fillerToUse.Use())
+        {
+            HUDManager.Instance.DisplayTip("APLC", $"Used '{itemName}'.");
+            SyncClientFillerUsedRpc(itemName, fillerToUse.GetReceived(), fillerToUse.GetUsed());
+        }
+        else
+        {
+            Plugin.Logger.LogDebug($"Player tried to use filler item {itemName}, but there aren't any to use or usage failed.");
+            SyncClientFillerUsedRpc(itemName, fillerToUse.GetReceived(), fillerToUse.GetUsed(), successfulUse: false,
+                rpcParams: RpcTarget.Single(clientId, RpcTargetUse.Temp));
+        }
+
+    }
+
+    [Rpc(SendTo.NotMe, AllowTargetOverride = true)]
+    public void SyncClientFillerUsedRpc(string itemName, int amountReceived, int amountTotal, bool successfulUse = true, RpcParams rpcParams = default)
+    {
+        // on clients, update the item's _received and _total
+        FillerItems fillerToUpdate = MwState.Instance.GetItemMap<FillerItems>(itemName);
+        fillerToUpdate.UpdateUsed(amountReceived, amountTotal);
+        if (successfulUse) 
+            HUDManager.Instance.DisplayTip("APLC", $"Used '{itemName}'.");
+        else 
+            HUDManager.Instance.DisplayTip("APLC", $"Could not use '{itemName}'.");
     }
 }

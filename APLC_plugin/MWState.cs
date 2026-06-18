@@ -314,6 +314,7 @@ public class MwState
      */
     private void CreateItems()
     {
+        Terminal terminal = Plugin.Instance.GetTerminal();
         bool randomizeCompany = false;
         int inventorySlots = 4;
         int staminaBars = 4;
@@ -381,18 +382,26 @@ public class MwState
         //Filler
         _itemMap.Add("Money", new FillerItems("Money", () =>
         {
-            Plugin.Instance.GetTerminal().groupCredits += Random.RandomRangeInt(minMoney, maxMoney);
-            return true;
+            if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
+            {
+                terminal.groupCredits += Random.RandomRangeInt(minMoney, maxMoney);
+                terminal.SyncGroupCreditsServerRpc(terminal.groupCredits, terminal.numberOfItemsInDropship);
+                return true;
+            }
+            return false;
         }, false));
         _itemMap.Add("HauntTrap", new FillerItems("HauntTrap", () => EnemyTrapHandler.SpawnEnemyByName(EnemyType.GhostGirl), true));
         _itemMap.Add("BrackenTrap",
             new FillerItems("BrackenTrap", () => EnemyTrapHandler.SpawnEnemyByName(EnemyType.Bracken), true));
         _itemMap.Add("More Time", new FillerItems("More Time", () =>
         {
-            TimeOfDay.Instance.timeUntilDeadline += TimeOfDay.Instance.totalTime;
-            TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
-            APLCNetworking.Instance.SetTimeUntilDeadlineServerRpc(TimeOfDay.Instance.timeUntilDeadline);
-            return true;
+            if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
+            {
+                TimeOfDay.Instance.timeUntilDeadline += TimeOfDay.Instance.totalTime;
+                APLCNetworking.Instance.SetTimeUntilDeadlineRpc(TimeOfDay.Instance.timeUntilDeadline);
+                return true;
+            }
+            return false;
         }, false));
         _itemMap.Add("Less Time", new FillerItems("Less Time", () =>
         {
@@ -401,45 +410,51 @@ public class MwState
             {
                 TimeOfDay.Instance.timeUntilDeadline += TimeOfDay.Instance.totalTime;
             }
-
-            TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
-            APLCNetworking.Instance.SetTimeUntilDeadlineServerRpc(TimeOfDay.Instance.timeUntilDeadline);
+            APLCNetworking.Instance.SetTimeUntilDeadlineRpc(TimeOfDay.Instance.timeUntilDeadline);
             return true;
         }, true));
         _itemMap.Add("Clone Scrap", new FillerItems("Clone Scrap", () =>
         {
-            var list = (from obj in GameObject.Find("/Environment/HangarShip")
+            if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
+            {
+                var list = (from obj in GameObject.Find("/Environment/HangarShip")
                     .GetComponentsInChildren<GrabbableObject>()
-                        where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
-                        select obj).ToList();
-            Collection<GrabbableObject> objects = new();
-            foreach (var scrap in list)
-            {
-                if (scrap.scrapValue > 0 && scrap.itemProperties.isScrap)
+                            where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
+                            select obj).ToList();
+                Collection<GrabbableObject> objects = new();
+                foreach (var scrap in list)
                 {
-                    objects.Add(scrap);
+                    if (scrap.scrapValue > 0 && scrap.itemProperties.isScrap)
+                    {
+                        objects.Add(scrap);
+                    }
                 }
+
+                if (objects.Count == 0)
+                {
+                    return false;
+                }
+
+                int i = Random.RandomRangeInt(0, objects.Count);
+
+                var gameObject = UnityEngine.Object.Instantiate(objects[i].itemProperties.spawnPrefab,
+                    objects[i].transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
+                gameObject.GetComponent<GrabbableObject>().SetScrapValue(objects[i].scrapValue);
+                gameObject.GetComponentInChildren<NetworkObject>().Spawn();
+                return true;
             }
-
-            if (objects.Count == 0)
-            {
-                return false;
-            }
-
-            int i = Random.RandomRangeInt(0, objects.Count);
-
-            var gameObject = UnityEngine.Object.Instantiate(objects[i].itemProperties.spawnPrefab,
-                objects[i].transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
-            gameObject.GetComponent<GrabbableObject>().SetScrapValue(objects[i].scrapValue);
-            gameObject.GetComponentInChildren<NetworkObject>().Spawn();
-            return true;
+            return false;
         }, false));
         _itemMap.Add("Birthday Gift", new FillerItems("Birthday Gift", () =>
         {
-            Item[] items = Plugin.Instance.GetTerminal().buyableItemsList;
-            int i = Random.RandomRangeInt(0, items.Length);
-            Plugin.Instance.GetTerminal().orderedItemsFromTerminal.Add(i);
-            return true;
+            if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost) { 
+                Item[] items = Plugin.Instance.GetTerminal().buyableItemsList;
+                int i = Random.RandomRangeInt(0, items.Length);
+                Plugin.Instance.GetTerminal().orderedItemsFromTerminal.Add(i);
+                terminal.SyncGroupCreditsClientRpc(terminal.groupCredits, terminal.numberOfItemsInDropship);
+                return true;
+            }
+            return false;
         }, false));
 
     }

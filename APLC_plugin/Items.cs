@@ -10,11 +10,11 @@ namespace APLC;
  */
 public abstract class Items
 {
-    private int _received;
-    private int _total;         
+    protected int _received { get; private set; }
+    protected int _total { get; private set; }
     private int _waiting; 
     private bool _resetAll;
-    private string _name;
+    public string _name { get; private set; }
     protected void Setup(string name, bool resetAll=false)
     {
         _name = name;
@@ -98,9 +98,20 @@ public abstract class Items
 
     protected void SuccessfulUse()
     {
-        _waiting--;
-        _total++;
-        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-"+_name] = _total;
+        if (GameNetworkManager.Instance.localPlayerController.IsHost)
+        {
+            _waiting--;
+            _total++;
+            MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-" + _name] = _total;
+            APLCNetworking.Instance.SyncClientFillerUsedRpc(_name, _received, _total);
+        }
+    }
+
+    public void UpdateUsed(int newReceived = -1, int newTotal = -1)
+    {
+        if (newReceived == -1 || newTotal == -1) return;
+        _received = newReceived;
+        _total = newTotal;
     }
 }
 
@@ -133,6 +144,11 @@ public class FillerItems : Items
         }
         else
         {
+            if (!GameNetworkManager.Instance.localPlayerController.IsHost && _received > _total)
+            {
+                APLCNetworking.Instance.UseFillerServerRpc(_name, GameNetworkManager.Instance.localPlayerController.playerClientId);
+                return true;   // might not want to return true because the terminal will show a successful use even if the host refused the attempt
+            }
             return false;
         }
     }
