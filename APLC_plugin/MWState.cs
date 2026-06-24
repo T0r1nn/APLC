@@ -173,7 +173,7 @@ public class MwState
 
             //Quota
             _locationMap.Add("Quota",
-                new Quota(_apConnection.GetSlotSetting("moneyPerQuotaCheck", 500), _apConnection.GetSlotSetting("numQuota", 20), _apConnection.GetSlotSetting("quotaCheckpointEvery", 5)));
+                new Quota(_apConnection.GetSlotSetting("moneyPerQuotaCheck", 500), _apConnection.GetSlotSetting("numQuota", 20)));
 
             //Bestiary
             foreach (var key in _bestiaryData.Keys)
