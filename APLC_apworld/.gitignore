@@ -1,5 +1,3 @@
-﻿.idea/*
-bin/*
-obj/*
-.vscode/*
-*.sln
+﻿lethal_company/__pycache__/*
+lethal_company/*.pyc
+*.vscode

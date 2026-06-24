@@ -4,3 +4,4 @@ obj/*
 .vs/*
 *.sln
 *.user
+Thunderstore/*.dll
