@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.12
+**<details><summary>Fixes</summary>**
+* filler usage is now properly networked
+* removed unnecessary code for completing quota events (event locations don't exist past generation)
+</details>
+Mod version 0.7.12 works with apworld versions 0.7.11 - 0.7.12.
+
 ## 0.7.11
 **<details><summary>Fixes</summary>**
 * updated logic for v81
@@ -7,6 +14,7 @@
 * fixed a mistake that could spam errors when auto-connecting to a multiworld
 * corrected requirements for sapsucker egg and company building
 </details>
+**This and all newer versions are only compatible with Lethal Company v81 and above. To play on v73, you must downgrade to APLC 0.7.10**
 
 ## 0.7.10
 **<details><summary>Fixes</summary>**
