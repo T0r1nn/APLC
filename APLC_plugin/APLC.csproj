@@ -14,10 +14,14 @@
 			https://nuget.windows10ce.com/nuget/v3/index.json
 		</RestoreAdditionalProjectSources>
     </PropertyGroup>
-    
-    <Target Name="NetcodePatch" AfterTargets="PostBuildEvent">
-        <Exec Command="netcode-patch -uv 2022.3.62 -nv 1.12.0 -tv 1.0.0 &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
-    </Target>
+
+	<Target Name="NetcodePatch" AfterTargets="PostBuildEvent">
+		<PropertyGroup>
+			<NetcodePatcherDepsListFile>$(IntermediateOutputPath)ncp-deps.list</NetcodePatcherDepsListFile>
+		</PropertyGroup>
+		<WriteLinesToFile File="$(NetcodePatcherDepsListFile)" Lines="@(ReferencePathWithRefAssemblies)" Overwrite="true"/>
+		<Exec Command="netcode-patch -uv 2022.3.62 -nv 1.12.2 -tv 1.0.0 &quot;$(TargetPath)&quot; --dependency-file &quot;$(NetcodePatcherDepsListFile)&quot;" />
+	</Target>
 
     <!-- Copies the patched DLL and Archipelago client DLL into the Thunderstore release folder. -->
     <!-- Requires GameDirectory to be defined in APLC.csproj.user (see APLC.csproj.user.example). -->

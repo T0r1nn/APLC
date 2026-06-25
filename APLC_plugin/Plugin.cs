@@ -564,10 +564,8 @@ public class Plugin : BaseUnityPlugin
                 foreach (var method in methods)
                 {
                     var attributes = method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false);
-                    if (attributes.Length > 0)
-                    {
-                        method.Invoke(null, null);
-                    }
+                    if (attributes.Length == 0) continue;
+                    method.Invoke(null, null);
                 }
             }
         }
