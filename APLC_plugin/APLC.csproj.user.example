@@ -3,7 +3,7 @@
       <!-- COPY THIS FILE AS 'APLC.csproj.user' AND EDIT THESE SETTINGS -->
       <PropertyGroup>
          <!-- Set this to the folder that contains 'Lethal Company.exe' -->
-         <GameDirectory>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\</GameDirectory>
+         <GameDirectory>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company</GameDirectory>
 
          <!-- Set this to the location you want the mod files copied to for testing (usually a profile in a mod manager) -->
          <ModTestDirectory></ModTestDirectory>
@@ -11,7 +11,7 @@
 
       <!-- Do Not Modify -->
       <PropertyGroup>
-         <ManagedDirectory>$(GameDirectory)Lethal Company_Data/Managed/</ManagedDirectory>
+         <ManagedDirectory>$(GameDirectory)/Lethal Company_Data/Managed/</ManagedDirectory>
          <ThunderstoreDirectory>$(ProjectDir)Thunderstore\</ThunderstoreDirectory>
       </PropertyGroup>
 
