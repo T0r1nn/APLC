@@ -205,9 +205,9 @@ public class Plugin : BaseUnityPlugin
     public Tuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<Tuple<string, double>>>, Dictionary<string, Collection<Tuple<string, double>>>> GetGameLogic()
     {
         Terminal t = GetTerminal();
-        
+
         String[] vanillaMoonNames = ["experimentation", "assurance", "vow", "adamance", "offense", "march", "embrion", "rend", "dine", "titan", "artifice", "liquidation"];
-        
+
         /*
          * {
          *      moons: [],
@@ -248,7 +248,7 @@ public class Plugin : BaseUnityPlugin
         var store = t.buyableItemsList;
 
         var vehicles = t.buyableVehicles;
-        
+
         var allMoons = StartOfRound.Instance.levels;
 
         int companyMoonsAmount = StartOfRound.Instance.levels.Count(moon => !moon.spawnEnemiesAndScrap);
@@ -265,7 +265,7 @@ public class Plugin : BaseUnityPlugin
             }
             moons[i - skipped] = allMoons[i];
         }
-        
+
         var scrapMap = new Dictionary<string, Collection<Tuple<string, double>>>
         {
             { "Apparatus", new Collection<Tuple<string, double>>() },
@@ -281,6 +281,7 @@ public class Plugin : BaseUnityPlugin
 
             DawnMoonInfo moonInfo = moon.GetDawnInfo(); // can use Item.spawnPrefab.GetComponent<GrabbableObject>().GetType() to check if the item is a LungProp
 
+            // begin scrap --------------------------------------------------------------------------------------------------------------
             Dictionary<string, double> scrapRarityDict = [];
 
             var scrap = moon.spawnableScrap;
@@ -307,13 +308,13 @@ public class Plugin : BaseUnityPlugin
                     int? scrapWeight = itemInfo.ScrapInfo.Weights.GetFor(moonInfo, new SpawnWeightContext(moonInfo, interiorInfo, null));
                     rarity += scrapWeight?? 0 * (int)interiorInfo.Weights.GetFor(moonInfo, ctx: blankContext) / (float)totalInteriorRarity;
                 }
-                totalRarity += rarity;
+                    totalRarity += rarity;
                 if (!scrapRarityDict.TryAdd(item.spawnableItem.itemName, rarity)) 
                 {
                     scrapRarityDict[item.spawnableItem.itemName] += rarity;
                     Plugin.Logger.LogInfo($"scrapRarityDict already has key for Dawn scrap {item.spawnableItem.itemName}. Rarities will be combined.");
+                    }
                 }
-            }
 
             if (LLLCompat.IsLethalLevelLoaderInstalled)
             {
@@ -337,7 +338,7 @@ public class Plugin : BaseUnityPlugin
                 string itemName = item;
                 if (itemName.Contains("AP Apparatus - ") &&
                     moon.PlanetName.Contains(
-                        itemName[new Range(15, itemName.Length)]))    
+                        itemName[new Range(15, itemName.Length)]))
                 {
                     itemName = $"AP Apparatus - {moon.PlanetName}";
                 }else if (itemName.Contains("AP Apparatus - ") && !itemName.Contains("Custom"))
@@ -349,7 +350,7 @@ public class Plugin : BaseUnityPlugin
                 scrapMap.TryAdd(scrapName, new Collection<Tuple<string, double>>());
                 var checkMoons = scrapMap.Get(scrapName);
                 bool existsAlready = false;
-                
+
                 for (var index = 0; index < checkMoons.Count; index++)
                 {
                     var entry = checkMoons[index];
@@ -357,9 +358,6 @@ public class Plugin : BaseUnityPlugin
                     {
                         checkMoons[index] = new Tuple<string, double>(entry.Item1,
                         entry.Item2 + rarity / totalRarity);
-                        /*double probNotSpawned = (totalRarity - rarity) / totalRarity;
-                        double probOfAtLeastTwo = 1 - (rarity / totalRarity * Math.Pow(probNotSpawned, moon.minScrap - 1)) - Math.Pow(probNotSpawned, moon.minScrap);
-                        checkMoons[index] = new Tuple<string, double>(moon.PlanetName, entry.Item2 + probOfAtLeastTwo);*/
                         existsAlready = true;
                     }
                 }
@@ -368,12 +366,10 @@ public class Plugin : BaseUnityPlugin
                 {
                     scrapMap.Get(scrapName)
                         .Add(new Tuple<string, double>(moon.PlanetName, rarity / totalRarity));
-                    /*double probNotSpawned = (totalRarity - rarity) / totalRarity;
-                    double probOfAtLeastTwo = 1 - (rarity / totalRarity * Math.Pow(probNotSpawned, moon.minScrap - 1)) - Math.Pow(probNotSpawned, moon.minScrap);
-                    scrapMap.Get(scrapName)
-                        .Add(new Tuple<string, double>(moon.PlanetName, probOfAtLeastTwo));*/
                 }
             }
+
+            // end scrap -------------------------------------------------------------------------------------------------------------
 
             int totalIntRarity = 0;
             int facilityRarity = 0;
@@ -390,9 +386,9 @@ public class Plugin : BaseUnityPlugin
             {
                 totalIntRarity = 1;
             }
-            scrapMap.Get("Apparatus").Add(new Tuple<string, double>(moon.PlanetName, (double)facilityRarity/totalIntRarity));
+            scrapMap.Get("Apparatus").Add(new Tuple<string, double>(moon.PlanetName, (double)facilityRarity / totalIntRarity));
         }
-        
+
         var bestiaryMap = new Dictionary<string, Collection<Tuple<string, double>>> { };
 
         bestiaryMap.Add("Kidnapper fox", new Collection<Tuple<string, double>>());
@@ -411,7 +407,7 @@ public class Plugin : BaseUnityPlugin
             var daytime = moon.DaytimeEnemies;
             var outside = moon.OutsideEnemies;
             var inside = moon.Enemies;
-            int[] totalRarity = new int[]{0,0,0};
+            int[] totalRarity = new int[] { 0, 0, 0 };
             foreach (var item in daytime)
             {
                 totalRarity[0] += item.rarity;
@@ -462,7 +458,7 @@ public class Plugin : BaseUnityPlugin
                     }
                     catch (Exception)
                     {
-                        Logger.LogWarning($"Daytime enemy {item.enemyType.enemyName} has no scan node. This enemy will not have logic.");
+                        Plugin.Logger.LogWarning($"Daytime enemy {item.enemyType.enemyName} has no scan node. This enemy will not have logic.");
                     }
 
                     if (item.enemyType.enemyName.Contains("Red Locust"))
@@ -511,7 +507,7 @@ public class Plugin : BaseUnityPlugin
                     }
                     catch (Exception)
                     {
-                        Logger.LogWarning($"Outside enemy {item.enemyType.enemyName} has no scan node. This enemy will not have logic.");
+                        Plugin.Logger.LogWarning($"Outside enemy {item.enemyType.enemyName} has no scan node. This enemy will not have logic.");
                     }
                 }
             if (totalRarity[2] > 0)
@@ -553,7 +549,7 @@ public class Plugin : BaseUnityPlugin
                         }
                         catch (Exception)
                         {
-                            Logger.LogWarning($"Indoor enemy {item.enemyType.enemyName} has no scan node. This enemy will not have logic.");
+                            Plugin.Logger.LogWarning($"Indoor enemy {item.enemyType.enemyName} has no scan node. This enemy will not have logic.");
                         }
 
                         if (item.enemyType.enemyName.Contains("Nutcracker"))
@@ -570,7 +566,7 @@ public class Plugin : BaseUnityPlugin
 
         return new Tuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<Tuple<string, double>>>, Dictionary<string, Collection<Tuple<string, double>>>>(store, vehicles, moons, bestiaryMap, scrapMap);
     }
-    
+
     private void NetcodePatch()
     {
         Type[] types = null!;
@@ -595,7 +591,7 @@ public class Plugin : BaseUnityPlugin
                 }
             }
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             Logger.LogError($"NetcodePatcher Failed! This Is Very Bad. \n{ex}");
         }
