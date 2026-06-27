@@ -68,10 +68,8 @@ public static class EnemyTrapHandler
      */
     public static bool SpawnEnemyByName(EnemyType enemyType)
     {
-        if (!StartOfRound.Instance.shipHasLanded || !StartOfRound.Instance.localPlayerController.IsHost || StartOfRound.Instance.allPlayersDead)
-        {
-            return false;
-        }
+        if (!StartOfRound.Instance.shipHasLanded || !StartOfRound.Instance.localPlayerController.IsHost || StartOfRound.Instance.allPlayersDead || 
+            !StartOfRound.Instance.currentLevel.spawnEnemiesAndScrap) return false;
 
         GameObject[] nodes = RoundManager.Instance.insideAINodes;
         if (nodes.Length == 0) return false;
