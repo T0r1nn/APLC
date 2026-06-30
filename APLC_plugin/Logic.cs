@@ -19,7 +19,7 @@ public class Logic
 
     public Logic()
     {
-        Tuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<Tuple<string, double>>>, Dictionary<string, Collection<Tuple<string, double>>>> importedLogic = Plugin.Instance.GetGameLogic();
+        ValueTuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<ValueTuple<string, double>>>, Dictionary<string, Collection<ValueTuple<string, double>>>> importedLogic = Plugin.Instance.GetGameLogic();
         
         Rule canBuy = state =>
             (MultiworldHandler.Instance.GetSlotSetting("randomizeterminal") == 0 || state.Has("Terminal")) &&
@@ -114,13 +114,13 @@ public class Logic
             ? MultiworldHandler.Instance.GetScrapToMoonMap().Keys.ToArray()
             : importedLogic.Item5.Keys.ToArray();
 
-        Dictionary<string, Collection<Tuple<string, double>>> scrapMoons = importedLogic.Item5;
+        Dictionary<string, Collection<ValueTuple<string, double>>> scrapMoons = importedLogic.Item5;
 
         Dictionary<string, string[]> scrapMoonsAlt = MultiworldHandler.Instance.GetSlotSetting("fixscrapsanity") == 1
             ? MultiworldHandler.Instance.GetScrapToMoonMap()
             : new Dictionary<string, string[]>();
 
-        Dictionary<string, Collection<Tuple<string, double>>> bestiaryMoons = importedLogic.Item4;
+        Dictionary<string, Collection<ValueTuple<string, double>>> bestiaryMoons = importedLogic.Item4;
 
         foreach (string key in bestiaryMoons.Keys)
         {
@@ -129,7 +129,7 @@ public class Logic
             Collection<string> allowed = new Collection<string>();
             foreach (string moon in moonNames)
             {
-                foreach (Tuple<string, double> moonRarity in bestiaryMoons[key])
+                foreach (ValueTuple<string, double> moonRarity in bestiaryMoons[key])
                 {
                     if (moonRarity.Item2 > MultiworldHandler.Instance.GetSlotSetting("minmonsterchance", 5)/100f && moonRarity.Item1.Contains(moon))
                     {
@@ -203,7 +203,7 @@ public class Logic
             {
                 foreach (string scrapName in scrapMoons.Keys)
                 {
-                    foreach (Tuple<string, double> data in scrapMoons[scrapName])
+                    foreach (ValueTuple<string, double> data in scrapMoons[scrapName])
                     {
                         foreach (Region moonRegion in _moons)
                         {

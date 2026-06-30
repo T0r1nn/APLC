@@ -57,7 +57,7 @@ namespace APLC
         private static bool TestLogicString()
         {
             var logic = Plugin.Instance.GetGameLogic();
-            Dictionary<string, Collection<Tuple<string, double>>> scrapList = logic.Item5;
+            Dictionary<string, Collection<ValueTuple<string, double>>> scrapList = logic.Item5;
             foreach (var scrap in scrapList.Keys)
             {
                 // check that no weights are NaN or negative
@@ -70,7 +70,7 @@ namespace APLC
                     }
                 }
             }
-            Dictionary<string, Collection<Tuple<string, double>>> bestiaryList = logic.Item4;
+            Dictionary<string, Collection<ValueTuple<string, double>>> bestiaryList = logic.Item4;
             foreach (var monster in bestiaryList.Keys)
             {
                 // check that no weights are NaN or negative

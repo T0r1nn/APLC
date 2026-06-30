@@ -25,8 +25,8 @@ public class MwState
     private ConnectionInfo _connectionInfo;
     private MultiworldHandler _apConnection;
     private SelectableLevel[] _moons;
-    private readonly Dictionary<string, Collection<Tuple<string, double>>> _bestiaryData;
-    private readonly Dictionary<string, Collection<Tuple<string, double>>> _scrapData;
+    private readonly Dictionary<string, Collection<ValueTuple<string, double>>> _bestiaryData;
+    private readonly Dictionary<string, Collection<ValueTuple<string, double>>> _scrapData;
     private readonly Item[] _store;
     private readonly BuyableVehicle[] _vehicles;
     private int _goal;
@@ -267,10 +267,10 @@ public class MwState
                                 {
                                     DawnItemInfo itemInfo = item.spawnableItem.GetDawnInfo();
                                     scrap.Add(item);
-                                    if (itemInfo.ScrapInfo != null) 
+                                    if (itemInfo.ScrapInfo != null)
                                         itemInfo.ScrapInfo.Weights = new ProviderTable<int?, DawnMoonInfo, SpawnWeightContext>([new MatchingKeyWeightContextualProvider<DawnMoonInfo, SpawnWeightContext>(moon.GetDawnInfo().Key.AsTyped<DawnMoonInfo>(), new SimpleWeighted(30))]);
                                     else if (LLLCompat.IsLethalLevelLoaderInstalled && !LLLCompat.OverrideScrapRarity(item, [moon.PlanetName]))
-                                    {
+                                    {     
                                         Plugin.Logger.LogWarning($"Failed to override scrap rarity for {item.spawnableItem.itemName} on {moon.PlanetName}. It will not be added to the indoor scrap pool.");
                                     }
                                 }
@@ -894,7 +894,7 @@ public class MwState
         DLMessage = link.Cause;
     }
 
-    public Dictionary<string,Collection<Tuple<string,double>>> GetScrapData()
+    public Dictionary<string,Collection<ValueTuple<string,double>>> GetScrapData()
     {
         return _scrapData;
     }
