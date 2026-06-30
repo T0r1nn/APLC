@@ -36,15 +36,14 @@ def get_default_location_map():
         "Work"
     ]
 
-    bestiary_names = [[key for key in monster.keys()][0] for monster in data["bestiary"]]
+    bestiary_names = [monster for monster in data["bestiary"]]
 
     moons = [moon for moon in data.get("moons")]
 
     scrap_names = []
 
     for item in data["scrap"]:
-        key = [key for key in item.keys()][0]
-        scrap_names.append(key)
+        scrap_names.append(item)
 
     for moon in moons:
         if not f"AP Apparatus - {moon}" in scrap_names:
@@ -87,23 +86,21 @@ def generate_locations(world: "LethalCompanyWorld"):
 
     #world.bestiary_names = [[key for key in monster.keys() if any(moon["chance"] > 0 for moon in monster[key])][0] for monster in world.imported_data["bestiary"]]
     world.bestiary_names = []
-    for monster in world.imported_data["bestiary"]:
-        key = [key for key in monster.keys()][0]
-        if any(moon["chance"] > 0 for moon in monster[key]):
-            world.bestiary_names.append(key)
+    for monster, spawn_locations in world.imported_data["bestiary"].items():
+        if any(moon["chance"] > 0 for moon in spawn_locations):
+            world.bestiary_names.append(monster)
 
     moons = [moon for moon in world.imported_data.get("moons")]
 
     world.scrap_names = []
     removed_scrap = []
 
-    for item in world.imported_data["scrap"]:
-        key = [key for key in item.keys()][0]
+    for item, spawn_locations in world.imported_data["scrap"].items():
         # check if the scrap can be found on at least one moon, and add it if so
-        if any(moon["chance"] > 0 for moon in item[key]):
-            world.scrap_names.append(key)
+        if any(moon["chance"] > 0 for moon in spawn_locations):
+            world.scrap_names.append(item)
         else: 
-            removed_scrap.append(key)
+            removed_scrap.append(item)
 
     if len(removed_scrap) > 0:
         import logging
@@ -140,21 +137,19 @@ def generate_bestiary_moons(world: "LethalCompanyWorld", chance: float) -> Dict[
 
     }
 
-    bestiary_data = world.imported_data["bestiary"]
-    for entry in bestiary_data:
-        key = [key for key in entry.keys()][0]
+    for monster, spawn_locations in world.imported_data["bestiary"].items():
         b_moons = []
-        for moon in entry[key]:
+        for moon in spawn_locations:
             if moon["chance"] >= chance:
                 b_moons.append(moon["moon_name"])
         if b_moons == []:
-                best_moon = max(entry[key], key=lambda moon_spawns: moon_spawns["chance"])
+                best_moon = max(spawn_locations, key=lambda moon_spawns: moon_spawns["chance"])
                 if best_moon["chance"] > 0:
                     b_moons.append(best_moon["moon_name"])    # ensures that the location is still 'accessible' as long as it can be found SOMEWHERE
                     b_moons.append("excluded")     # special indicator that this location should be excluded
                 else:
                     continue            # if the item isn't found ANYWHERE, don't add it
-        bestiary_moons[key] = b_moons
+        bestiary_moons[monster] = b_moons
 
     return bestiary_moons
 
@@ -177,21 +172,19 @@ def generate_scrap_moons(world: "LethalCompanyWorld", chance: float) -> Dict[str
 
     }
 
-    scrap_data = world.imported_data["scrap"]
-    for entry in scrap_data:
-        key = [key for key in entry.keys()][0]
+    for item, spawn_locations in world.imported_data["scrap"].items():
         s_moons = []
-        for moon in entry[key]:
+        for moon in spawn_locations:
             if moon["chance"] >= chance:
                 s_moons.append(moon["moon_name"])
         if s_moons == []:
-            best_moon = max(entry[key], key=lambda moon_spawns: moon_spawns["chance"])
+            best_moon = max(spawn_locations, key=lambda moon_spawns: moon_spawns["chance"])
             if best_moon["chance"] > 0:
                 s_moons.append(best_moon["moon_name"])    # ensures that the location is still 'accessible' as long as it can be found SOMEWHERE
                 s_moons.append("excluded")     # special indicator that this location should be excluded
             else:
                 continue            # if the item isn't found ANYWHERE, don't add it
-        scrap_moons[key] = s_moons
+        scrap_moons[item] = s_moons
 
     return scrap_moons
 
