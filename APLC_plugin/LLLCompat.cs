@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using BepInEx.Bootstrap;
 using DunGen.Graph;
@@ -9,13 +9,33 @@ using Steamworks.Ugc;
 
 namespace APLC
 {
-    internal class LLLCompat
+    public static class LLLCompat
     {
-        public static bool IsLethalLevelLoaderInstalled => Chainloader.PluginInfos.ContainsKey(LethalLevelLoader.Plugin.ModGUID);
+        private static bool? _enabled;
 
+        public static bool IsLethalLevelLoaderInstalled {
+            get {
+                if (_enabled == null) 
+                {
+                    _enabled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(LethalLevelLoader.Plugin.ModGUID);
+                }
+                return (bool) _enabled;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         public static double GetDynamicRarityForAllDungeons(Item item, SelectableLevel moon, int totalInteriorRarity)
         {
-            var extItem = LethalLevelLoader.PatchedContent.ExtendedItems.Find(extItem => extItem.Item.Equals(item));
+            ExtendedItem extItem = null;
+            foreach (var exitem in LethalLevelLoader.PatchedContent.ExtendedItems)
+            {
+                if (exitem.Item.Equals(item))
+                {
+                    extItem = exitem;
+                    break;
+                }
+            }
+
             if (extItem == null) return 0;
             double rarity = 0;
             foreach (var interior in LethalLevelLoader.DungeonManager.GetValidExtendedDungeonFlows(LethalLevelLoader.LevelManager.GetExtendedLevel(moon), false))
@@ -26,13 +46,55 @@ namespace APLC
             return rarity;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         public static int GetRarityOfScrapForThisDungeon(Item item, SelectableLevel moon, DungeonFlow dungeon)
         {
-            var extItem = LethalLevelLoader.PatchedContent.ExtendedItems.Find(extItem => extItem.Item.Equals(item));
+            ExtendedItem extItem = null;
+            foreach (var exitem in LethalLevelLoader.PatchedContent.ExtendedItems)
+            {
+                if (exitem.Item.Equals(item))
+                {
+                    extItem = exitem;
+                    break;
+                }
+            }
             if (extItem == null) return 0;
-            ExtendedDungeonFlowWithRarity matchingDungeon = LethalLevelLoader.DungeonManager.GetValidExtendedDungeonFlows(LethalLevelLoader.LevelManager.GetExtendedLevel(moon), false).FirstOrDefault(interior => interior.extendedDungeonFlow.DungeonFlow.Equals(dungeon));
+            ExtendedDungeonFlowWithRarity matchingDungeon = null;
+            foreach (var interior in LethalLevelLoader.DungeonManager.GetValidExtendedDungeonFlows(LethalLevelLoader.LevelManager.GetExtendedLevel(moon), false))
+            {
+                if (interior.extendedDungeonFlow.DungeonFlow.Equals(dungeon))
+                {
+                    matchingDungeon = interior;
+                    break;
+                }
+            }
             if (matchingDungeon == null) return 0;
             return extItem.DungeonMatchingProperties.GetDynamicRarity(matchingDungeon.extendedDungeonFlow);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        public static bool OverrideScrapRarity(SpawnableItemWithRarity item, IEnumerable<string> moonNames, int newRarity = 30)
+        {
+            ExtendedItem extItem = null;
+            foreach (var exitem in LethalLevelLoader.PatchedContent.ExtendedItems)
+            {
+                if (exitem.Item.Equals(item))
+                {
+                    extItem = exitem;
+                    break;
+                }
+            }
+            if (extItem == null) return false;
+            LethalLevelLoader.LevelMatchingProperties newProperties = LethalLevelLoader.LevelMatchingProperties.Create(extItem);
+            List<LethalLevelLoader.StringWithRarity> moonsFoundOn = new();
+            foreach (var moonName in moonNames)
+            {
+                moonsFoundOn.Add(new LethalLevelLoader.StringWithRarity(moonName, newRarity));
+            }
+            newProperties.ApplyValues(newPlanetNames: moonsFoundOn);
+            extItem.SetLevelMatchingProperties(newProperties);
+            extItem.DungeonMatchingProperties = LethalLevelLoader.DungeonMatchingProperties.Create(extItem);
+            return true;
         }
     }
 }
