@@ -73,7 +73,7 @@ namespace APLC
         }
 
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        public static bool OverrideScrapRarity(SpawnableItemWithRarity item, IEnumerable<string> moonNames, int newRarity = 30)
+        public static bool OverrideScrapRarity(Item item, IEnumerable<string> moonNames, int newRarity = 30)
         {
             ExtendedItem extItem = null;
             foreach (var exitem in LethalLevelLoader.PatchedContent.ExtendedItems)

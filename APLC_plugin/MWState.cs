@@ -269,7 +269,7 @@ public class MwState
                                     scrap.Add(item);
                                     if (itemInfo.ScrapInfo != null)
                                         itemInfo.ScrapInfo.Weights = new ProviderTable<int?, DawnMoonInfo, SpawnWeightContext>([new MatchingKeyWeightContextualProvider<DawnMoonInfo, SpawnWeightContext>(moon.GetDawnInfo().Key.AsTyped<DawnMoonInfo>(), new SimpleWeighted(30))]);
-                                    else if (LLLCompat.IsLethalLevelLoaderInstalled && !LLLCompat.OverrideScrapRarity(item, [moon.PlanetName]))
+                                    else if (LLLCompat.IsLethalLevelLoaderInstalled && !LLLCompat.OverrideScrapRarity(item.spawnableItem, [moon.PlanetName]))
                                     {     
                                         Plugin.Logger.LogWarning($"Failed to override scrap rarity for {item.spawnableItem.itemName} on {moon.PlanetName}. It will not be added to the indoor scrap pool.");
                                     }
@@ -322,7 +322,7 @@ public class MwState
                     DawnItemInfo itemInfo = kvp.Key.spawnableItem.GetDawnInfo();
                     if (itemInfo.ScrapInfo != null)
                         itemInfo.ScrapInfo.Weights = new ProviderTable<int?, DawnMoonInfo, SpawnWeightContext>([new HasTagWeightContextualProvider<DawnMoonInfo, SpawnWeightContext>(Tags.All, new SimpleWeighted(30))]);
-                    else if (LLLCompat.IsLethalLevelLoaderInstalled && !LLLCompat.OverrideScrapRarity(kvp.Key, kvp.Value))
+                    else if (LLLCompat.IsLethalLevelLoaderInstalled && !LLLCompat.OverrideScrapRarity(kvp.Key.spawnableItem, kvp.Value))
                     {
                         Plugin.Logger.LogWarning($"Failed to override scrap rarity for {kvp.Key.spawnableItem.itemName}. It will not be added to the common indoor scrap pool.");
                     }
