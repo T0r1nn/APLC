@@ -200,7 +200,8 @@ public class Patches
     }
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(StartOfRound), "Start")]
+    [HarmonyPriority(Priority.VeryLow)]
+    [HarmonyPatch(typeof(Terminal), "Start")]
     public static void GetArchiInfoFromFile(StartOfRound __instance)
     {
         if (__instance.IsServer)
@@ -236,7 +237,8 @@ public class Patches
     }
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(StartOfRound), "Start")]
+    [HarmonyPriority(50)]
+    [HarmonyPatch(typeof(Terminal), "Start")]
     public static void SetStartingMoon(StartOfRound __instance)
     {
         if (MultiworldHandler.Instance == null || !ES3.KeyExists("APStartingMoon", GameNetworkManager.Instance.currentSaveFileName)) return;
