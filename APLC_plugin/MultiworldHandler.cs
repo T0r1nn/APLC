@@ -485,11 +485,11 @@ public class MultiworldHandler
         _session.Socket.SendPacket(victory);
     }
 
-    public void HandleDeathLink()
+    public void HandleDeathLink(string causeOfDeath)
     {
         if (deathLink)
             _dlService.SendDeathLink(new DeathLink(_session.Players.GetPlayerName(_slotInfo.Slot),
-                $"{_session.Players.GetPlayerName(_slotInfo.Slot)} failed the company."));
+                $"{_session.Players.GetPlayerName(_slotInfo.Slot)} {causeOfDeath}"));
     }
 
     public void Tick(AplcEventArgs args)

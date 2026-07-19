@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -449,13 +450,29 @@ public class Patches
      * Checks deathlink, checks for moon checks, and checks for victory
      */
     [HarmonyPostfix]
+    [HarmonyAfter(["com.elitemastereric.coroner"])]
     [HarmonyPatch(typeof(HUDManager), "FillEndGameStats")]
     private static void GradingPostfix()
     {
         if (MultiworldHandler.Instance == null) return;
         var grade = HUDManager.Instance.statsUIElements.gradeLetter.text;
         var dead = StartOfRound.Instance.allPlayersDead;
-        if (dead && !MwState.Instance.IgnoreDL) MultiworldHandler.Instance.HandleDeathLink();
+        if (dead && !MwState.Instance.IgnoreDL)
+        {
+            // this is just for fun
+            string causeOfDeath = "Failed the company.";
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.elitemastereric.coroner"))
+            {
+                List<string> filledNotes = [];
+                for (int i = 0; i < HUDManager.Instance.statsUIElements.playerNotesText.Length; i++)
+                {
+                    if (HUDManager.Instance.statsUIElements.playerNotesText[i].text == null || HUDManager.Instance.statsUIElements.playerNotesText[i].text.Equals("")) continue;
+                    filledNotes.Add(HUDManager.Instance.statsUIElements.playerNotesText[i].text);
+                    if (filledNotes.Count > 0) causeOfDeath = filledNotes[UnityEngine.Random.Range(0, filledNotes.Count)];
+                }
+            }
+            MultiworldHandler.Instance.HandleDeathLink(causeOfDeath);
+        }
         if (dead) MwState.Instance.IgnoreDL = false;
 
         ((MoonLocations)MwState.Instance.GetLocationMap(StartOfRound.Instance.currentLevel.PlanetName)).OnFinishMoon(StartOfRound.Instance.currentLevel.PlanetName, grade);
