@@ -364,7 +364,6 @@ public class Plugin : BaseUnityPlugin
             if (Double.IsNaN((double)facilityRarity / totalIntRarity))
             {
                 totalIntRarity = 1;
-                facilityRarity = 1;
             }
             scrapMap.Get("Apparatus").Add(new Tuple<string, double>(moon.PlanetName, (double)facilityRarity/totalIntRarity));
         }
