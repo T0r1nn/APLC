@@ -220,8 +220,10 @@ public class MwState
                 foreach (DawnItemInfo itemInfo in LethalContent.Items.Values)
                 {
                     string itemName = null;
-                    if (itemInfo.ScrapInfo != null)
+                    if (itemInfo.ScrapInfo != null && itemInfo.Item.isScrap)     // isDefensiveWeapon seems like a convenient solution, but some scrap like the Whack-a-Noodle have this property set to true
                     {
+                        if (itemInfo.Item.itemName.Equals("Egg") || itemInfo.Item.itemName.Equals("Hive") || itemInfo.Item.itemName.Equals("Apparatus") || 
+                            itemInfo.Item.itemName.Equals("Shotgun") || itemInfo.Item.itemName.Equals("Kitchen knife")) continue;
                         itemName = itemInfo.Item.name.Contains("ap_apparatus_")
                                 ? itemInfo.Item.name
                                 : itemInfo.Item.itemName;
@@ -230,8 +232,9 @@ public class MwState
                 }
                 if (LLLCompat.IsLethalLevelLoaderInstalled)
                 {
-                    foreach (Item item in LethalContent.Items.Values.Where(item => item.ShopInfo == null && item.ScrapInfo == null).Select(itemInfo => itemInfo.Item))
+                    foreach (Item item in LethalContent.Items.Values.Where(item => item.ShopInfo == null && item.ScrapInfo == null && item.Item.isScrap).Select(itemInfo => itemInfo.Item))
                     {
+                        if (item.itemName.Equals("Egg") || item.itemName.Equals("Hive") || item.itemName.Equals("Apparatus") || item.itemName.Equals("Shotgun") || item.itemName.Equals("Kitchen knife")) continue;
                         foreach (var moon in _moons)
                         {
                             double rarity = LLLCompat.GetDynamicRarityForAllDungeons(item, moon, 1);
@@ -243,7 +246,7 @@ public class MwState
                     }
                 }
 
-                Dictionary<SpawnableItemWithRarity, List<string>> commonScrapToMoonMap = [];
+                Dictionary<SpawnableItemWithRarity, List<SelectableLevel>> commonScrapToMoonMap = [];
 
                 foreach (var moon in _moons)
                 {
@@ -269,20 +272,20 @@ public class MwState
                                     scrap.Add(item);
                                     if (itemInfo.ScrapInfo != null)
                                         itemInfo.ScrapInfo.Weights = new ProviderTable<int?, DawnMoonInfo, SpawnWeightContext>([new MatchingKeyWeightContextualProvider<DawnMoonInfo, SpawnWeightContext>(moon.GetDawnInfo().Key.AsTyped<DawnMoonInfo>(), new SimpleWeighted(30))]);
-                                    else if (LLLCompat.IsLethalLevelLoaderInstalled && !LLLCompat.OverrideScrapRarity(item.spawnableItem, [moon.PlanetName]))
+                                    else if (LLLCompat.IsLethalLevelLoaderInstalled && !LLLCompat.OverrideScrapRarity(item.spawnableItem, [moon]))
                                     {     
                                         Plugin.Logger.LogWarning($"Failed to override scrap rarity for {item.spawnableItem.itemName} on {moon.PlanetName}. It will not be added to the indoor scrap pool.");
                                     }
                                 }
                                 else
                                 {
-                                    Plugin.Logger.LogWarning($"The given key '{keyName}' was not present in scrapNameToScrapMap when modifying scrap spawns for {moon.PlanetName}. Unless this is an AP Apparatus, it will not be added to the indoor scrap pool.");
                                     if (scrapName.Contains("AP Apparatus"))
                                     {
                                         item = scrapNameToScrapMap["ap_apparatus_custom"];
                                         scrap.Add(item);
-
                                     }
+                                    else
+                                        Plugin.Logger.LogWarning($"The given key '{keyName}' was not present in scrapNameToScrapMap when modifying scrap spawns for {moon.PlanetName}. It will not be added to the indoor scrap pool.");
                                 }
                             }
                             else if (scrapToMoonMap[scrapName].Any(moonName => "Common".Contains(moonName)))
@@ -293,7 +296,7 @@ public class MwState
                                     continue;
                                 }
                                 if (!commonScrapToMoonMap.ContainsKey(item)) commonScrapToMoonMap[item] = [];
-                                commonScrapToMoonMap[item].Add(moon.PlanetName);
+                                commonScrapToMoonMap[item].Add(moon);
                                 scrap.Add(item);
                             }
                         }
@@ -317,7 +320,7 @@ public class MwState
                 }
 
                 // for Dawn and LLL compat
-                foreach (KeyValuePair<SpawnableItemWithRarity, List<string>> kvp in commonScrapToMoonMap)
+                foreach (KeyValuePair<SpawnableItemWithRarity, List<SelectableLevel>> kvp in commonScrapToMoonMap)
                 {
                     DawnItemInfo itemInfo = kvp.Key.spawnableItem.GetDawnInfo();
                     if (itemInfo.ScrapInfo != null)

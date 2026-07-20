@@ -25,7 +25,7 @@ namespace APLC
         }
 
         public static void AddScrapSpawnProbabilitiesForThisMoon(SelectableLevel moon,
-            ref Dictionary<string, Collection<Tuple<string, double>>> scrapMap)
+            ref Dictionary<string, Collection<ValueTuple<string, double>>> scrapMap)
         {
             if (!moon.spawnEnemiesAndScrap || moon.PlanetName.Contains("Liquidation")) return;
 
@@ -51,6 +51,7 @@ namespace APLC
 
             foreach (var item in scrap)
             {
+                if (!item.spawnableItem.isScrap) continue;
                 if (item.rarity > 0)
                 {
                     totalRarity += item.rarity;
@@ -81,7 +82,7 @@ namespace APLC
 
             if (LLLCompat.IsLethalLevelLoaderInstalled)
             {
-                foreach (Item item in LethalContent.Items.Values.Where(item => item.ShopInfo == null && item.ScrapInfo == null).Select(itemInfo => itemInfo.Item))
+                foreach (Item item in LethalContent.Items.Values.Where(item => item.ShopInfo == null && item.ScrapInfo == null && item.Item.isScrap).Select(itemInfo => itemInfo.Item))
                 {
                     bool foundSomewhere = false;
                     foreach (var interiorInfo in interiors)
@@ -122,7 +123,7 @@ namespace APLC
                 }
 
                 string scrapName = itemName.Equals("AP Apparatus - Custom") ? $"AP Apparatus - {moon.PlanetName}" : itemName;
-                scrapMap.TryAdd(scrapName, new Collection<Tuple<string, double>>());
+                scrapMap.TryAdd(scrapName, new Collection<ValueTuple<string, double>>());
                 var checkMoons = scrapMap.Get(scrapName);
                 double probOfAtLeastOne = GetProbOfAtLeastOneScrap(scrapItem, moonInfo, totalRarity, totalInteriorRarity, totalExtraRaritiesForInteriors);
                 bool existsAlready = false;
@@ -132,14 +133,14 @@ namespace APLC
                     var entry = checkMoons[index];
                     if (entry.Item1 == moon.PlanetName)
                     {
-                        checkMoons[index] = new Tuple<string, double>(entry.Item1, entry.Item2 + probOfAtLeastOne);
+                        checkMoons[index] = new ValueTuple<string, double>(entry.Item1, entry.Item2 + probOfAtLeastOne);
                         existsAlready = true;
                     }
                 }
 
                 if (!existsAlready)
                 {
-                    scrapMap.Get(scrapName).Add(new Tuple<string, double>(moon.PlanetName, probOfAtLeastOne));
+                    scrapMap.Get(scrapName).Add(new ValueTuple<string, double>(moon.PlanetName, probOfAtLeastOne));
                 }
             }
 
@@ -159,9 +160,8 @@ namespace APLC
             if (Double.IsNaN((double)facilityRarity / totalIntRarity))
             {
                 totalIntRarity = 1;
-                facilityRarity = 1;
             }
-            scrapMap.Get("Apparatus").Add(new Tuple<string, double>(moon.PlanetName, (double)facilityRarity / totalIntRarity));
+            scrapMap.Get("Apparatus").Add(new ValueTuple<string, double>(moon.PlanetName, (double)facilityRarity / totalIntRarity));
         }
 
         internal static double GetProbOfAtLeastOneScrap(Item scrapItem, DawnMoonInfo moonInfo, int totalRegularScrapRarity, int totalInteriorRarity, Dictionary<DawnDungeonInfo, int> interiorExtraRarityMap)
