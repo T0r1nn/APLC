@@ -38,9 +38,11 @@ namespace APLC
 
             if (extItem == null) return 0;
             double rarity = 0;
+            int rarityOnMoon = extItem.LevelMatchingProperties.GetDynamicRarity(LethalLevelLoader.LevelManager.GetExtendedLevel(moon));
             foreach (var interior in LethalLevelLoader.DungeonManager.GetValidExtendedDungeonFlows(LethalLevelLoader.LevelManager.GetExtendedLevel(moon), false))
             {
                 int scrapWeight = extItem.DungeonMatchingProperties.GetDynamicRarity(interior.extendedDungeonFlow);
+                if (scrapWeight == 0) scrapWeight = rarityOnMoon;
                 if (scrapWeight > 0) rarity += scrapWeight * ((double)interior.rarity / Math.Max(totalInteriorRarity, interior.rarity));
             }
             return rarity;
@@ -73,7 +75,23 @@ namespace APLC
         }
 
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        public static bool OverrideScrapRarity(Item item, IEnumerable<string> moonNames, int newRarity = 30)
+        public static int GetRarityOfScrapForThisMoon(Item item, SelectableLevel moon)
+        {
+            ExtendedItem extItem = null;
+            foreach (var candidateItem in LethalLevelLoader.PatchedContent.ExtendedItems)
+            {
+                if (candidateItem.Item.Equals(item))
+                {
+                    extItem = candidateItem;
+                    break;
+                }
+            }
+            if (extItem == null) return 0;
+            return extItem.LevelMatchingProperties.GetDynamicRarity(LethalLevelLoader.LevelManager.GetExtendedLevel(moon));
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        public static bool OverrideScrapRarity(Item item, IEnumerable<SelectableLevel> moons, int newRarity = 30)
         {
             ExtendedItem extItem = null;
             foreach (var exitem in LethalLevelLoader.PatchedContent.ExtendedItems)
@@ -87,9 +105,9 @@ namespace APLC
             if (extItem == null) return false;
             LethalLevelLoader.LevelMatchingProperties newProperties = LethalLevelLoader.LevelMatchingProperties.Create(extItem);
             List<LethalLevelLoader.StringWithRarity> moonsFoundOn = new();
-            foreach (var moonName in moonNames)
+            foreach (var moon in moons)
             {
-                moonsFoundOn.Add(new LethalLevelLoader.StringWithRarity(moonName, newRarity));
+                moonsFoundOn.Add(new LethalLevelLoader.StringWithRarity(LethalLevelLoader.LevelManager.GetExtendedLevel(moon).NumberlessPlanetName, newRarity));
             }
             newProperties.ApplyValues(newPlanetNames: moonsFoundOn);
             extItem.SetLevelMatchingProperties(newProperties);

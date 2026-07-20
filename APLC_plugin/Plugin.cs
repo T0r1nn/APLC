@@ -228,6 +228,7 @@ public class Plugin : BaseUnityPlugin
 
             foreach (var item in scrap)
             {
+                if (!item.spawnableItem.isScrap) continue;
                 if (item.rarity > 0)
                 {
                     totalRarity += item.rarity;
@@ -250,7 +251,7 @@ public class Plugin : BaseUnityPlugin
 
             if (LLLCompat.IsLethalLevelLoaderInstalled)
             {
-                foreach (Item item in LethalContent.Items.Values.Where(item => item.ShopInfo == null && item.ScrapInfo == null).Select(itemInfo => itemInfo.Item))
+                foreach (Item item in LethalContent.Items.Values.Where(item => item.ShopInfo == null && item.ScrapInfo == null && item.Item.isScrap).Select(itemInfo => itemInfo.Item))
                 {
                     double rarity = LLLCompat.GetDynamicRarityForAllDungeons(item, moon, totalInteriorRarity);
                     if (rarity > 0)
