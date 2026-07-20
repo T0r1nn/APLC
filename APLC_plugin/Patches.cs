@@ -61,7 +61,9 @@ public class Patches
     private static void Sprint(PlayerControllerB __instance)
     {
         if (MultiworldHandler.Instance == null) return;
-        int staminaChecks = ((PlayerUpgrades)MwState.Instance.GetItemMap("Stamina Bar")).GetNum();
+        PlayerUpgrades stamItems = (PlayerUpgrades)MwState.Instance.GetItemMap("Stamina Bar");
+        if (stamItems == null) return;
+        int staminaChecks = stamItems.GetNum();
         if (staminaChecks == 1)
         {
             __instance.sprintMeter = Mathf.Min(__instance.sprintMeter, 0.35f);

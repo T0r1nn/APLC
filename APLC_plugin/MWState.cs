@@ -664,7 +664,7 @@ public class MwState
 
         if (GetGoal() == 2)
         {
-            if(GetItemMap("Company Credit").GetTotal() >= _apConnection.GetSlotSetting("companycreditsgoal"))
+            if(GetItemMap("Company Credit").GetTotal() >= _apConnection.GetSlotSetting("companycreditsgoal") && _apConnection.IsConnected())
             {
                 _apConnection.Victory();
             }
