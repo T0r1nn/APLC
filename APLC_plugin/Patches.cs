@@ -427,11 +427,18 @@ public class Patches
      * Handles the getting of quota checks
      */
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(StartOfRound), "EndOfGame")]
-    private static void RoundEndPrefix(StartOfRound __instance)
+    [HarmonyPriority(Priority.VeryLow)]
+    [HarmonyPatch(typeof(TimeOfDay), nameof(TimeOfDay.SetNewProfitQuota))]
+    private static void SetNewProfitQuotaPrefix(TimeOfDay __instance, out int __state)
     {
-        if (MultiworldHandler.Instance == null) return;
-        MwState.Instance.GetLocationMap("Quota").CheckComplete();
+        __state = __instance.profitQuota;
+    }
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(TimeOfDay), nameof(TimeOfDay.SetNewProfitQuota))]
+    private static void SetNewProfitQuotaPostfix(TimeOfDay __instance, int __state)
+    {
+        if (MultiworldHandler.Instance == null || __instance.profitQuota <= __state) return;    // quota didn't change, so it wasn't fulfilled
+        ((Quota)MwState.Instance.GetLocationMap("Quota")).CheckComplete(__state);
     }
 
     /**

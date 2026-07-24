@@ -33,16 +33,17 @@ public class Quota: Locations
         return $"({Math.Min(TotalQuota/MoneyPerQuotaCheck, _numQuotas)}/{_numQuotas})";
     }
 
+    public override void CheckComplete() { }
+
     /** 
      * Checks if the quota has been met and increments the total money earned towards quotas.
      * If the total money earned meets the threshold for a quota check, marks the corresponding location as complete.
      */
-    public override void CheckComplete()
+    public void CheckComplete(int profitQuotaCompleted)
     {
         if (!GameNetworkManager.Instance.localPlayerController.IsHost) return;
-        if (!(TimeOfDay.Instance.profitQuota - TimeOfDay.Instance.quotaFulfilled <= 0f)) return;
         var quotaChecksMet = 0;
-        TotalQuota += TimeOfDay.Instance.profitQuota;
+        TotalQuota += profitQuotaCompleted;
         MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"] = TotalQuota;
         while ((quotaChecksMet + 1) * MoneyPerQuotaCheck <= TotalQuota && quotaChecksMet < _numQuotas)
         {
