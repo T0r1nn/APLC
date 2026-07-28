@@ -14,8 +14,18 @@
 			https://nuget.windows10ce.com/nuget/v3/index.json
 		</RestoreAdditionalProjectSources>
     </PropertyGroup>
-    
-    <Target Name="NetcodePatch" AfterTargets="PostBuildEvent">
+	<!-- Embed Debug Symbols for Easier Debugging -->
+	<PropertyGroup>
+		<DebugSymbols>true</DebugSymbols>
+		<DebugType>embedded</DebugType>
+		<!--
+        Trim the project path to prevent players from potentially
+        viewing Private Information in stack traces.
+        -->
+		<PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
+	</PropertyGroup>
+
+	<Target Name="NetcodePatch" AfterTargets="PostBuildEvent">
         <Exec Command="netcode-patch -uv 2022.3.62 -nv 1.12.0 -tv 1.0.0 &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
     </Target>
 
