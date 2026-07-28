@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Packets;
@@ -473,7 +474,7 @@ public class Patches
             }
             MultiworldHandler.Instance.HandleDeathLink(causeOfDeath);
         }
-        if (dead) MwState.Instance.IgnoreDL = false;
+        //if (dead) MwState.Instance.IgnoreDL = false;
 
         ((MoonLocations)MwState.Instance.GetLocationMap(StartOfRound.Instance.currentLevel.PlanetName)).OnFinishMoon(StartOfRound.Instance.currentLevel.PlanetName, grade);
 
@@ -703,5 +704,59 @@ public class Patches
                 break;
             }
         }
+    }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch(typeof(RoundManager), nameof(RoundManager.DespawnPropsAtEndOfRound))]
+    static IEnumerable<CodeInstruction> ReduceScrapDespawnedWhenDeathLink_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        // ShouldRemoveScrap takes a reference to the list of GrabbableObjects to destroy
+        // get a list of every GrabbableObject in the ship
+        // randomly remove option% of those items from the list
+        // remove the remaining items from the referenced list
+        List<CodeInstruction> codes = instructions.ToList();
+        MethodInfo findGrabbableObjects = AccessTools.Method(typeof(UnityEngine.Object), nameof(UnityEngine.Object.FindObjectsOfType), new Type[] { }, new Type[] { typeof(GrabbableObject) });
+        for (int i = 1; i < codes.Count; i++)
+        {
+            if (codes[i].opcode == OpCodes.Stloc_0 && codes[i-1].opcode == OpCodes.Call && (MethodInfo)codes[i - 1].operand == findGrabbableObjects)
+            {
+                codes.Insert(i + 1, new CodeInstruction(OpCodes.Ldloca, 0));
+                codes.Insert(i + 2, new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Patches), nameof(Patches.ProtectScrapFromDeathLink))));
+                return codes;
+            }
+        }
+
+        return instructions;
+        }
+
+    static void ProtectScrapFromDeathLink(ref GrabbableObject[] potentialScrapList)
+    {
+        if (MultiworldHandler.Instance == null || MwState.Instance == null || !MwState.Instance.IgnoreDL) return;
+        float scrapLosePercent = MultiworldHandler.Instance.GetSlotSetting("DeathLinkScrapLossPercent", 50) / 100.0f;
+        GameObject cruiser = GameObject.FindObjectsByType<VehicleController>(sortMode: FindObjectsSortMode.None).FirstOrDefault(vehicle => vehicle.magnetedToShip)?.gameObject;
+        bool hasCruiser = cruiser != null;
+
+        var list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()
+                    where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem" && obj.name != "RagdollGrabbableObject(Clone)" && obj.itemProperties.isScrap
+                    select obj).Union(hasCruiser ? (from obj in cruiser.GetComponentsInChildren<GrabbableObject>()
+                                                    where obj.name != "CompanyCruiserManual(Clone)"
+                                                    select obj) : []).ToList();
+        //list.Shuffle(); // requires Dawn
+        for (int i = 0; i < list.Count - 1; i++)
+        {
+            int index2 = UnityEngine.Random.Range(i, list.Count);
+            int index = i;
+            GrabbableObject value = list[index2];
+            list[index2] = list[i];
+            list[i] = value;
+        }
+
+        List<GrabbableObject> newScrapList = potentialScrapList.ToList();
+        for (int i = 0; i < list.Count * (1.0f - scrapLosePercent); i++)
+        {
+            newScrapList.Remove(list[i]);
+        }
+        potentialScrapList = newScrapList.ToArray();
+        MwState.Instance.IgnoreDL = false;
     }
 }

@@ -157,9 +157,9 @@ public class MultiworldHandler
 
     public int GetSlotSetting(string settingName, int def = 0)
     {
-        if (_slotInfo == null) return def;
+        if (_slotInfo == null || !_slotInfo.SlotData.TryGetValue(settingName, out object value)) return def;
 
-        if (int.TryParse(_slotInfo.SlotData[settingName].ToString(), out int result)) return result;
+        if (int.TryParse(value.ToString(), out int result)) return result;
         return def;
     }
     
