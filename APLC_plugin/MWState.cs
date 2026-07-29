@@ -635,23 +635,14 @@ public class MwState
         if (WaitingForDeath && (GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer))
         {
 
-            int selected = Random.Range(0, StartOfRound.Instance.livingPlayers);   // player controllers without a connected player are considered dead, so this works
-            PlayerControllerB[] players = [.. StartOfRound.Instance.allPlayerScripts.Where(player => !player.isPlayerDead)];
-            var steamIds = new ulong[players.Length];
-            for (int i = 0; i < players.Length; i++)
-            {
-                steamIds[i] = players[i].playerSteamId;
-            }
-            Plugin.Logger.LogInfo($"Attempting to kill player \"{players[selected].playerUsername}\"");
-
+            PlayerControllerB[] players = [.. StartOfRound.Instance.allPlayerScripts.Where(player => player.isPlayerControlled && !player.isPlayerDead)];
+            int selected = Random.Range(0, players.Length);
+            Plugin.Logger.LogInfo($"Attempting to kill player \"{players[selected].playerUsername}\" with id {players[selected].playerClientId}");
             if (GameNetworkManager.Instance.localPlayerController == players[selected])
-                GameNetworkManager.Instance.localPlayerController.KillPlayer(Vector3.forward, true, CauseOfDeath.Blast);
+                GameNetworkManager.Instance.localPlayerController.KillPlayer(default, causeOfDeath:CauseOfDeath.Unknown);
             else
             {
-                if (GameNetworkManager.Instance.disableSteam)   // all players have steamID 0 in LAN mode, so we have to use the index instead
-                    APLCNetworking.Instance.KillPlayerClientRpc((ulong)selected);
-                else
-                    APLCNetworking.Instance.KillPlayerClientRpc(steamIds[selected]);
+                APLCNetworking.Instance.KillPlayerClientRpc(players[selected].playerClientId);
             }
             ChatHandler.SendMessage($"AP: {DLMessage}");
             WaitingForDeath = false;

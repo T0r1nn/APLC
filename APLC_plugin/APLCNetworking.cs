@@ -86,11 +86,8 @@ public class APLCNetworking : NetworkBehaviour
     public void KillPlayerClientRpc(ulong id)
     {
         Plugin.Logger.LogInfo($"Killing player with ID {id}. It might be me?");
-        bool markedForDeath = GameNetworkManager.Instance.disableSteam ?
-            (GameNetworkManager.Instance.localPlayerController == StartOfRound.Instance.allPlayerScripts.Where(player => !player.isPlayerDead).ToArray()[id]) :
-            (GameNetworkManager.Instance.localPlayerController.playerSteamId == id);    // all players have steamID 0 in LAN mode, so we have to use the index instead
-        if (!markedForDeath) return;
-        GameNetworkManager.Instance.localPlayerController.KillPlayer(Vector3.forward, true, CauseOfDeath.Blast);
+        if (GameNetworkManager.Instance.localPlayerController.playerClientId != id) return;
+        GameNetworkManager.Instance.localPlayerController.KillPlayer(default, causeOfDeath: CauseOfDeath.Unknown);
         MwState.WaitingForDeath = false;
         MwState.DLMessage = "";
         if (StartOfRound.Instance.allPlayersDead)
