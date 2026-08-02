@@ -13,23 +13,30 @@ public abstract class Items
     protected int _received { get; private set; }
     protected int _total { get; private set; }
     private int _waiting; 
-    private bool _resetAll;
+    private bool _isPersistent;
     public string _name { get; private set; }
-    protected void Setup(string name, bool resetAll=false)
+    protected void Setup(string name, bool isPersistent=false)
     {
         _name = name;
-        try
+        if (isPersistent)
         {
-            MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-"+name].Initialize(0);
-            _total = MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-"+name];
+            try
+            {
+                MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-" + name].Initialize(0);
+                _total = MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-" + name];
+            }
+            catch (Exception e)
+            {
+                _total = 0;
+                Plugin.Logger.LogError(e.Message + "\n" + e.StackTrace);
+            }
         }
-        catch (Exception e)
+        else
         {
             _total = 0;
-            Plugin.Logger.LogError(e.Message+"\n"+e.StackTrace);
         }
 
-        _resetAll = resetAll;
+        _isPersistent = isPersistent;
     }
 
     /** 
@@ -49,7 +56,7 @@ public abstract class Items
             _total++;
         }
 
-        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+        if (_isPersistent && (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer))
         {
             MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-" + _name] = _total;
         }
@@ -59,12 +66,12 @@ public abstract class Items
 
     public void Reset()
     {
-        if (_resetAll)
+        if (!_isPersistent)
         {
             _received = 0;
             _total = 0;
             _waiting = 0;
-            MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-"+_name] = 0;
+            //MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-"+_name] = 0;
         }
         else
         {
@@ -96,6 +103,7 @@ public abstract class Items
         return _received;
     }
 
+    // only used for filler and traps at the moment. maybe tie this to the _isPersistent field for consistency?
     protected void SuccessfulUse()
     {
         if (GameNetworkManager.Instance.localPlayerController.IsHost)
@@ -125,7 +133,7 @@ public class FillerItems : Items
     private readonly bool _trap;
     public FillerItems(string name, Func<bool> receivedFunc, bool trap)
     {
-        Setup(name);
+        Setup(name, isPersistent:true);
         _receivedFunc = receivedFunc;
         _trap = trap;
     }
@@ -162,7 +170,7 @@ public class MoonItems : Items
     private readonly SelectableLevel _level;
     public MoonItems(SelectableLevel level)   // todo: pass the SelectableLevel as a parameter instead of the moon name
     {
-        Setup(level.PlanetName, resetAll:true);
+        Setup(level.PlanetName);
 
         DawnCompat.AssignPurchasePredicate(level);
         if (level.GetDawnInfo().RouteNode?.itemCost > 0) level.GetDawnInfo().RouteNode.itemCost = 0;
@@ -189,7 +197,7 @@ public class StoreItems : Items
     public StoreItems(Item item)
     {
         //Terminal terminal = Plugin.Instance.GetTerminal();
-        Setup(item.itemName, resetAll:true);
+        Setup(item.itemName);
         _item = item;
         DawnCompat.AssignPurchasePredicate(_item);
     }
@@ -210,7 +218,7 @@ public class StoreVehicleItems : Items
     public StoreVehicleItems(BuyableVehicle vehicle)
     {
         //Terminal terminal = Plugin.Instance.GetTerminal();
-        Setup(vehicle.vehicleDisplayName, resetAll: true);
+        Setup(vehicle.vehicleDisplayName);
         _vehicle = vehicle;
     }
 
@@ -229,7 +237,7 @@ public class ShipUpgrades : Items
 
     public ShipUpgrades(UnlockableItem item)
     {
-        Setup(item.unlockableName, resetAll:true);
+        Setup(item.unlockableName);
         _upgrade = item;
         DawnCompat.AssignPurchasePredicate(_upgrade);
     }
@@ -249,7 +257,7 @@ public class PlayerUpgrades : Items
 
     public PlayerUpgrades(string name, int startingAmount)
     {
-        Setup(name, resetAll:true);
+        Setup(name);
         _startingAmount = startingAmount;
     }
 
