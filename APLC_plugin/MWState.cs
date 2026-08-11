@@ -7,6 +7,7 @@ using Dawn;
 using GameNetcodeStuff;
 using Newtonsoft.Json.Linq;
 using Unity.Netcode;
+using Unity.Profiling;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
@@ -38,6 +39,10 @@ public class MwState
     public static string DLMessage;
     public bool IgnoreDL;
     
+    private static readonly ProfilerMarker s_CreateLocations = new("APLC.MwState.CreateLocations");
+    private static readonly ProfilerMarker s_CreateItems = new("APLC.MwState.CreateItems");
+    private static readonly ProfilerMarker s_ProcessItems = new("APLC.MwState.ProcessItems");
+
     public MwState(ConnectionInfo connectionInfo)
     {
         _apConnection = new MultiworldHandler(connectionInfo);
@@ -109,6 +114,9 @@ public class MwState
 
     private void CreateLocations()
     {
+#if ENABLE_PROFILER
+        using var automarker = s_CreateLocations.Auto();
+#endif
         try
         {
             int lowGrade;
@@ -357,6 +365,9 @@ public class MwState
      */
     private void CreateItems()
     {
+#if ENABLE_PROFILER
+        using var automarker = s_CreateItems.Auto();
+#endif
         Terminal terminal = Plugin.Instance.GetTerminal();
         bool randomizeCompany = false;
         int inventorySlots = 4;
@@ -769,6 +780,9 @@ public class MwState
 
     private void ProcessItems(object source, AplcEventArgs args)
     {
+#if ENABLE_PROFILER
+        using var automarker = s_ProcessItems.Auto();
+#endif
         ResetItems(source, args);
         int flashlights = 0;
         string[] flashlightNames = { "Flashlight", "Pro-flashlight" };

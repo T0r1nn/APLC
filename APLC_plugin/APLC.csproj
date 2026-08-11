@@ -33,6 +33,10 @@
 		<Exec Command="netcode-patch -uv 2022.3.62 -nv 1.12.2 -tv 1.0.0 &quot;$(TargetPath)&quot; --dependency-file &quot;$(NetcodePatcherDepsListFile)&quot;" />
 	</Target>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DefineConstants>$(DefineConstants);ENABLE_PROFILER</DefineConstants>
+	</PropertyGroup>
+
     <!-- Copies the patched DLL and Archipelago client DLL into the Thunderstore release folder. -->
     <!-- Requires GameDirectory to be defined in APLC.csproj.user (see APLC.csproj.user.example). -->
     <Target Name="CopyToModFolder" DependsOnTargets="NetcodePatch" AfterTargets="PostBuildEvent" Condition="$(ConfigurationName) == Release">

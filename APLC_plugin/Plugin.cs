@@ -9,6 +9,7 @@ using BepInEx.Bootstrap;
 using BepInEx.Logging;
 using Dawn;
 using Newtonsoft.Json.Linq;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.UIElements.Collections;
 
@@ -26,6 +27,8 @@ public class Plugin : BaseUnityPlugin
     private Terminal terminal = null;
     internal static PluginConfig BoundConfig { get; private set; } = null!;
     internal new static ManualLogSource Logger { get; private set; } = null!;
+
+    private static readonly ProfilerMarker s_GetLogic = new("APLC.Plugin.MaybeLag");
 
     /**
      * Patches the game on startup, injecting the code into the game.
@@ -45,6 +48,13 @@ public class Plugin : BaseUnityPlugin
         {
             Logger.LogError("Lethal Expansion detected. Lethal Expansion is not designed to work with modern versions of Lethal Company and it is not compatible with APLC's dependencies. Use it at your own risk!");
         }
+#if ENABLE_PROFILER
+        // disable overhead of stack trace in dev build
+        Application.SetStackTraceLogType(LogType.Log, StackTraceLogType.None);
+        Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
+        Application.SetStackTraceLogType(LogType.Error, StackTraceLogType.None);
+        Application.SetStackTraceLogType(LogType.Assert, StackTraceLogType.None);
+#endif
     }
 
     /**
@@ -136,6 +146,9 @@ public class Plugin : BaseUnityPlugin
         Dictionary<string, Collection<(string moon_name, double chance)>>, 
         Dictionary<string, Collection<(string moon_name, double chance)>>> GetGameLogic()
     {
+#if ENABLE_PROFILER
+        using var automarker = s_GetLogic.Auto();
+#endif
         Terminal t = GetTerminal();
 
         String[] vanillaMoonNames = ["experimentation", "assurance", "vow", "adamance", "offense", "march", "embrion", "rend", "dine", "titan", "artifice", "liquidation"];
