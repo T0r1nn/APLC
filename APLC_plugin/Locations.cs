@@ -1,15 +1,54 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace APLC;
 
+public class LocationCreator
+{
+    public static async Task<Locations> CreateQuotaLocationAsync(int moneyPerQuotaCheck, int numQuotas)
+    {
+        Quota location = new(moneyPerQuotaCheck, numQuotas);
+        await location.Setup();
+        return location;
+    }
+
+    public static async Task<Locations> CreateMoonLocationAsync(string name, int grade, int maxChecks)
+    {
+        MoonLocations location = new(name, grade, maxChecks);
+        await location.Setup();
+        return location;
+    }
+
+    public static Locations CreateLogLocation(int logID, string logName)
+    {
+        LogLocations location = new(logID, logName);
+        //await location.Setup();
+        return location;
+    }
+
+    public static Locations CreateBestiaryLocation(int bestiaryID, string bestiaryName)
+    {
+        BestiaryLocations location = new(bestiaryID, bestiaryName);
+        //await location.Setup();
+        return location;
+    }
+
+    public static async Task<Locations> CreateScrapLocationAsync(string[] scrapNames)
+    {
+        ScrapLocations location = new(scrapNames);
+        await location.Setup();
+        return location;
+    }
+}
+
 /**
  * Handles checking locations, extensions handle specific locations
  */
-public abstract class Locations
+public abstract class Locations(string type = "none")
 {
-    public string Type = "none";
+    public string Type = type;
     public abstract void CheckComplete();
     public abstract string GetTrackerText();
 }
@@ -19,13 +58,16 @@ public class Quota: Locations
     public readonly int MoneyPerQuotaCheck;
     private readonly int _numQuotas;
     public int TotalQuota;
-    public Quota(int moneyPerQuotaCheck, int numQuotas)
+    public Quota(int moneyPerQuotaCheck, int numQuotas) : base("Quota")
     {
-        Type = "Quota";
         MoneyPerQuotaCheck = moneyPerQuotaCheck;
         _numQuotas = numQuotas;
         MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"].Initialize(0);
-        TotalQuota = MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"];
+    }
+
+    internal async Task Setup()
+    {
+        TotalQuota = await MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"].GetAsync<int>();
     }
 
     public override string GetTrackerText()
@@ -62,15 +104,19 @@ public class MoonLocations : Locations
     private readonly string _name;
     private readonly int _grade;
     private readonly int _maxChecks;
+    public string Name { get { return _name; } }
 
-    public MoonLocations(string name, int grade, int maxChecks)
+    public MoonLocations(string name, int grade, int maxChecks): base("moon")
     {
         _name = name;
         _grade = grade;
-        Type = "moon";
         MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} checks"].Initialize(0);
-        _timesChecked = MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} checks"];
         _maxChecks = maxChecks;
+    }
+
+    internal async Task Setup()
+    {
+        _timesChecked = await MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} checks"].GetAsync<int>();
     }
 
     /** 
@@ -113,9 +159,8 @@ public class LogLocations : Locations
     private readonly int _logID;
     private readonly string _logName;
     
-    public LogLocations(int logID, string logName)
+    public LogLocations(int logID, string logName) : base("logF")
     {
-        Type = "logF";
         _logID = logID;
         _logName = logName;
     }
@@ -142,9 +187,8 @@ public class BestiaryLocations : Locations
     private readonly int _bestiaryID;
     private readonly string _bestiaryName;
     
-    public BestiaryLocations(int bestiaryID, string bestiaryName)
+    public BestiaryLocations(int bestiaryID, string bestiaryName) : base("logB")
     {
-        Type = "logB";
         _bestiaryID = bestiaryID;
         _bestiaryName = bestiaryName;
     }
@@ -170,15 +214,18 @@ public class ScrapLocations : Locations
 {
     private int _checkedScrap;
 
-    public ScrapLocations(string[] scrapNames)
+    public ScrapLocations(string[] scrapNames) : base("Scrap")  // note: scrapNames isn't needed at all and we can just replace the tracker part with MultiworldHandler.Instance.GetSession().Locations.AllLocationsChecked and MultiworldHandler.Instance.GetSession().Locations.AllLocationsMissing
     {
-        Type = "scrap";
         MultiworldHandler.Instance.GetSession()
             .DataStorage[
                 $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"]
             .Initialize(_checkedScrap);
-        _checkedScrap = MultiworldHandler.Instance.GetSession().DataStorage[
-            $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"];
+    }
+
+    internal async Task Setup()
+    {
+        _checkedScrap = await MultiworldHandler.Instance.GetSession().DataStorage[
+            $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"].GetAsync<int>();
     }
 
     public bool CheckCollected(string scrapName)

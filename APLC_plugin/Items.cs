@@ -1,9 +1,55 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Dawn;
 using Unity.Netcode;
 
 namespace APLC;
+
+public class ItemCreator
+{
+    public static async Task<Items> CreateFillerItemAsync(string name, Func<bool> receivedFunc, bool trap)
+    {
+        FillerItems filler = new(name, receivedFunc, trap);
+        await filler.Setup();
+        return filler;
+    }
+
+    public static Items CreateMoonItem(SelectableLevel level)
+    {
+        MoonItems moon = new(level);
+        _ = moon.Setup();
+        return moon;
+    }
+
+    public static Items CreateStoreItem(Item item)
+    {
+        StoreItems storeItem = new(item);
+        _ = storeItem.Setup();
+        return storeItem;
+    }
+
+    public static Items CreateVehicleItem(BuyableVehicle vehicle)
+    {
+        StoreVehicleItems vehicleItem = new(vehicle);
+        _ = vehicleItem.Setup();
+        return vehicleItem;
+    }
+
+    public static Items CreateUnlockableItem(UnlockableItem unlockable)
+    {
+        ShipUpgrades shipUpgrade = new(unlockable);
+        _ = shipUpgrade.Setup();
+        return shipUpgrade;
+    }
+
+    public static Items CreateUpgradeItem(string name, int startingAmount)
+    {
+        PlayerUpgrades playerUpgrade = new(name, startingAmount);
+        _ = playerUpgrade.Setup();
+        return playerUpgrade;
+    }
+}
 
 /**
  * Handles received items, extended classes handle specific items
@@ -12,18 +58,24 @@ public abstract class Items
 {
     protected int _received { get; private set; }
     protected int _total { get; private set; }
-    private int _waiting; 
+    private int _waiting;
     private bool _isPersistent;
     public string _name { get; private set; }
-    protected void Setup(string name, bool isPersistent=false)
+
+    public Items(string name, bool isPersistent = false)
     {
         _name = name;
-        if (isPersistent)
+        _isPersistent = isPersistent;
+    }
+
+    internal async Task Setup()
+    {
+        if (_isPersistent)
         {
             try
             {
-                MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-" + name].Initialize(0);
-                _total = MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-" + name];
+                MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-" + _name].Initialize(0);
+                _total = await MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-" + _name].GetAsync<int>();
             }
             catch (Exception e)
             {
@@ -35,8 +87,6 @@ public abstract class Items
         {
             _total = 0;
         }
-
-        _isPersistent = isPersistent;
     }
 
     /** 
@@ -131,9 +181,8 @@ public class FillerItems : Items
 {
     private readonly Func<bool> _receivedFunc;
     private readonly bool _trap;
-    public FillerItems(string name, Func<bool> receivedFunc, bool trap)
+    public FillerItems(string name, Func<bool> receivedFunc, bool trap) : base(name, isPersistent:true)
     {
-        Setup(name, isPersistent:true);
         _receivedFunc = receivedFunc;
         _trap = trap;
     }
@@ -168,9 +217,8 @@ public class FillerItems : Items
 public class MoonItems : Items
 {
     private readonly SelectableLevel _level;
-    public MoonItems(SelectableLevel level)   // todo: pass the SelectableLevel as a parameter instead of the moon name
+    public MoonItems(SelectableLevel level) : base(level.PlanetName)   // todo: pass the SelectableLevel as a parameter instead of the moon name
     {
-        Setup(level.PlanetName);
 
         DawnCompat.AssignPurchasePredicate(level);
         if (level.GetDawnInfo().RouteNode?.itemCost > 0) level.GetDawnInfo().RouteNode.itemCost = 0;
@@ -194,10 +242,9 @@ public class StoreItems : Items
 {
     private readonly Item _item;
 
-    public StoreItems(Item item)
+    public StoreItems(Item item) : base(item.itemName)
     {
         //Terminal terminal = Plugin.Instance.GetTerminal();
-        Setup(item.itemName);
         _item = item;
         DawnCompat.AssignPurchasePredicate(_item);
     }
@@ -215,10 +262,8 @@ public class StoreVehicleItems : Items
 {
     private readonly BuyableVehicle _vehicle;
 
-    public StoreVehicleItems(BuyableVehicle vehicle)
+    public StoreVehicleItems(BuyableVehicle vehicle) : base(vehicle.vehicleDisplayName)
     {
-        //Terminal terminal = Plugin.Instance.GetTerminal();
-        Setup(vehicle.vehicleDisplayName);
         _vehicle = vehicle;
     }
 
@@ -235,9 +280,8 @@ public class ShipUpgrades : Items
 {
     private readonly UnlockableItem _upgrade;
 
-    public ShipUpgrades(UnlockableItem item)
+    public ShipUpgrades(UnlockableItem item) : base(item.unlockableName)
     {
-        Setup(item.unlockableName);
         _upgrade = item;
         DawnCompat.AssignPurchasePredicate(_upgrade);
     }
@@ -255,9 +299,8 @@ public class PlayerUpgrades : Items
 {
     private readonly int _startingAmount;
 
-    public PlayerUpgrades(string name, int startingAmount)
+    public PlayerUpgrades(string name, int startingAmount) : base(name)
     {
-        Setup(name);
         _startingAmount = startingAmount;
     }
 
