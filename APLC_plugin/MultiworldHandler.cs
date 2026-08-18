@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
@@ -170,6 +171,17 @@ public class MultiworldHandler
         if (double.TryParse(_slotInfo.SlotData[settingName].ToString(), out double result)) return result;
         return def;
     }
+
+    /**
+     * Retrieves the associated value from multiworld datastorage as the supplied type.
+     */
+    public async Task<T> GetDataFromDataStorage<T>(string dataStorageKey)
+    {
+        T data = await _session.DataStorage[$"Lethal Company-{_session.Players.GetPlayerName(_session.ConnectionInfo.Slot)}-{dataStorageKey}"].GetAsync<T>();
+        return data;
+    }
+
+
 
     /** 
      * Gets the mapping of scrap items to moons.

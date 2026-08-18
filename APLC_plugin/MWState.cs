@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Dawn;
 using GameNetcodeStuff;
@@ -58,8 +59,16 @@ public class MwState
 
         _trophyModeComplete = new object[_moons.Length];
 
-        CreateLocations();  // this and CreateItems() need to run before any of the handlers are set up, otherwise we can have a scenario where an item comes in before the item map knows what it is
-        CreateItems();
+        _ = PrepareMwState(connectionInfo);
+
+    }
+
+    private async Task PrepareMwState(ConnectionInfo connectionInfo)
+    {
+        Task createLocations = CreateLocations();  // this and CreateItems() need to run before any of the handlers are set up, otherwise we can have a scenario where an item comes in before the item map knows what it is
+        Task createItems = CreateItems();
+
+        await Task.WhenAll([createLocations, createItems]);
         if (MultiworldHandler.Instance == null) return;
 
         _apConnection.ProcessItems += ProcessItems;
@@ -80,9 +89,9 @@ public class MwState
 
         _scrapGoal = _apConnection.GetSlotSetting("collectathonGoal", 5);
         _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-scrapCollected"].Initialize(_scrapCollected);
-        _scrapCollected = _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-scrapCollected"];
+        _scrapCollected = await _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-scrapCollected"].GetAsync<int>();
         _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-trophies"].Initialize(new JArray(_trophyModeComplete));
-        _trophyModeComplete = _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-trophies"];
+        _trophyModeComplete = await _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-trophies"].GetAsync <object[]>();
 
         _apConnection.Process(new AplcEventArgs(_apConnection.GetReceivedItems()));
         TerminalCommands.SetLogic();
@@ -108,11 +117,10 @@ public class MwState
         {
             APLCNetworking.Instance.SyncConfigServerRpc();
         }
-
+        Plugin.Logger.LogInfo("MwState setup done!");
     }
 
-
-    private void CreateLocations()
+    private async Task CreateLocations()
     {
 #if ENABLE_PROFILER
         using var automarker = s_CreateLocations.Auto();
@@ -133,6 +141,8 @@ public class MwState
             {
                 lowGrade = medGrade = highGrade = _apConnection.GetSlotSetting("moonRank", 2);
             }
+
+            List<Task> locationsToCreate = new();
 
             //Moons
             foreach (var moon in _moons)
@@ -161,27 +171,23 @@ public class MwState
 
                 if (cost < 100 && moon.factorySizeMultiplier <= 1.15)
                 {
-                    _locationMap.Add(moonName,
-                        new MoonLocations(moonName, lowGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
+                    locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, lowGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
                     Plugin.Logger.LogInfo($"Easy: {moonName}");
                 }
                 else if (cost < 120)
                 {
-                    _locationMap.Add(moonName,
-                        new MoonLocations(moonName, medGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
+                    locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, medGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
                     Plugin.Logger.LogInfo($"Medium: {moonName}");
                 }
                 else
                 {
-                    _locationMap.Add(moonName,
-                        new MoonLocations(moonName, highGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
+                    locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, highGrade, _apConnection.GetSlotSetting("checksPerMoon", 3)));
                     Plugin.Logger.LogInfo($"Hard: {moonName}");
                 }
             }
 
             //Quota
-            _locationMap.Add("Quota",
-                new Quota(_apConnection.GetSlotSetting("moneyPerQuotaCheck", 500), _apConnection.GetSlotSetting("numQuota", 20)));
+            locationsToCreate.Add(LocationCreator.CreateQuotaLocationAsync(_apConnection.GetSlotSetting("moneyPerQuotaCheck", 500), _apConnection.GetSlotSetting("numQuota", 20)));
 
             //Bestiary
             foreach (var key in _bestiaryData.Keys)
@@ -196,25 +202,25 @@ public class MwState
                     }
                 }
 
-                _locationMap.Add(key, new BestiaryLocations(id, key));
+                _locationMap.Add(key, LocationCreator.CreateBestiaryLocation(id, key));
             }
 
             //Logs
-            _locationMap.Add("Mummy", new LogLocations(1, "Mummy"));
-            _locationMap.Add("Swing of Things", new LogLocations(2, "Swing of Things"));
-            _locationMap.Add("Autopilot", new LogLocations(3, "Autopilot"));
-            _locationMap.Add("Behind the Wall", new LogLocations(4, "Behind the Wall"));
-            _locationMap.Add("Goodbye", new LogLocations(5, "Goodbye"));
-            _locationMap.Add("Screams", new LogLocations(6, "Screams"));
-            _locationMap.Add("Golden Planet", new LogLocations(7, "Golden Planet"));
-            _locationMap.Add("Idea", new LogLocations(8, "Idea"));
-            _locationMap.Add("Nonsense", new LogLocations(9, "Nonsense"));
-            _locationMap.Add("Hiding", new LogLocations(10, "Hiding"));
-            _locationMap.Add("Real Job", new LogLocations(11, "Real Job"));
-            _locationMap.Add("Desmond", new LogLocations(12, "Desmond"));
-            _locationMap.Add("Team Synergy", new LogLocations(13, "Team Synergy"));
-            _locationMap.Add("Letter of Resignation", new LogLocations(14, "Letter of Resignation"));
-            _locationMap.Add("Work", new LogLocations(15, "Work"));
+            _locationMap.Add("Mummy", LocationCreator.CreateLogLocation(1, "Mummy"));
+            _locationMap.Add("Swing of Things", LocationCreator.CreateLogLocation(2, "Swing of Things"));
+            _locationMap.Add("Autopilot", LocationCreator.CreateLogLocation(3, "Autopilot"));
+            _locationMap.Add("Behind the Wall", LocationCreator.CreateLogLocation(4, "Behind the Wall"));
+            _locationMap.Add("Goodbye", LocationCreator.CreateLogLocation(5, "Goodbye"));
+            _locationMap.Add("Screams", LocationCreator.CreateLogLocation(6, "Screams"));
+            _locationMap.Add("Golden Planet", LocationCreator.CreateLogLocation(7, "Golden Planet"));
+            _locationMap.Add("Idea", LocationCreator.CreateLogLocation(8, "Idea"));
+            _locationMap.Add("Nonsense", LocationCreator.CreateLogLocation(9, "Nonsense"));
+            _locationMap.Add("Hiding", LocationCreator.CreateLogLocation(10, "Hiding"));
+            _locationMap.Add("Real Job", LocationCreator.CreateLogLocation(11, "Real Job"));
+            _locationMap.Add("Desmond", LocationCreator.CreateLogLocation(12, "Desmond"));
+            _locationMap.Add("Team Synergy", LocationCreator.CreateLogLocation(13, "Team Synergy"));
+            _locationMap.Add("Letter of Resignation", LocationCreator.CreateLogLocation(14, "Letter of Resignation"));
+            _locationMap.Add("Work", LocationCreator.CreateLogLocation(15, "Work"));
 
             //Scrap
             if (_apConnection.GetSlotSetting("fixscrapsanity") == 1)
@@ -350,8 +356,18 @@ public class MwState
 
             if (_apConnection.GetSlotSetting("scrapsanity") == 1)
             {
-                _locationMap.Add("Scrap", new ScrapLocations(scrapNames));
+                locationsToCreate.Add(LocationCreator.CreateScrapLocationAsync(scrapNames));
             }
+
+            await Task.WhenAll(locationsToCreate);
+            foreach (Task<Locations> finishedTask in locationsToCreate.Cast<Task<Locations>>())
+            {
+                Locations loc = finishedTask.Result;
+                if (loc is MoonLocations locations)
+                    _locationMap.Add(locations.Name, loc);
+                else
+                    _locationMap.Add(loc.Type, loc);
+        }
         }
         catch (Exception e)     // this is kind of justified but I hope there's a better way to do it than nested try-catch blocks
         {
@@ -363,7 +379,7 @@ public class MwState
     /** 
      * Creates all AP items and adds them to the item map
      */
-    private void CreateItems()
+    private async Task CreateItems()
     {
 #if ENABLE_PROFILER
         using var automarker = s_CreateItems.Auto();
@@ -392,16 +408,21 @@ public class MwState
             _apConnection.Disconnect();
             return;
         }
+
+        List<Task> itemsToCreate = new();
+
         //Shop items
         for (int i = 0; i < _store.Length; i++)
         {
-            _itemMap.Add(_store[i].itemName, new StoreItems(_store[i]));
+            Items item = ItemCreator.CreateStoreItem(_store[i]);
+            _itemMap.Add(item._name, item);
         }
 
 
         for (int i = 0; i < _vehicles.Length; i++)
         {
-            _itemMap.Add(_vehicles[i].vehicleDisplayName, new StoreVehicleItems(_vehicles[i]));
+            Items item = ItemCreator.CreateVehicleItem(_vehicles[i]);
+            _itemMap.Add(item._name, item);
         }
 
         //Ship upgrades
@@ -410,16 +431,20 @@ public class MwState
             DawnUnlockableItemInfo unlockableInfo = unlockable.GetDawnInfo();
             if (unlockableInfo.SuitInfo != null) continue;  // don't randomize suits
             //_itemMap.Add(unlockable.unlockableName, new ShipUpgrades(unlockable));
-            if (unlockable.unlockableName.Contains("Loud horn")) _itemMap.Add(unlockable.unlockableName, new ShipUpgrades(unlockable));
-            else if (unlockable.unlockableName.Contains("Signal translator")) _itemMap.Add(unlockable.unlockableName, new ShipUpgrades(unlockable));
-            else if (unlockable.unlockableName.Contains("Teleporter")) _itemMap.Add(unlockable.unlockableName, new ShipUpgrades(unlockable));
+            if (unlockable.unlockableName.Contains("Loud horn") ||
+                unlockable.unlockableName.Contains("Signal translator") ||
+                unlockable.unlockableName.Contains("Teleporter"))
+            {
+                Items item = ItemCreator.CreateUnlockableItem(unlockable);
+                _itemMap.Add(item._name, item);
+            }
         }
 
         //Moons
         foreach (var moon in _moons)
         {
-            string moonName = moon.PlanetName;
-            _itemMap.Add(moonName, new MoonItems(moon));
+            Items item = ItemCreator.CreateMoonItem(moon);
+            _itemMap.Add(item._name, item);
         }
         if (randomizeCompany)
         {
@@ -427,25 +452,26 @@ public class MwState
             {
                 if (moon.PlanetName.Contains("Gordion"))
                 {
-                    _itemMap.Add(moon.PlanetName, new MoonItems(moon));
+                    Items item = ItemCreator.CreateMoonItem(moon);
+                    _itemMap.Add(item._name, item);
                 }
                 else if (!moon.spawnEnemiesAndScrap) DawnCompat.AssignPurchasePredicate(moon);
             }
         }
 
         //Player Upgrades
-        _itemMap.Add("Inventory Slot", new PlayerUpgrades("Inventory Slot", inventorySlots));
-        _itemMap.Add("Stamina Bar", new PlayerUpgrades("Stamina Bar", staminaBars));
-        _itemMap.Add("Scanner", new PlayerUpgrades("Scanner", scanner));
-        _itemMap.Add("Strength Training", new PlayerUpgrades("Strength Training", 0));
+        _itemMap.Add("Inventory Slot", ItemCreator.CreateUpgradeItem("Inventory Slot", inventorySlots));
+        _itemMap.Add("Stamina Bar", ItemCreator.CreateUpgradeItem("Stamina Bar", staminaBars));
+        _itemMap.Add("Scanner", ItemCreator.CreateUpgradeItem("Scanner", scanner));
+        _itemMap.Add("Strength Training", ItemCreator.CreateUpgradeItem("Strength Training", 0));
         if (randomizeTerminal)
         {
-            _itemMap.Add("Terminal", new PlayerUpgrades("Terminal", 0));
+            _itemMap.Add("Terminal", ItemCreator.CreateUpgradeItem("Terminal", 0));
         }
-        _itemMap.Add("Company Credit", new PlayerUpgrades("Company Credit", 0));
+        _itemMap.Add("Company Credit", ItemCreator.CreateUpgradeItem("Company Credit", 0));
 
         //Filler
-        _itemMap.Add("Money", new FillerItems("Money", () =>
+        itemsToCreate.Add(ItemCreator.CreateFillerItemAsync("Money", () =>
         {
             if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
             {
@@ -455,10 +481,9 @@ public class MwState
             }
             return false;
         }, false));
-        _itemMap.Add("HauntTrap", new FillerItems("HauntTrap", () => EnemyTrapHandler.SpawnEnemyByName(EnemyType.GhostGirl), true));
-        _itemMap.Add("BrackenTrap",
-            new FillerItems("BrackenTrap", () => EnemyTrapHandler.SpawnEnemyByName(EnemyType.Bracken), true));
-        _itemMap.Add("More Time", new FillerItems("More Time", () =>
+        itemsToCreate.Add(ItemCreator.CreateFillerItemAsync("HauntTrap", () => EnemyTrapHandler.SpawnEnemyByName(EnemyType.GhostGirl), true));
+        itemsToCreate.Add(ItemCreator.CreateFillerItemAsync("BrackenTrap", () => EnemyTrapHandler.SpawnEnemyByName(EnemyType.Bracken), true));
+        itemsToCreate.Add(ItemCreator.CreateFillerItemAsync("More Time", () =>
         {
             if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
             {
@@ -468,7 +493,7 @@ public class MwState
             }
             return false;
         }, false));
-        _itemMap.Add("Less Time", new FillerItems("Less Time", () =>
+        itemsToCreate.Add(ItemCreator.CreateFillerItemAsync("Less Time", () =>
         {
             TimeOfDay.Instance.timeUntilDeadline -= TimeOfDay.Instance.totalTime;
             if (TimeOfDay.Instance.timeUntilDeadline < TimeOfDay.Instance.totalTime)
@@ -478,7 +503,7 @@ public class MwState
             APLCNetworking.Instance.SetTimeUntilDeadlineRpc(TimeOfDay.Instance.timeUntilDeadline);
             return true;
         }, true));
-        _itemMap.Add("Clone Scrap", new FillerItems("Clone Scrap", () =>
+        itemsToCreate.Add(ItemCreator.CreateFillerItemAsync("Clone Scrap", () =>
         {
             if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
             {
@@ -510,7 +535,7 @@ public class MwState
             }
             return false;
         }, false));
-        _itemMap.Add("Birthday Gift", new FillerItems("Birthday Gift", () =>
+        itemsToCreate.Add(ItemCreator.CreateFillerItemAsync("Birthday Gift", () =>
         {
             if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost) { 
                 Item[] items = Plugin.Instance.GetTerminal().buyableItemsList;
@@ -521,6 +546,12 @@ public class MwState
             }
             return false;
         }, false));
+
+        await Task.WhenAll(itemsToCreate);
+        foreach (Task<Items> finishedTask in itemsToCreate.Cast<Task<Items>>())
+        {
+            _itemMap.Add(finishedTask.Result._name, finishedTask.Result);
+        }
 
     }
     
