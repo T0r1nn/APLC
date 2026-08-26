@@ -458,7 +458,7 @@ public class Patches
         if (MultiworldHandler.Instance == null) return;
         var grade = HUDManager.Instance.statsUIElements.gradeLetter.text;
         var dead = StartOfRound.Instance.allPlayersDead;
-        if (dead && !MwState.Instance.IgnoreDL)
+        if (dead && !MwState.Instance.IgnoreDL && (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer))
         {
             // this is just for fun
             string causeOfDeath = "Failed the company.";
@@ -737,9 +737,9 @@ public class Patches
         bool hasCruiser = cruiser != null;
 
         var list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()
-                    where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem" && obj.name != "RagdollGrabbableObject(Clone)" && obj.itemProperties.isScrap
+                    where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem" && !obj.name.Contains("RagdollGrabbableObject") && obj.itemProperties.isScrap
                     select obj).Union(hasCruiser ? (from obj in cruiser.GetComponentsInChildren<GrabbableObject>()
-                                                    where obj.name != "CompanyCruiserManual(Clone)"
+                                                    where obj.name != "CompanyCruiserManual(Clone)" && !obj.name.Contains("RagdollGrabbableObject") && obj.itemProperties.isScrap
                                                     select obj) : []).ToList();
         //list.Shuffle(); // requires Dawn
         for (int i = 0; i < list.Count - 1; i++)

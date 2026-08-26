@@ -623,7 +623,7 @@ public class MwState
                 _sentToMoon = false;
             }
         }
-        
+
         if (!_sentToMoon)
         {
             if (GoToMoon())
@@ -634,17 +634,20 @@ public class MwState
 
         if (WaitingForDeath && (GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer))
         {
-
+            
             PlayerControllerB[] players = [.. StartOfRound.Instance.allPlayerScripts.Where(player => player.isPlayerControlled && !player.isPlayerDead)];
-            int selected = Random.Range(0, players.Length);
-            Plugin.Logger.LogInfo($"Attempting to kill player \"{players[selected].playerUsername}\" with id {players[selected].playerClientId}");
-            if (GameNetworkManager.Instance.localPlayerController == players[selected])
-                GameNetworkManager.Instance.localPlayerController.KillPlayer(default, causeOfDeath:CauseOfDeath.Unknown);
-            else
+            if (players.Length > 0)
             {
-                APLCNetworking.Instance.KillPlayerClientRpc(players[selected].playerClientId);
+                int selected = Random.Range(0, players.Length);
+                Plugin.Logger.LogInfo($"Attempting to kill player \"{players[selected].playerUsername}\" with id {players[selected].playerClientId}");
+                if (GameNetworkManager.Instance.localPlayerController == players[selected])
+                    GameNetworkManager.Instance.localPlayerController.KillPlayer(default, causeOfDeath: CauseOfDeath.Unknown);
+                else
+                {
+                    APLCNetworking.Instance.KillPlayerClientRpc(players[selected].playerClientId);
+                }
+                ChatHandler.SendMessage($"AP: {DLMessage}");
             }
-            ChatHandler.SendMessage($"AP: {DLMessage}");
             WaitingForDeath = false;
             DLMessage = "";
             if (StartOfRound.Instance.allPlayersDead)

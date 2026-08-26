@@ -90,6 +90,19 @@ public class APLCNetworking : NetworkBehaviour
         GameNetworkManager.Instance.localPlayerController.KillPlayer(default, causeOfDeath: CauseOfDeath.Unknown);
         MwState.WaitingForDeath = false;
         MwState.DLMessage = "";
+        if (StartOfRound.Instance.allPlayersDead)   // this probably doesn't even need to be here
+        {
+            MwState.Instance.IgnoreDL = true;
+        }
+        DeathLinkSuccessServerRpc();
+
+    }
+
+    [Rpc(SendTo.Server)]
+    public void DeathLinkSuccessServerRpc()
+    {
+        MwState.WaitingForDeath = false;
+        MwState.DLMessage = "";
         if (StartOfRound.Instance.allPlayersDead)
         {
             MwState.Instance.IgnoreDL = true;
