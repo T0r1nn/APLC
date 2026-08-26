@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.7.13
+**<details><summary>Fixes</summary>**
+* fixed an issue where the mod tried to use enemy traps on company moons and produced errors
+* fixed an incompatability with mods that allow quota rollover
+* fixed bestiary locations for custom enemies not completing if the lobby was reloaded
+* added null checks to (hopefully) stop log spam when the multiworld disconnects
+* fixed an issue where the tracker thought an apparatus could spawn on moons without facility
+* removed janky adamance apparatus fix now that Archipelago Scrap fixed the issue
+* changed deathlink to use playerClientIds instead of steam ids and added extra safeguards
+  * this *should* make deathlink more reliable and prevent chain reactions of deaths
+</details>
+
+**<details><summary>Changes</summary>**
+* added Coroner compatibility for deathlink (the deathlink message now includes the cause of death)
+* added an option to change percent of scrap lost when dying from deathlink
+</details>
+Mod version 0.7.13 works with apworld versions 0.7.11 - 0.7.13, but the new scrap loss option will default to 50% if using an older version.
+
 ## 0.7.12
 **<details><summary>Fixes</summary>**
 * filler usage is now properly networked

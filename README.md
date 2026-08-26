@@ -142,7 +142,7 @@ To set up a world with custom content, follow these steps:
 1. Install all custom content that you want to include, as well as the [UnityExplorer](https://thunderstore.io/c/lethal-company/p/LethalCompanyModding/Yukieji_UnityExplorer/) mod. Boot up the game and create a new save file.
 2. Open the UnityExplorer overlay with F7 if you do not already see it, then open the **C# Console** from the button at the top of the screen. 
 3. From the dropdown in the Console window, click **REPL**, then replace all content in the file with the following line: APLC.Plugin.Instance.GetGameLogicString(); Click **Compile**.
-4. Open the **Log** window from the button at the top of the screen, then click **Open Log File**. Highlight the entire the logic string, from the first { to the last }, then copy it. 
+4. Open the **Log** window from the button at the top of the screen, then click **Open Log File**. If that does not work, open the log file either using your mod manager or by locating it manually. Highlight the entire the logic string, from the first { to the last }, then copy it. 
 5. Go to your lethal company apworld. Rename the file to lethal_company.zip, then copy the lethal_company sub-folder into the custom_worlds folder. 
 6. Inside the lethal_company folder, replace the contents of imported.py with 'data = ', then paste your logic string. 
 7. Right click the lethal_company folder and select 'Send to' > 'Compressed (zipped) folder'. When prompted to name the file, change the '.zip' extension to '.apworld'.
