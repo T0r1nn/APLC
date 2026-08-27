@@ -406,7 +406,7 @@ public class Patches
         GameObject cruiser = GameObject.FindObjectsByType<VehicleController>(sortMode: FindObjectsSortMode.None).FirstOrDefault(vehicle => vehicle.magnetedToShip)?.gameObject;
         bool hasCruiser = cruiser != null;
 
-        var list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()
+        var list = (from obj in StartOfRound.Instance.elevatorTransform.GetComponentsInChildren<GrabbableObject>()
                     where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
                     select obj).Union(hasCruiser ? (from obj in cruiser.GetComponentsInChildren<GrabbableObject>()
                                                     where obj.name != "CompanyCruiserManual(Clone)"
@@ -625,7 +625,7 @@ public class Patches
         GameObject cruiser = GameObject.FindObjectsByType<VehicleController>(sortMode: FindObjectsSortMode.None).FirstOrDefault(vehicle => vehicle.magnetedToShip)?.gameObject;
         bool hasCruiser = cruiser != null;
 
-        var list = (from obj in GameObject.Find("/Environment/HangarShip").GetComponentsInChildren<GrabbableObject>()
+        var list = (from obj in StartOfRound.Instance.elevatorTransform.GetComponentsInChildren<GrabbableObject>()
                     where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem" && !obj.name.Contains("RagdollGrabbableObject") && obj.itemProperties.isScrap
                     select obj).Union(hasCruiser ? (from obj in cruiser.GetComponentsInChildren<GrabbableObject>()
                                                     where obj.name != "CompanyCruiserManual(Clone)" && !obj.name.Contains("RagdollGrabbableObject") && obj.itemProperties.isScrap

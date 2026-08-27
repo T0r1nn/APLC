@@ -568,9 +568,10 @@ public class MwState
         {
             if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
             {
-                var list = (from obj in GameObject.Find("/Environment/HangarShip")
+                var list = (from obj in StartOfRound.Instance.elevatorTransform
                     .GetComponentsInChildren<GrabbableObject>()
                             where obj.name != "ClipboardManual" && obj.name != "StickyNoteItem"
+                            && !obj.name.Contains("RagdollGrabbableObject")
                             select obj).ToList();
                 Collection<GrabbableObject> objects = new();
                 foreach (var scrap in list)
