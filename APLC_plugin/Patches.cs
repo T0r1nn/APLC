@@ -40,7 +40,7 @@ public class Patches
     [HarmonyPatch(typeof(HUDManager), "UpdateScanNodes")]
     private static bool CancelScan()
     {
-        if (MultiworldHandler.Instance == null) return true;
+        if (MwState.Instance == null) return true;
         return ((PlayerUpgrades)MwState.Instance.GetItemMap("Scanner")).GetNum() >= 1;
     }
 
@@ -51,7 +51,7 @@ public class Patches
     [HarmonyPatch(typeof(HUDManager), "PingScan_performed")]
     private static bool CancelScanAnimation()
     {
-        if (MultiworldHandler.Instance == null) return true;
+        if (MwState.Instance == null) return true;
         return ((PlayerUpgrades)MwState.Instance.GetItemMap("Scanner")).GetNum() >= 1;
     }
 
@@ -62,7 +62,7 @@ public class Patches
     [HarmonyPatch(typeof(PlayerControllerB), "Update")]
     private static void Sprint(PlayerControllerB __instance)
     {
-        if (MultiworldHandler.Instance == null) return;
+        if (MwState.Instance == null) return;
         PlayerUpgrades stamItems = (PlayerUpgrades)MwState.Instance.GetItemMap("Stamina Bar");
         if (stamItems == null) return;
         int staminaChecks = stamItems.GetNum();
@@ -83,7 +83,7 @@ public class Patches
     [HarmonyPatch(typeof(PlayerControllerB), "FirstEmptyItemSlot")]
     private static void LimitGrabbing(PlayerControllerB __instance, ref int __result)
     {
-        if (MultiworldHandler.Instance == null) return;
+        if (MwState.Instance == null) return;
         if (__result >= ((PlayerUpgrades)MwState.Instance.GetItemMap("Inventory Slot")).GetNum() && __result != 50)
         {
             __result = -1;
@@ -98,7 +98,7 @@ public class Patches
     private static void LimitInventory(PlayerControllerB __instance, ref int __result, ref bool forward)
     {
 
-        if (MultiworldHandler.Instance == null) return;
+        if (MwState.Instance == null) return;
         int invSlots = ((PlayerUpgrades)MwState.Instance.GetItemMap("Inventory Slot")).GetNum();
         if (__result >= invSlots)
         {
@@ -116,7 +116,7 @@ public class Patches
     [HarmonyPatch(typeof(PlayerControllerB), "Update")]
     private static void FixCarryWeight(PlayerControllerB __instance)
     {
-        if (MultiworldHandler.Instance == null) return;
+        if (MwState.Instance == null) return;
         var newWeight = 1f + __instance.ItemSlots.Where(item => item != null).Sum(
             item => Mathf.Clamp(
                 (item.itemProperties.weight - 1f) * Mathf.Pow(
@@ -297,7 +297,7 @@ public class Patches
     [HarmonyPatch(typeof(Terminal), "TextPostProcess")]
     private static void ModifyItemPricesToShowAsLocked(ref string modifiedDisplayText, TerminalNode node, Terminal __instance)
     {
-        if (MultiworldHandler.Instance == null) return;
+        if (MwState.Instance == null) return;
         if (modifiedDisplayText.Contains("[buyableVehiclesList]"))
         {
             if (__instance.buyableVehicles == null || __instance.buyableVehicles.Length == 0)
@@ -543,7 +543,7 @@ public class Patches
     [HarmonyPatch(typeof(Terminal), "LoadNewNode")]
     private static bool PreventBuyingLockedItems(ref TerminalNode node)
     {
-        if (MultiworldHandler.Instance == null || !MultiworldHandler.Instance.IsConnected())
+        if (MwState.Instance == null || !MultiworldHandler.Instance.IsConnected())
         {
             return true;
         }
@@ -583,7 +583,7 @@ public class Patches
     [HarmonyPatch(typeof(RoundManager), nameof(RoundManager.FinishGeneratingNewLevelClientRpc))]
     private static void RemindPlayersOfAvailableFiller()
     {
-        if (MultiworldHandler.Instance == null || StartOfRound.Instance.currentLevel.spawnEnemiesAndScrap || !Plugin.BoundConfig.DisplayFillerNotification.Value) return;
+        if (MultiworldHandler.Instance == null || MwState.Instance == null || StartOfRound.Instance.currentLevel.spawnEnemiesAndScrap || !Plugin.BoundConfig.DisplayFillerNotification.Value) return;
         string[] fillerNames = ["More Time", "Clone Scrap", "Birthday Gift", "Money"];
         foreach (string fillerName in fillerNames)
         {
@@ -616,7 +616,7 @@ public class Patches
         }
 
         return instructions;
-        }
+    }
 
     static void ProtectScrapFromDeathLink(ref GrabbableObject[] potentialScrapList)
     {
