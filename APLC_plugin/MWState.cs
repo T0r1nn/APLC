@@ -367,7 +367,8 @@ public class MwState
                     _locationMap.Add(locations.Name, loc);
                 else
                     _locationMap.Add(loc.Type, loc);
-        }
+            }
+            Plugin.Logger.LogDebug("Finished creating locations");
         }
         catch (Exception e)     // this is kind of justified but I hope there's a better way to do it than nested try-catch blocks
         {
@@ -552,6 +553,7 @@ public class MwState
         {
             _itemMap.Add(finishedTask.Result._name, finishedTask.Result);
         }
+        Plugin.Logger.LogDebug("Finished creating items");
 
     }
     
