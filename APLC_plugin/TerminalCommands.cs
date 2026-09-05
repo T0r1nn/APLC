@@ -181,7 +181,7 @@ public class TerminalCommands
 
 Logs: {t.unlockedStoryLogs.Count - 1}/{t.logEntryFiles.Count - 1}
 
-Bestiary: {t.scannedEnemyIDs.Count}/{t.enemyFiles.Count - 1}{(MultiworldHandler.Instance.GetSlotSetting("scrapsanity") == 1 ? "\n\nScrap: " + MwState.Instance.GetLocationMap("Scrap").GetTrackerText() : "")}
+Bestiary: {t.scannedEnemyIDs.Count}/{t.enemyFiles.Count - 1}{(MultiworldHandler.Instance.GetSlotSettingInt("scrapsanity") == 1 ? "\n\nScrap: " + MwState.Instance.GetLocationMap("Scrap").GetTrackerText() : "")}
 
 Quota: {((Quota)MwState.Instance.GetLocationMap("Quota")).GetTrackerText()}, {totalQuota % moneyPerQuota}/{moneyPerQuota}
 
@@ -197,7 +197,7 @@ Quota: {((Quota)MwState.Instance.GetLocationMap("Quota")).GetTrackerText()}, {to
         }
 
         string result = "";
-        if (MultiworldHandler.Instance == null || LcLogic == null || MultiworldHandler.Instance.GetSlotSetting("scrapsanity") == 0)
+        if (MultiworldHandler.Instance == null || LcLogic == null || MultiworldHandler.Instance.GetSlotSettingInt("scrapsanity") == 0)
         {
             foreach (var moon in StartOfRound.Instance.levels)
             {

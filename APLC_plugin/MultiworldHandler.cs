@@ -85,7 +85,7 @@ public class MultiworldHandler
 
         _slotInfo = (LoginSuccessful)result;
         _dlService = _session.CreateDeathLinkService();
-        deathLink = Plugin.BoundConfig.OverrideMWDeathlink.Value ? Plugin.BoundConfig.DeathLink.Value : GetSlotSetting("deathLink") == 1;
+        deathLink = Plugin.BoundConfig.OverrideMWDeathlink.Value ? Plugin.BoundConfig.DeathLink.Value : GetSlotSettingInt("deathLink") == 1;
         if (deathLink)
         {
             _dlService.EnableDeathLink();
@@ -156,7 +156,7 @@ public class MultiworldHandler
         return _session;
     }
 
-    public int GetSlotSetting(string settingName, int def = 0)
+    public int GetSlotSettingInt(string settingName, int def = 0)
     {
         if (_slotInfo == null || !_slotInfo.SlotData.TryGetValue(settingName, out object value)) return def;
 
@@ -170,6 +170,24 @@ public class MultiworldHandler
 
         if (double.TryParse(_slotInfo.SlotData[settingName].ToString(), out double result)) return result;
         return def;
+    }
+
+    public T GetSlotSetting<T>(string settingName)
+    {
+        T result;
+
+        if (_slotInfo == null || !_slotInfo.SlotData.TryGetValue(settingName, out object value)) return default;
+
+        try
+        {
+            result = (T)value;
+        }
+        catch (InvalidCastException)
+        {
+            result = default;
+        }
+
+        return result;
     }
 
     /**

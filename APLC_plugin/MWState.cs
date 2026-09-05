@@ -93,14 +93,14 @@ public class MwState
         
         Instance = this;
         
-        _goal = _apConnection.GetSlotSetting("goal");
+        _goal = _apConnection.GetSlotSettingInt("goal");
 
         // foreach (var item in _apConnection.GetSession().Items.AllItemsReceived)
         // {
         //     _receivedItemNames.Add(_apConnection.GetSession().Items.GetItemName(item.Item));
         // }
 
-        _scrapGoal = _apConnection.GetSlotSetting("collectathonGoal", 5);
+        _scrapGoal = _apConnection.GetSlotSettingInt("collectathonGoal", 5);
         _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-scrapCollected"].Initialize(_scrapCollected);
         _scrapCollected = await _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-scrapCollected"].GetAsync<int>();
         _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-trophies"].Initialize(new JArray(_trophyModeComplete));
@@ -144,15 +144,15 @@ public class MwState
             int mediumGrade;
             int hardGrade;
             Terminal t = Plugin.Instance.GetTerminal();
-            if (_apConnection.GetSlotSetting("splitgrades") == 1)
+            if (_apConnection.GetSlotSettingInt("splitgrades") == 1)
             {
-                easyGrade = _apConnection.GetSlotSetting("easyMoonRequiredGrade", 2);
-                mediumGrade = _apConnection.GetSlotSetting("mediumMoonRequiredGrade", 2);
-                hardGrade = _apConnection.GetSlotSetting("hardMoonRequiredGrade", 2);
+                easyGrade = _apConnection.GetSlotSettingInt("easyMoonRequiredGrade", 2);
+                mediumGrade = _apConnection.GetSlotSettingInt("mediumMoonRequiredGrade", 2);
+                hardGrade = _apConnection.GetSlotSettingInt("hardMoonRequiredGrade", 2);
             }
             else
             {
-                easyGrade = mediumGrade = hardGrade = _apConnection.GetSlotSetting("allMoonRequiredGrade", 2);
+                easyGrade = mediumGrade = hardGrade = _apConnection.GetSlotSettingInt("allMoonRequiredGrade", 2);
             }
 
             string[] vanillaMoonNames = ["experimentation", "assurance", "vow", "adamance", "offense", "march", "rend", "dine", "titan", "artifice", "embrion"];
@@ -194,17 +194,17 @@ public class MwState
 
                     if (cost < 100 && moon.factorySizeMultiplier <= 1.15)
                     {
-                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, easyGrade, _apConnection.GetSlotSetting("gradeLocationsPerMoon", 3)));
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, easyGrade, _apConnection.GetSlotSettingInt("gradeLocationsPerMoon", 3)));
                         Plugin.Logger.LogInfo($"Easy: {moonName}");
                     }
                     else if (cost < 400)
                     {
-                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, mediumGrade, _apConnection.GetSlotSetting("gradeLocationsPerMoon", 3)));
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, mediumGrade, _apConnection.GetSlotSettingInt("gradeLocationsPerMoon", 3)));
                         Plugin.Logger.LogInfo($"Medium: {moonName}");
                     }
                     else
                     {
-                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, hardGrade, _apConnection.GetSlotSetting("gradeLocationsPerMoon", 3)));
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, hardGrade, _apConnection.GetSlotSettingInt("gradeLocationsPerMoon", 3)));
                         Plugin.Logger.LogInfo($"Hard: {moonName}");
                     }
                 }
@@ -224,24 +224,24 @@ public class MwState
                 {
                     if (kvp.Value <= vanillaMoonDifficulties[vanillaMoonDifficulties.Count / 3])            // should be vanillaMoonDifficulties[3], or Vow
                     {
-                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, easyGrade, _apConnection.GetSlotSetting("gradeLocationsPerMoon", 3)));
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, easyGrade, _apConnection.GetSlotSettingInt("gradeLocationsPerMoon", 3)));
                         Plugin.Logger.LogInfo($"Easy: {kvp.Key}");
                     }
                     else if (kvp.Value < vanillaMoonDifficulties[vanillaMoonDifficulties.Count * 2 / 3])    // should be vanillaMoonDifficulties[7], or Dine
                     {
-                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, mediumGrade, _apConnection.GetSlotSetting("gradeLocationsPerMoon", 3)));
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, mediumGrade, _apConnection.GetSlotSettingInt("gradeLocationsPerMoon", 3)));
                         Plugin.Logger.LogInfo($"Medium: {kvp.Key}");
                     }
                     else
                     {
-                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, hardGrade, _apConnection.GetSlotSetting("gradeLocationsPerMoon", 3)));
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, hardGrade, _apConnection.GetSlotSettingInt("gradeLocationsPerMoon", 3)));
                         Plugin.Logger.LogInfo($"Hard: {kvp.Key}");
                     }
                 }
             }
 
             //Quota
-            locationsToCreate.Add(LocationCreator.CreateQuotaLocationAsync(_apConnection.GetSlotSetting("moneyPerQuotaLocation", 500), _apConnection.GetSlotSetting("numQuota", 20)));
+            locationsToCreate.Add(LocationCreator.CreateQuotaLocationAsync(_apConnection.GetSlotSettingInt("moneyPerQuotaLocation", 500), _apConnection.GetSlotSettingInt("numQuota", 20)));
 
             //Bestiary
             foreach (var key in _bestiaryData.Keys)
@@ -277,7 +277,7 @@ public class MwState
             _locationMap.Add("Work", LocationCreator.CreateLogLocation(15, "Work"));
 
             //Scrap
-            if (_apConnection.GetSlotSetting("fixscrapsanity") == 1)
+            if (_apConnection.GetSlotSettingInt("fixscrapsanity") == 1)
             {
 
                 Dictionary<string, string[]> scrapToMoonMap = _apConnection.GetScrapToMoonMap();
@@ -408,7 +408,7 @@ public class MwState
                 ind++;
             }
 
-            if (_apConnection.GetSlotSetting("scrapsanity") == 1)
+            if (_apConnection.GetSlotSettingInt("scrapsanity") == 1)
             {
                 locationsToCreate.Add(LocationCreator.CreateScrapLocationAsync(scrapNames));
             }
@@ -449,13 +449,13 @@ public class MwState
         int maxMoney = 101;
         try
         {
-            randomizeCompany = _apConnection.GetSlotSetting("randomizecompany") == 1;
-            inventorySlots = _apConnection.GetSlotSetting("inventorySlots", 4);
-            staminaBars = _apConnection.GetSlotSetting("staminaBars", 4);
-            scanner = 1 - _apConnection.GetSlotSetting("scanner");
-            randomizeTerminal = _apConnection.GetSlotSetting("randomizeterminal") == 1;
-            minMoney = _apConnection.GetSlotSetting("minMoney", 100);
-            maxMoney = _apConnection.GetSlotSetting("maxMoney", 100);
+            randomizeCompany = _apConnection.GetSlotSettingInt("randomizecompany") == 1;
+            inventorySlots = _apConnection.GetSlotSettingInt("inventorySlots", 4);
+            staminaBars = _apConnection.GetSlotSettingInt("staminaBars", 4);
+            scanner = 1 - _apConnection.GetSlotSettingInt("scanner");
+            randomizeTerminal = _apConnection.GetSlotSettingInt("randomizeterminal") == 1;
+            minMoney = _apConnection.GetSlotSettingInt("minMoney", 100);
+            maxMoney = _apConnection.GetSlotSettingInt("maxMoney", 100);
         }
         catch (Exception e)
         {
@@ -764,7 +764,7 @@ public class MwState
 
     public string GetCreditTracker()
     {
-        return $"{GetItemMap("Company Credit").GetTotal()}/{_apConnection.GetSlotSetting("companycreditsgoal")}";
+        return $"{GetItemMap("Company Credit").GetTotal()}/{_apConnection.GetSlotSettingInt("companycreditsgoal")}";
     }
 
     public int GetGoal()
@@ -795,14 +795,14 @@ public class MwState
 
         if (StartOfRound.Instance.currentLevel.spawnEnemiesAndScrap) 
         {
-            if (GetItemMap<MoonItems>(planetName).GetTotal() < 1 || (GetStartingMoon() != planetName && _apConnection.GetSlotSetting("randomizeterminal") == 1 && GetItemMap<PlayerUpgrades>("Terminal").GetNum() < 1))
+            if (GetItemMap<MoonItems>(planetName).GetTotal() < 1 || (GetStartingMoon() != planetName && _apConnection.GetSlotSettingInt("randomizeterminal") == 1 && GetItemMap<PlayerUpgrades>("Terminal").GetNum() < 1))
             {
                 _sentToMoon = false;
             }
         }
         else 
         {
-            if (_apConnection.GetSlotSetting("randomizecompany") == 1 && GetItemMap<MoonItems>("71 Gordion").GetTotal() < 1)
+            if (_apConnection.GetSlotSettingInt("randomizecompany") == 1 && GetItemMap<MoonItems>("71 Gordion").GetTotal() < 1)
             {
                 _sentToMoon = false;
             }
@@ -842,7 +842,7 @@ public class MwState
 
         if (GetGoal() == 2)
         {
-            if(GetItemMap("Company Credit").GetTotal() >= _apConnection.GetSlotSetting("companycreditsgoal") && _apConnection.IsConnected())
+            if(GetItemMap("Company Credit").GetTotal() >= _apConnection.GetSlotSettingInt("companycreditsgoal") && _apConnection.IsConnected())
             {
                 _apConnection.Victory();
             }
