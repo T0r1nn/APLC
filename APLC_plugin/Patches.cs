@@ -284,7 +284,7 @@ public class Patches
     private static void TerminalStartPrefix(Terminal __instance)
     {
         if (MultiworldHandler.Instance == null) return;
-        if (MultiworldHandler.Instance.GetSlotSetting("randomizeterminal") == 1)
+        if (MultiworldHandler.Instance.GetSlotSettingInt("randomizeterminal") == 1)
         {
             if (MwState.Instance.GetItemMap<PlayerUpgrades>("Terminal").GetNum() == 0)
             {
@@ -398,7 +398,7 @@ public class Patches
 
         ((MoonLocations)MwState.Instance.GetLocationMap(StartOfRound.Instance.currentLevel.PlanetName)).OnFinishMoon(StartOfRound.Instance.currentLevel.PlanetName, grade);
 
-        if (MultiworldHandler.Instance.GetSlotSetting("scrapsanity") == 1)
+        if (MultiworldHandler.Instance.GetSlotSettingInt("scrapsanity") == 1)
         {
             MwState.Instance.GetLocationMap("Scrap").LocationComplete();
         }
@@ -621,7 +621,7 @@ public class Patches
     static void ProtectScrapFromDeathLink(ref GrabbableObject[] potentialScrapList)
     {
         if (MultiworldHandler.Instance == null || MwState.Instance == null || !MwState.Instance.IgnoreDL) return;
-        float scrapLosePercent = MultiworldHandler.Instance.GetSlotSetting("DeathLinkScrapLossPercent", 50) / 100.0f;
+        float scrapLosePercent = MultiworldHandler.Instance.GetSlotSettingInt("DeathLinkScrapLossPercent", 50) / 100.0f;
         GameObject cruiser = GameObject.FindObjectsByType<VehicleController>(sortMode: FindObjectsSortMode.None).FirstOrDefault(vehicle => vehicle.magnetedToShip)?.gameObject;
         bool hasCruiser = cruiser != null;
 

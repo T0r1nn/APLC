@@ -22,20 +22,20 @@ public class Logic
         ValueTuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<ValueTuple<string, double>>>, Dictionary<string, Collection<ValueTuple<string, double>>>> importedLogic = Plugin.Instance.GetGameLogic();
         
         Rule canBuy = state =>
-            (MultiworldHandler.Instance.GetSlotSetting("randomizeterminal") == 0 || state.Has("Terminal")) &&
-            (MultiworldHandler.Instance.GetSlotSetting("randomizecompany") == 0 || state.Has("71 Gordion"));    // change back to "Company" if we ever support custom company moons
+            (MultiworldHandler.Instance.GetSlotSettingInt("randomizeterminal") == 0 || state.Has("Terminal")) &&
+            (MultiworldHandler.Instance.GetSlotSettingInt("randomizecompany") == 0 || state.Has("71 Gordion"));    // change back to "Company" if we ever support custom company moons
         _state = new State(MwState.Instance);
         Region startingMoon = new Region(MwState.Instance.GetStartingMoon());
         _menu.AddConnection(startingMoon, state => true);
         Region terminal = new Region("Terminal");
-        _menu.AddConnection(terminal, state => MultiworldHandler.Instance.GetSlotSetting("randomizeterminal")==0 || state.Has("Terminal"));
+        _menu.AddConnection(terminal, state => MultiworldHandler.Instance.GetSlotSettingInt("randomizeterminal")==0 || state.Has("Terminal"));
         Region companyBuilding = new Region("Company Building");
         _moons = new Region[importedLogic.Item3.Length];
         _scrap = new Region[importedLogic.Item5.Count];
         
-        terminal.AddConnection(companyBuilding, state => MultiworldHandler.Instance.GetSlotSetting("randomizecompany")==0 || state.Has("71 Gordion"));  // change back to "Company" if we ever support custom company moons
+        terminal.AddConnection(companyBuilding, state => MultiworldHandler.Instance.GetSlotSettingInt("randomizecompany")==0 || state.Has("71 Gordion"));  // change back to "Company" if we ever support custom company moons
 
-        for (var i = 0; i < MultiworldHandler.Instance.GetSlotSetting("numQuota"); i++)
+        for (var i = 0; i < MultiworldHandler.Instance.GetSlotSettingInt("numQuota"); i++)
         {
             companyBuilding.AddLocation(new Location($"Quota Location {i+1}", state=>state.Has("Stamina Bar") && state.Has("Inventory Slot", 2)));
         }
@@ -60,7 +60,7 @@ public class Logic
                 terminal.AddConnection(_moons[index], state => state.Has(moonName));
             }
 
-            for (var i = 0; i < MultiworldHandler.Instance.GetSlotSetting("gradeLocationsPerMoon"); i++)
+            for (var i = 0; i < MultiworldHandler.Instance.GetSlotSettingInt("gradeLocationsPerMoon"); i++)
             {
                 _moons[index].AddLocation(new Location($"{moonName} Grade Location {i + 1}",
                     state => state.Has("Inventory Slot", 2) && state.Has("Stamina Bar", 1)));
@@ -110,13 +110,13 @@ public class Logic
             }
         }
 
-        string[] scrapNames = MultiworldHandler.Instance.GetSlotSetting("fixscrapsanity") == 1
+        string[] scrapNames = MultiworldHandler.Instance.GetSlotSettingInt("fixscrapsanity") == 1
             ? MultiworldHandler.Instance.GetScrapToMoonMap().Keys.ToArray()
             : importedLogic.Item5.Keys.ToArray();
 
         Dictionary<string, Collection<ValueTuple<string, double>>> scrapMoons = importedLogic.Item5;
 
-        Dictionary<string, string[]> scrapMoonsAlt = MultiworldHandler.Instance.GetSlotSetting("fixscrapsanity") == 1
+        Dictionary<string, string[]> scrapMoonsAlt = MultiworldHandler.Instance.GetSlotSettingInt("fixscrapsanity") == 1
             ? MultiworldHandler.Instance.GetScrapToMoonMap()
             : new Dictionary<string, string[]>();
 
@@ -131,7 +131,7 @@ public class Logic
             {
                 foreach (ValueTuple<string, double> moonRarity in bestiaryMoons[key])
                 {
-                    if (moonRarity.Item2 > MultiworldHandler.Instance.GetSlotSetting("minmonsterchance", 5)/100f && moonRarity.Item1.Contains(moon))
+                    if (moonRarity.Item2 > MultiworldHandler.Instance.GetSlotSettingInt("minmonsterchance", 5)/100f && moonRarity.Item1.Contains(moon))
                     {
                         foreach (var moonRegion in _moons)
                         {
@@ -181,9 +181,9 @@ public class Logic
 
         _scrap = scrapRegionMap.Values.ToArray();
 
-        if (MultiworldHandler.Instance.GetSlotSetting("scrapsanity") == 1)
+        if (MultiworldHandler.Instance.GetSlotSettingInt("scrapsanity") == 1)
         {
-            if (MultiworldHandler.Instance.GetSlotSetting("fixscrapsanity") == 1)
+            if (MultiworldHandler.Instance.GetSlotSettingInt("fixscrapsanity") == 1)
             {
                 foreach (string scrapName in scrapMoonsAlt.Keys)
                 {
@@ -208,7 +208,7 @@ public class Logic
                         foreach (Region moonRegion in _moons)
                         {
                             if (data.Item1.Contains(moonRegion.GetName()) && data.Item2 >
-                                MultiworldHandler.Instance.GetSlotSetting("minscrapchance", 3) / 100f)
+                                MultiworldHandler.Instance.GetSlotSettingInt("minscrapchance", 3) / 100f)
                             {
                                 moonRegion.AddConnection(scrapRegionMap[scrapName], state => state.Has("Stamina Bar"));
                             }
