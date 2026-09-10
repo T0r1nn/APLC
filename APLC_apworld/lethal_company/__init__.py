@@ -114,6 +114,7 @@ class LethalCompanyWorld(World):
     web = LethalCompanyWeb()
     initial_world: string
     scrap_map = {}
+    required_collectathon_scrap: List[str] = []
     required_credit_count: int = 0
     imported_data = {}
     moons = []
@@ -208,6 +209,8 @@ class LethalCompanyWorld(World):
 
         if self.options.game_mode == 2:
             slot_data["companycreditsgoal"] = self.required_credit_count
+        elif self.options.game_mode == 1:
+            slot_data["collectathonrequiredscrap"] = self.required_collectathon_scrap
 
         if self.options.modify_scrap_spawns.value == 1:
             slot_data["moon_to_scrap_map"] = self.scrap_map

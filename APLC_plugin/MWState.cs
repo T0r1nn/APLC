@@ -33,6 +33,8 @@ public class MwState
     private readonly BuyableVehicle[] _vehicles;
     private int _goal;
     private object[] _trophyModeComplete;
+    private readonly string[] _collectathonRandomScrapRequired;
+    private List<string> _collectathonRandomScrapCollected;
     private int _scrapGoal;
     private int _scrapCollected;
     private bool _sentToMoon = true;
@@ -59,6 +61,8 @@ public class MwState
         _scrapData = logic.Item5;
 
         _trophyModeComplete = new object[_moons.Length];
+        _collectathonRandomScrapRequired = _apConnection.GetSlotSetting<JArray>("collectathonrequiredscrap").ToObject<string[]>();
+        _collectathonRandomScrapCollected = [];
 
         NormalMoonPrices = new Dictionary<string, int>();
         if (ES3.KeyExists("APNormalMoonPrices", GameNetworkManager.Instance.currentSaveFileName))
@@ -78,6 +82,7 @@ public class MwState
 
     private async Task PrepareMwState(ConnectionInfo connectionInfo)
     {
+        Plugin.Logger.LogInfo("Preparing MwState...");
         Task createLocations = CreateLocations();  // this and CreateItems() need to run before any of the handlers are set up, otherwise we can have a scenario where an item comes in before the item map knows what it is
         Task createItems = CreateItems();
 
@@ -105,6 +110,8 @@ public class MwState
         _scrapCollected = await _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-scrapCollected"].GetAsync<int>();
         _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-trophies"].Initialize(new JArray(_trophyModeComplete));
         _trophyModeComplete = await _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-trophies"].GetAsync <object[]>();
+        _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-collectathonCollectedScrap"].Initialize(new List<string>());
+        _collectathonRandomScrapCollected = await _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-collectathonCollectedScrap"].GetAsync<List<string>>();
 
         _apConnection.Process(new AplcEventArgs(_apConnection.GetReceivedItems()));
         TerminalCommands.SetLogic();
@@ -728,6 +735,8 @@ public class MwState
         if (moonNames.Any(m => Array.IndexOf(_trophyModeComplete, m.ToLower()) == -1)) return;
         _apConnection.Victory();
     }
+
+    // check if this scrap is in collectathonrequiredscrap. if so and not in _collectathonRandomScrapCollected, add it to _collectathonRandomScrapCollected
     
     public string GetCurrentMoonName()
     {
@@ -737,15 +746,47 @@ public class MwState
     /** 
      * Adds the given amount of scrap to the collectathon total. If the total meets or exceeds the goal, triggers victory.
      * Storing the total and checking the victory condition only happens on the host, but the total is synced to clients via a ClientRpc.
-     * This is because clients can't see the scrapPersistedThroughRounds property of scrap, so they would count the same chest multiple times.
+     * (this is because clients can't see the scrapPersistedThroughRounds property of scrap, so they would count the same chest multiple times)
+     * 
+     * Checks if any scrap collected this round are required for the goal and haven't been collected already, then updates the list of collected scrap.
      */
-    public void AddCollectathonScrap(int amount)
+    public async Task AddCollectathonScrap(int amount, List<GrabbableObject> scrapInShip)
     {
-        _scrapCollected += amount;
+        // ApChests
+        int mwScrapCollected = await _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-scrapCollected"].GetAsync<int>();
+        _scrapCollected = Math.Max(_scrapCollected, mwScrapCollected) + amount;
         _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-scrapCollected"] = _scrapCollected;
-        HUDManager.Instance.DisplayTip("Archipelago", $"Collected {amount} apchests. Progress: {_scrapCollected}/{_scrapGoal}");
-        if (_scrapCollected >= _scrapGoal)
+
+        // Required Scrap
+        List<string> alreadyFoundScrap = await _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-collectathonCollectedScrap"].GetAsync<List<string>>();
+        _collectathonRandomScrapCollected = [.. _collectathonRandomScrapCollected.Union(alreadyFoundScrap)];
+
+        foreach (GrabbableObject scrap in scrapInShip)
         {
+            string name = scrap.itemProperties.itemName;
+            if (scrap.name.Contains("KiwiBabyItem")) name = "Sapsucker Egg";
+
+            if (_collectathonRandomScrapRequired.Contains(name) && !_collectathonRandomScrapCollected.Contains(name))
+            {
+                Plugin.Logger.LogDebug($"Adding {name} to collectathon scrap found");
+                _collectathonRandomScrapCollected.Add(name);
+            }
+            //if () scrap in requiredScrap and not in _collectathonRandomScrapCollected add to _collectathonRandomScrapCollected
+            // sync to mw
+            // if length of requiredScrap is the same as _collectathonRandomScrapCollected then victory
+        }
+        _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-collectathonCollectedScrap"] = _collectathonRandomScrapCollected;
+
+        HUDManager.Instance.DisplayTip("Archipelago", $"Collected {amount} apchests. Progress: {_scrapCollected}/{_scrapGoal}");
+
+        if (_scrapCollected >= _scrapGoal && _collectathonRandomScrapCollected.Intersect(_collectathonRandomScrapRequired).Count() >= _collectathonRandomScrapRequired.Length)
+        {
+            string scrapList = $"Game should be complete. {_scrapCollected}/{_scrapGoal} chests and the following scrap were collected:\n";
+            foreach (string scrap in _collectathonRandomScrapCollected)
+            {
+                scrapList += $"{scrap}\n";
+            }
+            Plugin.Logger.LogInfo(scrapList);
             _apConnection.Victory();
         }
         APLCNetworking.Instance.AddCollectathonScrapClientRpc(amount);  // we do this to sync _scrapCollected with the host
@@ -759,7 +800,16 @@ public class MwState
 
     public string GetCollectathonTracker()
     {
-        return $"{_scrapCollected}/{_scrapGoal}";
+        string trackerText = $"{_scrapCollected}/{_scrapGoal}";
+        if (_collectathonRandomScrapRequired.Length > 0)
+        {
+            trackerText += "\n\nRequired Scrap:\n";
+            foreach (string scrap in _collectathonRandomScrapRequired)
+            {
+                trackerText += $"    {scrap} {(_collectathonRandomScrapCollected.Contains(scrap) ? "(Found!)" : "")}\n";
+            }
+        }
+        return trackerText;
     }
 
     public string GetCreditTracker()

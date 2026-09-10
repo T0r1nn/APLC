@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Archipelago.MultiClient.Net.Models;
-using Unity.Netcode;
 using Dawn;
-using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
+using Unity.Netcode;
 
 namespace APLC;
 /**
@@ -251,8 +252,9 @@ Quota: {((Quota)MwState.Instance.GetLocationMap("Quota")).GetTrackerText()}, {to
                 {
                     if (location.GetLocationString().Contains("Scrap"))
                     {
+                        Plugin.Logger.LogInfo(location.GetLocationString()[8..]);
                         result +=
-                            $" - {location.GetLocationString().Remove(0, 8)}{(MwState.Instance.GetLocationMap<ScrapLocations>("Scrap").CheckIfCollected(location.GetLocationString().Remove(0, 8)) ? "(found)" : (LcLogic.GetAccessibleLocations().Contains(location) ? "(in logic)" : "(out of logic)"))}\n";
+                            $" - {location.GetLocationString().Remove(0, 8)} {(MwState.Instance.GetLocationMap<ScrapLocations>("Scrap").CheckIfCollected(location.GetLocationString().Remove(0, 8)) ? "(found)" : (LcLogic.GetAccessibleLocations().Contains(location) ? "(in logic)" : "(out of logic)"))} {(MultiworldHandler.Instance.GetSlotSetting<JArray>("collectathonrequiredscrap").ToObject<string[]>().Contains(location.GetLocationString()[8..]) ? "(required)" : "")}\n";
                     }
                 }
             }
