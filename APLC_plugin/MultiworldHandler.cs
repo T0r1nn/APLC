@@ -184,7 +184,7 @@ public class MultiworldHandler
         }
         catch (InvalidCastException)
         {
-            result = default;
+            throw new InvalidCastException($"Unable to get Slot Setting '{settingName}' as {typeof(T)}. Cannot convert {value.GetType()} to {typeof(T)}");
         }
 
         return result;

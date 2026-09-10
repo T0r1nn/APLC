@@ -174,6 +174,17 @@ class CollectathonScrapGoal(Range):
     slot_name = "collectathonGoal"
 
 
+class CollectathonRandomScrap(Range):
+    """
+    Collectathon mode:
+    The number of random scrap required in addition to the main collectathon scrap
+    """
+    display_name = "Collectathon Random Scrap"
+    range_start = 0
+    range_end = 20 # len(data["scrap"])
+    default = 5
+
+
 class MinMoneyPerMoneyItem(Range):
     """
     The minimum amount of money that a money item can give you.
@@ -507,6 +518,7 @@ class CustomContent(FreeText):
 class LCOptions(PerGameCommonOptions):
     game_mode: Goal
     collectathon_scrap_goal: CollectathonScrapGoal
+    collectathon_random_scrap: CollectathonRandomScrap
     credit_replacement: CreditReplacement
     required_credits: RequiredCredits
     grade_locations_per_moon: GradeLocationsPerMoon

@@ -3,6 +3,7 @@ from .locations import generate_bestiary_moons, generate_scrap_moons, locations,
 from .rules import check_item_accessible, can_buy
 from .options import LCOptions
 from typing import TYPE_CHECKING
+import random
 
 if TYPE_CHECKING:
     from . import LethalCompanyWorld
@@ -35,7 +36,7 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
         company_building.connect(victory,
                                  rule=lambda state: (state.has("Company Credit", player,
                                                                count=world.required_credit_count)))
-    else:
+    elif options.game_mode.value == 0:
         company_building.connect(victory, rule=lambda state: (state.has_all(world.slot_item_data.moons, player)))
 
     menu.connect(ship, rule=lambda state: True)
@@ -57,6 +58,55 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
     bestiary_moons = generate_bestiary_moons(world, options.min_monster_chance.value/100.0)
     scrap_moons = generate_scrap_moons(world, options.min_scrap_chance.value/100.0) if options.modify_scrap_spawns.value == 0 \
         else generate_scrap_moons_alt(world)
+
+
+    if options.game_mode.value == 1:
+        # check modify_scrap_spawns. if true, we'll need to build the scrap pool from non-common scrap
+        # get a list of all scrap and shuffle it. the first entry becomes the first required scrap
+        # note the name of the scrap and which moon it comes from. we can't take another scrap from that moon
+        # keep selecting until we've met the requirement
+
+        import logging
+
+        target_unique_moons = len(world.slot_item_data.moons) // 3
+        scrap_choices = {k: v for k,v in scrap_moons.items() if "excluded" not in v and "Common" not in v}
+
+        if options.exclude_egg.value: scrap_choices.pop("Sapsucker Egg")
+        if options.exclude_hive.value: scrap_choices.pop("Hive")
+        if options.exclude_killing.value: 
+            scrap_choices.pop("Shotgun")
+            scrap_choices.pop("Kitchen knife")
+
+        selected_scrap = []
+        seen_moons = []
+        selected_scrap_count = 0
+        while selected_scrap_count < options.collectathon_random_scrap.value and len(scrap_choices) > 0:
+            scrap_choice = list(scrap_choices.keys())[random.randint(0, len(scrap_choices) - 1)]
+            logging.info(f"checking {scrap_choice}")
+            logging.info(f"found on: {scrap_choices[scrap_choice]}")
+            logging.info(f"intersection: {list(set(seen_moons).intersection(set(scrap_choices[scrap_choice])))}")
+            if selected_scrap_count >= target_unique_moons or \
+                        len(set(seen_moons).intersection(set(scrap_choices[scrap_choice]))) == 0 or \
+                        len(scrap_choices) <= options.collectathon_random_scrap.value - selected_scrap_count:   # in case there's nothing left
+                selected_scrap.append(scrap_choice)
+                seen_moons.extend(set(scrap_choices[scrap_choice]).difference(set(seen_moons)))
+                selected_scrap_count += 1
+            scrap_choices.pop(scrap_choice)
+
+        logging.info(f"Selected scrap: {selected_scrap}\nSeen moons: {seen_moons}")
+
+        if selected_scrap_count < options.collectathon_random_scrap.value: raise AssertionError("Not enough valid scrap for Collectathon goal. Consider lowering collectathon_random_scrap or min_scrap_chance")
+
+        world.spoiler_text += f"\n{world.player_name}'s Required Collectathon scrap: {selected_scrap}"
+
+        # for each required scrap, have at least one of the moons it spawns on
+        company_building.connect(victory, rule=lambda state: {
+            (state.has_any((moon for moon in scrap_moons[scrap] if "excluded" not in moon), player)) 
+                for scrap in selected_scrap
+        })
+
+        world.required_collectathon_scrap = selected_scrap
+
 
     for monster in world.bestiary_names:
         bestiary.append(Region(monster, player, multiworld))

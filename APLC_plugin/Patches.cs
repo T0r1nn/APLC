@@ -428,10 +428,10 @@ public class Patches
                 }
             }
         }
-        if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && apchestCount > 0)
+        if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && MwState.Instance.GetGoal() == 1)
         {
             Plugin.Logger.LogDebug($"Attempting to increment total apchests by {apchestCount}");
-            MwState.Instance.AddCollectathonScrap(apchestCount);
+            _ = MwState.Instance.AddCollectathonScrap(apchestCount, list);
         }
     }
 
