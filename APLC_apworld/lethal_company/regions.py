@@ -61,15 +61,16 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
 
 
     if options.game_mode.value == 1:
-        # check modify_scrap_spawns. if true, we'll need to build the scrap pool from non-common scrap
-        # get a list of all scrap and shuffle it. the first entry becomes the first required scrap
-        # note the name of the scrap and which moon it comes from. we can't take another scrap from that moon
+        # get a list of all scrap that isn't common or excluded and randomly pick out scrap to be part of the goal
+        # when picking scrap, try to ensure that the player must visit at least 1/3 of their moons to find them all
         # keep selecting until we've met the requirement
 
         import logging
-
-        target_unique_moons = len(world.slot_item_data.moons) // 3
-        scrap_choices = {k: v for k,v in scrap_moons.items() if "excluded" not in v and "Common" not in v}
+        random_scrap_required = options.collectathon_random_scrap.value
+        target_unique_moons = min(len(world.slot_item_data.moons) // 3, random_scrap_required - 1)
+        scrap_choices = {k: v for k,v in scrap_moons.items() if "excluded" not in v and "Common" not in v and 
+                         "AP Apparatus" not in k and "Archipelago Chest" not in k}
+        # ap_apparati = {k: v for k,v in scrap_moons.items() if "AP Apparatus" in v}
 
         if options.exclude_egg.value: scrap_choices.pop("Sapsucker Egg")
         if options.exclude_hive.value: scrap_choices.pop("Hive")
@@ -77,25 +78,47 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
             scrap_choices.pop("Shotgun")
             scrap_choices.pop("Kitchen knife")
 
+        max_moons = max(len(world.slot_item_data.moons) // 4, 1)
+        filtered_choices = dict(filter(lambda s, m=max_moons: len(s[1]) <= m, scrap_choices.items()))
+        while len(filtered_choices) < 1 and len(scrap_choices) > 0:
+            max_moons += 1
+            filtered_choices = dict(filter(lambda s, m=max_moons: len(s[1]) <= m, scrap_choices.items()))
+
         selected_scrap = []
         seen_moons = []
         selected_scrap_count = 0
-        while selected_scrap_count < options.collectathon_random_scrap.value and len(scrap_choices) > 0:
-            scrap_choice = list(scrap_choices.keys())[random.randint(0, len(scrap_choices) - 1)]
-            logging.info(f"checking {scrap_choice}")
-            logging.info(f"found on: {scrap_choices[scrap_choice]}")
-            logging.info(f"intersection: {list(set(seen_moons).intersection(set(scrap_choices[scrap_choice])))}")
+
+        # randomly pick scrap to be part of the goal until we have enough or run out
+        # only add the scrap to the goal if one of the following conditions is true:
+        #   we don't need any more scrap from unique moons
+        #   the selected scrap doesn't spawn on the same moons as any chosen scrap
+        #   the only way to get enough random scrap for the goal is to pick EVERY remaining scrap
+        #
+        # to avoid the third condition as much as possible, filter the list for scrap that only spawn on a few (less than max_moons) moons and gradually increase max_moons over time
+        while selected_scrap_count < random_scrap_required and len(scrap_choices) > 0:
+            scrap_choice = list(filtered_choices.keys())[random.randint(0, len(filtered_choices) - 1)]
             if selected_scrap_count >= target_unique_moons or \
-                        len(set(seen_moons).intersection(set(scrap_choices[scrap_choice]))) == 0 or \
-                        len(scrap_choices) <= options.collectathon_random_scrap.value - selected_scrap_count:   # in case there's nothing left
+                        len(set(seen_moons).intersection(set(filtered_choices[scrap_choice]))) == 0 or \
+                        len(scrap_choices) <= random_scrap_required - selected_scrap_count:
                 selected_scrap.append(scrap_choice)
                 seen_moons.extend(set(scrap_choices[scrap_choice]).difference(set(seen_moons)))
                 selected_scrap_count += 1
             scrap_choices.pop(scrap_choice)
+            if selected_scrap_count >= target_unique_moons and max_moons < len(world.slot_item_data.moons):
+                max_moons = len(world.slot_item_data.moons)
+                filtered_choices = dict(filter(lambda s, m=max_moons: len(s[1]) <= m, scrap_choices.items()))
+            elif len(filtered_choices) < 1:
+                max_moons += 2
+                filtered_choices = dict(filter(lambda s, m=max_moons: len(s[1]) <= m, scrap_choices.items()))
+                while len(filtered_choices) < 1 and len(scrap_choices) > 0:
+                    max_moons += 1
+                    filtered_choices = dict(filter(lambda s, m=max_moons: len(s[1]) <= m, scrap_choices.items()))
+            else:
+                filtered_choices.pop(scrap_choice)
 
         logging.info(f"Selected scrap: {selected_scrap}\nSeen moons: {seen_moons}")
 
-        if selected_scrap_count < options.collectathon_random_scrap.value: raise AssertionError("Not enough valid scrap for Collectathon goal. Consider lowering collectathon_random_scrap or min_scrap_chance")
+        if selected_scrap_count < random_scrap_required: raise AssertionError(f"Not enough valid scrap for {world.player_name}'s Collectathon goal. Consider lowering collectathon_random_scrap or min_scrap_chance")
 
         world.spoiler_text += f"\n{world.player_name}'s Required Collectathon scrap: {selected_scrap}"
 
