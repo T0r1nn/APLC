@@ -764,7 +764,17 @@ public class MwState
         foreach (GrabbableObject scrap in scrapInShip)
         {
             string name = scrap.itemProperties.itemName;
+            Plugin.Logger.LogInfo(name);
             if (scrap.name.Contains("KiwiBabyItem")) name = "Sapsucker Egg";
+            if (name.Contains("AP Apparatus"))
+            {
+                string moonNameOnLabel = name[(name.IndexOf(" - ") + 3)..];
+                Plugin.Logger.LogInfo(moonNameOnLabel);
+                if (GetCurrentMoonName().ToLower().Contains(moonNameOnLabel.ToLower()) || (moonNameOnLabel.Contains("Custom") && !scrap.scrapPersistedThroughRounds))
+                {
+                    name = $"AP Apparatus - {GetCurrentMoonName()}";
+                }
+            } 
 
             if (_collectathonRandomScrapRequired.Contains(name) && !_collectathonRandomScrapCollected.Contains(name))
             {
