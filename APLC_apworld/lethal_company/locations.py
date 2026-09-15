@@ -175,7 +175,7 @@ def generate_scrap_moons(world: "LethalCompanyWorld", chance: float) -> Dict[str
     for item, spawn_locations in world.imported_data["scrap"].items():
         s_moons = []
         for moon in spawn_locations:
-            if moon["chance"] >= chance:
+            if moon["chance"] >= chance and moon["chance"] > 0:
                 s_moons.append(moon["moon_name"])
         if s_moons == []:
             best_moon = max(spawn_locations, key=lambda moon_spawns: moon_spawns["chance"])
