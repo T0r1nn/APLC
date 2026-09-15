@@ -146,8 +146,9 @@ public class MoonLocations : Locations
 
     public override string GetTrackerText()
     {
+        string[] grades = ["S", "A", "B", "C", "D", "F"];
         return
-            $"({_gradeLocationsCompleted}/{_maxLocations}) {(((MoonItems)MwState.Instance.GetItemMap(_name)).GetTotal() > 0 ? MwState.Instance.CheckTrophy(_name) ? "Trophy Found!" : "" : "Locked!")}";
+            $"({(_grade < grades.Length ? grades[_grade] : "?")} {_gradeLocationsCompleted}/{_maxLocations}) {(((MoonItems)MwState.Instance.GetItemMap(_name)).GetTotal() > 0 ? MwState.Instance.CheckTrophy(_name) ? "Trophy Found!" : "" : "Locked!")}";
     }
 }
 
