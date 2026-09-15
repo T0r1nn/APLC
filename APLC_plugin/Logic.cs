@@ -37,7 +37,7 @@ public class Logic
 
         for (var i = 0; i < MultiworldHandler.Instance.GetSlotSetting("numQuota"); i++)
         {
-            companyBuilding.AddLocation(new Location($"Quota check {i+1}", state=>state.Has("Stamina Bar") && state.Has("Inventory Slot", 2)));
+            companyBuilding.AddLocation(new Location($"Quota Location {i+1}", state=>state.Has("Stamina Bar") && state.Has("Inventory Slot", 2)));
         }
         companyBuilding.AddLocation("Log - Hiding");
 
@@ -60,9 +60,9 @@ public class Logic
                 terminal.AddConnection(_moons[index], state => state.Has(moonName));
             }
 
-            for (var i = 0; i < MultiworldHandler.Instance.GetSlotSetting("gradeChecksPerMoon"); i++)
+            for (var i = 0; i < MultiworldHandler.Instance.GetSlotSetting("gradeLocationsPerMoon"); i++)
             {
-                _moons[index].AddLocation(new Location($"{moonName} Grade Check {i + 1}",
+                _moons[index].AddLocation(new Location($"{moonName} Grade Location {i + 1}",
                     state => state.Has("Inventory Slot", 2) && state.Has("Stamina Bar", 1)));
             }
         }
@@ -304,7 +304,7 @@ public class Logic
             foreach (Location location in openRegions[0].GetLocations())
             {
                 location.SetAccessible(true);
-                if (location.CheckAccessible(_state) && !locations.Contains(location) && !MultiworldHandler.Instance.CheckComplete(location.GetLocationString()))
+                if (location.CheckAccessible(_state) && !locations.Contains(location) && !MultiworldHandler.Instance.IsLocationComplete(location.GetLocationString()))
                 {
                     locations.Add(location);
                 }

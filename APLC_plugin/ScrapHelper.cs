@@ -124,16 +124,16 @@ namespace APLC
 
                 string scrapName = itemName.Equals("AP Apparatus - Custom") ? $"AP Apparatus - {moon.PlanetName}" : itemName;
                 scrapMap.TryAdd(scrapName, new Collection<ValueTuple<string, double>>());
-                var checkMoons = scrapMap.Get(scrapName);
+                var moonsSpawnedOn = scrapMap.Get(scrapName);
                 double probOfAtLeastOne = GetProbOfAtLeastOneScrap(scrapItem, moonInfo, totalRarity, totalInteriorRarity, totalExtraRaritiesForInteriors);
                 bool existsAlready = false;
 
-                for (var index = 0; index < checkMoons.Count; index++)
+                for (var index = 0; index < moonsSpawnedOn.Count; index++)
                 {
-                    var entry = checkMoons[index];
+                    var entry = moonsSpawnedOn[index];
                     if (entry.Item1 == moon.PlanetName)
                     {
-                        checkMoons[index] = new ValueTuple<string, double>(entry.Item1, entry.Item2 + probOfAtLeastOne);
+                        moonsSpawnedOn[index] = new ValueTuple<string, double>(entry.Item1, entry.Item2 + probOfAtLeastOne);
                         existsAlready = true;
                     }
                 }

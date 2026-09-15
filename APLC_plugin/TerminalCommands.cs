@@ -26,7 +26,7 @@ public class TerminalCommands
         Plugin.Logger.LogDebug("Setting up tracker command");
         // Tracker command
         TerminalCommandBasicInformation trackerCommandInfo = new TerminalCommandBasicInformation("ApTracker", "Archipelago", 
-            "Shows all logically reachable checks", ClearText.Result | ClearText.Query);
+            "Shows all logically reachable locations", ClearText.Result | ClearText.Query);
         DawnLib.DefineTerminalCommand(NamespacedKey<DawnTerminalCommandInfo>.From("aplc", "tracker_command"), trackerCommandInfo, builder =>
         {
             builder.SetKeywords(["tracker", "aptracker"]);
@@ -174,7 +174,7 @@ public class TerminalCommands
 
         Terminal t = Plugin.Instance.GetTerminal();
         int totalQuota = ((Quota)MwState.Instance.GetLocationMap("Quota")).TotalQuota;
-        int moneyPerQuota = ((Quota)MwState.Instance.GetLocationMap("Quota")).MoneyPerQuotaCheck;
+        int moneyPerQuota = ((Quota)MwState.Instance.GetLocationMap("Quota")).MoneyPerQuotaLocation;
         string result =
             $@"{(MwState.Instance.GetGoal() == 1 ? $"Collectathon progress: {MwState.Instance.GetCollectathonTracker()}\n\n" : "")}{(MwState.Instance.GetGoal() == 2 ? $"Credit progress: {MwState.Instance.GetCreditTracker()}\n\n" : "")}Moons:
 {GenerateMoonProgressTracker()}
@@ -252,7 +252,7 @@ Quota: {((Quota)MwState.Instance.GetLocationMap("Quota")).GetTrackerText()}, {to
                     if (location.GetLocationString().Contains("Scrap"))
                     {
                         result +=
-                            $" - {location.GetLocationString().Remove(0, 8)}{(MwState.Instance.GetLocationMap<ScrapLocations>("Scrap").CheckCollected(location.GetLocationString().Remove(0, 8)) ? "(found)" : (LcLogic.GetAccessibleLocations().Contains(location) ? "(in logic)" : "(out of logic)"))}\n";
+                            $" - {location.GetLocationString().Remove(0, 8)}{(MwState.Instance.GetLocationMap<ScrapLocations>("Scrap").CheckIfCollected(location.GetLocationString().Remove(0, 8)) ? "(found)" : (LcLogic.GetAccessibleLocations().Contains(location) ? "(in logic)" : "(out of logic)"))}\n";
                     }
                 }
             }

@@ -7,16 +7,16 @@ namespace APLC;
 
 public class LocationCreator
 {
-    public static async Task<Locations> CreateQuotaLocationAsync(int moneyPerQuotaCheck, int numQuotas)
+    public static async Task<Locations> CreateQuotaLocationAsync(int moneyPerQuotaLocation, int numQuotas)
     {
-        Quota location = new(moneyPerQuotaCheck, numQuotas);
+        Quota location = new(moneyPerQuotaLocation, numQuotas);
         await location.Setup();
         return location;
     }
 
-    public static async Task<Locations> CreateMoonLocationAsync(string name, int grade, int maxChecks)
+    public static async Task<Locations> CreateMoonLocationAsync(string name, int grade, int maxLocations)
     {
-        MoonLocations location = new(name, grade, maxChecks);
+        MoonLocations location = new(name, grade, maxLocations);
         await location.Setup();
         return location;
     }
@@ -44,23 +44,23 @@ public class LocationCreator
 }
 
 /**
- * Handles checking locations, extensions handle specific locations
+ * Handles completing locations, extensions handle specific locations
  */
 public abstract class Locations(string type = "none")
 {
     public string Type = type;
-    public abstract void CheckComplete();
+    public abstract void LocationComplete();
     public abstract string GetTrackerText();
 }
 
 public class Quota: Locations
 {
-    public readonly int MoneyPerQuotaCheck;
+    public readonly int MoneyPerQuotaLocation;
     private readonly int _numQuotas;
     public int TotalQuota;
-    public Quota(int moneyPerQuotaCheck, int numQuotas) : base("Quota")
+    public Quota(int moneyPerQuotaLocation, int numQuotas) : base("Quota")
     {
-        MoneyPerQuotaCheck = moneyPerQuotaCheck;
+        MoneyPerQuotaLocation = moneyPerQuotaLocation;
         _numQuotas = numQuotas;
         MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"].Initialize(0);
     }
@@ -72,25 +72,25 @@ public class Quota: Locations
 
     public override string GetTrackerText()
     {
-        return $"({Math.Min(TotalQuota/MoneyPerQuotaCheck, _numQuotas)}/{_numQuotas})";
+        return $"({Math.Min(TotalQuota/MoneyPerQuotaLocation, _numQuotas)}/{_numQuotas})";
     }
 
-    public override void CheckComplete() { }
+    public override void LocationComplete() { }
 
     /** 
      * Checks if the quota has been met and increments the total money earned towards quotas.
-     * If the total money earned meets the threshold for a quota check, marks the corresponding location as complete.
+     * If the total money earned meets the threshold for a quota location, marks the corresponding location as complete.
      */
-    public void CheckComplete(int profitQuotaCompleted)
+    public void LocationComplete(int profitQuotaCompleted)
     {
         if (!GameNetworkManager.Instance.localPlayerController.IsHost) return;
-        var quotaChecksMet = 0;
+        var quotaLocationsCompleted = 0;
         TotalQuota += profitQuotaCompleted;
         MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-totalQuota"] = TotalQuota;
-        while ((quotaChecksMet + 1) * MoneyPerQuotaCheck <= TotalQuota && quotaChecksMet < _numQuotas)
+        while ((quotaLocationsCompleted + 1) * MoneyPerQuotaLocation <= TotalQuota && quotaLocationsCompleted < _numQuotas)
         {
-            quotaChecksMet++;
-            SaveManager.CompleteLocation($"Quota check {quotaChecksMet}");
+            quotaLocationsCompleted++;
+            SaveManager.CompleteLocation($"Quota Location {quotaLocationsCompleted}");
         }
     }
 }
@@ -100,54 +100,54 @@ public class Quota: Locations
  */
 public class MoonLocations : Locations
 {
-    private int _timesChecked;
+    private int _gradeLocationsCompleted;
     private readonly string _name;
     private readonly int _grade;
-    private readonly int _maxChecks;
+    private readonly int _maxLocations;
     public string Name { get { return _name; } }
 
-    public MoonLocations(string name, int grade, int maxChecks): base("moon")
+    public MoonLocations(string name, int grade, int maxLocations): base("moon")
     {
         _name = name;
         _grade = grade;
-        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} Grade Checks"].Initialize(0);
-        _maxChecks = maxChecks;
+        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} Grade Locations"].Initialize(0);
+        _maxLocations = maxLocations;
     }
 
     internal async Task Setup()
     {
-        _timesChecked = await MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} Grade Checks"].GetAsync<int>();
+        _gradeLocationsCompleted = await MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} Grade Locations"].GetAsync<int>();
     }
 
     /** 
      * When the ship takes off, this checks if the grade meets the requirement to mark the location as complete.
-     * If it does, this marks the corresponding location as complete and increments the number of times checked.
+     * If it does, this marks the corresponding location as complete and increments the number of times completed.
      */
     public void OnFinishMoon(string moonName, string grade)
     {
-        if (_timesChecked >= _maxChecks) return;
+        if (_gradeLocationsCompleted >= _maxLocations) return;
         var gradeNum = Array.IndexOf(new[] { "S", "A", "B", "C", "D", "F" }, grade);
         if (gradeNum > _grade) return;
-        SaveManager.CompleteLocation($"{_name} Grade Check {_timesChecked+1}");
-        for (int i = 1; i < _timesChecked + 1; i++)
+        SaveManager.CompleteLocation($"{_name} Grade Location {_gradeLocationsCompleted+1}");
+        for (int i = 1; i < _gradeLocationsCompleted + 1; i++)
         {
             long id = MultiworldHandler.Instance.GetSession().Locations
-                .GetLocationIdFromName(MultiworldHandler.Instance.Game, $"{_name} Grade Check {_timesChecked + 1}");
+                .GetLocationIdFromName(MultiworldHandler.Instance.Game, $"{_name} Grade Location {_gradeLocationsCompleted + 1}");
             if (!MultiworldHandler.Instance.GetSession().Locations.AllLocationsChecked.Contains(id))
             {
-                SaveManager.CompleteLocation($"{_name} Grade Check {_timesChecked+1}");
+                SaveManager.CompleteLocation($"{_name} Grade Location {_gradeLocationsCompleted+1}");
             }
         }
-        _timesChecked++;
-        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} Grade Checks"] = _timesChecked;
+        _gradeLocationsCompleted++;
+        MultiworldHandler.Instance.GetSession().DataStorage[$"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-{_name} Grade Locations"] = _gradeLocationsCompleted;
     }
     
-    public override void CheckComplete(){}
+    public override void LocationComplete(){}
 
     public override string GetTrackerText()
     {
         return
-            $"({_timesChecked}/{_maxChecks}) {(((MoonItems)MwState.Instance.GetItemMap(_name)).GetTotal() > 0 ? MwState.Instance.CheckTrophy(_name) ? "Trophy Found!" : "" : "Locked!")}";
+            $"({_gradeLocationsCompleted}/{_maxLocations}) {(((MoonItems)MwState.Instance.GetItemMap(_name)).GetTotal() > 0 ? MwState.Instance.CheckTrophy(_name) ? "Trophy Found!" : "" : "Locked!")}";
     }
 }
 
@@ -165,7 +165,7 @@ public class LogLocations : Locations
         _logName = logName;
     }
 
-    public override void CheckComplete()
+    public override void LocationComplete()
     {
         if (Plugin.Instance.GetTerminal().unlockedStoryLogs.IndexOf(_logID) != -1)
         {
@@ -193,7 +193,7 @@ public class BestiaryLocations : Locations
         _bestiaryName = bestiaryName;
     }
 
-    public override void CheckComplete()
+    public override void LocationComplete()
     {
         if (Plugin.Instance.GetTerminal().scannedEnemyIDs.IndexOf(_bestiaryID) != -1)
         {
@@ -212,23 +212,23 @@ public class BestiaryLocations : Locations
  */
 public class ScrapLocations : Locations
 {
-    private int _checkedScrap;
+    private int _collectedScrap;
 
     public ScrapLocations(string[] scrapNames) : base("Scrap")  // note: scrapNames isn't needed at all and we can just replace the tracker part with MultiworldHandler.Instance.GetSession().Locations.AllLocationsChecked and MultiworldHandler.Instance.GetSession().Locations.AllLocationsMissing
     {
         MultiworldHandler.Instance.GetSession()
             .DataStorage[
-                $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"]
-            .Initialize(_checkedScrap);
+                $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-collectedScrap"]
+            .Initialize(_collectedScrap);
     }
 
     internal async Task Setup()
     {
-        _checkedScrap = await MultiworldHandler.Instance.GetSession().DataStorage[
-            $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"].GetAsync<int>();
+        _collectedScrap = await MultiworldHandler.Instance.GetSession().DataStorage[
+            $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-collectedScrap"].GetAsync<int>();
     }
 
-    public bool CheckCollected(string scrapName)
+    public bool CheckIfCollected(string scrapName)
     {
         return MultiworldHandler.Instance.GetSession().Locations.AllLocationsChecked.Contains(MultiworldHandler.Instance
             .GetSession().Locations.GetLocationIdFromName(MultiworldHandler.Instance.Game, $"Scrap - {scrapName}"));
@@ -236,9 +236,9 @@ public class ScrapLocations : Locations
 
     /*** 
      * Checks all scrap objects in the ship and marks their corresponding locations as complete.
-     * Increments the count of checked scrap for the tracker.
+     * Increments the count of collected scrap for the tracker.
      */
-    public override void CheckComplete()
+    public override void LocationComplete()
     {
         GameObject cruiser = GameObject.FindObjectsByType<VehicleController>(sortMode: FindObjectsSortMode.None).FirstOrDefault(vehicle => vehicle.magnetedToShip)?.gameObject;
         bool hasCruiser = cruiser != null;
@@ -273,23 +273,23 @@ public class ScrapLocations : Locations
                     {
                         SaveManager.CompleteLocation(
                             $"Scrap - {scrapName}");
-                        _checkedScrap++;
+                        _collectedScrap++;
                     }
 
                     MultiworldHandler.Instance.GetSession().DataStorage[
-                            $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-checkedScrap"] =
-                        _checkedScrap;
+                            $"Lethal Company-{MultiworldHandler.Instance.GetSession().Players.GetPlayerName(MultiworldHandler.Instance.GetSession().ConnectionInfo.Slot)}-collectedScrap"] =
+                        _collectedScrap;
                 }
             }
             catch (IndexOutOfRangeException e)
             {
-                Plugin.Logger.LogError($"Extra logging info: scrapName: {scrapName}, checkedScrap: {_checkedScrap}\n\n" + e.Message + "\n" + e.StackTrace);
+                Plugin.Logger.LogError($"Extra logging info: scrapName: {scrapName}, collectedScrap: {_collectedScrap}\n\n" + e.Message + "\n" + e.StackTrace);
             }
         }
     }
 
     public override string GetTrackerText()
     {
-        return $"{_checkedScrap}/{MwState.Instance.GetScrapData().Keys.Count + StartOfRound.Instance.levels.Length - 13}";
+        return $"{_collectedScrap}/{MwState.Instance.GetScrapData().Keys.Count + StartOfRound.Instance.levels.Length - 13}";
     }
 }
