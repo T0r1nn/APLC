@@ -146,7 +146,7 @@ public class MultiworldHandler
         return _slotInfo != null;
     }
 
-    public bool CheckComplete(string locationName)
+    public bool IsLocationComplete(string locationName)
     {
         return _session.Locations.AllLocationsChecked.Contains(_session.Locations.GetLocationIdFromName(Game, locationName));
     }

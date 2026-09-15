@@ -194,17 +194,17 @@ public class MwState
 
                     if (cost < 100 && moon.factorySizeMultiplier <= 1.15)
                     {
-                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, easyGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, easyGrade, _apConnection.GetSlotSetting("gradeLocationsPerMoon", 3)));
                         Plugin.Logger.LogInfo($"Easy: {moonName}");
                     }
                     else if (cost < 400)
                     {
-                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, mediumGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, mediumGrade, _apConnection.GetSlotSetting("gradeLocationsPerMoon", 3)));
                         Plugin.Logger.LogInfo($"Medium: {moonName}");
                     }
                     else
                     {
-                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, hardGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(moonName, hardGrade, _apConnection.GetSlotSetting("gradeLocationsPerMoon", 3)));
                         Plugin.Logger.LogInfo($"Hard: {moonName}");
                     }
                 }
@@ -224,24 +224,24 @@ public class MwState
                 {
                     if (kvp.Value <= vanillaMoonDifficulties[vanillaMoonDifficulties.Count / 3])            // should be vanillaMoonDifficulties[3], or Vow
                     {
-                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, easyGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, easyGrade, _apConnection.GetSlotSetting("gradeLocationsPerMoon", 3)));
                         Plugin.Logger.LogInfo($"Easy: {kvp.Key}");
                     }
                     else if (kvp.Value < vanillaMoonDifficulties[vanillaMoonDifficulties.Count * 2 / 3])    // should be vanillaMoonDifficulties[7], or Dine
                     {
-                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, mediumGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, mediumGrade, _apConnection.GetSlotSetting("gradeLocationsPerMoon", 3)));
                         Plugin.Logger.LogInfo($"Medium: {kvp.Key}");
                     }
                     else
                     {
-                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, hardGrade, _apConnection.GetSlotSetting("gradeChecksPerMoon", 3)));
+                        locationsToCreate.Add(LocationCreator.CreateMoonLocationAsync(kvp.Key, hardGrade, _apConnection.GetSlotSetting("gradeLocationsPerMoon", 3)));
                         Plugin.Logger.LogInfo($"Hard: {kvp.Key}");
                     }
                 }
             }
 
             //Quota
-            locationsToCreate.Add(LocationCreator.CreateQuotaLocationAsync(_apConnection.GetSlotSetting("moneyPerQuotaCheck", 500), _apConnection.GetSlotSetting("numQuota", 20)));
+            locationsToCreate.Add(LocationCreator.CreateQuotaLocationAsync(_apConnection.GetSlotSetting("moneyPerQuotaLocation", 500), _apConnection.GetSlotSetting("numQuota", 20)));
 
             //Bestiary
             foreach (var key in _bestiaryData.Keys)
@@ -618,10 +618,10 @@ public class MwState
             switch (location.Type)
             {
                 case "logB":
-                    ((BestiaryLocations)location).CheckComplete();
+                    ((BestiaryLocations)location).LocationComplete();
                     break;
                 case "logF":
-                    ((LogLocations)location).CheckComplete();
+                    ((LogLocations)location).LocationComplete();
                     break;
             }
         }
@@ -787,7 +787,7 @@ public class MwState
     {
         if (!_apConnection.GetSession().Socket.Connected)
         {
-            ChatHandler.SendMessage("AP: Lost connection to Archipelago server. Please reconnect before getting any new checks.");
+            ChatHandler.SendMessage("AP: Lost connection to Archipelago server. Please reconnect before getting any new locations.");
             _apConnection.Disconnect();
         }
         

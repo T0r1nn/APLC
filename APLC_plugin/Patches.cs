@@ -65,14 +65,14 @@ public class Patches
         if (MwState.Instance == null) return;
         PlayerUpgrades stamItems = (PlayerUpgrades)MwState.Instance.GetItemMap("Stamina Bar");
         if (stamItems == null) return;
-        int staminaChecks = stamItems.GetNum();
-        if (staminaChecks == 1)
+        int staminaItems = stamItems.GetNum();
+        if (staminaItems == 1)
         {
             __instance.sprintMeter = Mathf.Min(__instance.sprintMeter, 0.35f);
             return;
         }
 
-        __instance.sprintMeter = Mathf.Min(__instance.sprintMeter, staminaChecks * 0.25f);
+        __instance.sprintMeter = Mathf.Min(__instance.sprintMeter, staminaItems * 0.25f);
         return;
     }
 
@@ -263,7 +263,7 @@ public class Patches
     }
 
     /**
-     * Handles log and bestiary scanning and sends the check to the server
+     * Handles log and bestiary scanning and sends the location to the server
      */
     [HarmonyPrefix]
     [HarmonyPatch(typeof(HUDManager), "DisplayGlobalNotification")]
@@ -350,7 +350,7 @@ public class Patches
     }
 
     /**
-     * Handles the getting of quota checks
+     * Handles the completion of quota locations
      */
     [HarmonyPrefix]
     [HarmonyPriority(Priority.VeryLow)]
@@ -364,11 +364,11 @@ public class Patches
     private static void SetNewProfitQuotaPostfix(TimeOfDay __instance, int __state)
     {
         if (MultiworldHandler.Instance == null || __instance.profitQuota <= __state) return;    // quota didn't change, so it wasn't fulfilled
-        ((Quota)MwState.Instance.GetLocationMap("Quota")).CheckComplete(__state);
+        ((Quota)MwState.Instance.GetLocationMap("Quota")).LocationComplete(__state);
     }
 
     /**
-     * Checks deathlink, checks for moon checks, and checks for victory
+     * Checks deathlink, completes moon locations, and checks for victory
      */
     [HarmonyPostfix]
     [HarmonyAfter(["com.elitemastereric.coroner"])]
@@ -400,7 +400,7 @@ public class Patches
 
         if (MultiworldHandler.Instance.GetSlotSetting("scrapsanity") == 1)
         {
-            MwState.Instance.GetLocationMap("Scrap").CheckComplete();
+            MwState.Instance.GetLocationMap("Scrap").LocationComplete();
         }
 
         GameObject cruiser = GameObject.FindObjectsByType<VehicleController>(sortMode: FindObjectsSortMode.None).FirstOrDefault(vehicle => vehicle.magnetedToShip)?.gameObject;

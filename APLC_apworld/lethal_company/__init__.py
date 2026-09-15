@@ -23,37 +23,39 @@ class LethalCompanyWeb(WebWorld):
             options.CreditReplacement,
             options.RequiredCredits
         ]),
-        OptionGroup("Checks", [
-            options.GradeChecksPerMoon,
+        OptionGroup("Location Options", [
+            options.GradeLocationsPerMoon,
             options.NumQuotas,
             options.QuotaCheckpointEvery,
-            options.MoneyPerQuotaCheck,
-            options.Scrapsanity,
+            options.MoneyPerQuotaLocation,
+            options.Scrapsanity
+        ], True),
+        OptionGroup("Item Options", [
             options.RandomizeCompanyBuilding,
             options.RandomizeScanner,
             options.RandomizeTerminal
         ], True),
-        OptionGroup("Starting Info", [
+        OptionGroup("Starting Options", [
             options.StartingMoon,
             options.StartingStaminaBars,
             options.StartingInventorySlots
         ], True),
-        OptionGroup("Logic Config", [
-            options.GradeCheckRequiredGrade,
+        OptionGroup("Logic Options", [
+            options.GradeLocationRequiredGrade,
             options.SplitMoonGrades,
-            options.EasyMoonCheckGrade,
-            options.MedMoonCheckGrade,
-            options.HardMoonCheckGrade,
+            options.EasyMoonLocationGrade,
+            options.MedMoonLocationGrade,
+            options.HardMoonLocationGrade,
             options.ScrapSpawnChance,
             options.MonsterSpawnChance,
-            options.MinMoneyCheck,
-            options.MaxMoneyCheck,
+            options.MinMoneyPerMoneyItem,
+            options.MaxMoneyPerMoneyItem,
             options.ModifyScrapSpawns,
             options.ExcludeShotguns,
             options.ExcludeHive,
             options.ExcludeEgg
         ], True),
-        OptionGroup("Weights", [
+        OptionGroup("Trap/Filler Weights", [
             options.MoneyWeight,
             options.BirthdayGiftWeight,
             options.WeightReducers,

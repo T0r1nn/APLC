@@ -294,15 +294,15 @@ public class Plugin : BaseUnityPlugin
 
                 string scrapName = itemName.Equals("AP Apparatus - Custom") ? $"AP Apparatus - {moon.PlanetName}" : itemName;
                 scrapMap.TryAdd(scrapName, new Collection<(string moon_name, double chance)>());
-                var checkMoons = scrapMap.Get(scrapName);
+                var moonsSpawnedOn = scrapMap.Get(scrapName);
                 bool existsAlready = false;
 
-                for (var index = 0; index < checkMoons.Count; index++)
+                for (var index = 0; index < moonsSpawnedOn.Count; index++)
                 {
-                    var entry = checkMoons[index];
+                    var entry = moonsSpawnedOn[index];
                     if (entry.Item1 == moon.PlanetName)
                     {
-                        checkMoons[index] = new ValueTuple<string, double>(entry.Item1,
+                        moonsSpawnedOn[index] = new ValueTuple<string, double>(entry.Item1,
                         entry.Item2 + rarity / totalRarity);
                         existsAlready = true;
                     }
@@ -384,13 +384,13 @@ public class Plugin : BaseUnityPlugin
                         }
                         bestiaryMap.TryAdd(creatureName, new Collection<ValueTuple<string, double>>());
                         bool existsAlready = false;
-                        var checkMoons = bestiaryMap.Get(creatureName);
-                        for (var index = 0; index < checkMoons.Count; index++)
+                        var moonsSpawnedOn = bestiaryMap.Get(creatureName);
+                        for (var index = 0; index < moonsSpawnedOn.Count; index++)
                         {
-                            var entry = checkMoons[index];
+                            var entry = moonsSpawnedOn[index];
                             if (entry.Item1 == moon.PlanetName)
                             {
-                                checkMoons[index] = new ValueTuple<string, double>(entry.Item1,
+                                moonsSpawnedOn[index] = new ValueTuple<string, double>(entry.Item1,
                                     entry.Item2 + (double)item.rarity / totalRarity[0]);
                                 existsAlready = true;
                             }
@@ -433,13 +433,13 @@ public class Plugin : BaseUnityPlugin
                         }
                         bestiaryMap.TryAdd(creatureName, []);
                         bool existsAlready = false;
-                        var checkMoons = bestiaryMap.Get(creatureName);
-                        for (var index = 0; index < checkMoons.Count; index++)
+                        var moonsSpawnedOn = bestiaryMap.Get(creatureName);
+                        for (var index = 0; index < moonsSpawnedOn.Count; index++)
                         {
-                            var entry = checkMoons[index];
+                            var entry = moonsSpawnedOn[index];
                             if (entry.Item1 == moon.PlanetName)
                             {
-                                checkMoons[index] = new ValueTuple<string, double>(entry.Item1,
+                                moonsSpawnedOn[index] = new ValueTuple<string, double>(entry.Item1,
                                     entry.Item2 + (double)item.rarity / totalRarity[1]);
                                 existsAlready = true;
                             }
@@ -475,13 +475,13 @@ public class Plugin : BaseUnityPlugin
                             }
                             bestiaryMap.TryAdd(creatureName, []);
                             bool existsAlready = false;
-                            var checkMoons = bestiaryMap.Get(creatureName);
-                            for (var index = 0; index < checkMoons.Count; index++)
+                            var moonsSpawnedOn = bestiaryMap.Get(creatureName);
+                            for (var index = 0; index < moonsSpawnedOn.Count; index++)
                             {
-                                var entry = checkMoons[index];
+                                var entry = moonsSpawnedOn[index];
                                 if (entry.Item1 == moon.PlanetName)
                                 {
-                                    checkMoons[index] = new ValueTuple<string, double>(entry.Item1,
+                                    moonsSpawnedOn[index] = new ValueTuple<string, double>(entry.Item1,
                                         entry.Item2 + (double)item.rarity / totalRarity[2]);
                                     existsAlready = true;
                                 }

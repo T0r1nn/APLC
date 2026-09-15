@@ -2,7 +2,7 @@ import math
 from typing import Dict, List, TYPE_CHECKING
 from BaseClasses import Location
 from .imported import data
-from .options import GradeChecksPerMoon, NumQuotas
+from .options import GradeLocationsPerMoon, NumQuotas
 from .custom_content import custom_content
 
 if TYPE_CHECKING:
@@ -52,10 +52,10 @@ def get_default_location_map():
     location_result = {}
 
     for i in range(len(moons)):
-        for j in range(GradeChecksPerMoon.range_end):
-            location_result.update(check_location(f"{moons[i]} Grade Check {j + 1}"))
+        for j in range(GradeLocationsPerMoon.range_end):
+            location_result.update(check_location(f"{moons[i]} Grade Location {j + 1}"))
     for i in range(NumQuotas.range_end):
-        location_result.update(check_location(f"Quota check {i + 1}"))
+        location_result.update(check_location(f"Quota Location {i + 1}"))
     for i in range(len(log_names)):
         location_result.update(check_location(f"Log - {log_names[i]}"))
     for i in range(len(bestiary_names)):
@@ -118,10 +118,10 @@ def generate_locations(world: "LethalCompanyWorld"):
     location_result = {}
 
     for i in range(len(moons)):
-        for j in range(world.options.grade_checks_per_moon.value):
-            location_result.update(check_location(f"{moons[i]} Grade Check {j + 1}")) 
+        for j in range(world.options.grade_locations_per_moon.value):
+            location_result.update(check_location(f"{moons[i]} Grade Location {j + 1}")) 
     for i in range(world.options.num_quotas.value):
-        location_result.update(check_location(f"Quota check {i + 1}"))
+        location_result.update(check_location(f"Quota Location {i + 1}"))
     for i in range(len(world.log_names)):
         location_result.update(check_location(f"Log - {world.log_names[i]}"))
     for i in range(len(world.bestiary_names)):
