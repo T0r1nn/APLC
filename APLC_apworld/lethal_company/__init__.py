@@ -20,6 +20,7 @@ class LethalCompanyWeb(WebWorld):
         OptionGroup("Goal", [
             options.Goal,
             options.CollectathonScrapGoal,
+            options.CollectathonRandomScrap,
             options.CreditReplacement,
             options.RequiredCredits
         ]),
