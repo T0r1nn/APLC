@@ -6,7 +6,8 @@ class Goal(Choice):
     """
     Trophy Mode: Each moon has a rare trophy scrap, the goal is to get all of them (11 with no custom moons)
 
-    Collectathon: A new rare scrap is added, you need to collect at least ten of it to win
+    Collectathon: A new rare scrap is added. To win, you need to collect a certain amount of it as well as a selection 
+    of random scrap
 
     Credit Hunt: You must receive a number of company credit items as specified by the yaml to win. This can lead to
     very short or very long games depending on your settings
