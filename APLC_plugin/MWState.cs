@@ -769,7 +769,6 @@ public class MwState
             if (name.Contains("AP Apparatus"))
             {
                 string moonNameOnLabel = name[(name.IndexOf(" - ") + 3)..];
-                Plugin.Logger.LogInfo(moonNameOnLabel);
                 if (GetCurrentMoonName().ToLower().Contains(moonNameOnLabel.ToLower()) || (moonNameOnLabel.Contains("Custom") && !scrap.scrapPersistedThroughRounds))
                 {
                     name = $"AP Apparatus - {GetCurrentMoonName()}";
@@ -787,7 +786,11 @@ public class MwState
         }
         _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-collectathonCollectedScrap"] = _collectathonRandomScrapCollected;
 
-        HUDManager.Instance.DisplayTip("Archipelago", $"Collected {amount} apchests. Progress: {_scrapCollected}/{_scrapGoal}");
+        if (amount > 0)
+        {
+            HUDManager.Instance.DisplayTip("Archipelago", $"Collected {amount} apchests. Progress: {_scrapCollected}/{_scrapGoal}");
+            APLCNetworking.Instance.AddCollectathonScrapClientRpc(amount);  // we do this to sync _scrapCollected with the host
+        }
 
         if (_scrapCollected >= _scrapGoal && _collectathonRandomScrapCollected.Intersect(_collectathonRandomScrapRequired).Count() >= _collectathonRandomScrapRequired.Length)
         {
@@ -799,7 +802,6 @@ public class MwState
             Plugin.Logger.LogInfo(scrapList);
             _apConnection.Victory();
         }
-        APLCNetworking.Instance.AddCollectathonScrapClientRpc(amount);  // we do this to sync _scrapCollected with the host
     }
     
     public void IncrementScrapCollected(int amount)

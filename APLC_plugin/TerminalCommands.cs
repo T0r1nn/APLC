@@ -207,7 +207,7 @@ Quota: {((Quota)MwState.Instance.GetLocationMap("Quota")).GetTrackerText()}, {to
                     result += $"Scrap on {moon.PlanetName}:\n";
                     foreach (var scrap in moon.spawnableScrap)
                     {
-                        result += $" - {scrap.spawnableItem.itemName}\n";
+                        result += $" - {scrap.spawnableItem.itemName}\n";   // this won't work for scrap added by LLL or Dawn, but it only happens when not connected
                     }
 
                     return result += "\n";
