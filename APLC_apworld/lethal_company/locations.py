@@ -140,7 +140,7 @@ def generate_bestiary_moons(world: "LethalCompanyWorld", chance: float) -> Dict[
     for monster, spawn_locations in world.imported_data["bestiary"].items():
         b_moons = []
         for moon in spawn_locations:
-            if moon["chance"] >= chance:
+            if moon["chance"] >= chance and moon["chance"] > 0:
                 b_moons.append(moon["moon_name"])
         if b_moons == []:
                 best_moon = max(spawn_locations, key=lambda moon_spawns: moon_spawns["chance"])
