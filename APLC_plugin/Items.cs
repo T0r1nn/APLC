@@ -223,6 +223,7 @@ public class MoonItems : Items
         DawnCompat.AssignPurchasePredicate(level);
         if (level.GetDawnInfo().RouteNode?.itemCost > 0) level.GetDawnInfo().RouteNode.itemCost = 0;
         if (level.GetDawnInfo().ReceiptNode?.itemCost > 0) level.GetDawnInfo().ReceiptNode.itemCost = 0;
+        level.GetDawnInfo().DawnPurchaseInfo.Cost = new SimpleProvider<int>(0);
 
         _level = level;
     }
