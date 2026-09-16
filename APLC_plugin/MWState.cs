@@ -61,7 +61,7 @@ public class MwState
         _scrapData = logic.Item5;
 
         _trophyModeComplete = new object[_moons.Length];
-        _collectathonRandomScrapRequired = _apConnection.GetSlotSetting<JArray>("collectathonrequiredscrap").ToObject<string[]>();
+        _collectathonRandomScrapRequired = _apConnection.GetSlotSetting<JArray>("collectathonrequiredscrap")?.ToObject<string[]>();
         _collectathonRandomScrapCollected = [];
 
         NormalMoonPrices = new Dictionary<string, int>();
@@ -736,8 +736,24 @@ public class MwState
         _apConnection.Victory();
     }
 
-    // check if this scrap is in collectathonrequiredscrap. if so and not in _collectathonRandomScrapCollected, add it to _collectathonRandomScrapCollected
-    
+    // check if this scrap is in _collectathonRandomScrapRequired or game mode is not collectathon
+    public bool CollectathonScrapIsRequired(string scrapName)
+    {
+        if (GetGoal() == 1 && _collectathonRandomScrapRequired.Contains(scrapName))
+            return true;
+
+        return false;
+    }
+
+    // check if this scrap is in _collectathonRandomScrapRequired or game mode is not collectathon
+    public bool CollectathonScrapIsCollected(string scrapName)
+    {
+        if (GetGoal() == 1 && _collectathonRandomScrapCollected.Contains(scrapName))
+            return true;
+
+        return false;
+    }
+
     public string GetCurrentMoonName()
     {
         return StartOfRound.Instance.currentLevel.PlanetName;
