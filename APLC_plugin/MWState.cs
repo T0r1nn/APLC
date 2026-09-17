@@ -167,6 +167,17 @@ public class MwState
             List<int> vanillaMoonDifficulties = [];
             List<Task> locationsToCreate = new();
 
+            // Adjust scrap amounts on Dine to something manageable (and in the case of mss, balanced)
+            if (_apConnection.GetSlotSettingInt("fixscrapsanity") == 1 || Plugin.BoundConfig.ReduceDineScrap.Value)
+            {
+                SelectableLevel dine = StartOfRound.Instance.levels.FirstOrDefault(level => level.PlanetName.Contains("7 Dine"));
+                if (dine != null && dine.minScrap == 200 && dine.maxScrap == 250)
+                {
+                    dine.minScrap /= 5;
+                    dine.maxScrap /= 5;
+                }
+            }
+
             //Moons
             foreach (var moon in _moons)
             {
@@ -373,18 +384,6 @@ public class MwState
                                 if (!commonScrapToMoonMap.ContainsKey(item)) commonScrapToMoonMap[item] = [];
                                 commonScrapToMoonMap[item].Add(moon);
                                 scrap.Add(item);
-                            }
-                        }
-                        // Adjust scrap amounts on Dine back to v72 values
-                        if (moon.PlanetName.Contains("Dine"))
-                        {
-                            if (moon.minScrap == 200)
-                            {
-                                moon.minScrap = 22;
-                            }
-                            if (moon.maxScrap == 250 && moon.minScrap <= 26)
-                            {
-                                moon.maxScrap = 26;
                             }
                         }
                     }
