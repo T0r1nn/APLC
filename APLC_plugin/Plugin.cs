@@ -245,7 +245,11 @@ public class Plugin : BaseUnityPlugin
                 if (item.rarity > 0)
                 {
                     totalRarity += item.rarity;
-                    scrapRarityDict.Add(item.spawnableItem.itemName, item.rarity);
+                    if (!scrapRarityDict.TryAdd(item.spawnableItem.itemName, item.rarity))
+                    {
+                        scrapRarityDict[item.spawnableItem.itemName] += item.rarity;
+                        Plugin.Logger.LogInfo($"scrapRarityDict already has key for scrap {item.spawnableItem.itemName}. Rarities will be combined.");
+                    }
                     continue;
                 }
                 DawnItemInfo itemInfo = item.spawnableItem.GetDawnInfo();
@@ -254,13 +258,13 @@ public class Plugin : BaseUnityPlugin
                     int? scrapWeight = itemInfo.ScrapInfo.Weights.GetFor(moonInfo, new SpawnWeightContext(moonInfo, interiorInfo, null));
                     rarity += scrapWeight?? 0 * (int)interiorInfo.Weights.GetFor(moonInfo, ctx: blankContext) / (float)totalInteriorRarity;
                 }
-                    totalRarity += rarity;
+                totalRarity += rarity;
                 if (!scrapRarityDict.TryAdd(item.spawnableItem.itemName, rarity)) 
                 {
                     scrapRarityDict[item.spawnableItem.itemName] += rarity;
                     Plugin.Logger.LogInfo($"scrapRarityDict already has key for Dawn scrap {item.spawnableItem.itemName}. Rarities will be combined.");
-                    }
                 }
+            }
 
             if (LLLCompat.IsLethalLevelLoaderInstalled)
             {
