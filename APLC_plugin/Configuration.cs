@@ -16,6 +16,7 @@ namespace APLC {
         public ConfigEntry<bool> DeathLink;
         public ConfigEntry<bool> OverrideMWDeathlink;
         public ConfigEntry<DifficultyCalculationMethod> DifficultyCalculation;
+        public ConfigEntry<bool> ReduceDineScrap;
 
         public enum DifficultyCalculationMethod
         {
@@ -42,6 +43,8 @@ namespace APLC {
             DifficultyCalculation = cfg.Bind("Logic", "Moon difficulty calculation method", DifficultyCalculationMethod.CostBased,
                 "The method used to calculate moon difficulty (easy/medium/hard) for grade locations. 'CostBased' uses the cost of the moon. 'Complex' uses a custom algorithm that considers " +
                 "moon cost, max enemy power, enemy weights, scrap weights, and other factors, where moons less than or equal to Vow's difficulty are 'easy' and moons between Vow and Dine are 'medium'.");
+            ReduceDineScrap = cfg.Bind("Logic", "Reduce Dine scrap", false,
+                "If true, Dine will have its minimum and maximum scrap divided by 5. Using an alternative like ButteRyBalance is advised. Disable this option if modifying Dine's scrap another way.");
 
             ClearUnusedEntries(cfg);
         }
