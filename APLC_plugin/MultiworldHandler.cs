@@ -92,6 +92,9 @@ public class MultiworldHandler
         }
 
         Instance = this;
+
+        string version = GetSlotSetting<string>("worldversion");
+        Plugin.Logger.LogInfo($"Mod version is '{PluginInfo.PLUGIN_VERSION}'. Apworld version is '{version}'.");
     }
 
     public DeathLinkService GetDLService()

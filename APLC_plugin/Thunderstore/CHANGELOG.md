@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.0
+**<details><summary>Fixes</summary>**
+* TBD
+</details>
+**<details><summary>Changes</summary>**
+* TBD
+</details>
+**NOT COMPATIBLE WITH APWORLDS GENERATED PRIOR TO 0.8.0**
+
 ## 0.7.13
 **<details><summary>Fixes</summary>**
 * fixed an issue where the mod tried to use enemy traps on company moons and produced errors

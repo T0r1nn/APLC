@@ -199,6 +199,7 @@ class LethalCompanyWorld(World):
         calculate_credits(self)
 
         slot_data = {
+            "worldversion": World.world_version.as_simple_string(),
             "deathLink": self.options.death_link.value,
             "deathLinkScrapLossPercent": self.options.death_link_percent_scrap_lost.value
         }
