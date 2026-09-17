@@ -256,9 +256,9 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
         #else:
         add_location(player, f"Bestiary Entry - {monster}", multiworld.get_region(monster, player))
         if len(bestiary_moons[monster]) < 1 or (len(bestiary_moons[monster]) <= 2 and bestiary_moons[monster][-1] == 'excluded'):
-            multiworld.get_location(f"Bestiary Entry - {monster}", player).item_rule = lambda item: not \
-                    (item.classification == ItemClassification.progression or
-                     item.classification == ItemClassification.useful)
+            multiworld.get_location(f"Bestiary Entry - {monster}", player).item_rule = lambda item: \
+                    (item.classification == ItemClassification.filler or
+                     item.classification == ItemClassification.trap)
 
     if options.scrapsanity.value == 1:
         for scrap_name in world.scrap_names:
@@ -269,9 +269,9 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
             add_location(player, f"Scrap - {scrap_name}", multiworld.get_region(scrap_name, player))
 
             if len(scrap_moons[scrap_name]) < 1 or (len(scrap_moons[scrap_name]) <= 2 and scrap_moons[scrap_name][-1] == 'excluded'):
-                multiworld.get_location(f"Scrap - {scrap_name}", player).item_rule = lambda item: not \
-                    (item.classification == ItemClassification.progression or
-                     item.classification == ItemClassification.useful)
+                multiworld.get_location(f"Scrap - {scrap_name}", player).item_rule = lambda item: \
+                    (item.classification == ItemClassification.filler or
+                     item.classification == ItemClassification.trap)
 
 
 def add_location(player: int, location: str, region: Region):
