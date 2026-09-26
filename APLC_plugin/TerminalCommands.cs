@@ -497,6 +497,7 @@ To use a filler item, re-enter this command followed by the item's name.
         }
         Config.GameName = text;
         SaveManager.SaveConfig();
+        ES3.Save("ArchipelagoWorldName", Config.GameName, GameNetworkManager.Instance.currentSaveFileName);
         return $"Set game name to Lethal Company - {text}\n\n";
     }
     

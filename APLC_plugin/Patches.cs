@@ -217,6 +217,7 @@ public class Patches
                 string slot = ES3.Load<string>("ArchipelagoSlot", GameNetworkManager.Instance.currentSaveFileName);
                 string password =
                     ES3.Load<string>("ArchipelagoPassword", GameNetworkManager.Instance.currentSaveFileName);
+                Config.GameName = ES3.Load<string>("ArchipelagoWorldName", GameNetworkManager.Instance.currentSaveFileName, "");
                 ChatHandler.SetConnectionInfo(url, port, slot, password);
                 ConnectionInfo info = new ConnectionInfo(url, port, slot, password);
                 MwState state = new MwState(info);
