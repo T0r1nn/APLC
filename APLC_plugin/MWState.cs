@@ -44,6 +44,8 @@ public class MwState
     public static Dictionary<string, int> NormalMoonPrices {  get; private set; }
     
     private static readonly ProfilerMarker s_CreateLocations = new("APLC.MwState.CreateLocations");
+    private static readonly ProfilerMarker s_CreateMoonLocations = new("APLC.MwState.CreateMoonLocations");
+    private static readonly ProfilerMarker s_ModifyScrapSpawns = new("APLC.MwState.ModifyScrapSpawns");
     private static readonly ProfilerMarker s_CreateItems = new("APLC.MwState.CreateItems");
     private static readonly ProfilerMarker s_ProcessItems = new("APLC.MwState.ProcessItems");
 
@@ -95,7 +97,7 @@ public class MwState
         _apConnection.TickItems += TickItems;
         _apConnection.GetDLService().OnDeathLinkReceived += KillRandom;
         _connectionInfo = connectionInfo;
-        
+
         Instance = this;
         
         _goal = _apConnection.GetSlotSettingInt("goal");
@@ -120,7 +122,7 @@ public class MwState
         ES3.Save("ArchipelagoPort", _connectionInfo.Port, GameNetworkManager.Instance.currentSaveFileName);
         ES3.Save("ArchipelagoSlot", _connectionInfo.Slot, GameNetworkManager.Instance.currentSaveFileName);
         ES3.Save("ArchipelagoPassword", _connectionInfo.Password, GameNetworkManager.Instance.currentSaveFileName);
-        
+
         if (GetStartingMoon() != null) ES3.Save("APStartingMoon", GetStartingMoon(), GameNetworkManager.Instance.currentSaveFileName);
         StartOfRound.Instance.defaultPlanet = StartOfRound.Instance.levels.FirstOrDefault(l => l.PlanetName.ToLower().Contains(GetStartingMoon().ToLower()))?.levelID ?? 0;
 
@@ -178,6 +180,9 @@ public class MwState
                 }
             }
 
+#if ENABLE_PROFILER
+            s_CreateMoonLocations.Begin();
+#endif
             //Moons
             foreach (var moon in _moons)
             {
@@ -257,6 +262,9 @@ public class MwState
                     }
                 }
             }
+#if ENABLE_PROFILER
+            s_CreateMoonLocations.End();
+#endif
 
             //Quota
             locationsToCreate.Add(LocationCreator.CreateQuotaLocationAsync(_apConnection.GetSlotSettingInt("moneyPerQuotaLocation", 500), _apConnection.GetSlotSettingInt("numQuota", 20)));
@@ -297,6 +305,9 @@ public class MwState
             //Scrap
             if (_apConnection.GetSlotSettingInt("fixscrapsanity") == 1)
             {
+#if ENABLE_PROFILER
+                s_ModifyScrapSpawns.Begin();
+#endif
 
                 Dictionary<string, string[]> scrapToMoonMap = _apConnection.GetScrapToMoonMap();
 
@@ -404,6 +415,9 @@ public class MwState
                         Plugin.Logger.LogWarning($"Failed to override scrap rarity for {kvp.Key.spawnableItem.itemName}. It will not be added to the common indoor scrap pool.");
                     }
                 }
+#if ENABLE_PROFILER
+                s_ModifyScrapSpawns.End();
+#endif
             }
 
             string[] scrapNames = new string[_scrapData.Keys.Count];
@@ -599,7 +613,7 @@ public class MwState
         }, false));
         itemsToCreate.Add(ItemCreator.CreateFillerItemAsync("Birthday Gift", () =>
         {
-            if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost) { 
+            if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost) {
                 Item[] items = Plugin.Instance.GetTerminal().buyableItemsList;
                 int i = Random.RandomRangeInt(0, items.Length);
                 Plugin.Instance.GetTerminal().orderedItemsFromTerminal.Add(i);
