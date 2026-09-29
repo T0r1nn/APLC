@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Archipelago.MultiClient.Net.Models;
+using BepInEx;
 using Dawn;
 using Newtonsoft.Json.Linq;
 using Unity.Netcode;
@@ -121,6 +124,18 @@ public class TerminalCommands
             });
         });
         commandInfo.Add(worldCommandInfo);
+
+        TerminalCommandBasicInformation logicCommandInfo = new TerminalCommandBasicInformation("ApLogic", "Archipelago",
+            "Get logic output for use in custom apworlds\nUsage: 'aplogic {copy|print}'", ClearText.Result | ClearText.Query);
+        DawnLib.DefineTerminalCommand(NamespacedKey<DawnTerminalCommandInfo>.From("aplc", "logic_command"), logicCommandInfo, builder =>
+        {
+            builder.SetKeywords(["aplogic"]);
+            builder.DefineInputCommand(complexBuilder =>
+            {
+                complexBuilder.SetResultDisplayText(ProcessLogicCommand);
+            });
+        });
+        commandInfo.Add(logicCommandInfo);
 
         // ApHelp command
         TerminalCommandBasicInformation archipelagoHelpCommandInfo = new TerminalCommandBasicInformation("ApHelp", "Help", 
@@ -500,7 +515,39 @@ To use a filler item, re-enter this command followed by the item's name.
         ES3.Save("ArchipelagoWorldName", Config.GameName, GameNetworkManager.Instance.currentSaveFileName);
         return $"Set game name to Lethal Company - {text}\n\n";
     }
-    
+
+    public static string ProcessLogicCommand(string args)
+    {
+        if (GameNetworkManager.Instance == null) return "GameNetworkManager is null. Something is very wrong!\n\n";
+        if (args.ToLower().Contains("print"))
+        {
+            Plugin.Logger.LogInfo(Plugin.Instance.GetGameLogicString());
+            return "The logic string can now be found in the log file.\n\n";
+        }
+        else if (args.ToLower().Contains("copy"))
+        {
+            UnityEngine.GUIUtility.systemCopyBuffer = Plugin.Instance.GetGameLogicString();
+            return "Successfully copied logic string to clipboard!\n\n";
+        }
+        else if (args.ToLower().Contains("export"))
+        {
+            string logic_string = Plugin.Instance.GetGameLogicString();
+            string output_dir = Path.Combine(Paths.ConfigPath, "APLC");
+            if (!Directory.Exists(output_dir))
+                Directory.CreateDirectory(output_dir);
+            string output_path = output_dir + "\\LogicOutput.json";
+            File.WriteAllText(output_path, logic_string);
+            output_path = new Regex("C:\\\\Users\\\\\\w+\\\\").Replace(output_path, "%user%\\\\", 1);
+            output_path = new Regex("\\/home\\/\\w+\\/").Replace(output_path, "~\\/", 1);
+            return $"Successfully copied logic string to {output_path}\n\n";
+        }
+
+        return "Argument not recognized. Valid arguments are:\n" +
+            "print - Outputs the logic string in the game log\n" +
+            "copy - Copies the logic string to the clipboard\n" +
+            "export - Saves the logic string to a file\n\n";
+    }
+
     private static string GenerateMoonProgressTracker()
     {
         return StartOfRound.Instance.levels.Where(moon => moon.spawnEnemiesAndScrap && !moon.PlanetName.Contains("Liquidation")).Aggregate("", (current, moon) => current + $"    {moon.PlanetName} {MwState.Instance.GetLocationMap(moon.PlanetName).GetTrackerText()}\n");
