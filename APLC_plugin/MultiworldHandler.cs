@@ -177,9 +177,9 @@ public class MultiworldHandler
 
     public T GetSlotSetting<T>(string settingName)
     {
-        T result;
+        T result = default;
 
-        if (_slotInfo == null || !_slotInfo.SlotData.TryGetValue(settingName, out object value)) return default;
+        if (_slotInfo == null || !_slotInfo.SlotData.TryGetValue(settingName, out object value)) return result;
 
         try
         {
@@ -187,7 +187,7 @@ public class MultiworldHandler
         }
         catch (InvalidCastException)
         {
-            throw new InvalidCastException($"Unable to get Slot Setting '{settingName}' as {typeof(T)}. Cannot convert {value.GetType()} to {typeof(T)}");
+            Plugin.Logger.LogError($"Unable to get Slot Setting '{settingName}' as {typeof(T)}. Cannot convert {value.GetType()} to {typeof(T)}");
         }
 
         return result;
