@@ -83,9 +83,6 @@ def set_rules(lc_world: 'LethalCompanyWorld') -> None:
             if lc_world.scrap_names[scrap_index] == "Kitchen knife" and options.exclude_killing.value == 1:
                 multiworld.get_location("Scrap - Kitchen knife", player).progress_type = LocationProgressType.EXCLUDED
 
-            if lc_world.scrap_names[scrap_index] == "Gold bar":
-                multiworld.get_location("Scrap - Gold bar", player).progress_type = LocationProgressType.EXCLUDED
-
     multiworld.completion_condition[player] = lambda state: state.has("Victory", player)
 
 
