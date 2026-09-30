@@ -26,7 +26,7 @@ namespace APLC
             {
                 _failNode = ScriptableObject.CreateInstance<TerminalNode>();
                 _failNode.name = $"{moonInfo.Level.PlanetName.Replace(" ", "").SkipWhile(x => !char.IsLetter(x)).ToArray()}APLCTerminalPredicateFail";
-                _failNode.displayText = "This moon is not unlocked yet! Find it in the multiworld to travel there.";
+                _failNode.displayText = "This moon is not unlocked yet! Find it in the multiworld to travel there.\n\n";
             }
             return TerminalPurchaseResult.Fail(_failNode).SetOverrideName($"{(moonInfo.Level.PlanetName == "71 Gordion" ? "The Company building" : moonInfo.GetNumberlessPlanetName())} (Locked)");
         }
