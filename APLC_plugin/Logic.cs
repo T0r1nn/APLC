@@ -17,9 +17,10 @@ public class Logic
     private readonly Region[] _moons;
     private readonly Region[] _scrap;
 
-    public Logic()
+    public Logic(ValueTuple<Item[], BuyableVehicle[], SelectableLevel[], 
+        Dictionary<string, Collection<ValueTuple<string, double>>>, 
+        Dictionary<string, Collection<ValueTuple<string, double>>>> importedLogic)
     {
-        ValueTuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<ValueTuple<string, double>>>, Dictionary<string, Collection<ValueTuple<string, double>>>> importedLogic = Plugin.Instance.GetGameLogic();
         
         Rule canBuy = state =>
             (MultiworldHandler.Instance.GetSlotSettingInt("randomizeterminal") == 0 || state.Has("Terminal")) &&

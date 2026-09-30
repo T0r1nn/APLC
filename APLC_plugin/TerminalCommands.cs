@@ -18,9 +18,12 @@ public class TerminalCommands
 {
     public static Logic LcLogic;
 
-    public static void SetLogic()
+    public static void SetLogic(ValueTuple<Item[], BuyableVehicle[], SelectableLevel[],
+        Dictionary<string, Collection<(string moon_name, double chance)>>,
+        Dictionary<string, Collection<(string moon_name, double chance)>>> logic = new())
     {
-        LcLogic = new Logic();
+        if (logic.Item1 == null) logic = Plugin.Instance.GetGameLogic();
+        LcLogic = new Logic(logic);
     }
 
     internal static void SetUpTerminalCommands()

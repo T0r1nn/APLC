@@ -78,11 +78,13 @@ public class MwState
         }
         ES3.Save("APNormalMoonPrices", NormalMoonPrices, GameNetworkManager.Instance.currentSaveFileName);
 
-        _ = PrepareMwState(connectionInfo);
+        _ = PrepareMwState(connectionInfo, logic);
 
     }
 
-    private async Task PrepareMwState(ConnectionInfo connectionInfo)
+    private async Task PrepareMwState(ConnectionInfo connectionInfo, ValueTuple<Item[], BuyableVehicle[], SelectableLevel[],
+        Dictionary<string, Collection<(string moon_name, double chance)>>,
+        Dictionary<string, Collection<(string moon_name, double chance)>>> logic)
     {
         Plugin.Logger.LogInfo("Preparing MwState...");
         Task createLocations = CreateLocations();  // this and CreateItems() need to run before any of the handlers are set up, otherwise we can have a scenario where an item comes in before the item map knows what it is
@@ -116,7 +118,7 @@ public class MwState
         _collectathonRandomScrapCollected = await _apConnection.GetSession().DataStorage[$"Lethal Company-{_apConnection.GetSession().Players.GetPlayerName(_apConnection.GetSession().ConnectionInfo.Slot)}-collectathonCollectedScrap"].GetAsync<List<string>>();
 
         _apConnection.Process(new AplcEventArgs(_apConnection.GetReceivedItems()));
-        TerminalCommands.SetLogic();
+        TerminalCommands.SetLogic(logic);
 
         ES3.Save("ArchipelagoURL", _connectionInfo.URL, GameNetworkManager.Instance.currentSaveFileName);
         ES3.Save("ArchipelagoPort", _connectionInfo.Port, GameNetworkManager.Instance.currentSaveFileName);
