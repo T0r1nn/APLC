@@ -88,7 +88,7 @@ class LethalCompanyWorld(World):
     """
     Placeholder description
     """
-    game = f"Lethal Company{name}"
+    game = f"Lethal Company{" - " + name if name != "" else ""}"
     options_dataclass = LCOptions
     options: LCOptions
     topology_present = False

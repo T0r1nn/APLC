@@ -116,20 +116,29 @@ If you have trouble using UnityExplorer, refer to the following image:
 
 ### Using custom content in multiworlds with other lethal company games
 Once you have your custom content apworld, to make it compatible with other people you need to do a few more steps.
-1. First, you must decided on a name for your game. This name can't be the same as anyone else who is making a custom
-content lethal company game, as its what keeps the apworlds from colliding. 
-2. In the custom_content.py file, navigate to the "name": "" line, and replace the "" with " - [world name]" where you replace [world name] with whatever you
-chose for your game's name. 
-3. Then, you must rename the lethal_company folder to lethal_company-[world name], zip it back up, and change the filetype back to .apworld, before changing the apworld's name to lethal_company[world_name].apworld
+1. First, you must decide on a name for your game. This name can't be the same as anyone else who is making a custom
+content lethal company game, as it's what keeps the apworlds from colliding. 
+2. In the custom_content.py file, choose a name for your custom game and place it within the empty "" on the line that 
+says 'name'. The file's contents should now look like this:
+custom_content = {
+    "name": "*your chosen name*"
+}
+3. In archipelago.json, change the value of the 'game' field to "Lethal Company - *your chosen name*". Do not modify any
+other part of this file.
+4. Finally, rename the lethal_company folder to lethal_company-*your chosen name*, zip it back up, change the file 
+extension back to .apworld, and change the apworld's name to lethal_company-*your chosen name*.apworld. If you already 
+prepared a yaml file, you also need to open it and change **every** mention of Lethal Company to 
+"Lethal Company - *your chosen name*".
 
-Once this is complete, you can boot up the game. Before you connect to the game, you first must enter the following command 
-in the ship terminal: `world [world name]`. This will sync your save file up to the new apworld name, which will allow you to 
-successfully connect to archipelago. If you ever delete the save file or make a new one, make sure to always run this command
-BEFORE running /connect.
+Once this is complete, you can launch the game. Before you connect to the game, you must first enter the command 
+'apworld *world name*' in the ship's terminal. This will sync your save file to the new apworld name, which will allow 
+you to successfully connect to the multiworld using it. If you ever delete the save file or make a new one, you **must** 
+run this command BEFORE connecting to a multiworld.
 
 ### Custom Content Disclaimers:
-Multiworlds might be unbeatable with custom content. If this happens, let me know so I can improve the logic string generation method.
+Multiworlds might be unbeatable with custom content. If this happens, let me know so I can improve the logic string 
+generation method.
 
 Custom content might be bugged, as testing with every possible modded moon/scrap/monster combo is not feasible for me.
-If you run into any bugs, however, don't hesitate to either create a github issue or message me in the archipelago discord
-so I can work on fixing that bug.
+If you run into any bugs, however, don't hesitate to either create a github issue or message me in the archipelago 
+discord so I can work on fixing that bug.
