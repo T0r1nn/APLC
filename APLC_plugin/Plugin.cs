@@ -28,7 +28,9 @@ public class Plugin : BaseUnityPlugin
     internal static PluginConfig BoundConfig { get; private set; } = null!;
     internal new static ManualLogSource Logger { get; private set; } = null!;
 
-    private static readonly ProfilerMarker s_GetLogic = new("APLC.Plugin.MaybeLag");
+    private static readonly ProfilerMarker s_GetLogic = new("APLC.Plugin.GetGameLogic");
+    private static readonly ProfilerMarker s_GetScrapLogic = new("APLC.Plugin.ScrapLogic");
+    private static readonly ProfilerMarker s_GetBestiaryLogic = new("APLC.Plugin.BestiaryLogic");
 
     /**
      * Patches the game on startup, injecting the code into the game.
@@ -219,7 +221,9 @@ public class Plugin : BaseUnityPlugin
             { "Hive", new Collection<ValueTuple<string, double>>() },
             { "Sapsucker Egg", new Collection<ValueTuple<string, double>>() }
         };
-
+#if ENABLE_PROFILER
+        s_GetScrapLogic.Begin();
+#endif
         foreach (SelectableLevel moon in moons)
         {
             if (!moon.spawnEnemiesAndScrap || moon.PlanetName.Contains("Liquidation")) continue;
@@ -338,11 +342,18 @@ public class Plugin : BaseUnityPlugin
             }
             scrapMap.Get("Apparatus").Add(new ValueTuple<string, double>(moon.PlanetName, (double)facilityRarity / totalIntRarity));
         }
+#if ENABLE_PROFILER
+        s_GetScrapLogic.End();
+#endif
 
         var bestiaryMap = new Dictionary<string, Collection<ValueTuple<string, double>>> { };
 
         bestiaryMap.Add("Kidnapper fox", new Collection<ValueTuple<string, double>>());
         bestiaryMap.Add("Vain shroud", new Collection<ValueTuple<string, double>>());
+
+#if ENABLE_PROFILER
+        s_GetBestiaryLogic.Begin();
+#endif
 
         foreach (SelectableLevel moon in moons)
         {
@@ -513,6 +524,10 @@ public class Plugin : BaseUnityPlugin
                     }
                 }
         }
+#if ENABLE_PROFILER
+        s_GetBestiaryLogic.End();
+#endif
+
 
         return new ValueTuple<Item[], BuyableVehicle[], SelectableLevel[], Dictionary<string, Collection<ValueTuple<string, double>>>, Dictionary<string, Collection<ValueTuple<string, double>>>>(store, vehicles, moons, bestiaryMap, scrapMap);
     }

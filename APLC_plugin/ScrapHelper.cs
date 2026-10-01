@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Dawn;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.UIElements.Collections;
 
@@ -10,6 +11,8 @@ namespace APLC
 {
     internal class ScrapHelper
     {
+        private static readonly ProfilerMarker s_GetLogicScrapTest1 = new("APLC.ScrapHelper.ScrapTest1");
+        private static readonly ProfilerMarker s_GetLogicScrapTest2 = new("APLC.ScrapHelper.ScrapTest2");   // this took about 2.5x longer to complete
 
         public static int GetRarityOfThisScrap(Item scrapItem, SpawnWeightContext context)
         {
@@ -27,6 +30,10 @@ namespace APLC
         public static void AddScrapSpawnProbabilitiesForThisMoon(SelectableLevel moon,
             ref Dictionary<string, Collection<ValueTuple<string, double>>> scrapMap)
         {
+#if ENABLE_PROFILER
+            using var automarker = s_GetLogicScrapTest2.Auto();
+#endif
+
             if (!moon.spawnEnemiesAndScrap || moon.PlanetName.Contains("Liquidation")) return;
 
             DawnMoonInfo moonInfo = moon.GetDawnInfo(); // can use Item.spawnPrefab.GetComponent<GrabbableObject>().GetType() to check if the item is a LungProp
@@ -105,16 +112,6 @@ namespace APLC
                     moon.PlanetName.Contains(
                         itemName[new Range(15, itemName.Length)]))
                 {
-                    if (itemName.Contains("Adamance"))   // Adamance has two apparatuses, and the second one seems to replace the one in moon.spawnableScrap.
-                                                         // This is an expensive and hacky way to fix it, but I don't have a better one right now
-                    {
-                        var spawningItems = Resources.FindObjectsOfTypeAll<Item>().Where(item => item.spawnPrefab && item.itemName.Contains("AP Apparatus - Adamance")).ToHashSet();
-
-                        foreach (var appy in spawningItems)
-                        {
-                            appy.itemName = $"AP Apparatus - {moon.PlanetName}";
-                        }
-                    }
                     itemName = $"AP Apparatus - {moon.PlanetName}";
                 }
                 else if (itemName.Contains("AP Apparatus - ") && !itemName.Contains("Custom"))
@@ -184,14 +181,310 @@ namespace APLC
                 double probNotSpawned = (totalScrapRarityForThisInterior - scrapRarityForThisInterior) / (double)totalScrapRarityForThisInterior;
 
                 probOfAtLeastOne += (1 - Math.Pow(probNotSpawned, moonInfo.Level.minScrap)) * spawnChanceOfThisInterior;
-#if DEBUG
-            if (scrapItem.itemName.Contains("Large axle"))
-            {
-                Plugin.Logger.LogInfo($"Info for {scrapItem.itemName} in {interiorInfo.DungeonFlow.name} on {moonInfo.Level.PlanetName}: \n\tprobOfAtLeastOne-{probOfAtLeastOne} \n\tprobNotSpawned-{probNotSpawned} \n\tspawnChanceOfThisInterior-{spawnChanceOfThisInterior}");
-            }
-#endif
+                /*
+                if (scrapItem.itemName.Contains("Large axle"))
+                {
+                    Plugin.Logger.LogInfo($"Info for {scrapItem.itemName} in {interiorInfo.DungeonFlow.name} on {moonInfo.Level.PlanetName}: \n\tprobOfAtLeastOne-{probOfAtLeastOne} \n\tprobNotSpawned-{probNotSpawned} \n\tspawnChanceOfThisInterior-{spawnChanceOfThisInterior}");
+                }
+                */
             }
             return probOfAtLeastOne;
+        }
+
+        internal static void TestMoonThing1()
+        {
+#if ENABLE_PROFILER
+            using var automarker = s_GetLogicScrapTest1.Auto();
+#endif
+            var allMoons = StartOfRound.Instance.levels;
+
+            int companyMoonsAmount = StartOfRound.Instance.levels.Count(moon => !moon.spawnEnemiesAndScrap);
+
+            var moons = new SelectableLevel[allMoons.Length - companyMoonsAmount - 1];
+
+            int skipped = 0;
+            for (int i = 0; i < allMoons.Length; i++)
+            {
+                if (allMoons[i].PlanetName.Contains("Liquidation") || !allMoons[i].spawnEnemiesAndScrap)
+                {
+                    skipped++;
+                    continue;
+                }
+                moons[i - skipped] = allMoons[i];
+            }
+
+            var scrapMap = new Dictionary<string, Collection<ValueTuple<string, double>>>
+            {
+                { "Apparatus", new Collection<ValueTuple<string, double>>() },
+                { "Shotgun", new Collection<ValueTuple<string, double>>() },
+                { "Kitchen knife", new Collection<ValueTuple<string, double>>() },
+                { "Hive", new Collection<ValueTuple<string, double>>() },
+                { "Sapsucker Egg", new Collection<ValueTuple<string, double>>() }
+            };
+
+            foreach (SelectableLevel moon in moons)
+            {
+                if (!moon.spawnEnemiesAndScrap || moon.PlanetName.Contains("Liquidation")) continue;
+
+                DawnMoonInfo moonInfo = moon.GetDawnInfo(); // can use Item.spawnPrefab.GetComponent<GrabbableObject>().GetType() to check if the item is a LungProp
+
+                // begin scrap --------------------------------------------------------------------------------------------------------------
+                Dictionary<string, double> scrapRarityDict = [];
+
+                var scrap = moon.spawnableScrap;
+                double totalRarity = 0;
+                SpawnWeightContext blankContext = new(moonInfo, null, null);
+                var interiors = RoundManager.Instance.dungeonFlowTypes.Where(flow => flow.dungeonFlow.GetDawnInfo().Weights.GetFor(moonInfo, ctx: blankContext) > 0).Select(flow => flow.dungeonFlow.GetDawnInfo());
+                int totalInteriorRarity = 0;
+                foreach (var interior in interiors)
+                {
+                    totalInteriorRarity += (int)interior.Weights.GetFor(moonInfo, ctx: blankContext);
+                }
+
+                foreach (var item in scrap)
+                {
+                    if (!item.spawnableItem.isScrap) continue;
+                    if (item.rarity > 0)
+                    {
+                        totalRarity += item.rarity;
+                        if (!scrapRarityDict.TryAdd(item.spawnableItem.itemName, item.rarity))
+                        {
+                            scrapRarityDict[item.spawnableItem.itemName] += item.rarity;
+                            Plugin.Logger.LogInfo($"scrapRarityDict already has key for scrap {item.spawnableItem.itemName}. Rarities will be combined.");
+                        }
+                        continue;
+                    }
+                    DawnItemInfo itemInfo = item.spawnableItem.GetDawnInfo();
+                    float rarity = 0;
+                    foreach (var interiorInfo in interiors)
+                    {
+                        int? scrapWeight = itemInfo.ScrapInfo.Weights.GetFor(moonInfo, new SpawnWeightContext(moonInfo, interiorInfo, null));
+                        rarity += scrapWeight ?? 0 * (int)interiorInfo.Weights.GetFor(moonInfo, ctx: blankContext) / (float)totalInteriorRarity;
+                    }
+                    totalRarity += rarity;
+                    if (!scrapRarityDict.TryAdd(item.spawnableItem.itemName, rarity))
+                    {
+                        scrapRarityDict[item.spawnableItem.itemName] += rarity;
+                        Plugin.Logger.LogInfo($"scrapRarityDict already has key for Dawn scrap {item.spawnableItem.itemName}. Rarities will be combined.");
+                    }
+                }
+
+                if (LLLCompat.IsLethalLevelLoaderInstalled)
+                {
+                    foreach (Item item in LethalContent.Items.Values.Where(item => item.ShopInfo == null && item.ScrapInfo == null && item.Item.isScrap).Select(itemInfo => itemInfo.Item))
+                    {
+                        double rarity = LLLCompat.GetDynamicRarityForAllDungeons(item, moon, totalInteriorRarity);
+                        if (rarity > 0)
+                        {
+                            totalRarity += rarity;
+                            if (!scrapRarityDict.TryAdd(item.itemName, rarity))
+                            {
+                                scrapRarityDict[item.itemName] += rarity;
+                                Plugin.Logger.LogInfo($"scrapRarityDict already has key for LLL scrap {item.itemName}. Rarities will be combined.");
+                            }
+                        }
+                    }
+                }
+
+                foreach (var (item, rarity) in scrapRarityDict)
+                {
+                    string itemName = item;
+                    if (itemName.Contains("AP Apparatus - ") &&
+                        moon.PlanetName.Contains(
+                            itemName[new Range(15, itemName.Length)]))
+                    {
+                        itemName = $"AP Apparatus - {moon.PlanetName}";
+                    }
+                    else if (itemName.Contains("AP Apparatus - ") && !itemName.Contains("Custom"))
+                    {
+                        continue;
+                    }
+
+                    string scrapName = itemName.Equals("AP Apparatus - Custom") ? $"AP Apparatus - {moon.PlanetName}" : itemName;
+                    scrapMap.TryAdd(scrapName, new Collection<(string moon_name, double chance)>());
+                    var moonsSpawnedOn = scrapMap.Get(scrapName);
+                    bool existsAlready = false;
+
+                    for (var index = 0; index < moonsSpawnedOn.Count; index++)
+                    {
+                        var entry = moonsSpawnedOn[index];
+                        if (entry.Item1 == moon.PlanetName)
+                        {
+                            moonsSpawnedOn[index] = new ValueTuple<string, double>(entry.Item1,
+                            entry.Item2 + rarity / totalRarity);
+                            existsAlready = true;
+                        }
+                    }
+
+                    if (!existsAlready)
+                    {
+                        scrapMap.Get(scrapName)
+                            .Add(new ValueTuple<string, double>(moon.PlanetName, rarity / totalRarity));
+                    }
+                }
+
+                // end scrap -------------------------------------------------------------------------------------------------------------
+
+                int totalIntRarity = 0;
+                int facilityRarity = 0;
+                foreach (var interior in moon.dungeonFlowTypes)
+                {
+                    totalIntRarity += interior.rarity;
+                    if (interior.id == 0 || interior.id == 3)
+                    {
+                        facilityRarity = interior.rarity;
+                    }
+                }
+
+                if (Double.IsNaN((double)facilityRarity / totalIntRarity))
+                {
+                    totalIntRarity = 1;
+                }
+                scrapMap.Get("Apparatus").Add(new ValueTuple<string, double>(moon.PlanetName, (double)facilityRarity / totalIntRarity));
+            }
+
+        }
+
+        internal static void TestMoonThing2()
+        {
+#if ENABLE_PROFILER
+            using var automarker = s_GetLogicScrapTest2.Auto();
+#endif
+            var allMoons = StartOfRound.Instance.levels;
+
+            int companyMoonsAmount = StartOfRound.Instance.levels.Count(moon => !moon.spawnEnemiesAndScrap);
+
+            var moons = new SelectableLevel[allMoons.Length - companyMoonsAmount - 1];
+
+            int skipped = 0;
+            for (int i = 0; i < allMoons.Length; i++)
+            {
+                if (allMoons[i].PlanetName.Contains("Liquidation") || !allMoons[i].spawnEnemiesAndScrap)
+                {
+                    skipped++;
+                    continue;
+                }
+                moons[i - skipped] = allMoons[i];
+            }
+
+            var scrapMap = new Dictionary<string, Collection<ValueTuple<string, double>>>
+            {
+                { "Apparatus", new Collection<ValueTuple<string, double>>() },
+                { "Shotgun", new Collection<ValueTuple<string, double>>() },
+                { "Kitchen knife", new Collection<ValueTuple<string, double>>() },
+                { "Hive", new Collection<ValueTuple<string, double>>() },
+                { "Sapsucker Egg", new Collection<ValueTuple<string, double>>() }
+            };
+
+            foreach (SelectableLevel moon in moons)
+            {
+                if (!moon.spawnEnemiesAndScrap || moon.PlanetName.Contains("Liquidation")) continue;
+
+                DawnMoonInfo moonInfo = moon.GetDawnInfo(); // can use Item.spawnPrefab.GetComponent<GrabbableObject>().GetType() to check if the item is a LungProp
+
+                // begin scrap --------------------------------------------------------------------------------------------------------------
+                Dictionary<string, double> scrapRarityDict = [];
+
+                var scrap = moon.spawnableScrap;
+                double totalRarity = 0;
+                SpawnWeightContext blankContext = new(moonInfo, null, null);
+                var interiors = RoundManager.Instance.dungeonFlowTypes.Where(flow => flow.dungeonFlow.GetDawnInfo().Weights.GetFor(moonInfo, ctx: blankContext) > 0).Select(flow => flow.dungeonFlow.GetDawnInfo());
+                int totalInteriorRarity = 0;
+                foreach (var interior in interiors)
+                {
+                    totalInteriorRarity += (int)interior.Weights.GetFor(moonInfo, ctx: blankContext);
+                }
+
+                foreach (DawnItemInfo itemInfo in LethalContent.Items.Values)
+                {
+                    if (itemInfo.ScrapInfo == null || itemInfo.ShopInfo != null || !itemInfo.Item.isScrap) continue;
+                    float rarity = 0;
+                    foreach (var interiorInfo in interiors)
+                    {
+                        int? scrapWeight = itemInfo.ScrapInfo.Weights.GetFor(moonInfo, new SpawnWeightContext(moonInfo, interiorInfo, null));
+                        rarity += scrapWeight ?? 0 * (int)interiorInfo.Weights.GetFor(moonInfo, ctx: blankContext) / (float)totalInteriorRarity;
+                    }
+                    totalRarity += rarity;
+                    if (!scrapRarityDict.TryAdd(itemInfo.Item.itemName, rarity))
+                    {
+                        scrapRarityDict[itemInfo.Item.itemName] += rarity;
+                        Plugin.Logger.LogInfo($"scrapRarityDict already has key for Dawn scrap {itemInfo.Item.itemName}. Rarities will be combined.");
+                    }
+                }
+
+                if (LLLCompat.IsLethalLevelLoaderInstalled)
+                {
+                    foreach (Item item in LethalContent.Items.Values.Where(item => item.ShopInfo == null && item.ScrapInfo == null && item.Item.isScrap).Select(itemInfo => itemInfo.Item))
+                    {
+                        double rarity = LLLCompat.GetDynamicRarityForAllDungeons(item, moon, totalInteriorRarity);
+                        if (rarity > 0)
+                        {
+                            totalRarity += rarity;
+                            if (!scrapRarityDict.TryAdd(item.itemName, rarity))
+                            {
+                                scrapRarityDict[item.itemName] += rarity;
+                                Plugin.Logger.LogInfo($"scrapRarityDict already has key for LLL scrap {item.itemName}. Rarities will be combined.");
+                            }
+                        }
+                    }
+                }
+
+                foreach (var (item, rarity) in scrapRarityDict)
+                {
+                    string itemName = item;
+                    if (itemName.Contains("AP Apparatus - ") &&
+                        moon.PlanetName.Contains(
+                            itemName[new Range(15, itemName.Length)]))
+                    {
+                        itemName = $"AP Apparatus - {moon.PlanetName}";
+                    }
+                    else if (itemName.Contains("AP Apparatus - ") && !itemName.Contains("Custom"))
+                    {
+                        continue;
+                    }
+
+                    string scrapName = itemName.Equals("AP Apparatus - Custom") ? $"AP Apparatus - {moon.PlanetName}" : itemName;
+                    scrapMap.TryAdd(scrapName, new Collection<(string moon_name, double chance)>());
+                    var moonsSpawnedOn = scrapMap.Get(scrapName);
+                    bool existsAlready = false;
+
+                    for (var index = 0; index < moonsSpawnedOn.Count; index++)
+                    {
+                        var entry = moonsSpawnedOn[index];
+                        if (entry.Item1 == moon.PlanetName)
+                        {
+                            moonsSpawnedOn[index] = new ValueTuple<string, double>(entry.Item1,
+                            entry.Item2 + rarity / totalRarity);
+                            existsAlready = true;
+                        }
+                    }
+
+                    if (!existsAlready)
+                    {
+                        scrapMap.Get(scrapName)
+                            .Add(new ValueTuple<string, double>(moon.PlanetName, rarity / totalRarity));
+                    }
+                }
+
+                // end scrap -------------------------------------------------------------------------------------------------------------
+
+                int totalIntRarity = 0;
+                int facilityRarity = 0;
+                foreach (var interior in moon.dungeonFlowTypes)
+                {
+                    totalIntRarity += interior.rarity;
+                    if (interior.id == 0 || interior.id == 3)
+                    {
+                        facilityRarity = interior.rarity;
+                    }
+                }
+
+                if (Double.IsNaN((double)facilityRarity / totalIntRarity))
+                {
+                    totalIntRarity = 1;
+                }
+                scrapMap.Get("Apparatus").Add(new ValueTuple<string, double>(moon.PlanetName, (double)facilityRarity / totalIntRarity));
+            }
         }
 
     }
