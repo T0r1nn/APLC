@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Dawn;
 using UnityEngine;
 
 namespace APLC;
@@ -254,15 +255,12 @@ public class ScrapLocations : Locations
             string scrapName = scrap.itemProperties.itemName;
             if (scrap.name.Contains("ap_apparatus"))
             {
-                string currentMoonName = MwState.Instance.GetCurrentMoonName();
+                string currentMoonName = StartOfRound.Instance.currentLevel.GetDawnInfo().GetNumberlessPlanetName();    // change back to GetCurrentMoonName() once that method uses GetNumberlessPlanetName()
                 string moonNameOnLabel = scrapName[(scrapName.IndexOf(" - ") + 3)..];
-                if (currentMoonName.ToLower().Contains(moonNameOnLabel.ToLower()) || (scrap.name.Contains("ap_apparatus_custom") && !scrap.scrapPersistedThroughRounds))
+                if (currentMoonName.ToLower().Equals(moonNameOnLabel.ToLower()) || (scrap.name.Contains("ap_apparatus_custom") && !scrap.scrapPersistedThroughRounds))
                 {
-                    scrapName = $"AP Apparatus - {currentMoonName}";
+                    scrapName = $"AP Apparatus - {MwState.Instance.GetCurrentMoonName()}";
                 }
-                if (scrap.scrapPersistedThroughRounds) continue;
-                //scrap.itemProperties.itemName = $"AP Apparatus - {MwState.Instance.GetCurrentMoonName().ToLower()}";
-                scrapName = $"AP Apparatus - {MwState.Instance.GetCurrentMoonName()}";
             }
             if (scrap.name.Contains("KiwiBabyItem"))
             {
