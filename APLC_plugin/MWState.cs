@@ -606,9 +606,15 @@ public class MwState
                 int i = Random.RandomRangeInt(0, objects.Count);
 
                 var gameObject = UnityEngine.Object.Instantiate(objects[i].itemProperties.spawnPrefab,
-                    objects[i].transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
-                gameObject.GetComponent<GrabbableObject>().SetScrapValue(objects[i].scrapValue);
-                gameObject.GetComponentInChildren<NetworkObject>().Spawn();
+                    objects[i].transform.position + Vector3.up * 0.5f, Quaternion.identity, StartOfRound.Instance.elevatorTransform);
+                GrabbableObject clonedItem = gameObject.GetComponent<GrabbableObject>();
+                clonedItem.startFallingPosition = gameObject.transform.position;
+                clonedItem.targetFloorPosition = clonedItem.GetItemFloorPosition(gameObject.transform.position);
+                clonedItem.FallToGround(randomizePosition: true, justSpawned: true, overrideStartPos: gameObject.transform.position);
+                clonedItem.OnBroughtToShip();
+                clonedItem.SetScrapValue(objects[i].scrapValue);
+                RoundManager.Instance.scrapCollectedInLevel += clonedItem.scrapValue;
+                clonedItem.NetworkObject.Spawn();
                 return true;
             }
             return false;
