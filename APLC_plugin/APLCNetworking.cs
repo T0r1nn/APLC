@@ -29,22 +29,23 @@ public class APLCNetworking : NetworkBehaviour
 
     public void SendConnection(ConnectionInfo info)
     {
-        SendConnectionServerRpc(info.URL, info.Port, info.Slot, info.Password);
+        SendConnectionServerRpc(info.URL, info.Port, info.Slot, info.Password, Config.GameName);
     }
     
     [ServerRpc(RequireOwnership = false)]
-    public void SendConnectionServerRpc(string url, int port, string slot, string password)
+    public void SendConnectionServerRpc(string url, int port, string slot, string password, string gameName = "")
     {
         Debug.Log("Sending connection to server: " + url + ":" + port);
-        SendConnectionClientRpc(url, port, slot, password);
+        SendConnectionClientRpc(url, port, slot, password, gameName);
     }
 
     [ClientRpc]
-    public void SendConnectionClientRpc(string url, int port, string slot, string password)
+    public void SendConnectionClientRpc(string url, int port, string slot, string password, string gameName)
     {
         Debug.Log("Received connection to server: " + url + ":" + port);
         if (MultiworldHandler.Instance == null)
         {
+            if (gameName != "") Config.GameName = gameName;
             _ = new MwState(new ConnectionInfo(url, port, slot, password));
         }
     }
