@@ -15,7 +15,7 @@ public class ItemCreator
         return filler;
     }
 
-    public static Items CreateMoonItem(SelectableLevel level)
+    public static Items CreateMoonItem(DawnMoonInfo level)
     {
         MoonItems moon = new(level);
         _ = moon.Setup();
@@ -216,21 +216,21 @@ public class FillerItems : Items
  */
 public class MoonItems : Items
 {
-    private readonly SelectableLevel _level;
-    public MoonItems(SelectableLevel level) : base(level.PlanetName)   // todo: pass the SelectableLevel as a parameter instead of the moon name
+    private readonly DawnMoonInfo _level;
+    public MoonItems(DawnMoonInfo level) : base(level.GetNumberlessPlanetName())   // todo: pass the SelectableLevel as a parameter instead of the moon name
     {
 
         DawnCompat.AssignPurchasePredicate(level);
-        if (level.GetDawnInfo().RouteNode?.itemCost > 0) level.GetDawnInfo().RouteNode.itemCost = 0;
-        if (level.GetDawnInfo().ReceiptNode?.itemCost > 0) level.GetDawnInfo().ReceiptNode.itemCost = 0;
-        level.GetDawnInfo().DawnPurchaseInfo.Cost = new SimpleProvider<int>(0);
+        if (level.RouteNode?.itemCost > 0) level.RouteNode.itemCost = 0;
+        if (level.ReceiptNode?.itemCost > 0) level.ReceiptNode.itemCost = 0;
+        level.DawnPurchaseInfo.Cost = new SimpleProvider<int>(0);
 
         _level = level;
     }
 
     protected override bool HandleReceived(bool isTick=false)
     {
-        Plugin.Logger.LogInfo($"Unlocking moon {_level.PlanetName}");
+        Plugin.Logger.LogInfo($"Unlocking moon {_level.Level.PlanetName}");
         // We don't need to do anything here because Dawn handles the unlocking for us
         return true;
     }

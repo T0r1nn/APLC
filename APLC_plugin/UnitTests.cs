@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using Dawn;
 
 namespace APLC
 {
@@ -91,7 +92,7 @@ namespace APLC
             if (MultiworldHandler.Instance == null) return false;
             object[] trophies;
             string[] validLevels = [.. StartOfRound.Instance.levels.Where(level => level.spawnEnemiesAndScrap && !level.PlanetName.Contains("Liquidation")).Select(
-                level => level.PlanetName.ToLower())];
+                level => level.GetDawnInfo().GetNumberlessPlanetName().ToLower())];
             MwState.Instance.ResetTrophyList();
             // test 1: every vanilla moon gets its trophy completed
             foreach (string moon in validLevels)

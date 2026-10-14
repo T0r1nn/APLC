@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Dawn;
 using Rule = System.Func<APLC.State, bool>;
 
 namespace APLC;
@@ -24,7 +25,7 @@ public class Logic
         
         Rule canBuy = state =>
             (MultiworldHandler.Instance.GetSlotSettingInt("randomizeterminal") == 0 || state.Has("Terminal")) &&
-            (MultiworldHandler.Instance.GetSlotSettingInt("randomizecompany") == 0 || state.Has("71 Gordion"));    // change back to "Company" if we ever support custom company moons
+            (MultiworldHandler.Instance.GetSlotSettingInt("randomizecompany") == 0 || state.Has("Gordion"));    // change back to "Company" if we ever support custom company moons
         _state = new State(MwState.Instance);
         Region startingMoon = new Region(MwState.Instance.GetStartingMoon());
         _menu.AddConnection(startingMoon, state => true);
@@ -34,7 +35,7 @@ public class Logic
         _moons = new Region[importedLogic.Item3.Length];
         _scrap = new Region[importedLogic.Item5.Count];
         
-        terminal.AddConnection(companyBuilding, state => MultiworldHandler.Instance.GetSlotSettingInt("randomizecompany")==0 || state.Has("71 Gordion"));  // change back to "Company" if we ever support custom company moons
+        terminal.AddConnection(companyBuilding, state => MultiworldHandler.Instance.GetSlotSettingInt("randomizecompany")==0 || state.Has("Gordion"));  // change back to "Company" if we ever support custom company moons
 
         for (var i = 0; i < MultiworldHandler.Instance.GetSlotSettingInt("numQuota"); i++)
         {
@@ -45,7 +46,7 @@ public class Logic
         string[] moonNames = new string[importedLogic.Item3.Length];
         for (int i = 0; i < importedLogic.Item3.Length; i++)
         {
-            moonNames[i] = importedLogic.Item3[i].PlanetName;
+            moonNames[i] = importedLogic.Item3[i].GetDawnInfo().GetNumberlessPlanetName();
         }
         for (var index = 0; index < moonNames.Length; index++)
         {
@@ -168,12 +169,14 @@ public class Logic
             "artifice", "liquidation", "gordion"
         ];
 
-        foreach (var moon in StartOfRound.Instance.levels)
+        foreach (var moon in LethalContent.Moons.Values)
         {
-            if (!moon.spawnEnemiesAndScrap || moon.PlanetName.Contains("Liquidation")) continue;
-            var vanilla = vanillaMoons.Any(vanillaMoon => moon.PlanetName.ToLower().Contains(vanillaMoon));
+            if (moon.Level.levelID < 0) continue;
+            string moonName = moon.GetNumberlessPlanetName();
+            if (!moon.Level.spawnEnemiesAndScrap || moonName.Contains("Liquidation")) continue;
+            var vanilla = vanillaMoons.Any(vanillaMoon => moonName.ToLower().Contains(vanillaMoon));
             if (vanilla) continue;
-            var scrapName = $"AP Apparatus - {moon}";
+            var scrapName = $"AP Apparatus - {moonName}";
                 
             var scrapRegion = new Region(scrapName);
             scrapRegion.AddLocation(scrapName);
@@ -219,10 +222,11 @@ public class Logic
             }
         }
 
-        foreach (var moon in StartOfRound.Instance.levels)
+        foreach (var moon in LethalContent.Moons.Values)
         {
-            var moonName = moon.PlanetName;
-            if (!moon.spawnEnemiesAndScrap || moonName.Contains("Liquidation")) continue;
+            if (moon.Level.levelID < 0) continue;
+            var moonName = moon.GetNumberlessPlanetName();
+            if (!moon.Level.spawnEnemiesAndScrap || moonName.Contains("Liquidation")) continue;
             var moonRegion = GetMoonRegion(moonName);
             if (moonRegion == null)
             {

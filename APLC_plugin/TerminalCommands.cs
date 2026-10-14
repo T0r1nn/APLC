@@ -218,12 +218,14 @@ Quota: {((Quota)MwState.Instance.GetLocationMap("Quota")).GetTrackerText()}, {to
         string result = "";
         if (MultiworldHandler.Instance == null || LcLogic == null || MultiworldHandler.Instance.GetSlotSettingInt("scrapsanity") == 0)
         {
-            foreach (var moon in StartOfRound.Instance.levels)
+            foreach (var moon in LethalContent.Moons.Values)
             {
-                if (moon.PlanetName.ToLower().Contains(text.ToLower()))
+                if (moon.Level.levelID < 0) continue;
+                string planetName = moon.GetNumberlessPlanetName();
+                if (planetName.ToLower().Contains(text.ToLower()))
                 {
-                    result += $"Scrap on {moon.PlanetName}:\n";
-                    foreach (var scrap in moon.spawnableScrap)
+                    result += $"Scrap on {planetName}:\n";
+                    foreach (var scrap in moon.Level.spawnableScrap)    // need to get the scrap from lclogic instead because this is inaccurate
                     {
                         result += $" - {scrap.spawnableItem.itemName}\n";   // this won't work for scrap added by LLL or Dawn, but it only happens when not connected
                     }
@@ -553,7 +555,11 @@ To use a filler item, re-enter this command followed by the item's name.
 
     private static string GenerateMoonProgressTracker()
     {
-        return StartOfRound.Instance.levels.Where(moon => moon.spawnEnemiesAndScrap && !moon.PlanetName.Contains("Liquidation")).Aggregate("", (current, moon) => current + $"    {moon.PlanetName} {MwState.Instance.GetLocationMap(moon.PlanetName).GetTrackerText()}\n");
+        return LethalContent.Moons.Values.Where(moon => moon.Level.spawnEnemiesAndScrap && moon.Level.levelID >= 0 && !moon.GetNumberlessPlanetName().Contains("Liquidation")).Aggregate("", (current, moon) =>
+        {
+            string moonName = moon.GetNumberlessPlanetName();
+            return current + $"    {moonName} {MwState.Instance.GetLocationMap(moonName).GetTrackerText()}\n";
+        });
     }
 
     public static void ModifyTerminalPages(Terminal t)

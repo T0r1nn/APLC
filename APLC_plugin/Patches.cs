@@ -7,6 +7,7 @@ using System.Text;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Packets;
 using BepInEx.Bootstrap;
+using Dawn;
 using GameNetcodeStuff;
 using HarmonyLib;
 using Unity.Netcode;
@@ -246,7 +247,7 @@ public class Patches
     public static void SetStartingMoon(StartOfRound __instance)
     {
         if (MultiworldHandler.Instance == null || !ES3.KeyExists("APStartingMoon", GameNetworkManager.Instance.currentSaveFileName)) return;
-        SelectableLevel startingMoon = StartOfRound.Instance.levels.FirstOrDefault(l => l.PlanetName.ToLower().Contains(ES3.Load<string>("APStartingMoon", GameNetworkManager.Instance.currentSaveFileName).ToLower()));
+        SelectableLevel startingMoon = LethalContent.Moons.Values.FirstOrDefault(l => l.GetNumberlessPlanetName().ToLower().Contains(ES3.Load<string>("APStartingMoon", GameNetworkManager.Instance.currentSaveFileName).ToLower())).Level;
         if (startingMoon != null)
         {
             StartOfRound.Instance.defaultPlanet = startingMoon.levelID;
@@ -397,7 +398,7 @@ public class Patches
         }
         //if (dead) MwState.Instance.IgnoreDL = false;
 
-        ((MoonLocations)MwState.Instance.GetLocationMap(StartOfRound.Instance.currentLevel.PlanetName)).OnFinishMoon(StartOfRound.Instance.currentLevel.PlanetName, grade);
+        ((MoonLocations)MwState.Instance.GetLocationMap(StartOfRound.Instance.currentLevel.GetDawnInfo().GetNumberlessPlanetName())).OnFinishMoon(StartOfRound.Instance.currentLevel.GetDawnInfo().GetNumberlessPlanetName(), grade);
 
         if (MultiworldHandler.Instance.GetSlotSettingInt("scrapsanity") == 1)
         {
@@ -575,8 +576,7 @@ public class Patches
 
         if (!__instance.isInShipRoom && __instance.name.Contains("ap_apparatus_custom"))
         {
-            string planetName = StartOfRound.Instance.currentLevel.PlanetName;
-            __instance.GetComponentInChildren<ScanNodeProperties>().headerText = $"AP Apparatus - {(int.TryParse(planetName.Split(" ", 2)[0], out _) ? planetName.Split(" ", 2)[1] : planetName)}";
+            __instance.GetComponentInChildren<ScanNodeProperties>().headerText = $"AP Apparatus - {StartOfRound.Instance.currentLevel.GetDawnInfo().GetNumberlessPlanetName()}";
         }
     }
 

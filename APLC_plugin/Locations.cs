@@ -255,11 +255,11 @@ public class ScrapLocations : Locations
             string scrapName = scrap.itemProperties.itemName;
             if (scrap.name.Contains("ap_apparatus"))
             {
-                string currentMoonName = StartOfRound.Instance.currentLevel.GetDawnInfo().GetNumberlessPlanetName();    // change back to GetCurrentMoonName() once that method uses GetNumberlessPlanetName()
+                string currentMoonName = MwState.Instance.GetCurrentMoonName();    // change back to GetCurrentMoonName() once that method uses GetNumberlessPlanetName()
                 string moonNameOnLabel = scrapName[(scrapName.IndexOf(" - ") + 3)..];
                 if (currentMoonName.ToLower().Equals(moonNameOnLabel.ToLower()) || (scrap.name.Contains("ap_apparatus_custom") && !scrap.scrapPersistedThroughRounds))
                 {
-                    scrapName = $"AP Apparatus - {MwState.Instance.GetCurrentMoonName()}";
+                    scrapName = $"AP Apparatus - {currentMoonName}";
                 }
             }
             if (scrap.name.Contains("KiwiBabyItem"))

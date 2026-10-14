@@ -178,59 +178,59 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
 
     logs.append(Region("Behind the Wall", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("61 March", player).connect(logs[0])
+    multiworld.get_region("March", player).connect(logs[0])
     logs.append(Region("Mummy", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("220 Assurance", player).connect(logs[1])
+    multiworld.get_region("Assurance", player).connect(logs[1])
     logs.append(Region("Swing of Things", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("41 Experimentation", player).connect(logs[2])
+    multiworld.get_region("Experimentation", player).connect(logs[2])
     logs.append(Region("Autopilot", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("41 Experimentation", player).connect(logs[3],
+    multiworld.get_region("Experimentation", player).connect(logs[3],
                                                              rule=lambda state: (state.has("Stamina Bar", player)
                                                                                  or options.starting_stamina_bars > 0))
     logs.append(Region("Golden Planet", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("85 Rend", player).connect(logs[4])
+    multiworld.get_region("Rend", player).connect(logs[4])
     logs.append(Region("Goodbye", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("21 Offense", player).connect(logs[5])
+    multiworld.get_region("Offense", player).connect(logs[5])
     logs.append(Region("Screams", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("220 Assurance", player).connect(logs[6],
+    multiworld.get_region("Assurance", player).connect(logs[6],
                                                              rule=lambda state: (state.has("Stamina Bar", player)
                                                                                  or options.starting_stamina_bars > 0))
     logs.append(Region("Idea", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("20 Adamance", player).connect(logs[7])
+    multiworld.get_region("Adamance", player).connect(logs[7])
     logs.append(Region("Nonsense", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("85 Rend", player).connect(logs[8])
+    multiworld.get_region("Rend", player).connect(logs[8])
     logs.append(Region("Hiding", player, multiworld))
     multiworld.regions.append(logs[-1])
     company_building.connect(logs[9])
     logs.append(Region("Real Job", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("56 Vow", player).connect(logs[10])
+    multiworld.get_region("Vow", player).connect(logs[10])
     logs.append(Region("Desmond", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("7 Dine", player).connect(logs[11],
+    multiworld.get_region("Dine", player).connect(logs[11],
                                                    rule=lambda state:
                                                    (state.has("Stamina Bar", player)
                                                         or options.starting_stamina_bars > 0))
     logs.append(Region("Team Synergy", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("20 Adamance", player).connect(logs[12])
+    multiworld.get_region("Adamance", player).connect(logs[12])
     logs.append(Region("Letter of Resignation", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("8 Titan", player).connect(logs[13],
+    multiworld.get_region("Titan", player).connect(logs[13],
                                                    rule=lambda state:
                                                    (state.has("Stamina Bar", player)
                                                         or options.starting_stamina_bars > 0))
     logs.append(Region("Work", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("68 Artifice", player).connect(logs[14])
+    multiworld.get_region("Artifice", player).connect(logs[14])
 
     # Generate locations
     for i in range(options.grade_locations_per_moon.value):

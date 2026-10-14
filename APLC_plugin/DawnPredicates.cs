@@ -18,7 +18,7 @@ namespace APLC
                 if (priorPredicate == null) return TerminalPurchaseResult.Success();
                 return priorPredicate.CanPurchase();
             }
-            if (MultiworldHandler.Instance.GetReceivedItems().Contains(moonInfo.Level.PlanetName) || (!moonInfo.Level.spawnEnemiesAndScrap && MultiworldHandler.Instance.GetReceivedItems().Contains("Company Building")))
+            if (MultiworldHandler.Instance.GetReceivedItems().Contains(moonInfo.GetNumberlessPlanetName()) || (!moonInfo.Level.spawnEnemiesAndScrap && MultiworldHandler.Instance.GetReceivedItems().Contains("Company Building")))
             {
                 return TerminalPurchaseResult.Success();
             }
@@ -106,9 +106,8 @@ namespace APLC
     }
     public class DawnCompat
     {
-        public static void AssignPurchasePredicate(SelectableLevel moon)
+        public static void AssignPurchasePredicate(DawnMoonInfo moonInfo)
         {
-            DawnMoonInfo moonInfo = moon.GetDawnInfo();
             if (moonInfo.DawnPurchaseInfo.PurchasePredicate is not APLCMoonPurchasePredicate)
                 moonInfo.DawnPurchaseInfo.PurchasePredicate = new APLCMoonPurchasePredicate(moonInfo, moonInfo.DawnPurchaseInfo.PurchasePredicate);
         }

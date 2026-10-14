@@ -126,7 +126,7 @@ public class MwState
         ES3.Save("ArchipelagoPassword", _connectionInfo.Password, GameNetworkManager.Instance.currentSaveFileName);
 
         if (GetStartingMoon() != null) ES3.Save("APStartingMoon", GetStartingMoon(), GameNetworkManager.Instance.currentSaveFileName);
-        StartOfRound.Instance.defaultPlanet = StartOfRound.Instance.levels.FirstOrDefault(l => l.PlanetName.ToLower().Contains(GetStartingMoon().ToLower()))?.levelID ?? 0;
+        StartOfRound.Instance.defaultPlanet = LethalContent.Moons.Values.FirstOrDefault(l => l.GetNumberlessPlanetName().ToLower().Contains(GetStartingMoon().ToLower()))?.Level.levelID ?? 0;
 
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
         {
@@ -188,25 +188,7 @@ public class MwState
             //Moons
             foreach (var moon in _moons)
             {
-                string moonName = moon.PlanetName;
-                int keywordIndex = 0;
-                int terminalIndex = 0;
-                for (int j = 0; j < t.terminalNodes.allKeywords.Length; j++)
-                {
-                    if (t.terminalNodes.allKeywords[j].name == "Route")
-                    {
-                        keywordIndex = j;
-                    }
-                }
-
-                for (var j = 0; j < t.terminalNodes.allKeywords[keywordIndex].compatibleNouns.Length; j++)
-                {
-                    if (String.Join("", moonName.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries))
-                .Contains(t.terminalNodes.allKeywords[keywordIndex].compatibleNouns[j].noun.word.ToLower(), StringComparison.OrdinalIgnoreCase))
-                    {
-                        terminalIndex = j;
-                    }
-                }
+                string moonName = moon.GetDawnInfo().GetNumberlessPlanetName();
 
                 // data to use: difficulty = (routePrice + maxTotalScrapValue + sum((item.maxValue - item.minValue)*10/item.rarity) + 30(maxEnemyPowerCount + maxOutsideEnemyPowerCount + maxDaytimeEnemyPowerCount)
                 // + sum(enemy.enemyType.powerLevel * 1000 / enemy.rarity)) * factorySizeMultiplier * 0.5
@@ -355,7 +337,7 @@ public class MwState
                         scrap.Clear();
                         foreach (string scrapName in scrapToMoonMap.Keys)
                         {
-                            if (scrapToMoonMap[scrapName].Any(moonName => moon.PlanetName.Contains(moonName)))
+                            if (scrapToMoonMap[scrapName].Any(moonName => moon.GetDawnInfo().GetNumberlessPlanetName().Contains(moonName)))
                             {
                                 string keyName = scrapName;
                                 if (scrapName.Contains("AP Apparatus"))
@@ -520,7 +502,7 @@ public class MwState
         //Moons
         foreach (var moon in _moons)
         {
-            Items item = ItemCreator.CreateMoonItem(moon);
+            Items item = ItemCreator.CreateMoonItem(moon.GetDawnInfo());
             _itemMap.Add(item._name, item);
         }
         if (randomizeCompany)
@@ -529,10 +511,10 @@ public class MwState
             {
                 if (moon.PlanetName.Contains("Gordion"))
                 {
-                    Items item = ItemCreator.CreateMoonItem(moon);
+                    Items item = ItemCreator.CreateMoonItem(moon.GetDawnInfo());
                     _itemMap.Add(item._name, item);
                 }
-                else if (!moon.spawnEnemiesAndScrap) DawnCompat.AssignPurchasePredicate(moon);
+                else if (!moon.spawnEnemiesAndScrap) DawnCompat.AssignPurchasePredicate(moon.GetDawnInfo());
             }
         }
 
@@ -719,11 +701,11 @@ public class MwState
             moon = GetCurrentMoonName().ToLower();
         }
 
-        foreach (var level in StartOfRound.Instance.levels)
+        foreach (var level in LethalContent.Moons.Values)
         {
-            if (level.PlanetName.ToLower().Contains(moon.ToLower()))
+            if (level.GetNumberlessPlanetName().ToLower().Contains(moon.ToLower()))
             {
-                moon = level.PlanetName.ToLower();
+                moon = level.GetNumberlessPlanetName().ToLower();
             }
         }
 
@@ -741,7 +723,7 @@ public class MwState
         string[] moonNames = new string[_moons.Length];
         for (int i = 0; i < _moons.Length; i++)
         {
-            moonNames[i] = _moons[i].PlanetName;
+            moonNames[i] = _moons[i].GetDawnInfo().GetNumberlessPlanetName();
         }
 
         if (_trophyModeComplete[^1] is string)
@@ -778,7 +760,7 @@ public class MwState
 
     public string GetCurrentMoonName()
     {
-        return StartOfRound.Instance.currentLevel.PlanetName;
+        return StartOfRound.Instance.currentLevel.GetDawnInfo().GetNumberlessPlanetName();
     }
 
     /** 
@@ -891,7 +873,7 @@ public class MwState
             _apConnection.Disconnect();
         }
         
-        string planetName = StartOfRound.Instance.currentLevel.PlanetName;
+        string planetName = StartOfRound.Instance.currentLevel.GetDawnInfo().GetNumberlessPlanetName();
 
         if (StartOfRound.Instance.currentLevel.spawnEnemiesAndScrap) 
         {
@@ -902,7 +884,7 @@ public class MwState
         }
         else 
         {
-            if (_apConnection.GetSlotSettingInt("randomizecompany") == 1 && GetItemMap<MoonItems>("71 Gordion").GetTotal() < 1)
+            if (_apConnection.GetSlotSettingInt("randomizecompany") == 1 && GetItemMap<MoonItems>("Gordion").GetTotal() < 1)
             {
                 _sentToMoon = false;
             }
@@ -994,7 +976,7 @@ public class MwState
             {
                 try
                 {
-                    _itemMap["71 Gordion"].OnReceived();
+                    _itemMap["Gordion"].OnReceived();
                 }
                 catch (Exception e)
                 {
@@ -1055,12 +1037,11 @@ public class MwState
         var moonName = Instance.GetStartingMoon();
         if (moonName == null) return false;
 
-        for ( var i = 0; i < StartOfRound.Instance.levels.Length; i++)
+        foreach(var moon in LethalContent.Moons.Values)
         {
-            var level = StartOfRound.Instance.levels[i];
-            if (level.PlanetName.ToLower().Contains(moonName.ToLower()))
+            if (moon.GetNumberlessPlanetName().ToLower().Contains(moonName.ToLower()))
             {
-                moonInd = i;
+                moonInd = moon.Level.levelID;
             }
         }
 

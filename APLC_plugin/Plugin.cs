@@ -123,7 +123,7 @@ public class Plugin : BaseUnityPlugin
          */
 
         JObject jsonObject = new();
-        jsonObject["moons"] = new JArray(logic.Item3.Select(moon => moon.PlanetName));
+        jsonObject["moons"] = new JArray(logic.Item3.Select(moon => moon.GetDawnInfo().GetNumberlessPlanetName()));
         jsonObject["store"] = new JArray(logic.Item1.Select(item => item.itemName));
         jsonObject["vehicles"] = new JArray(logic.Item2.Select(vehicle => vehicle.vehicleDisplayName));
         jsonObject["scrap"] = JObject.FromObject(logic.Item5.ToDictionary(kvp => kvp.Key, kvp => new JArray(kvp.Value.Select(spawnInfo => new JObject
@@ -229,6 +229,7 @@ public class Plugin : BaseUnityPlugin
             if (!moon.spawnEnemiesAndScrap || moon.PlanetName.Contains("Liquidation")) continue;
 
             DawnMoonInfo moonInfo = moon.GetDawnInfo(); // can use Item.spawnPrefab.GetComponent<GrabbableObject>().GetType() to check if the item is a LungProp
+            string moonName = moonInfo.GetNumberlessPlanetName();
 
             // begin scrap --------------------------------------------------------------------------------------------------------------
             Dictionary<string, double> scrapRarityDict = [];
@@ -291,16 +292,16 @@ public class Plugin : BaseUnityPlugin
             {
                 string itemName = item;
                 if (itemName.Contains("AP Apparatus - ") &&
-                    moon.PlanetName.Contains(
-                        itemName[new Range(15, itemName.Length)]))
+                    moonName.Contains(
+                        itemName[new Range(15, itemName.Length)]))  // may not be necessary anymore
                 {
-                    itemName = $"AP Apparatus - {moon.PlanetName}";
+                    itemName = $"AP Apparatus - {moonName}";
                 }else if (itemName.Contains("AP Apparatus - ") && !itemName.Contains("Custom"))
                 {
                     continue;
                 }
 
-                string scrapName = itemName.Equals("AP Apparatus - Custom") ? $"AP Apparatus - {moon.PlanetName}" : itemName;
+                string scrapName = itemName.Equals("AP Apparatus - Custom") ? $"AP Apparatus - {moonName}" : itemName;
                 scrapMap.TryAdd(scrapName, new Collection<(string moon_name, double chance)>());
                 var moonsSpawnedOn = scrapMap.Get(scrapName);
                 bool existsAlready = false;
@@ -308,7 +309,7 @@ public class Plugin : BaseUnityPlugin
                 for (var index = 0; index < moonsSpawnedOn.Count; index++)
                 {
                     var entry = moonsSpawnedOn[index];
-                    if (entry.Item1 == moon.PlanetName)
+                    if (entry.Item1 == moonName)
                     {
                         moonsSpawnedOn[index] = new ValueTuple<string, double>(entry.Item1,
                         entry.Item2 + rarity / totalRarity);
@@ -319,7 +320,7 @@ public class Plugin : BaseUnityPlugin
                 if (!existsAlready)
                 {
                     scrapMap.Get(scrapName)
-                        .Add(new ValueTuple<string, double>(moon.PlanetName, rarity / totalRarity));
+                        .Add(new ValueTuple<string, double>(moonName, rarity / totalRarity));
                 }
             }
 
@@ -340,7 +341,7 @@ public class Plugin : BaseUnityPlugin
             {
                 totalIntRarity = 1;
             }
-            scrapMap.Get("Apparatus").Add(new ValueTuple<string, double>(moon.PlanetName, (double)facilityRarity / totalIntRarity));
+            scrapMap.Get("Apparatus").Add(new ValueTuple<string, double>(moonName, (double)facilityRarity / totalIntRarity));
         }
 #if ENABLE_PROFILER
         s_GetScrapLogic.End();
@@ -357,12 +358,13 @@ public class Plugin : BaseUnityPlugin
 
         foreach (SelectableLevel moon in moons)
         {
+            string moonName = moon.GetDawnInfo().GetNumberlessPlanetName();
             if (!moon.spawnEnemiesAndScrap || moon.PlanetName.Contains("Liquidation")) continue;
 
             if (moon.canSpawnMold)
             {
-                bestiaryMap.Get("Kidnapper fox").Add(new ValueTuple<string, double>(moon.PlanetName, 1));
-                bestiaryMap.Get("Vain shroud").Add(new ValueTuple<string, double>(moon.PlanetName, 1));
+                bestiaryMap.Get("Kidnapper fox").Add(new ValueTuple<string, double>(moonName, 1));
+                bestiaryMap.Get("Vain shroud").Add(new ValueTuple<string, double>(moonName, 1));
             }
 
             var daytime = moon.DaytimeEnemies;
@@ -403,7 +405,7 @@ public class Plugin : BaseUnityPlugin
                         for (var index = 0; index < moonsSpawnedOn.Count; index++)
                         {
                             var entry = moonsSpawnedOn[index];
-                            if (entry.Item1 == moon.PlanetName)
+                            if (entry.Item1 == moonName)
                             {
                                 moonsSpawnedOn[index] = new ValueTuple<string, double>(entry.Item1,
                                     entry.Item2 + (double)item.rarity / totalRarity[0]);
@@ -414,7 +416,7 @@ public class Plugin : BaseUnityPlugin
                         if (!existsAlready)
                         {
                             bestiaryMap.Get(creatureName)
-                                .Add(new ValueTuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[0]));
+                                .Add(new ValueTuple<string, double>(moonName, (double)item.rarity / totalRarity[0]));
                         }
                     }
                     catch (Exception)
@@ -424,11 +426,11 @@ public class Plugin : BaseUnityPlugin
 
                     if (item.enemyType.enemyName.Contains("Red Locust"))
                     {
-                        scrapMap.Get("Hive").Add(new ValueTuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[0]));
+                        scrapMap.Get("Hive").Add(new ValueTuple<string, double>(moonName, (double)item.rarity / totalRarity[0]));
                     }
                     else if (item.enemyType.enemyName.Contains("GiantKiwi"))
                     {
-                        scrapMap.Get("Sapsucker Egg").Add(new ValueTuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[0]));
+                        scrapMap.Get("Sapsucker Egg").Add(new ValueTuple<string, double>(moonName, (double)item.rarity / totalRarity[0]));
                     }
                 }
             if (totalRarity[1] > 0)
@@ -452,7 +454,7 @@ public class Plugin : BaseUnityPlugin
                         for (var index = 0; index < moonsSpawnedOn.Count; index++)
                         {
                             var entry = moonsSpawnedOn[index];
-                            if (entry.Item1 == moon.PlanetName)
+                            if (entry.Item1 == moonName)
                             {
                                 moonsSpawnedOn[index] = new ValueTuple<string, double>(entry.Item1,
                                     entry.Item2 + (double)item.rarity / totalRarity[1]);
@@ -463,7 +465,7 @@ public class Plugin : BaseUnityPlugin
                         if (!existsAlready)
                         {
                             bestiaryMap.Get(creatureName)
-                                .Add(new ValueTuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[1]));
+                                .Add(new ValueTuple<string, double>(moonName, (double)item.rarity / totalRarity[1]));
                         }
                     }
                     catch (Exception)
@@ -494,7 +496,7 @@ public class Plugin : BaseUnityPlugin
                             for (var index = 0; index < moonsSpawnedOn.Count; index++)
                             {
                                 var entry = moonsSpawnedOn[index];
-                                if (entry.Item1 == moon.PlanetName)
+                                if (entry.Item1 == moonName)
                                 {
                                     moonsSpawnedOn[index] = new ValueTuple<string, double>(entry.Item1,
                                         entry.Item2 + (double)item.rarity / totalRarity[2]);
@@ -505,7 +507,7 @@ public class Plugin : BaseUnityPlugin
                             if (!existsAlready)
                             {
                                 bestiaryMap.Get(creatureName)
-                                    .Add(new ValueTuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[2]));
+                                    .Add(new ValueTuple<string, double>(moonName, (double)item.rarity / totalRarity[2]));
                             }
                         }
                         catch (Exception)
@@ -515,11 +517,11 @@ public class Plugin : BaseUnityPlugin
 
                         if (item.enemyType.enemyName.Contains("Nutcracker"))
                         {
-                            scrapMap.Get("Shotgun").Add(new ValueTuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[2]));
+                            scrapMap.Get("Shotgun").Add(new ValueTuple<string, double>(moonName, (double)item.rarity / totalRarity[2]));
                         }
                         if (item.enemyType.enemyName.Contains("Butler"))
                         {
-                            scrapMap.Get("Kitchen knife").Add(new ValueTuple<string, double>(moon.PlanetName, (double)item.rarity / totalRarity[2]));
+                            scrapMap.Get("Kitchen knife").Add(new ValueTuple<string, double>(moonName, (double)item.rarity / totalRarity[2]));
                         }
                     }
                 }
