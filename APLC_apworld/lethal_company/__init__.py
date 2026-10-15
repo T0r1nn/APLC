@@ -1,4 +1,5 @@
 import string
+import math
 
 from .items import LethalCompanyItem, item_table, generate_items, calculate_credits, get_default_item_map
 from .locations import LethalCompanyLocation, generate_locations, locations, get_default_location_map
@@ -173,6 +174,12 @@ class LethalCompanyWorld(World):
             for name in names:
                 if not name == self.initial_world:
                     itempool.append(name)
+        
+        if self.options.game_mode == 2:
+            num_credits = math.ceil((self.location_count - len(itempool)) * (self.options.credit_replacement.value/100.0))
+            self.required_credit_count = round(num_credits * (self.options.required_credits.value/100.0))
+            for _ in range(num_credits):
+                itempool.append("Company Credit")
 
         # Fill remaining items with randomly generated junk
         while len(itempool) < self.location_count:
@@ -196,7 +203,6 @@ class LethalCompanyWorld(World):
         create_events(self.multiworld, self.player, self.options)
 
     def fill_slot_data(self):
-        calculate_credits(self)
 
         slot_data = {
             "worldversion": self.world_version.as_simple_string(),
