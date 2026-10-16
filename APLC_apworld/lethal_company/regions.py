@@ -3,7 +3,6 @@ from .locations import generate_bestiary_moons, generate_scrap_moons, locations,
 from .rules import check_item_accessible, can_buy
 from .options import LCOptions
 from typing import TYPE_CHECKING
-import random
 
 if TYPE_CHECKING:
     from . import LethalCompanyWorld
@@ -96,7 +95,7 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
         #
         # to avoid the third condition as much as possible, filter the list for scrap that only spawn on a few (less than max_moons) moons and gradually increase max_moons over time
         while selected_scrap_count < random_scrap_required and len(scrap_choices) > 0:
-            scrap_choice = list(filtered_choices.keys())[random.randint(0, len(filtered_choices) - 1)]
+            scrap_choice = list(filtered_choices.keys())[world.random.randint(0, len(filtered_choices) - 1)]
             if selected_scrap_count >= target_unique_moons or \
                         len(set(seen_moons).intersection(set(filtered_choices[scrap_choice]))) == 0 or \
                         len(scrap_choices) <= random_scrap_required - selected_scrap_count:
@@ -107,7 +106,7 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
             if selected_scrap_count >= target_unique_moons and max_moons < len(world.slot_item_data.moons):
                 max_moons = len(world.slot_item_data.moons)
                 filtered_choices = dict(filter(lambda s, m=max_moons: len(s[1]) <= m, scrap_choices.items()))
-            elif len(filtered_choices) < 1:
+            elif len(filtered_choices) <= 1:
                 max_moons += 2
                 filtered_choices = dict(filter(lambda s, m=max_moons: len(s[1]) <= m, scrap_choices.items()))
                 while len(filtered_choices) < 1 and len(scrap_choices) > 0:
