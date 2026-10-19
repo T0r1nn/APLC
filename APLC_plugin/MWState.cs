@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
+using Archipelago.MultiClient.Net.Models;
 using Dawn;
 using GameNetcodeStuff;
 using Newtonsoft.Json.Linq;
@@ -179,6 +180,35 @@ public class MwState
                 {
                     dine.minScrap /= 5;
                     dine.maxScrap /= 5;
+                }
+                DawnItemInfo apparatusInfo = LethalContent.Items[NamespacedKey<DawnItemInfo>.From("archipelago_scrap", "ap_apparatus__dine")];
+                DawnItemInfo chestInfo = LethalContent.Items[NamespacedKey<DawnItemInfo>.From("archipelago_scrap", "archipelago_chest")];
+                int apparatusRarity = chestInfo.ScrapInfo.Weights.GetFor(dine.GetDawnInfo(), ctx: new SpawnWeightContext()) ?? 0;
+                if (apparatusRarity <= 10)
+                {
+                    apparatusInfo.ScrapInfo.Weights = new ProviderTable<int?, DawnMoonInfo, SpawnWeightContext>(
+                    [
+                        new MatchingKeyWeightContextualProvider<DawnMoonInfo, SpawnWeightContext>(dine.GetDawnInfo().Key.AsTyped<DawnMoonInfo>(), new SimpleWeighted(apparatusRarity * 10))
+                    ]);
+                    SpawnableItemWithRarity aprat = dine.spawnableScrap.FirstOrDefault(scrap => scrap.spawnableItem.Equals(apparatusInfo.Item));
+                    if (aprat != null)
+                    {
+                        aprat.rarity *= 10;
+                    }
+                }
+                int chestRarity = chestInfo.ScrapInfo.Weights.GetFor(dine.GetDawnInfo(), ctx: new SpawnWeightContext()) ?? 0;
+                if (chestRarity <= 10)
+                {
+                    chestInfo.ScrapInfo.Weights = new ProviderTable<int?, DawnMoonInfo, SpawnWeightContext>(
+                    [
+                        new MatchingKeyWeightContextualProvider<DawnMoonInfo, SpawnWeightContext>(dine.GetDawnInfo().Key.AsTyped<DawnMoonInfo>(), new SimpleWeighted(chestRarity * 7)),
+                        .. chestInfo.ScrapInfo.Weights._providers
+                    ]);
+                    SpawnableItemWithRarity apchest = dine.spawnableScrap.FirstOrDefault(scrap => scrap.spawnableItem.Equals(chestInfo.Item));
+                    if (apchest != null)
+                    {
+                        apchest.rarity *= 7;
+                    }
                 }
             }
 
