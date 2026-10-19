@@ -165,6 +165,11 @@ class LethalCompanyWorld(World):
         self.multiworld.push_precollected(self.create_item(unlock))
         self.initial_world = unlock
 
+        for _ in range(self.options.starting_inventory_slots.value):
+            self.multiworld.push_precollected(self.create_item("Inventory Slot"))
+        for _ in range(self.options.starting_stamina_bars.value):
+            self.multiworld.push_precollected(self.create_item("Stamina Bar"))
+
     def create_items(self) -> None:
         # Generate item pool
         itempool: List = []

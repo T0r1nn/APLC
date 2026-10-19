@@ -49,10 +49,8 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
 
     terminal.connect(company_building, rule=lambda state: (state.has("Company Building", player)
                                                            or options.randomize_company_building == 0))
-    company_building.connect(quotas, rule=lambda state: ((state.has("Inventory Slot", player, 2 - options.starting_inventory_slots.value)
-                                                          or options.starting_inventory_slots.value >= 2)
-                                                         and (state.has("Stamina Bar", player)
-                                                              or options.starting_stamina_bars.value > 0)))
+    company_building.connect(quotas, rule=lambda state: (state.has("Inventory Slot", player, 3)
+                                                         and state.has("Stamina Bar", player, 2)))
 
     bestiary_moons = generate_bestiary_moons(world, options.min_monster_chance.value/100.0)
     scrap_moons = generate_scrap_moons(world, options.min_scrap_chance.value/100.0) if options.modify_scrap_spawns.value == 0 \
@@ -151,12 +149,10 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
                     for r_moon in world.slot_item_data.moons:
                         multiworld.get_region(r_moon, player).connect(multiworld.get_region(scrap_name, player),
                                                                       rule=lambda state, s_name=scrap_name:
-                                                                      ((state.has("Stamina Bar", player)
-                                                                        or options.starting_stamina_bars.value > 0)
+                                                                      (state.has("Stamina Bar", player)
                                                                         and ((check_item_accessible(state, "Shovel",
                                                                                                   player, options)
-                                                                                and (state.has("Stamina Bar", player, 3 - options.starting_stamina_bars.value)    # we eventually need to put 4 stamina and 4 slots in the item pool and grant them as starting items so we don't have to do this jank
-                                                                                    or options.starting_stamina_bars.value >= 3
+                                                                                and (state.has("Stamina Bar", player, 3)
                                                                                     or (s_name != "Sapsucker Egg")))
                                                                             or (s_name != "Shotgun"
                                                                                 and s_name != "Kitchen knife"
@@ -164,12 +160,10 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
                 elif moon != "excluded":
                     multiworld.get_region(moon, player).connect(multiworld.get_region(scrap_name, player),
                                                                 rule=lambda state, s_name=scrap_name:
-                                                                ((state.has("Stamina Bar", player)
-                                                                    or options.starting_stamina_bars.value > 0)
+                                                                (state.has("Stamina Bar", player)
                                                                     and ((check_item_accessible(state, "Shovel",
                                                                                                 player, options)
-                                                                            and (state.has("Stamina Bar", player, 3 - options.starting_stamina_bars.value)
-                                                                                or options.starting_stamina_bars.value >= 3
+                                                                            and (state.has("Stamina Bar", player, 3)
                                                                                 or (s_name != "Sapsucker Egg")))
                                                                         or (s_name != "Shotgun"
                                                                             and s_name != "Kitchen knife"
@@ -186,9 +180,7 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
     multiworld.get_region("Experimentation", player).connect(logs[2])
     logs.append(Region("Autopilot", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("Experimentation", player).connect(logs[3],
-                                                             rule=lambda state: (state.has("Stamina Bar", player)
-                                                                                 or options.starting_stamina_bars > 0))
+    multiworld.get_region("Experimentation", player).connect(logs[3], rule=lambda state: state.has("Stamina Bar", player))
     logs.append(Region("Golden Planet", player, multiworld))
     multiworld.regions.append(logs[-1])
     multiworld.get_region("Rend", player).connect(logs[4])
@@ -197,9 +189,7 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
     multiworld.get_region("Offense", player).connect(logs[5])
     logs.append(Region("Screams", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("Assurance", player).connect(logs[6],
-                                                             rule=lambda state: (state.has("Stamina Bar", player)
-                                                                                 or options.starting_stamina_bars > 0))
+    multiworld.get_region("Assurance", player).connect(logs[6], rule=lambda state: state.has("Stamina Bar", player))
     logs.append(Region("Idea", player, multiworld))
     multiworld.regions.append(logs[-1])
     multiworld.get_region("Adamance", player).connect(logs[7])
@@ -214,19 +204,13 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
     multiworld.get_region("Vow", player).connect(logs[10])
     logs.append(Region("Desmond", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("Dine", player).connect(logs[11],
-                                                   rule=lambda state:
-                                                   (state.has("Stamina Bar", player)
-                                                        or options.starting_stamina_bars > 0))
+    multiworld.get_region("Dine", player).connect(logs[11], rule=lambda state: state.has("Stamina Bar", player))
     logs.append(Region("Team Synergy", player, multiworld))
     multiworld.regions.append(logs[-1])
     multiworld.get_region("Adamance", player).connect(logs[12])
     logs.append(Region("Letter of Resignation", player, multiworld))
     multiworld.regions.append(logs[-1])
-    multiworld.get_region("Titan", player).connect(logs[13],
-                                                   rule=lambda state:
-                                                   (state.has("Stamina Bar", player)
-                                                        or options.starting_stamina_bars > 0))
+    multiworld.get_region("Titan", player).connect(logs[13], rule=lambda state: state.has("Stamina Bar", player))
     logs.append(Region("Work", player, multiworld))
     multiworld.regions.append(logs[-1])
     multiworld.get_region("Artifice", player).connect(logs[14])
@@ -239,8 +223,7 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
             multiworld.get_location(f"{moon} Grade Location {i+1}", player).access_rule = (lambda state:
                                                                                         (state.has("Stamina Bar", player)
                                                                                             or options.starting_stamina_bars > 0)
-                                                                                        and (state.has("Inventory Slot", player, 2)
-                                                                                            or options.starting_inventory_slots > 1))
+                                                                                        and state.has("Inventory Slot", player, 2))
 
     for i in range(options.num_quotas.value):
         add_location(player, f"Quota Location {i+1}", quotas)

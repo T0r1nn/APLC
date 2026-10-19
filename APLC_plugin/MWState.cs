@@ -445,8 +445,6 @@ public class MwState
 #endif
         Terminal terminal = Plugin.Instance.GetTerminal();
         bool randomizeCompany = false;
-        int inventorySlots = 4;
-        int staminaBars = 4;
         int scanner = 1;
         bool randomizeTerminal = false;
         int minMoney = 100;
@@ -454,8 +452,6 @@ public class MwState
         try
         {
             randomizeCompany = _apConnection.GetSlotSettingInt("randomizecompany") == 1;
-            inventorySlots = _apConnection.GetSlotSettingInt("inventorySlots", 4);
-            staminaBars = _apConnection.GetSlotSettingInt("staminaBars", 4);
             scanner = 1 - _apConnection.GetSlotSettingInt("scanner");
             randomizeTerminal = _apConnection.GetSlotSettingInt("randomizeterminal") == 1;
             minMoney = _apConnection.GetSlotSettingInt("minMoney", 100);
@@ -519,8 +515,8 @@ public class MwState
         }
 
         //Player Upgrades
-        _itemMap.Add("Inventory Slot", ItemCreator.CreateUpgradeItem("Inventory Slot", inventorySlots));
-        _itemMap.Add("Stamina Bar", ItemCreator.CreateUpgradeItem("Stamina Bar", staminaBars));
+        _itemMap.Add("Inventory Slot", ItemCreator.CreateUpgradeItem("Inventory Slot", 0));
+        _itemMap.Add("Stamina Bar", ItemCreator.CreateUpgradeItem("Stamina Bar", 0));
         _itemMap.Add("Scanner", ItemCreator.CreateUpgradeItem("Scanner", scanner));
         _itemMap.Add("Strength Training", ItemCreator.CreateUpgradeItem("Strength Training", 0));
         if (randomizeTerminal)

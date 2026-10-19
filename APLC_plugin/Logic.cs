@@ -39,7 +39,7 @@ public class Logic
 
         for (var i = 0; i < MultiworldHandler.Instance.GetSlotSettingInt("numQuota"); i++)
         {
-            companyBuilding.AddLocation(new Location($"Quota Location {i+1}", state=>state.Has("Stamina Bar") && state.Has("Inventory Slot", 2)));
+            companyBuilding.AddLocation(new Location($"Quota Location {i+1}", state=>state.Has("Stamina Bar", 2) && state.Has("Inventory Slot", 3)));
         }
         companyBuilding.AddLocation("Log - Hiding");
 
