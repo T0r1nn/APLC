@@ -33,7 +33,7 @@ public class TerminalCommands
         Plugin.Logger.LogDebug("Setting up tracker command");
         // Tracker command
         TerminalCommandBasicInformation trackerCommandInfo = new TerminalCommandBasicInformation("ApTracker", "Archipelago", 
-            "Shows all logically reachable locations", ClearText.Result | ClearText.Query);
+            "Displays all logically reachable locations", ClearText.Result | ClearText.Query);
         DawnLib.DefineTerminalCommand(NamespacedKey<DawnTerminalCommandInfo>.From("aplc", "tracker_command"), trackerCommandInfo, builder =>
         {
             builder.SetKeywords(["tracker", "aptracker"]);
@@ -47,7 +47,7 @@ public class TerminalCommands
         Plugin.Logger.LogDebug("Setting up progress command");
         // Progress command
         TerminalCommandBasicInformation progressCommandInfo = new TerminalCommandBasicInformation("ApProgress", "Archipelago", 
-            "Shows current progress towards the chosen goal", ClearText.Result | ClearText.Query);
+            "Displays your current progress towards the chosen goal", ClearText.Result | ClearText.Query);
         DawnLib.DefineTerminalCommand(NamespacedKey<DawnTerminalCommandInfo>.From("aplc", "progress_command"), progressCommandInfo, builder =>
         {
             builder.SetKeywords(["progress", "approgress"]);
@@ -60,8 +60,8 @@ public class TerminalCommands
 
         Plugin.Logger.LogDebug("Setting up scrap command");
         // Scrap command
-        TerminalCommandBasicInformation scrapCommandInfo = new TerminalCommandBasicInformation("ApScrap", "Archipelago", 
-            "Returns the names of every scrap that is accessible on the moon that was entered as an argument.", ClearText.Result | ClearText.Query);
+        TerminalCommandBasicInformation scrapCommandInfo = new TerminalCommandBasicInformation("ApScrap", "Archipelago",
+            "If the first argument is the name of a moon, displays the names of all scrap found on that moon and whether they are logically accessible. If the first argument is the name of a scrap, displays the names of every moon that the scrap spawns on.", ClearText.Result | ClearText.Query);
         DawnLib.DefineTerminalCommand(NamespacedKey<DawnTerminalCommandInfo>.From("aplc", "scrap_command"), scrapCommandInfo, builder =>
         {
             builder.SetKeywords(["scrap", "apscrap"]);
@@ -74,8 +74,8 @@ public class TerminalCommands
 
         Plugin.Logger.LogDebug("Setting up hint command");
         // Hint command
-        TerminalCommandBasicInformation hintCommandInfo = new TerminalCommandBasicInformation("ApHints", "Archipelago", 
-            "Shows all received hints that haven't yet been completed.", ClearText.Result | ClearText.Query);
+        TerminalCommandBasicInformation hintCommandInfo = new TerminalCommandBasicInformation("ApHints", "Archipelago",
+            "Displays all hints in your world that haven't been completed, where the item is, and whether the item is logically accessible.", ClearText.Result | ClearText.Query);
         DawnLib.DefineTerminalCommand(NamespacedKey<DawnTerminalCommandInfo>.From("aplc", "hint_command"), hintCommandInfo, builder =>
         {
             builder.SetKeywords(["hint", "hints", "aphint", "aphints"]);
@@ -89,7 +89,7 @@ public class TerminalCommands
         Plugin.Logger.LogDebug("Setting up config command");
         // Config command
         TerminalCommandBasicInformation configCommandInfo = new TerminalCommandBasicInformation("ApConfig", "Archipelago", 
-            "Shows and sets the value of config settings for APLC.", ClearText.Result | ClearText.Query);    // not working
+            "Displays and sets the value of config settings for APLC.", ClearText.Result | ClearText.Query);    // not working
         DawnLib.DefineTerminalCommand(NamespacedKey<DawnTerminalCommandInfo>.From("aplc", "config_command"), configCommandInfo, builder =>
         {
             builder.SetKeywords(["config", "apconfig"]);
@@ -103,7 +103,7 @@ public class TerminalCommands
         Plugin.Logger.LogDebug("Setting up filler command");
         // Filler command
         TerminalCommandBasicInformation fillerCommandInfo = new TerminalCommandBasicInformation("ApFiller", "Archipelago", 
-            "See and use available filler items.", ClearText.Result | ClearText.Query);    // not working
+            "View and use available filler items.", ClearText.Result | ClearText.Query);    // not working
         DawnLib.DefineTerminalCommand(NamespacedKey<DawnTerminalCommandInfo>.From("aplc", "filler_command"), fillerCommandInfo, builder =>
         {
             builder.SetKeywords(["filler", "apfiller"]);
@@ -129,7 +129,7 @@ public class TerminalCommands
         commandInfo.Add(worldCommandInfo);
 
         TerminalCommandBasicInformation logicCommandInfo = new TerminalCommandBasicInformation("ApLogic", "Archipelago",
-            "Get logic output for use in custom apworlds\nUsage: 'aplogic {copy|print}'", ClearText.Result | ClearText.Query);
+            "Retrieves logic used in custom apworlds\nUsage: 'aplogic {copy|print|export}'", ClearText.Result | ClearText.Query);
         DawnLib.DefineTerminalCommand(NamespacedKey<DawnTerminalCommandInfo>.From("aplc", "logic_command"), logicCommandInfo, builder =>
         {
             builder.SetKeywords(["aplogic"]);

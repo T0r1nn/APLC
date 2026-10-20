@@ -4,13 +4,12 @@ from Options import Toggle, DeathLink, Range, Choice, PerGameCommonOptions, Free
 
 class Goal(Choice):
     """
-    Trophy Mode: Each moon has a rare trophy scrap, the goal is to get all of them (11 with no custom moons)
+    Trophy Mode: To win, the player needs to collect one trophy apparatus from each moon (11 with no custom moons).
 
-    Collectathon: A new rare scrap is added. To win, you need to collect a certain amount of it as well as a selection 
-    of random scrap
+    Collectathon: A new rare scrap is added, called the Archipelago Chest. To win, the player must collect a certain 
+    amount of them as well as a selection of random scrap
 
-    Credit Hunt: You must receive a number of company credit items as specified by the yaml to win. This can lead to
-    very short or very long games depending on your settings
+    Credit Hunt: To win, the player needs to receive a specific amount of company credit items from the multiworld.
     """
     display_name = "Game Mode"
     option_trophy = 0
@@ -23,7 +22,8 @@ class Goal(Choice):
 
 class GradeLocationsPerMoon(Range):
     """
-    The total number of locations you can complete per moon for reaching the required grade
+    The total number of grade locations generated for each moon. A grade location is completed by collecting enough 
+    scrap in one day to obtain the minimum required grade on a moon.
     """
     display_name = "Grade Locations Per Moon"
     range_start = 1
@@ -35,12 +35,12 @@ class GradeLocationsPerMoon(Range):
 
 class MoneyPerQuotaLocation(Range):
     """
-    The total amount of quota you must obtain to complete each quota location
+    The total amount of quota a player must obtain to complete each quota location
     For example, if money per quota location is 500, you need to reach 500 total quota for each quota location
     """
     display_name = "Money Per Quota Location"
-    range_start = 100
-    range_end = 10000
+    range_start = 50
+    range_end = 2000
     default = 400
     slot = True
     slot_name = "moneyPerQuotaLocation"
@@ -67,15 +67,15 @@ class NumQuotas(Range):
 class QuotaCheckpointEvery(Range):
     """
     How many quota locations the player must complete between each checkpoint unlock event.
-    With the default values (num_quotas=20 and quota_checkpoint_every=5), quota locations will be grouped into four
-    spheres with five locations each. This helps ensure that important early items are not stuck behind late quota
+    With the default values (num_quotas=15 and quota_checkpoint_every=3), quota locations will be grouped into five
+    spheres with three locations each. This helps ensure that important early items are not stuck behind late quota
     locations. Set higher than num_quotas to disable checkpoints entirely and group all quota locations into a single
     sphere.
     """
     display_name = "Quota Checkpoint Every"
     range_start = 1
     range_end = 20
-    default = 5
+    default = 3
     slot = False
 
 
@@ -130,7 +130,7 @@ class DayIncreaseWeight(Range):
 class DayDecreaseWeight(Range):
     """
     The weight of less time traps in the filler/trap pool. 
-    When consumed, this trap reduces the time available to complete the current quota by one day.
+    When consumed, this trap reduces the remaining time to complete the current quota by one day.
     """
     display_name = "Less Time Weight"
     range_start = 0
@@ -188,7 +188,7 @@ class CollectathonRandomScrap(Range):
 
 class MinMoneyPerMoneyItem(Range):
     """
-    The minimum amount of money that a money item can give you.
+    The minimum amount of money that a money item can give the player.
     """
     display_name = "Min Money Per Money Item"
     range_start = 0
@@ -200,7 +200,7 @@ class MinMoneyPerMoneyItem(Range):
 
 class MaxMoneyPerMoneyItem(Range):
     """
-    The maximum amount of money that a money item can give you.
+    The maximum amount of money that a money item can give the player.
     This can't be less than min_money.
     """
     display_name = "Max Money Per Money Item"
@@ -213,7 +213,9 @@ class MaxMoneyPerMoneyItem(Range):
 
 class StartingMoon(FreeText):
     """
-    The moon you start on
+    This is the only moon the player will have access to at the start of a multiworld. All other moons are locked until 
+    received.
+    This can be set to any moon name, or 'randomize', which randomly selects a starting moon.
     """
     display_name = "Starting Moon"
     default = "randomize"
@@ -255,7 +257,7 @@ Speed increase
 
 class StartingInventorySlots(Range):
     """
-    The number of inventory slots you start the game with
+    The player begins with this many inventory slots, and the rest have to be unlocked.
     """
     display_name = "Starting Inventory Slots"
     range_start = 1
@@ -267,7 +269,7 @@ class StartingInventorySlots(Range):
 
 class StartingStaminaBars(Range):
     """
-    The number of stamina bars you start the game with
+    The player begins with this many stamina bars, and the rest have to be unlocked.
     """
     display_name = "Starting Stamina Bars"
     range_start = 0
@@ -279,7 +281,7 @@ class StartingStaminaBars(Range):
 
 class RandomizeScanner(Toggle):
     """
-    Locks the scanner behind an item in the multiworld, rendering you unable to scan until you receive it
+    Locks the scanner behind an item in the multiworld, rendering the player unable to scan until they receive it
     """
     display_name = "Randomize Scanner"
     default = 0
@@ -289,8 +291,8 @@ class RandomizeScanner(Toggle):
 
 class MonsterSpawnChance(Range):
     """
-    Monsters will be in logic if their spawn chance on an in-logic moon is greater than or equal to this percentage. 
-    A value of less than 3% can significantly slow down your game.
+    A bestiary entry will not contain important items if the monster's spawn chance on an in-logic moon is greater than or equal to this percentage. 
+    A value of less than 3% can significantly slow down games.
     """
     display_name = "Minimum Monster Spawn Chance"
     default = 5
@@ -313,7 +315,7 @@ class WeightReducers(Range):
 class Scrapsanity(Toggle):
     """
     Enables scrapsanity, which adds locations for collecting each scrap for the first time.
-    Adds >50 locations to the randomizer
+    Warning: adds >50 locations to the randomizer
     """
     display_name = "Scrapsanity"
     slot = True
@@ -322,8 +324,9 @@ class Scrapsanity(Toggle):
 
 class ScrapSpawnChance(Range):
     """
-    Scrap will be in logic if their spawn chance on an in-logic moon is greater than or equal to this percentage. A
-    value of less than 3% can significantly slow down your game.
+    Scrap will not contain important items or be required for the Collectathon goal if their spawn chance on an in-logic 
+    moon is less than this percentage. A value of less than 3% can significantly slow down games, while values above 6% 
+    exclude most scrap.
     """
     display_name = "Minimum Scrap Spawn Chance"
     default = 3
@@ -335,7 +338,7 @@ class ScrapSpawnChance(Range):
 
 class ExcludeShotguns(Toggle):
     """
-    Guarantees that locations which can only be obtained through killing will not contain important items
+    Guarantees that scrapsanity locations requiring the player to kill an enemy will not contain important items
     """
     display_name = "Exclude Killing"
     slot = True
@@ -362,7 +365,7 @@ class ExcludeEgg(Toggle):
 
 class SplitMoonGrades(Toggle):
     """
-    Enables customizing the required grade for easy, medium, and hard moons separately.
+    Allows the player to customize the required grade for easy, medium, and hard moons separately.
     """
     display_name = "Split Moon Grades"
     slot = True
@@ -419,8 +422,8 @@ class HardMoonLocationGrade(Choice):
 
 class RandomizeCompanyBuilding(Toggle):
     """
-    Locks the company building behind an item in the multiworld, preventing you from routing there until you receive 
-    the item
+    Locks the company building behind an item in the multiworld, preventing the player from routing there to sell scrap until they receive 
+    the required item
     """
     display_name = "Randomize Company Building"
     slot = True
@@ -430,7 +433,7 @@ class RandomizeCompanyBuilding(Toggle):
 
 class RandomizeTerminal(Toggle):
     """
-    Locks the terminal behind an item in the multiworld, preventing its use until you receive the item
+    Locks the terminal behind an item in the multiworld, preventing its use until the player receive the item
     """
     display_name = "Randomize Terminal"
     slot = True
@@ -453,7 +456,7 @@ class RequiredCredits(Range):
     """
     Credit Hunt mode:
     The percent of company credits in the pool that are required to beat the game. If there are 20 credits in the pool
-    and you set this to 75, then once 75% of the 20 credits, or 15 credits, are collected, you will win
+    and the player sets this to 75, then once 75% of the 20 credits, or 15 credits, are collected, they will win
     """
     display_name = "Required Credits"
     range_start = 10
@@ -463,8 +466,8 @@ class RequiredCredits(Range):
 
 class ModifyScrapSpawns(Toggle):
     """
-    Modifies the spawn rates and availability of scrap on every moon to make sure that you are never stuck for a long
-    time trying to find one specific scrap to unlock an important item.
+    Modifies the spawn rates and availability of scrap on every moon to reduce the chance of a player getting stuck for 
+    a long time trying to find a rare item that is blocking progression.
     """
     display_name = "Modify Scrap Spawns"
     default = 0
