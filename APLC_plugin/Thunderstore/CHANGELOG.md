@@ -1,13 +1,39 @@
 # Changelog
 
 ## 0.8.0
+
 **<details><summary>Fixes</summary>**
-* TBD
+* update NetcodePatch
+* made custom company moons (Galetry, Oxyde, etc.) share logic with Gordion
+* scrap that spawns in custom interiors is now in logic
+* GetGameLogicString now builds the output step-by-step from json instead of awkwardly concatenating strings
+* fixed an issue where non-scrap (flashlights, spray paint, etc.) in a custom moon's scrap pool could have locations
+* MASSIVELY reduced the time taken to connect to a multiworld slot (large packs may still experience long connection times)
+* fixed moon difficulty calculation (i.e. 'hard' moons now reference the correct yaml setting for grade locations)
+* fixed an issue where some moons incorrectly cost credits to visit
+* prevented an error during GetGameLogic if scrapRarityDict already had a scrap of the same name
+* added more space after the locked moon text
+* GetGameLogic is no longer called twice when connecting to a multiworld (resulting in better performance)
+* cloned scrap now parent to the ship correctly
+* the custom world name set using the 'apworld' command is now correctly shared with clients
 </details>
+
 **<details><summary>Changes</summary>**
-* TBD
+* completely switched from LethalLevelLoader to DawnLib and replaced commands that used LethalAPI Terminal with Dawn commands
+* log and bestiary are now modified with Dawn and removed redundant quota tracker
+* updated MultiClient.Net to the latest stable build
+* simplified item classes
+* collecting a goal item now displays a notification in the ship (this may be blocked by the report card)
+* added a new option for calculating moon difficulty
+* added the moon grade required for grade locations to the in-game tracker
+* added additional random scrap requirement to the collectathon goal
+* added a mod config option to reduce the amount of scrap that spawns on Dine
+* custom world names (set when using the 'apworld' command) are now saved
+* added a terminal command that gets the logic string without UnityExplorer
+* removed numbers from moon names to simplify item and location names
 </details>
-**NOT COMPATIBLE WITH APWORLDS GENERATED PRIOR TO 0.8.0**
+
+**Not compatible with MULTIWORLDS OR YAMLS generated prior to 0.8.0**
 
 ## 0.7.13
 **<details><summary>Fixes</summary>**
