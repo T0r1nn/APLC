@@ -22,13 +22,12 @@ Then, follow the steps below to setup the randomizer:
 
 ### YAML configuration
 <details>
+
 The first thing you need to do is configure the lethal_company.yaml file. For that, open and edit the YAML to customize 
 your playthrough:
 
 - **name**: The player's chosen slot name. If left blank, {player} or {PLAYER} are replaced with the slot number, 
 while {number} or {NUMBER} will increment once for each duplicate YAML name.
-- **death_link**: Can be 'true' or 'false', when true turns on death link. When a party wipe occurs, a death link is 
-sent, and when a death link is received, a random player dies.
 - **game_mode**: Can be Collectathon, Trophy, or Credit Hunt. In Trophy mode, the player needs to collect one trophy 
 apparatus from each moon. In Collectathon, the player needs to collect a specific amount of AP chest scrap and several 
 randomly chosen scrap. In Credit Hunt, the player needs to receive a specific amount of company credit items from the 
@@ -110,20 +109,25 @@ or useful item.
 progression or useful item.
 - The following are filler items, and they fill the empty spots in the item pool according to their weight values, 
 where higher weighted items will appear more than lower weighted items. All have a minimum of 0 and a maximum of 100
-    - **time_add**: Default is 20. When redeemed, this item adds one day to the current quota (up to 9).
-    - **scrap_clone**: Default is 20. When redeemed, this item duplicates a random piece of scrap in the ship.
+    - **money**: Default is 80. When redeemed, this item grants the player between min_money and max_money credits, 
+    though they don't count toward the quota.
     - **birthday**: Default is 20. When redeemed, this item sends a random store item down in the dropship.
     - **weight_reducers**: Default is 5. These items reduce the carry weight of all scrap. Each strength training item
     reduces the weight of held scrap by (1 - 0.9^x)%, where x is the number of strength training items the player 
     possesses. 
+    - **scrap_clone**: Default is 20. When redeemed, this item duplicates a random piece of scrap in the ship.
+    - **time_add**: Default is 20. When redeemed, this item adds one day to the current quota (up to 9).
+    - **time_trap**: Default is 30. When consumed, this trap reduces the remaining time to complete the current quota 
+    by one day. If quota already has one day left, it'll wait until the next quota to remove a day.
     - **bracken_trap**: Default is 8. When consumed, this trap spawns a bracken on the current moon. If the player is 
     in orbit or at the company moon, this trap will activate the next time the player lands on a valid moon.
     - **haunt_trap**: Default is 4. When consumed, this trap spawns a ghost girl on the current moon. If the player is
     in orbit or at the company moon, this trap will activate the next time the player lands on a valid moon.
-    - **time_trap**: Default is 30. When consumed, this trap reduces the remaining time to complete the current quota 
-    by one day. If quota already has one day left, it'll wait until the next quota to remove a day.
-    - **money**: Default is 80. When redeemed, this item grants the player between min_money and max_money credits, 
-    though they don't count toward the quota.
+- **death_link**: Can be 'true' or 'false', when true turns on death link. When a party wipe occurs, a death link is 
+sent, and when a death link is received, a random player dies.
+- **death_link_percent_scrap_lost**: The percentage of scrap lost when the last living player dies from death link. 0 
+means no scrap is lost, 50 means half of the scrap in the ship is lost, 100 means all scrap is lost. This option does 
+not preserve scrap if the last player dies naturally, and does nothing if death link is disabled.
 </details>
 
 ### Multiworld generation

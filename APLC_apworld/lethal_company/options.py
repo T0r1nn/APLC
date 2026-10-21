@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from Options import Toggle, DeathLink, Range, Choice, PerGameCommonOptions, FreeText, OptionGroup
 
+# Goal Options
 
 class Goal(Choice):
     """
@@ -20,6 +21,54 @@ class Goal(Choice):
     slot_name = "goal"
 
 
+class CollectathonScrapGoal(Range):
+    """
+    The number of collectathon scrap you need to complete the collectathon goal
+    """
+    display_name = "Collectathon Scrap Goal"
+    range_start = 3
+    range_end = 99
+    default = 10
+    slot = True
+    slot_name = "collectathonGoal"
+
+
+class CollectathonRandomScrap(Range):
+    """
+    Collectathon mode:
+    The number of random scrap required in addition to the main collectathon scrap
+    """
+    display_name = "Collectathon Random Scrap"
+    range_start = 0
+    range_end = 20 # len(data["scrap"])
+    default = 5
+
+
+class CreditReplacement(Range):
+    """
+    Credit Hunt mode:
+    Replaces the specified percent of filler items with company credits
+    """
+    display_name = "Credit Replacement"
+    range_start = 5
+    range_end = 80
+    default = 50
+
+
+class RequiredCredits(Range):
+    """
+    Credit Hunt mode:
+    The percent of company credits in the pool that are required to beat the game. If there are 20 credits in the pool
+    and the player sets this to 75, then once 75% of the 20 credits, or 15 credits, are collected, they will win
+    """
+    display_name = "Required Credits"
+    range_start = 10
+    range_end = 100
+    default = 75
+
+
+# Location Options
+
 class GradeLocationsPerMoon(Range):
     """
     The total number of grade locations generated for each moon. A grade location is completed by collecting enough 
@@ -31,19 +80,6 @@ class GradeLocationsPerMoon(Range):
     default = 3
     slot = True
     slot_name = "gradeLocationsPerMoon"
-
-
-class MoneyPerQuotaLocation(Range):
-    """
-    The total amount of quota a player must obtain to complete each quota location
-    For example, if money per quota location is 500, you need to reach 500 total quota for each quota location
-    """
-    display_name = "Money Per Quota Location"
-    range_start = 50
-    range_end = 2000
-    default = 400
-    slot = True
-    slot_name = "moneyPerQuotaLocation"
 
 
 class NumQuotas(Range):
@@ -79,137 +115,63 @@ class QuotaCheckpointEvery(Range):
     slot = False
 
 
-class BrackenTrapWeight(Range):
+class MoneyPerQuotaLocation(Range):
     """
-    The weight of bracken traps in the filler/trap pool.
-    When consumed, this trap spawns a bracken on the current or next moon visited.
+    The total amount of quota a player must obtain to complete each quota location
+    For example, if money per quota location is 500, you need to reach 500 total quota for each quota location
     """
-    display_name = "Bracken Trap Weight"
-    range_start = 0
-    range_end = 100
-    default = 8
-    slot = False
-
-
-class HauntTrapWeight(Range):
-    """
-    The weight of haunt traps in the filler/trap pool.
-    When consumed, this trap spawns a ghost girl on the current or next moon visited.
-    """
-    display_name = "Haunt Trap Weight"
-    range_start = 0
-    range_end = 100
-    default = 4
-    slot = False
-
-
-class MoneyWeight(Range):
-    """
-    The weight of money items in the filler/trap pool. 
-    When redeemed, this item grants between min_money and max_money credits, though they don't count toward the quota.
-    """
-    display_name = "Money Weight"
-    range_start = 0
-    range_end = 100
-    default = 80
-    slot = False
-
-
-class DayIncreaseWeight(Range):
-    """
-    The weight of more time items in the filler/trap pool. 
-    When redeemed, this item adds one day to the current quota (up to 9).
-    """
-    display_name = "More Time Weight"
-    range_start = 0
-    range_end = 100
-    default = 20
-    slot = False
-
-
-class DayDecreaseWeight(Range):
-    """
-    The weight of less time traps in the filler/trap pool. 
-    When consumed, this trap reduces the remaining time to complete the current quota by one day.
-    """
-    display_name = "Less Time Weight"
-    range_start = 0
-    range_end = 100
-    default = 30
-    slot = False
-
-
-class ScrapDupeWeight(Range):
-    """
-    The weight of clone scrap items in the filler/trap pool. 
-    When redeemed, this item duplicates a random piece of scrap in the ship.
-    """
-    display_name = "Scrap Cloning Weight"
-    range_start = 0
-    range_end = 100
-    default = 20
-    slot = False
-
-
-class BirthdayGiftWeight(Range):
-    """
-    The weight of birthday gifts in the filler/trap pool. 
-    When redeemed, this item sends a random store item down in the dropship.
-    """
-    display_name = "Birthday Gift Weight"
-    range_start = 0
-    range_end = 100
-    default = 20
-    slot = False
-
-
-class CollectathonScrapGoal(Range):
-    """
-    The number of collectathon scrap you need to complete the collectathon goal
-    """
-    display_name = "Collectathon Scrap Goal"
-    range_start = 3
-    range_end = 99
-    default = 10
+    display_name = "Money Per Quota Location"
+    range_start = 50
+    range_end = 2000
+    default = 400
     slot = True
-    slot_name = "collectathonGoal"
+    slot_name = "moneyPerQuotaLocation"
 
 
-class CollectathonRandomScrap(Range):
+class Scrapsanity(Toggle):
     """
-    Collectathon mode:
-    The number of random scrap required in addition to the main collectathon scrap
+    Enables scrapsanity, which adds locations for collecting each scrap for the first time.
+    Warning: adds >50 locations to the randomizer
     """
-    display_name = "Collectathon Random Scrap"
-    range_start = 0
-    range_end = 20 # len(data["scrap"])
-    default = 5
-
-
-class MinMoneyPerMoneyItem(Range):
-    """
-    The minimum amount of money that a money item can give the player.
-    """
-    display_name = "Min Money Per Money Item"
-    range_start = 0
-    range_end = 1000
-    default = 100
+    display_name = "Scrapsanity"
     slot = True
-    slot_name = "minMoney"
+    slot_name = "scrapsanity"
 
 
-class MaxMoneyPerMoneyItem(Range):
+# Item Options
+
+class RandomizeCompanyBuilding(Toggle):
     """
-    The maximum amount of money that a money item can give the player.
-    This can't be less than min_money.
+    Locks the company building behind an item in the multiworld, preventing the player from routing there to sell scrap until they receive 
+    the required item
     """
-    display_name = "Max Money Per Money Item"
-    range_start = 0
-    range_end = 1000
-    default = 300
+    display_name = "Randomize Company Building"
     slot = True
-    slot_name = "maxMoney"
+    default = 0
+    slot_name = "randomizecompany"
 
+
+class RandomizeScanner(Toggle):
+    """
+    Locks the scanner behind an item in the multiworld, rendering the player unable to scan until they receive it
+    """
+    display_name = "Randomize Scanner"
+    default = 0
+    slot = True
+    slot_name = "scanner"
+
+
+class RandomizeTerminal(Toggle):
+    """
+    Locks the terminal behind an item in the multiworld, preventing its use until the player receive the item
+    """
+    display_name = "Randomize Terminal"
+    slot = True
+    default = 0
+    slot_name = "randomizeterminal"
+
+
+# Starting Options
 
 class StartingMoon(FreeText):
     """
@@ -221,6 +183,32 @@ class StartingMoon(FreeText):
     default = "randomize"
     slot = False
 
+
+class StartingStaminaBars(Range):
+    """
+    The player begins with this many stamina bars, and the rest have to be unlocked.
+    """
+    display_name = "Starting Stamina Bars"
+    range_start = 0
+    range_end = 4
+    default = 4
+    slot = True
+    slot_name = "staminaBars"
+
+
+class StartingInventorySlots(Range):
+    """
+    The player begins with this many inventory slots, and the rest have to be unlocked.
+    """
+    display_name = "Starting Inventory Slots"
+    range_start = 1
+    range_end = 4
+    default = 4
+    slot = True
+    slot_name = "inventorySlots"
+
+
+# Logic Options
 
 class GradeLocationRequiredGrade(Choice):
     """
@@ -237,130 +225,6 @@ class GradeLocationRequiredGrade(Choice):
     default = 2
     slot = True
     slot_name = "allMoonRequiredGrade"
-
-
-"""
-Stuff to add:
-Starting inventory spots replaces enable_inventory_unlock - done
-Starting stamina bars - done
-Scanner - done
-Jumping
-Movement keys
-Holding your breath
-Sprinting - done (0 stamina is the same as no sprinting)
-Random items spawning in the ship - done
-Items added to dropship - done
-Extra quota days - done
-Speed increase
-"""
-
-
-class StartingInventorySlots(Range):
-    """
-    The player begins with this many inventory slots, and the rest have to be unlocked.
-    """
-    display_name = "Starting Inventory Slots"
-    range_start = 1
-    range_end = 4
-    default = 4
-    slot = True
-    slot_name = "inventorySlots"
-
-
-class StartingStaminaBars(Range):
-    """
-    The player begins with this many stamina bars, and the rest have to be unlocked.
-    """
-    display_name = "Starting Stamina Bars"
-    range_start = 0
-    range_end = 4
-    default = 4
-    slot = True
-    slot_name = "staminaBars"
-
-
-class RandomizeScanner(Toggle):
-    """
-    Locks the scanner behind an item in the multiworld, rendering the player unable to scan until they receive it
-    """
-    display_name = "Randomize Scanner"
-    default = 0
-    slot = True
-    slot_name = "scanner"
-
-
-class MonsterSpawnChance(Range):
-    """
-    A bestiary entry will not contain important items if the monster's spawn chance on an in-logic moon is greater than or equal to this percentage. 
-    A value of less than 3% can significantly slow down games.
-    """
-    display_name = "Minimum Monster Spawn Chance"
-    default = 5
-    range_start = 0
-    range_end = 10
-    slot = True
-    slot_name = "minmonsterchance"
-
-
-class WeightReducers(Range):
-    """
-    The total weight of strength training items. Every item received reduces the carry weight of all scrap.
-    """
-    display_name = "Strength Training Weight"
-    default = 5
-    range_start = 0
-    range_end = 100
-
-
-class Scrapsanity(Toggle):
-    """
-    Enables scrapsanity, which adds locations for collecting each scrap for the first time.
-    Warning: adds >50 locations to the randomizer
-    """
-    display_name = "Scrapsanity"
-    slot = True
-    slot_name = "scrapsanity"
-
-
-class ScrapSpawnChance(Range):
-    """
-    Scrap will not contain important items or be required for the Collectathon goal if their spawn chance on an in-logic 
-    moon is less than this percentage. A value of less than 3% can significantly slow down games, while values above 6% 
-    exclude most scrap.
-    """
-    display_name = "Minimum Scrap Spawn Chance"
-    default = 3
-    range_start = 0
-    range_end = 10
-    slot = True
-    slot_name = "minscrapchance"
-
-
-class ExcludeShotguns(Toggle):
-    """
-    Guarantees that scrapsanity locations requiring the player to kill an enemy will not contain important items
-    """
-    display_name = "Exclude Killing"
-    slot = True
-    slot_name = "excludeshotguns"
-
-
-class ExcludeHive(Toggle):
-    """
-    Guarantees that the Hive scrapsanity location will not contain an important item
-    """
-    display_name = "Exclude Hive"
-    slot = True
-    slot_name = "excludehive"
-
-
-class ExcludeEgg(Toggle):
-    """
-    Guarantees that the Sapsucker Egg scrapsanity location will not contain an important item
-    """
-    display_name = "Exclude Egg"
-    slot = True
-    slot_name = "excludeegg"
 
 
 class SplitMoonGrades(Toggle):
@@ -420,48 +284,56 @@ class HardMoonLocationGrade(Choice):
     slot_name = "hardMoonRequiredGrade"
 
 
-class RandomizeCompanyBuilding(Toggle):
+class ScrapSpawnChance(Range):
     """
-    Locks the company building behind an item in the multiworld, preventing the player from routing there to sell scrap until they receive 
-    the required item
+    Scrap will not contain important items or be required for the Collectathon goal if their spawn chance on an in-logic 
+    moon is less than this percentage. A value of less than 3% can significantly slow down games, while values above 6% 
+    exclude most scrap.
     """
-    display_name = "Randomize Company Building"
+    display_name = "Minimum Scrap Spawn Chance"
+    default = 3
+    range_start = 0
+    range_end = 10
     slot = True
-    default = 0
-    slot_name = "randomizecompany"
+    slot_name = "minscrapchance"
 
 
-class RandomizeTerminal(Toggle):
+class MonsterSpawnChance(Range):
     """
-    Locks the terminal behind an item in the multiworld, preventing its use until the player receive the item
+    A bestiary entry will not contain important items if the monster's spawn chance on an in-logic moon is greater than or equal to this percentage. 
+    A value of less than 3% can significantly slow down games.
     """
-    display_name = "Randomize Terminal"
+    display_name = "Minimum Monster Spawn Chance"
+    default = 5
+    range_start = 0
+    range_end = 10
     slot = True
-    default = 0
-    slot_name = "randomizeterminal"
+    slot_name = "minmonsterchance"
 
 
-class CreditReplacement(Range):
+class MinMoneyPerMoneyItem(Range):
     """
-    Credit Hunt mode:
-    Replaces the specified percent of filler items with company credits
+    The minimum amount of money that a money item can give the player.
     """
-    display_name = "Credit Replacement"
-    range_start = 5
-    range_end = 80
-    default = 50
+    display_name = "Min Money Per Money Item"
+    range_start = 0
+    range_end = 1000
+    default = 100
+    slot = True
+    slot_name = "minMoney"
 
 
-class RequiredCredits(Range):
+class MaxMoneyPerMoneyItem(Range):
     """
-    Credit Hunt mode:
-    The percent of company credits in the pool that are required to beat the game. If there are 20 credits in the pool
-    and the player sets this to 75, then once 75% of the 20 credits, or 15 credits, are collected, they will win
+    The maximum amount of money that a money item can give the player.
+    This can't be less than min_money.
     """
-    display_name = "Required Credits"
-    range_start = 10
-    range_end = 100
-    default = 75
+    display_name = "Max Money Per Money Item"
+    range_start = 0
+    range_end = 1000
+    default = 300
+    slot = True
+    slot_name = "maxMoney"
 
 
 class ModifyScrapSpawns(Toggle):
@@ -473,6 +345,131 @@ class ModifyScrapSpawns(Toggle):
     default = 0
     slot = True
     slot_name = "fixscrapsanity"
+
+
+class ExcludeShotguns(Toggle):
+    """
+    Guarantees that scrapsanity locations requiring the player to kill an enemy will not contain important items
+    """
+    display_name = "Exclude Killing"
+    slot = True
+    slot_name = "excludeshotguns"
+
+
+class ExcludeHive(Toggle):
+    """
+    Guarantees that the Hive scrapsanity location will not contain an important item
+    """
+    display_name = "Exclude Hive"
+    slot = True
+    slot_name = "excludehive"
+
+
+class ExcludeEgg(Toggle):
+    """
+    Guarantees that the Sapsucker Egg scrapsanity location will not contain an important item
+    """
+    display_name = "Exclude Egg"
+    slot = True
+    slot_name = "excludeegg"
+
+# Trap/Filler Weights
+
+class MoneyWeight(Range):
+    """
+    The weight of money items in the filler/trap pool. 
+    When redeemed, this item grants between min_money and max_money credits, though they don't count toward the quota.
+    """
+    display_name = "Money Weight"
+    range_start = 0
+    range_end = 100
+    default = 80
+    slot = False
+
+
+class BirthdayGiftWeight(Range):
+    """
+    The weight of birthday gifts in the filler/trap pool. 
+    When redeemed, this item sends a random store item down in the dropship.
+    """
+    display_name = "Birthday Gift Weight"
+    range_start = 0
+    range_end = 100
+    default = 20
+    slot = False
+
+
+class WeightReducers(Range):
+    """
+    The total weight of strength training items. Every item received reduces the carry weight of all scrap.
+    """
+    display_name = "Strength Training Weight"
+    default = 5
+    range_start = 0
+    range_end = 100
+
+
+class ScrapDupeWeight(Range):
+    """
+    The weight of clone scrap items in the filler/trap pool. 
+    When redeemed, this item duplicates a random piece of scrap in the ship.
+    """
+    display_name = "Scrap Cloning Weight"
+    range_start = 0
+    range_end = 100
+    default = 20
+    slot = False
+
+
+class DayIncreaseWeight(Range):
+    """
+    The weight of more time items in the filler/trap pool. 
+    When redeemed, this item adds one day to the current quota (up to 9).
+    """
+    display_name = "More Time Weight"
+    range_start = 0
+    range_end = 100
+    default = 20
+    slot = False
+
+
+class DayDecreaseWeight(Range):
+    """
+    The weight of less time traps in the filler/trap pool. 
+    When consumed, this trap reduces the remaining time to complete the current quota by one day.
+    """
+    display_name = "Less Time Weight"
+    range_start = 0
+    range_end = 100
+    default = 30
+    slot = False
+
+
+class BrackenTrapWeight(Range):
+    """
+    The weight of bracken traps in the filler/trap pool.
+    When consumed, this trap spawns a bracken on the current or next moon visited.
+    """
+    display_name = "Bracken Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 8
+    slot = False
+
+
+class HauntTrapWeight(Range):
+    """
+    The weight of haunt traps in the filler/trap pool.
+    When consumed, this trap spawns a ghost girl on the current or next moon visited.
+    """
+    display_name = "Haunt Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 4
+    slot = False
+
+
+# Protocols
 
 class DeathLinkScrapLoss(Range):
     """
@@ -486,6 +483,9 @@ class DeathLinkScrapLoss(Range):
     default = 50
     slot = True
     slot_name = "DeathLinkScrapLossPercent"
+
+
+# Unused
 
 class LogicDifficulty(Choice):
     """
@@ -518,6 +518,22 @@ class CustomContent(FreeText):
     slot = False
 
 
+"""
+Stuff to add:
+Starting inventory spots replaces enable_inventory_unlock - done
+Starting stamina bars - done
+Scanner - done
+Jumping
+Movement keys
+Holding your breath
+Sprinting - done (0 stamina is the same as no sprinting)
+Random items spawning in the ship - done
+Items added to dropship - done
+Extra quota days - done
+Speed increase
+"""
+
+
 @dataclass
 class LCOptions(PerGameCommonOptions):
     game_mode: Goal
@@ -525,37 +541,43 @@ class LCOptions(PerGameCommonOptions):
     collectathon_random_scrap: CollectathonRandomScrap
     credit_replacement: CreditReplacement
     required_credits: RequiredCredits
+
     grade_locations_per_moon: GradeLocationsPerMoon
-    money_per_quota_location: MoneyPerQuotaLocation
     num_quotas: NumQuotas
     quota_checkpoint_every: QuotaCheckpointEvery
-    starting_inventory_slots: StartingInventorySlots
-    starting_stamina_bars: StartingStaminaBars
-    randomize_scanner: RandomizeScanner
-    min_monster_chance: MonsterSpawnChance
-    randomize_terminal: RandomizeTerminal
-    randomize_company_building: RandomizeCompanyBuilding
+    money_per_quota_location: MoneyPerQuotaLocation
     scrapsanity: Scrapsanity
-    min_scrap_chance: ScrapSpawnChance
-    exclude_killing: ExcludeShotguns
-    exclude_hive: ExcludeHive
-    exclude_egg: ExcludeEgg
-    modify_scrap_spawns: ModifyScrapSpawns
-    min_money: MinMoneyPerMoneyItem
-    max_money: MaxMoneyPerMoneyItem
+
+    randomize_company_building: RandomizeCompanyBuilding
+    randomize_scanner: RandomizeScanner
+    randomize_terminal: RandomizeTerminal
+
     starting_moon: StartingMoon
-    split_moon_grades: SplitMoonGrades
+    starting_stamina_bars: StartingStaminaBars
+    starting_inventory_slots: StartingInventorySlots
+
     all_moon_required_grade: GradeLocationRequiredGrade
+    split_moon_grades: SplitMoonGrades
     easy_moon_required_grade: EasyMoonLocationGrade
     medium_moon_required_grade: MedMoonLocationGrade
     hard_moon_required_grade: HardMoonLocationGrade
-    time_add: DayIncreaseWeight
-    scrap_clone: ScrapDupeWeight
+    min_scrap_chance: ScrapSpawnChance
+    min_monster_chance: MonsterSpawnChance
+    min_money: MinMoneyPerMoneyItem
+    max_money: MaxMoneyPerMoneyItem
+    modify_scrap_spawns: ModifyScrapSpawns
+    exclude_killing: ExcludeShotguns
+    exclude_hive: ExcludeHive
+    exclude_egg: ExcludeEgg
+
+    money: MoneyWeight
     birthday: BirthdayGiftWeight
     weight_reducers: WeightReducers
+    scrap_clone: ScrapDupeWeight
+    time_add: DayIncreaseWeight
+    time_trap: DayDecreaseWeight
     bracken_trap: BrackenTrapWeight
     haunt_trap: HauntTrapWeight
-    time_trap: DayDecreaseWeight
-    money: MoneyWeight
+
     death_link: DeathLink
     death_link_percent_scrap_lost: DeathLinkScrapLoss
