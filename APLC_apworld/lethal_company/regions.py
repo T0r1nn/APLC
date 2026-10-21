@@ -244,6 +244,8 @@ def create_regions(options: LCOptions, world: "LethalCompanyWorld"):
 
     if options.scrapsanity.value == 1:
         for scrap_name in world.scrap_names:
+            if scrap_name not in scrap_moons: 
+                continue
             if len(scrap_moons[scrap_name]) < 1:
                 import logging
                 logging.warning(f"Cannot find any moon that spawns Scrap - {scrap_name} for player {world.player_name}. This scrap may not be obtainable.")
